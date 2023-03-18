@@ -1,11 +1,17 @@
+#include "LuaState.hpp"
+
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/core/class_db.hpp>
 
 using namespace godot;
+using namespace luagdextension;
 
-void initialize(ModuleInitializationLevel level) {
+static void initialize(ModuleInitializationLevel level) {
     if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
         return;
     }
+
+    ClassDB::register_class<LuaState>();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(
