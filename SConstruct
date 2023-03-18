@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-env = SConscript("godot-cpp/SConstruct")
+env = SConscript("lib/godot-cpp/SConstruct")
 
 env.Tool("compilation_db")
 compiledb = env.CompilationDatabase("build/compile_commands.json")
