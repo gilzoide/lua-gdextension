@@ -3,7 +3,7 @@ env = SConscript("lib/godot-cpp/SConstruct")
 
 # Add support for generating compilation database files
 env.Tool("compilation_db")
-compiledb = env.CompilationDatabase("build/compile_commands.json")
+compiledb = env.CompilationDatabase("compile_commands.json")
 env.Alias("compiledb", compiledb)
 
 # Lua defines
@@ -23,14 +23,14 @@ env.Append(CPPPATH=["lib/sol2/include", "lib/lua"])
 sources = ["src/main.cpp", "src/LuaState.cpp", "lib/lua/onelua.c"]
 if env["platform"] == "macos":
     library = env.SharedLibrary(
-        "build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(
+        "addons/lua-gdextension/build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(
             env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=sources,
     )
 else:
     library = env.SharedLibrary(
-        "build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=sources,
     )
 
