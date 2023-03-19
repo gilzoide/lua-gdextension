@@ -1,4 +1,7 @@
+#include <string_view>
+
 #include "LuaState.hpp"
+#include "lua_utils.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
 
@@ -25,16 +28,7 @@ void LuaState::_bind_methods() {
 
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA)));
-}
-
-void *LuaState::lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
-	if (nsize == 0) {
-		memfree(ptr);
-		return nullptr;
-	}
-	else {
-		return memrealloc(ptr, nsize);
-	}
+	ClassDB::bind_method(D_METHOD("do_string", "chunk"), &LuaState::do_string);
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -86,6 +80,12 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 			lua_state.open_libraries(sol::lib::utf8);
 		}
 	}
+}
+
+Variant LuaState::do_string(String chunk) {
+	CharString chunk_utf8 = chunk.utf8();
+	std::string_view lua_code_view(chunk_utf8.get_data(), chunk_utf8.length());
+	return to_variant(lua_state.safe_script(lua_code_view, sol::script_pass_on_error));
 }
 
 }

@@ -11,9 +11,6 @@ namespace luagdextension {
 class LuaState : public RefCounted {
 	GDCLASS(LuaState, RefCounted);
 
-private:
-	sol::state lua_state;
-
 protected:
 	static void _bind_methods();
 
@@ -53,10 +50,12 @@ public:
 		// ----- Godot ----
 	};
 
-	static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-
 	LuaState();
 	void open_libraries(BitField<Library> libraries);
+	Variant do_string(String chunk);
+
+private:
+	sol::state lua_state;
 };
 
 }
