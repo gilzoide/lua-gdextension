@@ -16,3 +16,6 @@ build/*
 *.dylib
 *.framework
 compile_commands.json
+
+# Test GDScript files
+*.gd

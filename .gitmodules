@@ -1,9 +1,9 @@
 [submodule "godot-cpp"]
 	path = lib/godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
+[submodule "lua"]
+	path = lib/lua
+	url = https://github.com/lua/lua.git
 [submodule "sol2"]
 	path = lib/sol2
 	url = https://github.com/ThePhD/sol2.git
-[submodule "lib/lua"]
-	path = lib/lua
-	url = https://github.com/lua/lua.git

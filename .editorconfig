@@ -7,8 +7,10 @@ indent_style = space
 indent_size = 2
 insert_final_newline = true
 
-[*.{c,cpp,h,hpp,py}]
+[*.{c,cpp,h,hpp}]
+indent_style = tab
 indent_size = 4
 
 [Sconstruct]
+indent_style = space
 indent_size = 4
