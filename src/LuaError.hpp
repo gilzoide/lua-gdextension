@@ -35,6 +35,8 @@ class LuaError : public RefCounted {
 protected:
 	static void _bind_methods();
 
+	String _to_string() const;
+
 public:
 	enum Status {
 		OK = LUA_OK,
