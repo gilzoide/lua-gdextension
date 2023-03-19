@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "LuaError.hpp"
 #include "LuaState.hpp"
 
 #include <godot_cpp/godot.hpp>
@@ -32,6 +33,7 @@ static void initialize(ModuleInitializationLevel level) {
 		return;
 	}
 
+	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
 }
 

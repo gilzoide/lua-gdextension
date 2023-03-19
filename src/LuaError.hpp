@@ -19,57 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <string_view>
+#ifndef __LUA_ERROR_HPP__
+#define __LUA_ERROR_HPP__
 
-#include "LuaError.hpp"
-#include "lua_utils.hpp"
-
-#include <godot_cpp/core/error_macros.hpp>
-#include <godot_cpp/core/memory.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <sol/sol.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
-	if (nsize == 0) {
-		if (ptr != nullptr) {
-			memfree(ptr);
-		}
-		return nullptr;
-	}
-	else {
-		return memrealloc(ptr, nsize);
-	}
-}
+class LuaError : public RefCounted {
+	GDCLASS(LuaError, RefCounted);
 
-Variant to_variant(const sol::stack_proxy_base& stack) {
-	// TODO
-	return Variant();
-}
+protected:
+	static void _bind_methods();
 
-Variant to_variant(const sol::protected_function_result& function_result) {
-	if (!function_result.valid()) {
-		LuaError *error = memnew(LuaError);
-		error->set_status((LuaError::Status) function_result.status());
-		error->set_message(((sol::error) function_result).what());
-		return error;
-	}
+public:
+	enum Status {
+		OK = LUA_OK,
+		YIELDED = LUA_YIELD,
+		RUNTIME = LUA_ERRRUN,
+		MEMORY = LUA_ERRMEM,
+		HANDLER = LUA_ERRERR,
+		GC = LUA_ERRGCMM,
+		SYNTAX = LUA_ERRSYNTAX,
+		FILE = LUA_ERRFILE,
+	};
 
-	switch (function_result.return_count()) {
-		case 0:
-			return Variant();
+	String get_message() const;
+	void set_message(const String& message);
 
-		case 1:
-			return to_variant(function_result[0]);
+	Status get_status() const;
+	void set_status(Status status);
 
-		default:
-			auto arr = Array();
-			for (auto it = function_result.cbegin(); it != function_result.cend(); it++) {
-				arr.append(to_variant(*it));
-			}
-			return arr;
-	}
-}
+private:
+	Status status;
+	String message;
+};
 
 }
+VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
+
+#endif

@@ -19,57 +19,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <string_view>
-
 #include "LuaError.hpp"
-#include "lua_utils.hpp"
 
-#include <godot_cpp/core/error_macros.hpp>
-#include <godot_cpp/core/memory.hpp>
-
-using namespace godot;
+#include <godot_cpp/classes/object.hpp>
+#include <godot_cpp/core/class_db.hpp>
 
 namespace luagdextension {
 
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
-	if (nsize == 0) {
-		if (ptr != nullptr) {
-			memfree(ptr);
-		}
-		return nullptr;
-	}
-	else {
-		return memrealloc(ptr, nsize);
-	}
+void LuaError::_bind_methods() {
+	// enum Status
+	BIND_ENUM_CONSTANT(OK);
+	BIND_ENUM_CONSTANT(YIELDED);
+	BIND_ENUM_CONSTANT(RUNTIME);
+	BIND_ENUM_CONSTANT(MEMORY);
+	BIND_ENUM_CONSTANT(HANDLER);
+	BIND_ENUM_CONSTANT(GC);
+	BIND_ENUM_CONSTANT(SYNTAX);
+	BIND_ENUM_CONSTANT(FILE);
+
+	ClassDB::bind_method(D_METHOD("get_message"), &LuaError::get_message);
+	ClassDB::bind_method(D_METHOD("set_message", "message"), &LuaError::set_message);
+	ClassDB::bind_method(D_METHOD("get_status"), &LuaError::get_status);
+	ClassDB::bind_method(D_METHOD("set_status", "status"), &LuaError::set_status);
+
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "message"), "set_message", "get_message");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "status"), "set_status", "get_status");
 }
 
-Variant to_variant(const sol::stack_proxy_base& stack) {
-	// TODO
-	return Variant();
+String LuaError::get_message() const {
+	return message;
 }
 
-Variant to_variant(const sol::protected_function_result& function_result) {
-	if (!function_result.valid()) {
-		LuaError *error = memnew(LuaError);
-		error->set_status((LuaError::Status) function_result.status());
-		error->set_message(((sol::error) function_result).what());
-		return error;
-	}
+void LuaError::set_message(const String& message) {
+	this->message = message;
+}
 
-	switch (function_result.return_count()) {
-		case 0:
-			return Variant();
+LuaError::Status LuaError::get_status() const {
+	return status;
+}
 
-		case 1:
-			return to_variant(function_result[0]);
-
-		default:
-			auto arr = Array();
-			for (auto it = function_result.cbegin(); it != function_result.cend(); it++) {
-				arr.append(to_variant(*it));
-			}
-			return arr;
-	}
+void LuaError::set_status(Status status) {
+	this->status = status;
 }
 
 }
