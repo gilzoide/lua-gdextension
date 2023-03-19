@@ -19,26 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
+#ifndef __GODOT_UTILS_HPP__
+#define __GODOT_UTILS_HPP__
 
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/variant/variant.hpp>
-#include <sol/sol.hpp>
+#include <string>
+#include <string_view>
+
+#include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/variant/string.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-Variant to_variant(const sol::stack_proxy_base& stack);
-Variant to_variant(const sol::protected_function_result& function_result);
-
-struct FileReaderData {
-	FileAccess *file;
-	PackedByteArray bytes;
-};
-const char *file_reader(lua_State *L, void *userdata, size_t *size);
+std::string to_std_string(const String& s);
+std::string_view to_string_view(const String& s);
+String error_to_string(Error error);
 
 }
 

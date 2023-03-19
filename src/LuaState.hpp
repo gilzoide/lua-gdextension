@@ -72,8 +72,10 @@ public:
 	};
 
 	LuaState();
+
 	void open_libraries(BitField<Library> libraries);
-	Variant do_string(String chunk);
+	Variant do_string(const String& chunk);
+	Variant do_file(const String& filename);
 
 private:
 	sol::state lua_state;

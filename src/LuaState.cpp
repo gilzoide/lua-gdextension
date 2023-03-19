@@ -22,9 +22,12 @@
 #include <string_view>
 
 #include "LuaState.hpp"
+#include "LuaError.hpp"
+#include "godot_utils.hpp"
 #include "lua_utils.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 
 namespace luagdextension {
 
@@ -50,6 +53,7 @@ void LuaState::_bind_methods() {
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA)));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk"), &LuaState::do_string);
+	ClassDB::bind_method(D_METHOD("do_file", "filename"), &LuaState::do_file);
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -103,10 +107,22 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 	}
 }
 
-Variant LuaState::do_string(String chunk) {
-	CharString chunk_utf8 = chunk.utf8();
-	std::string_view lua_code_view(chunk_utf8.get_data(), chunk_utf8.length());
-	return to_variant(lua_state.safe_script(lua_code_view, sol::script_pass_on_error));
+Variant LuaState::do_string(const String& chunk) {
+	return to_variant(lua_state.safe_script(to_string_view(chunk), sol::script_pass_on_error));
+}
+
+Variant LuaState::do_file(const String& filename) {
+	auto file = FileAccess::open(filename, godot::FileAccess::READ);
+	if (file == nullptr) {
+		LuaError *error = memnew(LuaError);
+		error->set_status(LuaError::Status::FILE);
+		error->set_message(String("Cannot open file '%s': " + error_to_string(FileAccess::get_open_error())) % filename);
+		return error;
+	}
+
+	FileReaderData reader_data;
+	reader_data.file = file.ptr();
+	return to_variant(lua_state.safe_script(file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
 }
 
 }

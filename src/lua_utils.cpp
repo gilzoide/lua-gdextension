@@ -99,4 +99,17 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 	}
 }
 
+const char *file_reader(lua_State *L, void *userdata, size_t *size) {
+	FileReaderData *data = (FileReaderData *) userdata;
+	if (data->file->eof_reached()) {
+		*size = 0;
+		return nullptr;
+	}
+	else {
+		data->bytes = data->file->get_buffer(1024);
+		*size = data->bytes.size();
+		return (const char *) data->bytes.ptr();
+	}
+}
+
 }
