@@ -44,8 +44,35 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 }
 
 Variant to_variant(const sol::stack_proxy_base& stack) {
-	// TODO
-	return Variant();
+	switch (stack.get_type()) {
+		case sol::type::boolean:
+			return stack.get<bool>();
+
+		case sol::type::string: {
+			auto sv = stack.get<std::string_view>();
+			return String::utf8(sv.data(), sv.length());
+		}
+
+		case sol::type::number:
+#if LUA_VERSION_NUM >= 503
+			if (lua_isinteger(stack.lua_state(), stack.stack_index())) {
+				return stack.get<int64_t>();
+			}
+#endif
+			return stack.get<double>();
+
+		case sol::type::thread:
+		case sol::type::function:
+		case sol::type::userdata:
+		case sol::type::lightuserdata:
+		case sol::type::table:
+			WARN_PRINT_ONCE_ED("Lua type not yet supported");
+
+		default:
+		case sol::type::none:
+		case sol::type::lua_nil:
+			return Variant();
+	}
 }
 
 Variant to_variant(const sol::protected_function_result& function_result) {
