@@ -105,22 +105,22 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 
 struct FileReaderData {
 	FileAccess *file;
+	size_t buffer_size;
 	PackedByteArray bytes;
 };
-static const char *file_reader(lua_State *L, void *userdata, size_t *size) {
-	FileReaderData *data = (FileReaderData *) userdata;
+static const char *file_reader(lua_State *L, FileReaderData *data, size_t *size) {
 	if (data->file->eof_reached()) {
 		*size = 0;
 		return nullptr;
 	}
 	else {
-		data->bytes = data->file->get_buffer(1024);
+		data->bytes = data->file->get_buffer(data->buffer_size);
 		*size = data->bytes.size();
 		return (const char *) data->bytes.ptr();
 	}
 }
 
-Variant do_file(sol::state_view& lua_state, const String& filename) {
+Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size) {
 	auto file = FileAccess::open(filename, godot::FileAccess::READ);
 	if (file == nullptr) {
 		LuaError *error = memnew(LuaError);
@@ -131,7 +131,8 @@ Variant do_file(sol::state_view& lua_state, const String& filename) {
 
 	FileReaderData reader_data;
 	reader_data.file = file.ptr();
-	return to_variant(lua_state.safe_script(file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
+	reader_data.buffer_size = buffer_size;
+	return to_variant(lua_state.safe_script((lua_Reader) file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
 }
 
 }

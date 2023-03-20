@@ -53,7 +53,7 @@ void LuaState::_bind_methods() {
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA)));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
-	ClassDB::bind_method(D_METHOD("do_file", "filename"), &LuaState::do_file);
+	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -111,7 +111,7 @@ Variant LuaState::do_string(const String& chunk, const String& chunkname) {
 	return ::luagdextension::do_string(lua_state, chunk, chunkname);
 }
 
-Variant LuaState::do_file(const String& filename) {
+Variant LuaState::do_file(const String& filename, int buffer_size) {
 	return ::luagdextension::do_file(lua_state, filename);
 }
 

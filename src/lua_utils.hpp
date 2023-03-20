@@ -35,7 +35,7 @@ Variant to_variant(const sol::stack_proxy_base& stack);
 Variant to_variant(const sol::protected_function_result& function_result);
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename);
+Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
 
 }
 

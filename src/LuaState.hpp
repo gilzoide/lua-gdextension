@@ -75,7 +75,7 @@ public:
 
 	void open_libraries(BitField<Library> libraries);
 	Variant do_string(const String& chunk, const String& chunkname = "");
-	Variant do_file(const String& filename);
+	Variant do_file(const String& filename, int buffer_size = 1024);
 
 private:
 	sol::state lua_state;
