@@ -21,18 +21,15 @@
  */
 #include "godot_utils.hpp"
 
+#include <godot_cpp/godot.hpp>
+
 using namespace godot;
 
 namespace luagdextension {
 
-std::string to_std(const String& s) {
+std::string to_std_string(const String& s) {
 	CharString as_utf8 = s.utf8();
 	return std::string(as_utf8.get_data(), as_utf8.length());
-}
-
-std::string_view to_string_view(const String& s) {
-	CharString as_utf8 = s.utf8();
-	return std::string_view(as_utf8.get_data(), as_utf8.length());
 }
 
 String error_to_string(Error error) {

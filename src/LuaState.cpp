@@ -108,7 +108,7 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 }
 
 Variant LuaState::do_string(const String& chunk) {
-	return to_variant(lua_state.safe_script(to_string_view(chunk), sol::script_pass_on_error));
+	return to_variant(lua_state.safe_script(to_std_string(chunk), sol::script_pass_on_error));
 }
 
 Variant LuaState::do_file(const String& filename) {
