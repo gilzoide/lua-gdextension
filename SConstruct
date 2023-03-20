@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-env = SConscript("lib/godot-cpp/SConstruct")
+env = SConscript("lib/godot-cpp/SConstruct").Clone()
 
 # Add support for generating compilation database files
 env.Tool("compilation_db")
@@ -7,15 +7,16 @@ compiledb = env.CompilationDatabase("compile_commands.json")
 env.Alias("compiledb", compiledb)
 
 # Lua defines
-env.Append(CFLAGS="-DMAKE_LIB")
+env.Append(CPPDEFINES="MAKE_LIB")
 if env["platform"] == "windows":
-    env.Append(CFLAGS="-DLUA_USE_WINDOWS")
+    env.Append(CPPDEFINES="LUA_USE_WINDOWS")
 elif env["platform"] == "macos":
-    env.Append(CFLAGS="-DLUA_USE_MACOSX")
+    env.Append(CPPDEFINES="LUA_USE_MACOSX")
 elif env["platform"] == "linux":
-    env.Append(CFLAGS="-DLUA_USE_LINUX")
+    env.Append(CPPDEFINES="LUA_USE_LINUX")
 else:
-    env.Append(CFLAGS="-DLUA_USE_POSIX")
+    env.Append(CPPDEFINES="LUA_USE_POSIX")
+
 
 # Build Lua GDExtension
 env.Append(CPPPATH=["lib/sol2/include", "lib/lua"])
