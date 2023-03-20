@@ -28,8 +28,15 @@ using namespace godot;
 namespace luagdextension {
 
 std::string to_std_string(const String& s) {
-	CharString as_utf8 = s.utf8();
-	return std::string(as_utf8.get_data(), as_utf8.length());
+	return to_std_string(s.utf8());
+}
+
+std::string to_std_string(const CharString& s) {
+	return std::string(s.get_data(), s.length());
+}
+
+std::string_view to_string_view(const CharString& s) {
+	return std::string_view(s.get_data(), s.length());
 }
 
 String error_to_string(Error error) {

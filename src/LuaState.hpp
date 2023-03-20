@@ -74,7 +74,7 @@ public:
 	LuaState();
 
 	void open_libraries(BitField<Library> libraries);
-	Variant do_string(const String& chunk);
+	Variant do_string(const String& chunk, const String& chunkname = "");
 	Variant do_file(const String& filename);
 
 private:

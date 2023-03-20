@@ -33,6 +33,8 @@ using namespace godot;
 namespace luagdextension {
 
 std::string to_std_string(const String& s);
+std::string to_std_string(const CharString& s);
+std::string_view to_string_view(const CharString& s);
 String error_to_string(Error error);
 
 }

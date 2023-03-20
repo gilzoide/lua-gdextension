@@ -34,11 +34,8 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 Variant to_variant(const sol::stack_proxy_base& stack);
 Variant to_variant(const sol::protected_function_result& function_result);
 
-struct FileReaderData {
-	FileAccess *file;
-	PackedByteArray bytes;
-};
-const char *file_reader(lua_State *L, void *userdata, size_t *size);
+Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
+Variant do_file(sol::state_view& lua_state, const String& filename);
 
 }
 

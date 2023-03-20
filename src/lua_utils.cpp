@@ -19,10 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <string_view>
-
-#include "LuaError.hpp"
 #include "lua_utils.hpp"
+#include "godot_utils.hpp"
+#include "LuaError.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
@@ -99,7 +98,16 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 	}
 }
 
-const char *file_reader(lua_State *L, void *userdata, size_t *size) {
+Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
+	CharString chunk_utf8 = chunk.utf8();
+	return to_variant(lua_state.safe_script(to_string_view(chunk_utf8), sol::script_pass_on_error, to_std_string(chunkname)));
+}
+
+struct FileReaderData {
+	FileAccess *file;
+	PackedByteArray bytes;
+};
+static const char *file_reader(lua_State *L, void *userdata, size_t *size) {
 	FileReaderData *data = (FileReaderData *) userdata;
 	if (data->file->eof_reached()) {
 		*size = 0;
@@ -110,6 +118,20 @@ const char *file_reader(lua_State *L, void *userdata, size_t *size) {
 		*size = data->bytes.size();
 		return (const char *) data->bytes.ptr();
 	}
+}
+
+Variant do_file(sol::state_view& lua_state, const String& filename) {
+	auto file = FileAccess::open(filename, godot::FileAccess::READ);
+	if (file == nullptr) {
+		LuaError *error = memnew(LuaError);
+		error->set_status(LuaError::Status::FILE);
+		error->set_message(String("Cannot open file '%s': " + error_to_string(FileAccess::get_open_error())) % filename);
+		return error;
+	}
+
+	FileReaderData reader_data;
+	reader_data.file = file.ptr();
+	return to_variant(lua_state.safe_script(file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
 }
 
 }
