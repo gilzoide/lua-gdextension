@@ -32,11 +32,6 @@ namespace luagdextension {
 class LuaError : public RefCounted {
 	GDCLASS(LuaError, RefCounted);
 
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
 public:
 	enum Status {
 		OK = LUA_OK,
@@ -54,6 +49,11 @@ public:
 
 	Status get_status() const;
 	void set_status(Status status);
+
+protected:
+	static void _bind_methods();
+
+	String _to_string() const;
 
 private:
 	Status status;
