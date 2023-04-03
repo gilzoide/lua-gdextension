@@ -26,6 +26,8 @@
 
 namespace luagdextension {
 
+LuaError::LuaError(Status status, const String& message) : status(status), message(message) {}
+
 void LuaError::_bind_methods() {
 	// enum Status
 	BIND_ENUM_CONSTANT(OK);

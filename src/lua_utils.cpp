@@ -76,10 +76,9 @@ Variant to_variant(const sol::stack_proxy_base& stack) {
 
 Variant to_variant(const sol::protected_function_result& function_result) {
 	if (!function_result.valid()) {
-		LuaError *error = memnew(LuaError);
-		error->set_status((LuaError::Status) function_result.status());
-		error->set_message(((sol::error) function_result).what());
-		return error;
+		LuaError::Status status = (LuaError::Status) function_result.status();
+		String message = ((sol::error) function_result).what();
+		return memnew(LuaError(status, message));
 	}
 
 	switch (function_result.return_count()) {

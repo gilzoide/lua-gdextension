@@ -44,6 +44,9 @@ public:
 		FILE = LUA_ERRFILE,
 	};
 
+	LuaError() = default;
+	LuaError(Status status, const String& message);
+
 	String get_message() const;
 	void set_message(const String& message);
 
