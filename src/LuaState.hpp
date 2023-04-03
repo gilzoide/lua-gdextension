@@ -22,6 +22,8 @@
 #ifndef __LUA_STATE_HPP__
 #define __LUA_STATE_HPP__
 
+#include "LuaTable.hpp"
+
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <sol/sol.hpp>
 
@@ -29,8 +31,8 @@ using namespace godot;
 
 namespace luagdextension {
 
-class LuaState : public RefCounted {
-	GDCLASS(LuaState, RefCounted);
+class LuaState : public LuaTable {
+	GDCLASS(LuaState, LuaTable);
 
 public:
 	enum Library {

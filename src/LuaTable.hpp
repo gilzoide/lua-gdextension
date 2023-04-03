@@ -44,7 +44,6 @@ protected:
 	static void _bind_methods();
 	bool _get(const StringName& property_name, Variant& r_value) const;
 
-private:
 	sol::table table;
 };
 

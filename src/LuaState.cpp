@@ -31,7 +31,9 @@
 
 namespace luagdextension {
 
-LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {}
+LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
+	table = lua_state.globals();
+}
 
 void LuaState::_bind_methods() {
 	// Library enum

@@ -29,9 +29,7 @@ using namespace godot::internal;
 
 namespace luagdextension {
 
-LuaTable::LuaTable() {
-	gde_interface->print_error("LuaTable should never be instantiated manually", __PRETTY_FUNCTION__, __FILE__, __LINE__, true);
-}
+LuaTable::LuaTable() {}
 
 LuaTable::LuaTable(sol::table&& table) : table(table) {}
 
@@ -54,6 +52,8 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
+
 	PackedByteArray bytes = property_name.to_utf8_buffer();
 	std::string_view lua_key = to_string_view(bytes);
 	auto value = table[lua_key].get<sol::optional<sol::object>>();
