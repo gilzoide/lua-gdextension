@@ -56,6 +56,8 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA)));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
+	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
+	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -115,6 +117,14 @@ Variant LuaState::do_string(const String& chunk, const String& chunkname) {
 
 Variant LuaState::do_file(const String& filename, int buffer_size) {
 	return ::luagdextension::do_file(lua_state, filename);
+}
+
+LuaTable *LuaState::get_globals() const {
+	return memnew(LuaTable(table));
+}
+
+LuaTable *LuaState::get_registry() const {
+	return memnew(LuaTable(lua_state.registry()));
 }
 
 String LuaState::_to_string() const {

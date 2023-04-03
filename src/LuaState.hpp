@@ -77,6 +77,9 @@ public:
 	Variant do_string(const String& chunk, const String& chunkname = "");
 	Variant do_file(const String& filename, int buffer_size = 1024);
 
+	LuaTable *get_globals() const;
+	LuaTable *get_registry() const;
+
 protected:
 	static void _bind_methods();
 
