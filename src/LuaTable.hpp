@@ -42,7 +42,9 @@ public:
 
 protected:
 	static void _bind_methods();
+	
 	bool _get(const StringName& property_name, Variant& r_value) const;
+	String _to_string() const;
 
 	sol::table table;
 };

@@ -117,4 +117,8 @@ Variant LuaState::do_file(const String& filename, int buffer_size) {
 	return ::luagdextension::do_file(lua_state, filename);
 }
 
+String LuaState::_to_string() const {
+	return String("[LuaState:0x%x]") % (int64_t) lua_state.lua_state();
+}
+
 }

@@ -66,4 +66,8 @@ bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
 	return true;
 }
 
+String LuaTable::_to_string() const {
+	return String("[LuaTable:0x%x]") % (int64_t) table.pointer();
+}
+
 }
