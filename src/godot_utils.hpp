@@ -26,6 +26,7 @@
 #include <string_view>
 
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 
 using namespace godot;
@@ -35,6 +36,7 @@ namespace luagdextension {
 std::string to_std_string(const String& s);
 std::string to_std_string(const CharString& s);
 std::string_view to_string_view(const CharString& s);
+std::string_view to_string_view(const PackedByteArray& bytes);
 String error_to_string(Error error);
 
 }

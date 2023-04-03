@@ -21,9 +21,8 @@
  */
 
 #include "LuaTable.hpp"
+#include "godot_utils.hpp"
 #include "lua_utils.hpp"
-
-#include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 using namespace godot::internal;
@@ -38,10 +37,6 @@ LuaTable::LuaTable(sol::table&& table) : table(table) {}
 
 LuaTable::LuaTable(const sol::table& table) : table(table) {}
 
-void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
-}
-
 Dictionary LuaTable::to_dictionary() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
 
@@ -52,6 +47,23 @@ Dictionary LuaTable::to_dictionary() const {
 		dict[to_variant(key)] = to_variant(value);
 	}
 	return dict;
+}
+
+void LuaTable::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
+}
+
+bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
+	PackedByteArray bytes = property_name.to_utf8_buffer();
+	std::string_view lua_key = to_string_view(bytes);
+	auto value = table[lua_key].get<sol::optional<sol::object>>();
+	if (value.has_value()) {
+		r_value = to_variant(value.value());
+	}
+	else {
+		r_value = nullptr;
+	}
+	return true;
 }
 
 }

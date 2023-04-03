@@ -39,6 +39,10 @@ std::string_view to_string_view(const CharString& s) {
 	return std::string_view(s.get_data(), s.length());
 }
 
+std::string_view to_string_view(const PackedByteArray& bytes) {
+	return std::string_view((const char *) bytes.ptr(), bytes.size());
+}
+
 String error_to_string(Error error) {
 	switch (error) {
 		case OK: return "Ok";
