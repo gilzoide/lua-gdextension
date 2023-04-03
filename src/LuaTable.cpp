@@ -19,25 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
 
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/variant/variant.hpp>
-#include <sol/sol.hpp>
+#include "LuaTable.hpp"
+#include "lua_utils.hpp"
+
+#include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
+using namespace godot::internal;
 
 namespace luagdextension {
 
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-Variant to_variant(const sol::object& obj);
-Variant to_variant(const sol::stack_proxy_base& stack);
-Variant to_variant(const sol::protected_function_result& function_result);
-
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-
+LuaTable::LuaTable() {
+	gde_interface->print_error("LuaTable should never be instantiated manually", __PRETTY_FUNCTION__, __FILE__, __LINE__, true);
 }
 
-#endif
+LuaTable::LuaTable(sol::table&& table) : table(table) {}
+
+LuaTable::LuaTable(const sol::table& table) : table(table) {}
+
+void LuaTable::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
+}
+
+Dictionary LuaTable::to_dictionary() const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
+
+	Dictionary dict;
+	for (auto it = table.cbegin(); it != table.cend(); ++it) {
+		sol::object key, value;
+		std::tie(key, value) = *it;
+		dict[to_variant(key)] = to_variant(value);
+	}
+	return dict;
+}
+
+}

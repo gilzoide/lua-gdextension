@@ -19,24 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
+#ifndef __LUA_TABLE_HPP__
+#define __LUA_TABLE_HPP__
 
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/variant/variant.hpp>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-Variant to_variant(const sol::object& obj);
-Variant to_variant(const sol::stack_proxy_base& stack);
-Variant to_variant(const sol::protected_function_result& function_result);
+class LuaTable : public RefCounted {
+	GDCLASS(LuaTable, RefCounted);
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
+public:
+	LuaTable();
+	LuaTable(sol::table&& table);
+	LuaTable(const sol::table& table);
+
+	Dictionary to_dictionary() const;
+
+protected:
+	static void _bind_methods();
+
+private:
+	sol::table table;
+};
 
 }
 

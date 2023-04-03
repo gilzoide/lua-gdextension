@@ -21,6 +21,7 @@
  */
 #include "LuaError.hpp"
 #include "LuaState.hpp"
+#include "LuaTable.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -35,6 +36,7 @@ static void initialize(ModuleInitializationLevel level) {
 
 	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
+	ClassDB::register_class<LuaTable>();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(

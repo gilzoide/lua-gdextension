@@ -20,11 +20,15 @@
  * SOFTWARE.
  */
 #include "lua_utils.hpp"
+#include "LuaTable.hpp"
 #include "godot_utils.hpp"
 #include "LuaError.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
+#if LUA_VERSION_NUM >= 503
+#include <sol/utility/is_integer.hpp>
+#endif
 
 using namespace godot;
 
@@ -42,29 +46,31 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-Variant to_variant(const sol::stack_proxy_base& stack) {
-	switch (stack.get_type()) {
+Variant to_variant(const sol::object& object) {
+	switch (object.get_type()) {
 		case sol::type::boolean:
-			return stack.get<bool>();
+			return object.as<bool>();
 
 		case sol::type::string: {
-			auto sv = stack.get<std::string_view>();
+			auto sv = object.as<std::string_view>();
 			return String::utf8(sv.data(), sv.length());
 		}
 
 		case sol::type::number:
 #if LUA_VERSION_NUM >= 503
-			if (lua_isinteger(stack.lua_state(), stack.stack_index())) {
-				return stack.get<int64_t>();
+			if (sol::utility::is_integer(object)) {
+				return object.as<int64_t>();
 			}
 #endif
-			return stack.get<double>();
+			return object.as<double>();
+
+		case sol::type::table:
+			return memnew(LuaTable(object.as<sol::table>()));
 
 		case sol::type::thread:
 		case sol::type::function:
 		case sol::type::userdata:
 		case sol::type::lightuserdata:
-		case sol::type::table:
 			WARN_PRINT_ONCE_ED("Lua type not yet supported");
 
 		default:
@@ -72,6 +78,10 @@ Variant to_variant(const sol::stack_proxy_base& stack) {
 		case sol::type::lua_nil:
 			return Variant();
 	}
+}
+
+Variant to_variant(const sol::stack_proxy_base& stack) {
+	return to_variant(stack.get<sol::object>());
 }
 
 Variant to_variant(const sol::protected_function_result& function_result) {
