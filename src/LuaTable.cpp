@@ -35,13 +35,18 @@ LuaTable::LuaTable(sol::table&& table) : table(table) {}
 
 LuaTable::LuaTable(const sol::table& table) : table(table) {}
 
+Variant LuaTable::geti(int64_t i) const {
+	auto value = table[i].get<sol::optional<sol::object>>();
+	return value.has_value() ? to_variant(value.value()) : nullptr;
+}
+
 Dictionary LuaTable::to_dictionary() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
 	
 	Dictionary dict;
-	for (auto it = table.cbegin(); it != table.cend(); ++it) {
+	for (auto it : table) {
 		sol::object key, value;
-		std::tie(key, value) = *it;
+		std::tie(key, value) = it;
 		dict[to_variant(key)] = to_variant(value);
 	}
 	return dict;
@@ -58,6 +63,8 @@ Array LuaTable::to_array() const {
 }
 
 void LuaTable::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
+
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
 	ClassDB::bind_method(D_METHOD("to_array"), &LuaTable::to_array);
 }

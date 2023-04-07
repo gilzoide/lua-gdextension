@@ -38,6 +38,8 @@ public:
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
 
+	Variant geti(int64_t i) const;
+
 	Dictionary to_dictionary() const;
 	Array to_array() const;
 
