@@ -25,7 +25,6 @@
 #include "lua_utils.hpp"
 
 using namespace godot;
-using namespace godot::internal;
 
 namespace luagdextension {
 
@@ -35,9 +34,17 @@ LuaTable::LuaTable(sol::table&& table) : table(table) {}
 
 LuaTable::LuaTable(const sol::table& table) : table(table) {}
 
-Variant LuaTable::geti(int64_t i) const {
-	auto value = table[i].get<sol::optional<sol::object>>();
+Variant LuaTable::geti(int64_t index) const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
+
+	auto value = table[index].get<sol::optional<sol::object>>();
 	return value.has_value() ? to_variant(value.value()) : nullptr;
+}
+
+size_t LuaTable::size() const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
+
+	return table.size();
 }
 
 Dictionary LuaTable::to_dictionary() const {
@@ -64,6 +71,7 @@ Array LuaTable::to_array() const {
 
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
+	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
 	ClassDB::bind_method(D_METHOD("to_array"), &LuaTable::to_array);
@@ -73,14 +81,14 @@ bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
 
 	PackedByteArray bytes = property_name.to_utf8_buffer();
-	std::string_view lua_key = to_string_view(bytes);
-	auto value = table[lua_key].get<sol::optional<sol::object>>();
-	if (value.has_value()) {
-		r_value = to_variant(value.value());
-	}
-	else {
-		r_value = nullptr;
-	}
+	std::string_view index = to_string_view(bytes);
+	
+	auto value = table[index].get<sol::optional<sol::object>>();
+	r_value = value.has_value() ? to_variant(value.value()) : nullptr;
+
+	return true;
+}
+
 	return true;
 }
 
