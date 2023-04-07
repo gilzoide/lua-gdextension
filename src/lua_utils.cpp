@@ -108,8 +108,8 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 }
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
-	CharString chunk_utf8 = chunk.utf8();
-	return to_variant(lua_state.safe_script(to_string_view(chunk_utf8), sol::script_pass_on_error, to_std_string(chunkname)));
+	PackedByteArray bytes = chunk.to_utf8_buffer();
+	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
 struct FileReaderData {
