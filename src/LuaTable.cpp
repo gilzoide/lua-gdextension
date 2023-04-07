@@ -41,6 +41,10 @@ Variant LuaTable::geti(int64_t index) const {
 	return value.has_value() ? to_variant(value.value()) : nullptr;
 }
 
+void LuaTable::seti(int64_t index, const Variant& value) {
+	_settable(index, value);
+}
+
 size_t LuaTable::size() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
 
@@ -71,6 +75,7 @@ Array LuaTable::to_array() const {
 
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
+	ClassDB::bind_method(D_METHOD("seti"), &LuaTable::seti);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
@@ -88,6 +93,12 @@ bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
 
 	return true;
 }
+
+bool LuaTable::_set(const StringName& property_name, const Variant& value) {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
+
+	PackedByteArray bytes = property_name.to_utf8_buffer();
+	_settable(to_string_view(bytes), value);
 
 	return true;
 }
