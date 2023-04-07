@@ -39,6 +39,7 @@ public:
 	LuaTable(const sol::table& table);
 
 	Dictionary to_dictionary() const;
+	Array to_array() const;
 
 protected:
 	static void _bind_methods();

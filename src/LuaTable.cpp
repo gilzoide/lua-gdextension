@@ -37,7 +37,7 @@ LuaTable::LuaTable(const sol::table& table) : table(table) {}
 
 Dictionary LuaTable::to_dictionary() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
-
+	
 	Dictionary dict;
 	for (auto it = table.cbegin(); it != table.cend(); ++it) {
 		sol::object key, value;
@@ -47,8 +47,19 @@ Dictionary LuaTable::to_dictionary() const {
 	return dict;
 }
 
+Array LuaTable::to_array() const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), Array(), "LuaTable does not have a valid table");
+
+	Array arr;
+	for (int i = 1; i <= table.size(); i++) {
+		arr.append(to_variant(table.get<sol::object>(i)));
+	}
+	return arr;
+}
+
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
+	ClassDB::bind_method(D_METHOD("to_array"), &LuaTable::to_array);
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
