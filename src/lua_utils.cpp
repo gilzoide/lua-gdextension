@@ -20,9 +20,10 @@
  * SOFTWARE.
  */
 #include "lua_utils.hpp"
+
+#include "LuaError.hpp"
 #include "LuaTable.hpp"
 #include "godot_utils.hpp"
-#include "LuaError.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
@@ -104,6 +105,67 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 				arr.append(to_variant(*it));
 			}
 			return arr;
+	}
+}
+
+sol::object to_lua(lua_State *lua_state, const Variant& value) {
+	switch (value.get_type()) {
+		case Variant::BOOL:
+			return sol::object(lua_state, sol::in_place, (bool) value);
+
+		case Variant::INT:
+			return sol::object(lua_state, sol::in_place, (int64_t) value);
+
+		case Variant::FLOAT:
+			return sol::object(lua_state, sol::in_place, (double) value);
+
+		case Variant::STRING: {
+			PackedByteArray bytes = ((String) value).to_utf8_buffer();
+			return sol::object(lua_state, sol::in_place, to_string_view(bytes));
+		}
+
+		case Variant::STRING_NAME: {
+			PackedByteArray bytes = ((StringName) value).to_utf8_buffer();
+			return sol::object(lua_state, sol::in_place, to_string_view(bytes));
+		}
+
+		case Variant::VECTOR2:
+		case Variant::VECTOR2I:
+		case Variant::RECT2:
+		case Variant::RECT2I:
+		case Variant::VECTOR3:
+		case Variant::VECTOR3I:
+		case Variant::TRANSFORM2D:
+		case Variant::VECTOR4:
+		case Variant::VECTOR4I:
+		case Variant::PLANE:
+		case Variant::QUATERNION:
+		case Variant::AABB:
+		case Variant::BASIS:
+		case Variant::TRANSFORM3D:
+		case Variant::PROJECTION:
+		case Variant::COLOR:
+		case Variant::NODE_PATH:
+		case Variant::RID:
+		case Variant::OBJECT:
+		case Variant::CALLABLE:
+		case Variant::SIGNAL:
+		case Variant::DICTIONARY:
+		case Variant::ARRAY:
+		case Variant::PACKED_BYTE_ARRAY:
+		case Variant::PACKED_INT32_ARRAY:
+		case Variant::PACKED_INT64_ARRAY:
+		case Variant::PACKED_FLOAT32_ARRAY:
+		case Variant::PACKED_FLOAT64_ARRAY:
+		case Variant::PACKED_STRING_ARRAY:
+		case Variant::PACKED_VECTOR2_ARRAY:
+		case Variant::PACKED_VECTOR3_ARRAY:
+		case Variant::PACKED_COLOR_ARRAY:
+			WARN_PRINT_ONCE_ED("Lua type not yet supported");
+
+		case Variant::NIL:
+		default:
+			return sol::nil;
 	}
 }
 

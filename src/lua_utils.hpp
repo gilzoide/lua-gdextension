@@ -35,6 +35,7 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 Variant to_variant(const sol::object& obj);
 Variant to_variant(const sol::stack_proxy_base& stack);
 Variant to_variant(const sol::protected_function_result& function_result);
+sol::object to_lua(lua_State *lua_state, const Variant& value);
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
 Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);

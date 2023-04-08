@@ -42,7 +42,7 @@ Variant LuaTable::geti(int64_t index) const {
 }
 
 void LuaTable::seti(int64_t index, const Variant& value) {
-	_settable(index, value);
+	table[index] = to_lua(table.lua_state(), value);
 }
 
 size_t LuaTable::size() const {
@@ -98,7 +98,7 @@ bool LuaTable::_set(const StringName& property_name, const Variant& value) {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
 
 	PackedByteArray bytes = property_name.to_utf8_buffer();
-	_settable(to_string_view(bytes), value);
+	table[to_string_view(bytes)] = to_lua(table.lua_state(), value);
 
 	return true;
 }
