@@ -47,6 +47,7 @@ public:
 
 	LuaError() = default;
 	LuaError(Status status, const String& message);
+	LuaError(const sol::protected_function_result& function_result);
 
 	String get_message() const;
 	void set_message(const String& message);

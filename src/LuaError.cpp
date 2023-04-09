@@ -28,6 +28,8 @@ namespace luagdextension {
 
 LuaError::LuaError(Status status, const String& message) : status(status), message(message) {}
 
+LuaError::LuaError(const sol::protected_function_result& function_result) : status((LuaError::Status) function_result.status()), message(((sol::error) function_result).what()) {}
+
 void LuaError::_bind_methods() {
 	// enum Status
 	BIND_ENUM_CONSTANT(OK);

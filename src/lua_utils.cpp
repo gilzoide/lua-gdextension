@@ -91,9 +91,7 @@ Variant to_variant(const sol::stack_object& object) {
 
 Variant to_variant(const sol::protected_function_result& function_result) {
 	if (!function_result.valid()) {
-		LuaError::Status status = (LuaError::Status) function_result.status();
-		String message = ((sol::error) function_result).what();
-		return memnew(LuaError(status, message));
+		return memnew(LuaError(function_result));
 	}
 
 	switch (function_result.return_count()) {
