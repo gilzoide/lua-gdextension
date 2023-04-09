@@ -22,11 +22,9 @@
 #ifndef __LUA_UTILS_HPP__
 #define __LUA_UTILS_HPP__
 
-#include "sol_custom_types.hpp"
+#include "custom_sol.hpp"
 
-#include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/variant/variant.hpp>
-#include <sol/sol.hpp>
 
 using namespace godot;
 

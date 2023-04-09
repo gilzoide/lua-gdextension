@@ -22,8 +22,9 @@
 #ifndef __LUA_ERROR_HPP__
 #define __LUA_ERROR_HPP__
 
+#include "custom_sol.hpp"
+
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <sol/sol.hpp>
 
 using namespace godot;
 

@@ -22,11 +22,8 @@
 #ifndef __REGISTER_TYPES_HPP__
 #define __REGISTER_TYPES_HPP__
 
+#include "../custom_sol.hpp"
 #include "../godot_utils.hpp"
-
-#include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/string.hpp>
-#include <sol/sol.hpp>
 
 using namespace godot;
 
@@ -34,9 +31,7 @@ namespace luagdextension {
 
 template<typename T>
 sol::object to_lua_string(sol::this_state L, const T& value) {
-	String str = (String) value;
-	PackedByteArray bytes = str.to_utf8_buffer();
-	return sol::object(L, sol::in_place, to_string_view(bytes));
+	return sol::object(L, sol::in_place, (String) value);
 }
 
 template<typename TVector>

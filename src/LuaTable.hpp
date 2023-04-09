@@ -22,11 +22,10 @@
 #ifndef __LUA_TABLE_HPP__
 #define __LUA_TABLE_HPP__
 
-#include "godot_utils.hpp"
+#include "custom_sol.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
-#include <sol/sol.hpp>
 
 using namespace godot;
 

@@ -19,8 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __SOL_CUSTOM_TYPES_HPP__
-#define __SOL_CUSTOM_TYPES_HPP__
+
+/**
+ * Include this file instead of <sol/sol.hpp> to have custom type conversions available.
+ *
+ * Implemented custom types: String <-> Lua string, StringName <-> Lua string
+ */
+#ifndef __CUSTOM_SOL_HPP__
+#define __CUSTOM_SOL_HPP__
 
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/string_name.hpp>

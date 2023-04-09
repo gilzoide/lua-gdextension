@@ -27,6 +27,7 @@
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 #if LUA_VERSION_NUM >= 503
 #include <sol/utility/is_integer.hpp>
 #endif

@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "sol_custom_types.hpp"
+#include "custom_sol.hpp"
 
 #include "godot_utils.hpp"
 
@@ -28,8 +28,8 @@
 using namespace luagdextension;
 
 String sol_lua_get(sol::types<String>, lua_State* L, int index, sol::stack::record& tracking) {
-	std::string_view str = sol::stack::get<std::string_view>(L, index);
-	return String::utf8(str.data(), str.size());
+	auto sv = sol::stack::get<std::string_view>(L, index);
+	return String::utf8(sv.data(), sv.size());
 }
 
 int sol_lua_push(lua_State* L, const String& str) {
