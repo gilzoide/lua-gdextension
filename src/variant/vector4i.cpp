@@ -73,7 +73,7 @@ void register_vector4i(sol::state_view& state) {
 			sol::resolve<Vector4i(const Vector4i&) const>(&Vector4i::operator %),
 			sol::resolve<Vector4i(const int32_t) const>(&Vector4i::operator %)
 		),
-		sol::meta_function::to_string, &to_lua_string<Vector4i>
+		sol::meta_function::to_string, &Vector4i::operator String
 	);
 }
 

@@ -109,7 +109,7 @@ void register_vector2(sol::state_view& state) {
 			sol::resolve<Vector2(const Vector2&) const>(&Vector2::operator /),
 			sol::resolve<Vector2(const real_t&) const>(&Vector2::operator /)
 		),
-		sol::meta_function::to_string, &to_lua_string<Vector2>
+		sol::meta_function::to_string, &Vector2::operator String
 	);
 }
 

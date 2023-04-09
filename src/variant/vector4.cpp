@@ -96,7 +96,7 @@ void register_vector4(sol::state_view& state) {
 			sol::resolve<Vector4(const Vector4&) const>(&Vector4::operator /),
 			sol::resolve<Vector4(const real_t&) const>(&Vector4::operator /)
 		),
-		sol::meta_function::to_string, &to_lua_string<Vector4>
+		sol::meta_function::to_string, &Vector4::operator String
 	);
 }
 

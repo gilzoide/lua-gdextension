@@ -29,11 +29,6 @@ using namespace godot;
 
 namespace luagdextension {
 
-template<typename T>
-sol::object to_lua_string(sol::this_state L, const T& value) {
-	return sol::object(L, sol::in_place, (String) value);
-}
-
 template<typename TVector>
 char vector_min_axis(const TVector& v) {
 	const char *vector_axes = "xyzw";
