@@ -19,31 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __REGISTER_TYPES_HPP__
+#define __REGISTER_TYPES_HPP__
 
-#include "luaopen_godot.hpp"
+#include "../godot_utils.hpp"
 
-#include "variant/register_types.hpp"
-
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/string.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;
-using namespace luagdextension;
 
-int luaopen_godot(lua_State *L) {
-	luaL_requiref(L, "godot.math", &luaopen_godot_math, 0);
-	lua_pop(L, 1);
+namespace luagdextension {
 
-	return 0;
+template<typename T>
+sol::object to_lua_string(sol::this_state L, const T& value) {
+	String str = (String) value;
+	PackedByteArray bytes = str.to_utf8_buffer();
+	return sol::object(L, sol::in_place, to_string_view(bytes));
 }
 
-
-int luaopen_godot_math(lua_State *L) {
-	sol::state_view state = L;
-
-	register_vector2(state);
-	register_vector2i(state);
-	register_vector3(state);
-
-	return 0;
+template<typename TVector>
+char vector_min_axis(const TVector& v) {
+	const char *vector_axes = "xyzw";
+	return vector_axes[v.min_axis_index()];
 }
 
+template<typename TVector>
+char vector_max_axis(const TVector& v) {
+	const char *vector_axes = "xyzw";
+	return vector_axes[v.max_axis_index()];
+}
+
+void register_vector2(sol::state_view& state);
+void register_vector2i(sol::state_view& state);
+void register_vector3(sol::state_view& state);
+
+}
+
+#endif

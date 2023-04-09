@@ -21,7 +21,7 @@ else:
 # Build Lua GDExtension
 env.Append(CPPPATH=["lib/sol2/include", "lib/lua"])
 
-sources = Glob("src/*.cpp")
+sources = Glob("src/*.cpp") + Glob("src/variant/*.cpp")
 if env["platform"] == "macos":
     library = env.SharedLibrary(
         "addons/lua-gdextension/build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(
