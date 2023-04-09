@@ -52,10 +52,8 @@ Variant to_variant(const sol::object& object) {
 		case sol::type::boolean:
 			return object.as<bool>();
 
-		case sol::type::string: {
-			auto sv = object.as<std::string_view>();
-			return String::utf8(sv.data(), sv.length());
-		}
+		case sol::type::string:
+			return object.as<String>();
 
 		case sol::type::number:
 #if LUA_VERSION_NUM >= 503
@@ -119,15 +117,11 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 		case Variant::FLOAT:
 			return sol::object(lua_state, sol::in_place, (double) value);
 
-		case Variant::STRING: {
-			PackedByteArray bytes = ((String) value).to_utf8_buffer();
-			return sol::object(lua_state, sol::in_place, to_string_view(bytes));
-		}
+		case Variant::STRING:
+			return sol::object(lua_state, sol::in_place, (String) value);
 
-		case Variant::STRING_NAME: {
-			PackedByteArray bytes = ((StringName) value).to_utf8_buffer();
-			return sol::object(lua_state, sol::in_place, to_string_view(bytes));
-		}
+		case Variant::STRING_NAME:
+			return sol::object(lua_state, sol::in_place, (StringName) value);
 
 		case Variant::VECTOR2:
 		case Variant::VECTOR2I:

@@ -19,31 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
+#ifndef __SOL_CUSTOM_TYPES_HPP__
+#define __SOL_CUSTOM_TYPES_HPP__
 
-#include "sol_custom_types.hpp"
-
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/variant/variant.hpp>
+#include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;
 
-namespace luagdextension {
-
-/// Lua memory allocation callback.
-/// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-
-Variant to_variant(const sol::object& obj);
-Variant to_variant(const sol::stack_proxy_base& stack);
-Variant to_variant(const sol::protected_function_result& function_result);
-sol::object to_lua(lua_State *lua_state, const Variant& value);
-
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-
+/// Custom String <-> Lua string conversions
+template<typename Handler>
+bool sol_lua_check(sol::types<String>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {
+	bool success = sol::stack::check<const char *>(L, index, handler);
+	tracking.use(1);
+	return success;
 }
+String sol_lua_get(sol::types<String>, lua_State* L, int index, sol::stack::record& tracking);
+int sol_lua_push(lua_State* L, const String& str);
+
+/// Custom StringName <-> Lua string conversions
+template<typename Handler>
+bool sol_lua_check(sol::types<StringName>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {
+	bool success = sol::stack::check<const char *>(L, index, handler);
+	tracking.use(1);
+	return success;
+}
+StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking);
+int sol_lua_push(lua_State* L, const StringName& str);
 
 #endif

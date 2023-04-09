@@ -19,31 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
-
 #include "sol_custom_types.hpp"
 
-#include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/variant/variant.hpp>
-#include <sol/sol.hpp>
+#include "godot_utils.hpp"
 
-using namespace godot;
+#include <godot_cpp/variant/packed_byte_array.hpp>
 
-namespace luagdextension {
+using namespace luagdextension;
 
-/// Lua memory allocation callback.
-/// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
-
-Variant to_variant(const sol::object& obj);
-Variant to_variant(const sol::stack_proxy_base& stack);
-Variant to_variant(const sol::protected_function_result& function_result);
-sol::object to_lua(lua_State *lua_state, const Variant& value);
-
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-
+String sol_lua_get(sol::types<String>, lua_State* L, int index, sol::stack::record& tracking) {
+	std::string_view str = sol::stack::get<std::string_view>(L, index);
+	return String::utf8(str.data(), str.size());
 }
 
-#endif
+int sol_lua_push(lua_State* L, const String& str) {
+	PackedByteArray bytes = str.to_utf8_buffer();
+	return sol::stack::push(L, to_string_view(bytes));
+}
+
+StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking) {
+	const char *str = sol::stack::get<const char *>(L, index);
+	return StringName(str);
+}
+
+int sol_lua_push(lua_State* L, const StringName& str) {
+	PackedByteArray bytes = str.to_utf8_buffer();
+	return sol::stack::push(L, to_string_view(bytes));
+}
