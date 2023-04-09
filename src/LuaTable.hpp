@@ -39,6 +39,7 @@ public:
 	LuaTable();
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
+	~LuaTable();
 
 	Variant geti(int64_t index) const;
 	void seti(int64_t index, const Variant& value);
@@ -54,7 +55,11 @@ protected:
 	bool _set(const StringName& property_name, const Variant& value);
 	String _to_string() const;
 
-	sol::table table;
+	// Using union avoids automatic destruction
+	// This is necessary to only destroy tables if the corresponding LuaState is still valid
+	union {
+		sol::table table;
+	};
 };
 
 }

@@ -34,34 +34,11 @@ namespace luagdextension {
 
 LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 	table = lua_state.globals();
+	valid_states.insert(lua_state);
 }
 
-void LuaState::_bind_methods() {
-	// Library enum
-	BIND_BITFIELD_FLAG(LUA_BASE);
-	BIND_BITFIELD_FLAG(LUA_PACKAGE);
-	BIND_BITFIELD_FLAG(LUA_COROUTINE);
-	BIND_BITFIELD_FLAG(LUA_STRING);
-	BIND_BITFIELD_FLAG(LUA_OS);
-	BIND_BITFIELD_FLAG(LUA_MATH);
-	BIND_BITFIELD_FLAG(LUA_TABLE);
-	BIND_BITFIELD_FLAG(LUA_DEBUG);
-	BIND_BITFIELD_FLAG(LUA_BIT32);
-	BIND_BITFIELD_FLAG(LUA_IO);
-	BIND_BITFIELD_FLAG(LUA_FFI);
-	BIND_BITFIELD_FLAG(LUA_JIT);
-	BIND_BITFIELD_FLAG(LUA_UTF8);
-	BIND_BITFIELD_FLAG(LUA);
-
-	BIND_BITFIELD_FLAG(GODOT_MATH);
-	BIND_BITFIELD_FLAG(GODOT);
-
-	// Methods
-	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA | GODOT)));
-	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
-	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
-	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
-	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+LuaState::~LuaState() {
+	valid_states.erase(lua_state);
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -140,8 +117,42 @@ LuaTable *LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
 }
 
+bool LuaState::is_valid(lua_State *L) {
+	return valid_states.has(L);
+}
+
+void LuaState::_bind_methods() {
+	// Library enum
+	BIND_BITFIELD_FLAG(LUA_BASE);
+	BIND_BITFIELD_FLAG(LUA_PACKAGE);
+	BIND_BITFIELD_FLAG(LUA_COROUTINE);
+	BIND_BITFIELD_FLAG(LUA_STRING);
+	BIND_BITFIELD_FLAG(LUA_OS);
+	BIND_BITFIELD_FLAG(LUA_MATH);
+	BIND_BITFIELD_FLAG(LUA_TABLE);
+	BIND_BITFIELD_FLAG(LUA_DEBUG);
+	BIND_BITFIELD_FLAG(LUA_BIT32);
+	BIND_BITFIELD_FLAG(LUA_IO);
+	BIND_BITFIELD_FLAG(LUA_FFI);
+	BIND_BITFIELD_FLAG(LUA_JIT);
+	BIND_BITFIELD_FLAG(LUA_UTF8);
+	BIND_BITFIELD_FLAG(LUA);
+
+	BIND_BITFIELD_FLAG(GODOT_MATH);
+	BIND_BITFIELD_FLAG(GODOT);
+
+	// Methods
+	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA | GODOT)));
+	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
+	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
+	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
+	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+}
+
 String LuaState::_to_string() const {
 	return String("[LuaState:0x%x]") % (int64_t) lua_state.lua_state();
 }
+
+HashSet<lua_State *> LuaState::valid_states;
 
 }

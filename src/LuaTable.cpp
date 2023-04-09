@@ -21,6 +21,8 @@
  */
 
 #include "LuaTable.hpp"
+
+#include "LuaState.hpp"
 #include "godot_utils.hpp"
 #include "lua_utils.hpp"
 
@@ -28,11 +30,17 @@ using namespace godot;
 
 namespace luagdextension {
 
-LuaTable::LuaTable() {}
+LuaTable::LuaTable() : table() {}
 
 LuaTable::LuaTable(sol::table&& table) : table(table) {}
 
 LuaTable::LuaTable(const sol::table& table) : table(table) {}
+
+LuaTable::~LuaTable() {
+	if (table.valid() && LuaState::is_valid(table.lua_state())) {
+		table.~basic_table_core();
+	}
+}
 
 Variant LuaTable::geti(int64_t index) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");

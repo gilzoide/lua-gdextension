@@ -25,6 +25,7 @@
 #include "LuaTable.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;
@@ -75,6 +76,7 @@ public:
 	};
 
 	LuaState();
+	~LuaState();
 
 	void open_libraries(BitField<Library> libraries);
 
@@ -84,13 +86,17 @@ public:
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;
 
+	static bool is_valid(lua_State *L);
+
 protected:
 	static void _bind_methods();
 
 	String _to_string() const;
 
-private:
 	sol::state lua_state;
+
+private:
+	static HashSet<lua_State *> valid_states;
 };
 
 }
