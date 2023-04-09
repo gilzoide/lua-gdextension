@@ -34,12 +34,16 @@ void register_vector3i(sol::state_view& state) {
 		// constructors
 		sol::call_constructor, sol::constructors<Vector3i(), Vector3i(const int32_t, const int32_t, const int32_t)>(),
 		// properties
-		"x", &Vector3i::x,  // (x, y)
+		"x", &Vector3i::x,  // (x, y, z)
 		"y", &Vector3i::y,
 		"z", &Vector3i::z,
-		"width", &Vector3i::x,  // (width, height)
+		"width", &Vector3i::x,  // (width, height, depth)
 		"height", &Vector3i::y,
-		"depth", &Vector3i::y,
+		"depth", &Vector3i::z,
+		// constants
+		"AXIS_X", sol::var(Vector3i::AXIS_X),
+		"AXIS_Y", sol::var(Vector3i::AXIS_Y),
+		"AXIS_Z", sol::var(Vector3i::AXIS_Z),
 		// methods
 		"min_axis_index", &Vector3i::min_axis_index,
 		"min_axis", &vector_min_axis<Vector3i>,

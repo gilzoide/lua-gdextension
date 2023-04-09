@@ -38,6 +38,9 @@ void register_vector2i(sol::state_view& state) {
 		"y", &Vector2i::y,
 		"width", &Vector2i::x,  // (width, height)
 		"height", &Vector2i::y,
+		// constants
+		"AXIS_X", sol::var(Vector2i::AXIS_X),
+		"AXIS_Y", sol::var(Vector2i::AXIS_Y),
 		// methods
 		"min_axis_index", &Vector2i::min_axis_index,
 		"min_axis", &vector_min_axis<Vector2i>,
@@ -72,7 +75,6 @@ void register_vector2i(sol::state_view& state) {
 		),
 		sol::meta_function::to_string, &to_lua_string<Vector2i>
 	);
-
 }
 
 }

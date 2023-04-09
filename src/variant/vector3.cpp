@@ -48,8 +48,6 @@ void register_vector3(sol::state_view& state) {
 		"s", &Vector3::x,  // (s, t, p)
 		"t", &Vector3::y,
 		"p", &Vector3::z,
-		"u", &Vector3::x,  // (u, v)
-		"v", &Vector3::y,
 		// constants
 		"AXIS_X", sol::var(Vector3::AXIS_X),
 		"AXIS_Y", sol::var(Vector3::AXIS_Y),
@@ -120,7 +118,6 @@ void register_vector3(sol::state_view& state) {
 		),
 		sol::meta_function::to_string, &to_lua_string<Vector3>
 	);
-
 }
 
 }
