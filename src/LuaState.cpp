@@ -25,6 +25,7 @@
 #include "LuaError.hpp"
 #include "godot_utils.hpp"
 #include "lua_utils.hpp"
+#include "luaopen_godot.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/file_access.hpp>
@@ -52,8 +53,11 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA_UTF8);
 	BIND_BITFIELD_FLAG(LUA);
 
+	BIND_BITFIELD_FLAG(GODOT_MATH);
+	BIND_BITFIELD_FLAG(GODOT);
+
 	// Methods
-	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA)));
+	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA | GODOT)));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
@@ -62,7 +66,7 @@ void LuaState::_bind_methods() {
 
 void LuaState::open_libraries(BitField<Library> libraries) {
 	if (libraries == 0) {
-		libraries = LUA;
+		libraries = LUA | GODOT;
 	}
 
 	if (libraries.has_flag(LUA)) {
@@ -107,6 +111,15 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		}
 		if (libraries.has_flag(LUA_UTF8)) {
 			lua_state.open_libraries(sol::lib::utf8);
+		}
+	}
+
+	if (libraries.has_flag(GODOT)) {
+		lua_state.require("godot", &luaopen_godot, false);
+	}
+	else {
+		if (libraries.has_flag(GODOT_MATH)) {
+			lua_state.require("godot.math", &luaopen_godot_math, false);
 		}
 	}
 }
