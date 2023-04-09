@@ -48,24 +48,25 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-Variant to_variant(const sol::object& object) {
+template<typename ref_t>
+Variant to_variant(const sol::basic_object<ref_t>& object) {
 	switch (object.get_type()) {
 		case sol::type::boolean:
-			return object.as<bool>();
+			return object.template as<bool>();
 
 		case sol::type::string:
-			return object.as<String>();
+			return object.template as<String>();
 
 		case sol::type::number:
 #if LUA_VERSION_NUM >= 503
 			if (sol::utility::is_integer(object)) {
-				return object.as<int64_t>();
+				return object.template as<int64_t>();
 			}
 #endif
-			return object.as<double>();
+			return object.template as<double>();
 
 		case sol::type::table:
-			return memnew(LuaTable(object.as<sol::table>()));
+			return memnew(LuaTable(object.template as<sol::table>()));
 
 		case sol::type::thread:
 		case sol::type::function:
@@ -80,8 +81,12 @@ Variant to_variant(const sol::object& object) {
 	}
 }
 
-Variant to_variant(const sol::stack_proxy_base& stack) {
-	return to_variant(stack.get<sol::object>());
+Variant to_variant(const sol::object& object) {
+	return to_variant<>(object);
+}
+
+Variant to_variant(const sol::stack_object& object) {
+	return to_variant<>(object);
 }
 
 Variant to_variant(const sol::protected_function_result& function_result) {
@@ -96,12 +101,12 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 			return Variant();
 
 		case 1:
-			return to_variant(function_result[0]);
+			return to_variant(function_result[0].get<sol::stack_object>());
 
 		default:
 			auto arr = Array();
-			for (auto it = function_result.cbegin(); it != function_result.cend(); it++) {
-				arr.append(to_variant(*it));
+			for (auto value : function_result) {
+				arr.append(to_variant(value.get<sol::stack_object>()));
 			}
 			return arr;
 	}
