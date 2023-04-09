@@ -128,14 +128,26 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 			return sol::object(lua_state, sol::in_place, (StringName) value);
 
 		case Variant::VECTOR2:
+			return sol::object(lua_state, sol::in_place, (Vector2) value);
+
 		case Variant::VECTOR2I:
+			return sol::object(lua_state, sol::in_place, (Vector2i) value);
+
+		case Variant::VECTOR3:
+			return sol::object(lua_state, sol::in_place, (Vector3) value);
+
+		case Variant::VECTOR3I:
+			return sol::object(lua_state, sol::in_place, (Vector3i) value);
+
+		case Variant::VECTOR4:
+			return sol::object(lua_state, sol::in_place, (Vector4) value);
+
+		case Variant::VECTOR4I:
+			return sol::object(lua_state, sol::in_place, (Vector4i) value);
+
 		case Variant::RECT2:
 		case Variant::RECT2I:
-		case Variant::VECTOR3:
-		case Variant::VECTOR3I:
 		case Variant::TRANSFORM2D:
-		case Variant::VECTOR4:
-		case Variant::VECTOR4I:
 		case Variant::PLANE:
 		case Variant::QUATERNION:
 		case Variant::AABB:
@@ -192,10 +204,7 @@ static const char *file_reader(lua_State *L, FileReaderData *data, size_t *size)
 Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size) {
 	auto file = FileAccess::open(filename, godot::FileAccess::READ);
 	if (file == nullptr) {
-		LuaError *error = memnew(LuaError);
-		error->set_status(LuaError::Status::FILE);
-		error->set_message(String("Cannot open file '%s': " + error_to_string(FileAccess::get_open_error())) % filename);
-		return error;
+		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + error_to_string(FileAccess::get_open_error())) % filename));
 	}
 
 	FileReaderData reader_data;
