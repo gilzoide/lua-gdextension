@@ -54,6 +54,7 @@ char vector_max_axis(const TVector& v) {
 void register_vector2(sol::state_view& state);
 void register_vector2i(sol::state_view& state);
 void register_vector3(sol::state_view& state);
+void register_vector3i(sol::state_view& state);
 
 }
 

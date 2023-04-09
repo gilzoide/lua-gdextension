@@ -43,6 +43,7 @@ int luaopen_godot_math(lua_State *L) {
 	register_vector2(state);
 	register_vector2i(state);
 	register_vector3(state);
+	register_vector3i(state);
 
 	return 0;
 }
