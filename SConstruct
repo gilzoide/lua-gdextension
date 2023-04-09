@@ -17,10 +17,16 @@ elif env["platform"] == "linux":
 else:
     env.Append(CPPDEFINES="LUA_USE_POSIX")
 
+env.Append(CPPPATH="lib/lua")
+
+# Sol defines
+env.Append(CPPDEFINES="SOL_EXCEPTIONS_SAFE_PROPAGATION")
+if env["target"] == "template_debug":
+    env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON", "SOL_PRINT_ERRORS"])
+
+env.Append(CPPPATH="lib/sol2/include")
 
 # Build Lua GDExtension
-env.Append(CPPPATH=["lib/sol2/include", "lib/lua"])
-
 sources = Glob("src/*.cpp") + Glob("src/variant/*.cpp")
 if env["platform"] == "macos":
     library = env.SharedLibrary(
