@@ -47,6 +47,7 @@ void register_vector3(sol::state_view& state);
 void register_vector3i(sol::state_view& state);
 void register_vector4(sol::state_view& state);
 void register_vector4i(sol::state_view& state);
+void register_rect2(sol::state_view& state);
 
 }
 
