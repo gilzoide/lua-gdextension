@@ -151,8 +151,10 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 		case Variant::RECT2I:
 			return sol::object(lua_state, sol::in_place, (Rect2i) value);
 
-		case Variant::TRANSFORM2D:
 		case Variant::PLANE:
+			return sol::object(lua_state, sol::in_place, (Plane) value);
+
+		case Variant::TRANSFORM2D:
 		case Variant::QUATERNION:
 		case Variant::AABB:
 		case Variant::BASIS:
