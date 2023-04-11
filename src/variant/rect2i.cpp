@@ -29,42 +29,37 @@ using namespace godot;
 
 namespace luagdextension {
 
-void register_rect2(sol::state_view& state) {
-	state.new_usertype<Rect2>(
-		"Rect2",
+void register_rect2i(sol::state_view& state) {
+	state.new_usertype<Rect2i>(
+		"Rect2i",
 		// constructors
-		sol::call_constructor, sol::constructors<Rect2(), Rect2(real_t, real_t, real_t, real_t), Rect2(const Point2&, const Size2&)>(),
+		sol::call_constructor, sol::constructors<Rect2i(), Rect2i(int, int, int, int), Rect2i(const Point2i&, const Size2i&)>(),
 		// properties
-		"position", &Rect2::position,
-		"size", &Rect2::size,
-		"end", sol::property(&Rect2::set_end, &Rect2::get_end),
+		"position", &Rect2i::position,
+		"size", &Rect2i::size,
+		"end", sol::property(&Rect2i::set_end, &Rect2i::get_end),
 		// methods
-		"get_area", &Rect2::get_area,
-		"get_center", &Rect2::get_center,
-		"intersects", &Rect2::intersects,
-		"distance_to", &Rect2::distance_to,
-		"intersects_transformed", &Rect2::intersects_transformed,
-		"intersects_segment", &Rect2::intersects_segment,
-		"encloses", &Rect2::encloses,
-		"has_area", &Rect2::has_area,
-		"intersection", &Rect2::intersection,
-		"merge", &Rect2::merge,
-		"has_point", &Rect2::has_point,
-		"is_equal_approx", &Rect2::is_equal_approx,
-		"grow", &Rect2::grow,
-		"grow_by", &Rect2::grow_by,
-		"grow_side", &Rect2::grow_side,
-		"grow_individual", &Rect2::grow_individual,
-		"expand", &Rect2::expand,
-		"expand_to", &Rect2::expand_to,
-		"abs", &Rect2::abs,
-		"get_support", &Rect2::get_support,
+		"get_area", &Rect2i::get_area,
+		"get_center", &Rect2i::get_center,
+		"intersects", &Rect2i::intersects,
+		"encloses", &Rect2i::encloses,
+		"has_area", &Rect2i::has_area,
+		"intersection", &Rect2i::intersection,
+		"merge", &Rect2i::merge,
+		"has_point", &Rect2i::has_point,
+		"grow", &Rect2i::grow,
+		"grow_side", &Rect2i::grow_side,
+		"grow_individual", &Rect2i::grow_individual,
+		"expand", &Rect2i::expand,
+		"expand_to", &Rect2i::expand_to,
+		"abs", &Rect2i::abs,
 		// cast methods
-		"to_string", &Rect2::operator String,
-		"to_rect2i", &Rect2::operator Rect2i,
+		"to_string", &Rect2i::operator String,
+		"to_rect2", &Rect2i::operator Rect2,
 		// operators
-		sol::meta_function::to_string, &Rect2::operator String
+		sol::meta_function::to_string, &Rect2i::operator String
 	);
 }
 
 }
+
