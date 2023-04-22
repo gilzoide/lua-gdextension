@@ -110,49 +110,63 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 	}
 }
 
-sol::object to_lua(lua_State *lua_state, const Variant& value) {
+sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	switch (value.get_type()) {
 		case Variant::BOOL:
-			return sol::object(lua_state, sol::in_place, (bool) value);
+			sol::stack::push(lua_state, (bool) value);
+			break;
 
 		case Variant::INT:
-			return sol::object(lua_state, sol::in_place, (int64_t) value);
+			sol::stack::push(lua_state, (int64_t) value);
+			break;
 
 		case Variant::FLOAT:
-			return sol::object(lua_state, sol::in_place, (double) value);
+			sol::stack::push(lua_state, (double) value);
+			break;
 
 		case Variant::STRING:
-			return sol::object(lua_state, sol::in_place, (String) value);
+			sol::stack::push(lua_state, (String) value);
+			break;
 
 		case Variant::STRING_NAME:
-			return sol::object(lua_state, sol::in_place, (StringName) value);
+			sol::stack::push(lua_state, (StringName) value);
+			break;
 
 		case Variant::VECTOR2:
-			return sol::object(lua_state, sol::in_place, (Vector2) value);
+			sol::stack::push(lua_state, (Vector2) value);
+			break;
 
 		case Variant::VECTOR2I:
-			return sol::object(lua_state, sol::in_place, (Vector2i) value);
+			sol::stack::push(lua_state, (Vector2i) value);
+			break;
 
 		case Variant::VECTOR3:
-			return sol::object(lua_state, sol::in_place, (Vector3) value);
+			sol::stack::push(lua_state, (Vector3) value);
+			break;
 
 		case Variant::VECTOR3I:
-			return sol::object(lua_state, sol::in_place, (Vector3i) value);
+			sol::stack::push(lua_state, (Vector3i) value);
+			break;
 
 		case Variant::VECTOR4:
-			return sol::object(lua_state, sol::in_place, (Vector4) value);
+			sol::stack::push(lua_state, (Vector4) value);
+			break;
 
 		case Variant::VECTOR4I:
-			return sol::object(lua_state, sol::in_place, (Vector4i) value);
+			sol::stack::push(lua_state, (Vector4i) value);
+			break;
 
 		case Variant::RECT2:
-			return sol::object(lua_state, sol::in_place, (Rect2) value);
+			sol::stack::push(lua_state, (Rect2) value);
+			break;
 
 		case Variant::RECT2I:
-			return sol::object(lua_state, sol::in_place, (Rect2i) value);
+			sol::stack::push(lua_state, (Rect2i) value);
+			break;
 
 		case Variant::PLANE:
-			return sol::object(lua_state, sol::in_place, (Plane) value);
+			sol::stack::push(lua_state, (Plane) value);
+			break;
 
 		case Variant::TRANSFORM2D:
 		case Variant::QUATERNION:
@@ -181,8 +195,10 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 
 		case Variant::NIL:
 		default:
-			return sol::nil;
+			sol::stack::push(lua_state, sol::nil);
+			break;
 	}
+	return sol::stack_object(lua_state, -1);
 }
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
