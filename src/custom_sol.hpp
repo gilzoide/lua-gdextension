@@ -54,4 +54,12 @@ bool sol_lua_check(sol::types<StringName>, lua_State* L, int index, Handler&& ha
 StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking);
 int sol_lua_push(lua_State* L, const StringName& str);
 
+/// Custom Variant unboxing conversion
+template<typename Handler>
+bool sol_lua_check(sol::types<Variant>, lua_State* L, int index, Handler&& handler, sol::stack::record& tracking) {
+	tracking.use(1);
+	return true;
+}
+Variant sol_lua_get(sol::types<Variant>, lua_State* L, int index, sol::stack::record& tracking);
+
 #endif

@@ -45,8 +45,7 @@ LuaTable::~LuaTable() {
 Variant LuaTable::geti(int64_t index) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
 
-	auto value = table[index].get<sol::optional<sol::object>>();
-	return value.has_value() ? to_variant(value.value()) : nullptr;
+	return table[index].get<Variant>();
 }
 
 void LuaTable::seti(int64_t index, const Variant& value) {
@@ -76,7 +75,7 @@ Array LuaTable::to_array() const {
 
 	Array arr;
 	for (int i = 1; i <= table.size(); i++) {
-		arr.append(to_variant(table.get<sol::object>(i)));
+		arr.append(table.get<Variant>(i));
 	}
 	return arr;
 }
@@ -94,10 +93,7 @@ bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
 
 	PackedByteArray bytes = property_name.to_utf8_buffer();
-	std::string_view index = to_string_view(bytes);
-	
-	auto value = table[index].get<sol::optional<sol::object>>();
-	r_value = value.has_value() ? to_variant(value.value()) : nullptr;
+	r_value = table[to_string_view(bytes)].get<Variant>();
 
 	return true;
 }
