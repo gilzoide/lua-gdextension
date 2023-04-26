@@ -21,9 +21,12 @@
  */
 #include "register_types.hpp"
 
+#include "../constants.hpp"
+
 #include <godot_cpp/variant/rect2.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
 #include <godot_cpp/variant/transform2d.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
@@ -38,6 +41,8 @@ void register_rect2(sol::state_view& state) {
 		"position", &Rect2::position,
 		"size", &Rect2::size,
 		"end", sol::property(&Rect2::set_end, &Rect2::get_end),
+		// constants
+		LUA_META_VARIANT_TYPE, sol::var(Variant::Type::RECT2),
 		// methods
 		"get_area", &Rect2::get_area,
 		"get_center", &Rect2::get_center,

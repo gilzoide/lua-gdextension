@@ -21,6 +21,9 @@
  */
 #include "register_types.hpp"
 
+#include "../constants.hpp"
+
+#include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/vector4.hpp>
 #include <godot_cpp/variant/vector4i.hpp>
 
@@ -43,6 +46,7 @@ void register_vector4i(sol::state_view& state) {
 		"AXIS_Y", sol::var(Vector4i::AXIS_Y),
 		"AXIS_Z", sol::var(Vector4i::AXIS_Z),
 		"AXIS_W", sol::var(Vector4i::AXIS_W),
+		LUA_META_VARIANT_TYPE, sol::var(Variant::Type::VECTOR4I),
 		// methods
 		"min_axis_index", &Vector4i::min_axis_index,
 		"min_axis", &vector_min_axis<Vector4i>,

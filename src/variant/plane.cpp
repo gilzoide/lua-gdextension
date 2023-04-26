@@ -21,6 +21,8 @@
  */
 #include "register_types.hpp"
 
+#include "../constants.hpp"
+
 #include <godot_cpp/variant/plane.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
@@ -36,6 +38,8 @@ void register_plane(sol::state_view& state) {
 		// properties
 		"normal", &Plane::normal,
 		"d", &Plane::d,
+		// constants
+		LUA_META_VARIANT_TYPE, sol::var(Variant::Type::PLANE),
 		// methods
 		"normalize", &Plane::normalize,
 		"normalized", &Plane::normalized,

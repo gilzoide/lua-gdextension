@@ -21,7 +21,10 @@
  */
 #include "register_types.hpp"
 
+#include "../constants.hpp"
+
 #include <godot_cpp/variant/basis.hpp>
+#include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 #include <godot_cpp/variant/vector3.hpp>
 #include <godot_cpp/variant/vector3i.hpp>
@@ -52,6 +55,7 @@ void register_vector3(sol::state_view& state) {
 		"AXIS_X", sol::var(Vector3::AXIS_X),
 		"AXIS_Y", sol::var(Vector3::AXIS_Y),
 		"AXIS_Z", sol::var(Vector3::AXIS_Z),
+		LUA_META_VARIANT_TYPE, sol::var(Variant::Type::VECTOR3),
 		// methods
 		"min_axis_index", &Vector3::min_axis_index,
 		"min_axis", &vector_min_axis<Vector3>,

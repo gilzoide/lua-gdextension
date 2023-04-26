@@ -23,6 +23,7 @@
 
 #include "LuaError.hpp"
 #include "LuaTable.hpp"
+#include "constants.hpp"
 #include "godot_utils.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -68,11 +69,88 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 		case sol::type::table:
 			return memnew(LuaTable(object.template as<sol::table>()));
 
+		case sol::type::userdata: {
+			auto userdata = object.template as<sol::basic_userdata<ref_t>>();
+			sol::optional<int> variant_type = userdata[LUA_META_VARIANT_TYPE];
+			if (!variant_type.has_value()) {
+				WARN_PRINT_ONCE_ED("Lua type 'full userdata' is not supported yet");
+				return Variant();
+			}
+			
+			switch (variant_type.value()) {
+				case Variant::NIL:
+				case Variant::BOOL:
+				case Variant::INT:
+				case Variant::FLOAT:
+				case Variant::STRING:
+				case Variant::STRING_NAME:
+					ERR_FAIL_V_EDMSG(Variant(), "Found variant type for primitive values, this should not happen");
+
+				case Variant::VECTOR2:
+					return userdata.template as<Vector2>();
+
+				case Variant::VECTOR2I:
+					return userdata.template as<Vector2i>();
+
+				case Variant::VECTOR3:
+					return userdata.template as<Vector3>();
+
+				case Variant::VECTOR3I:
+					return userdata.template as<Vector3i>();
+
+				case Variant::VECTOR4:
+					return userdata.template as<Vector4>();
+
+				case Variant::VECTOR4I:
+					return userdata.template as<Vector4i>();
+
+				case Variant::RECT2:
+					return userdata.template as<Rect2>();
+
+				case Variant::RECT2I:
+					return userdata.template as<Rect2i>();
+
+				case Variant::PLANE:
+					return userdata.template as<Plane>();
+
+				case Variant::TRANSFORM2D:
+				case Variant::QUATERNION:
+				case Variant::AABB:
+				case Variant::BASIS:
+				case Variant::TRANSFORM3D:
+				case Variant::PROJECTION:
+				case Variant::COLOR:
+				case Variant::NODE_PATH:
+				case Variant::RID:
+				case Variant::OBJECT:
+				case Variant::CALLABLE:
+				case Variant::SIGNAL:
+				case Variant::DICTIONARY:
+				case Variant::ARRAY:
+				case Variant::PACKED_BYTE_ARRAY:
+				case Variant::PACKED_INT32_ARRAY:
+				case Variant::PACKED_INT64_ARRAY:
+				case Variant::PACKED_FLOAT32_ARRAY:
+				case Variant::PACKED_FLOAT64_ARRAY:
+				case Variant::PACKED_STRING_ARRAY:
+				case Variant::PACKED_VECTOR2_ARRAY:
+				case Variant::PACKED_VECTOR3_ARRAY:
+				case Variant::PACKED_COLOR_ARRAY:
+					ERR_FAIL_V_EDMSG(Variant(), "Found variant type that is not supported yet");
+			}
+		}
+
 		case sol::type::thread:
+			WARN_PRINT_ONCE_ED("Lua type 'thread' is not supported yet");
+			return Variant();
+
 		case sol::type::function:
-		case sol::type::userdata:
+			WARN_PRINT_ONCE_ED("Lua type 'function' is not supported yet");
+			return Variant();
+
 		case sol::type::lightuserdata:
-			WARN_PRINT_ONCE_ED("Lua type not yet supported");
+			WARN_PRINT_ONCE_ED("Lua type 'light userdata' is not supported yet");
+			return Variant();
 
 		default:
 		case sol::type::none:
