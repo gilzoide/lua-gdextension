@@ -6,6 +6,12 @@ env.Tool("compilation_db")
 compiledb = env.CompilationDatabase("compile_commands.json")
 env.Alias("compiledb", compiledb)
 
+# Compile with debugging symbols
+if ARGUMENTS.get("debugging_symbols") == 'true':
+    if "-O2" in env["CCFLAGS"]:
+        env["CCFLAGS"].remove("-O2")
+    env.Append(CCFLAGS=["-g", "-O0"])
+
 # Lua defines
 env.Append(CPPDEFINES="MAKE_LIB")
 if env["platform"] == "windows":
