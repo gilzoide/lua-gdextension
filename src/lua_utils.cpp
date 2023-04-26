@@ -113,30 +113,77 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 				case Variant::PLANE:
 					return userdata.template as<Plane>();
 
-				case Variant::TRANSFORM2D:
 				case Variant::QUATERNION:
+					return userdata.template as<Quaternion>();
+
+				case Variant::TRANSFORM2D:
+					return userdata.template as<Transform2D>();
+
 				case Variant::AABB:
+					return userdata.template as<AABB>();
+
 				case Variant::BASIS:
+					return userdata.template as<Basis>();
+
 				case Variant::TRANSFORM3D:
+					return userdata.template as<Transform3D>();
+
 				case Variant::PROJECTION:
+					return userdata.template as<Projection>();
+
 				case Variant::COLOR:
+					return userdata.template as<Color>();
+
 				case Variant::NODE_PATH:
+					return userdata.template as<NodePath>();
+
 				case Variant::RID:
+					return userdata.template as<RID>();
+
 				case Variant::OBJECT:
+					return userdata.template as<Object*>();
+
 				case Variant::CALLABLE:
+					return userdata.template as<Callable>();
+
 				case Variant::SIGNAL:
+					return userdata.template as<Signal>();
+
 				case Variant::DICTIONARY:
+					return userdata.template as<Dictionary>();
+
 				case Variant::ARRAY:
-				case Variant::PACKED_BYTE_ARRAY:
-				case Variant::PACKED_INT32_ARRAY:
-				case Variant::PACKED_INT64_ARRAY:
-				case Variant::PACKED_FLOAT32_ARRAY:
-				case Variant::PACKED_FLOAT64_ARRAY:
-				case Variant::PACKED_STRING_ARRAY:
-				case Variant::PACKED_VECTOR2_ARRAY:
-				case Variant::PACKED_VECTOR3_ARRAY:
-				case Variant::PACKED_COLOR_ARRAY:
-					ERR_FAIL_V_EDMSG(Variant(), "Found variant type that is not supported yet");
+					return userdata.template as<Array>();
+
+				/* case Variant::PACKED_BYTE_ARRAY: */
+				/* 	return userdata.template as<PackedByteArray>(); */
+
+				/* case Variant::PACKED_INT32_ARRAY: */
+				/* 	return userdata.template as<PackedInt32Array>(); */
+
+				/* case Variant::PACKED_INT64_ARRAY: */
+				/* 	return userdata.template as<PackedInt64Array>(); */
+
+				/* case Variant::PACKED_FLOAT32_ARRAY: */
+				/* 	return userdata.template as<PackedFloat32Array>(); */
+
+				/* case Variant::PACKED_FLOAT64_ARRAY: */
+				/* 	return userdata.template as<PackedFloat64Array>(); */
+
+				/* case Variant::PACKED_STRING_ARRAY: */
+				/* 	return userdata.template as<PackedStringArray>(); */
+
+				/* case Variant::PACKED_VECTOR2_ARRAY: */
+				/* 	return userdata.template as<PackedVector2Array>(); */
+
+				/* case Variant::PACKED_VECTOR3_ARRAY: */
+				/* 	return userdata.template as<PackedVector3Array>(); */
+
+				/* case Variant::PACKED_COLOR_ARRAY: */
+				/* 	return userdata.template as<PackedColorArray>(); */
+
+				default:
+					ERR_FAIL_V_EDMSG(Variant(), "Got an unsupported variant type");
 			}
 		}
 
@@ -165,6 +212,10 @@ Variant to_variant(const sol::object& object) {
 
 Variant to_variant(const sol::stack_object& object) {
 	return to_variant<>(object);
+}
+
+Variant to_variant(const sol::stack_proxy& proxy) {
+	return to_variant<>(sol::stack_object(proxy.lua_state(), proxy.stack_index()));
 }
 
 Variant to_variant(const sol::protected_function_result& function_result) {
@@ -246,33 +297,100 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			sol::stack::push(lua_state, (Plane) value);
 			break;
 
-		case Variant::TRANSFORM2D:
 		case Variant::QUATERNION:
-		case Variant::AABB:
-		case Variant::BASIS:
-		case Variant::TRANSFORM3D:
-		case Variant::PROJECTION:
-		case Variant::COLOR:
-		case Variant::NODE_PATH:
-		case Variant::RID:
-		case Variant::OBJECT:
-		case Variant::CALLABLE:
-		case Variant::SIGNAL:
-		case Variant::DICTIONARY:
-		case Variant::ARRAY:
-		case Variant::PACKED_BYTE_ARRAY:
-		case Variant::PACKED_INT32_ARRAY:
-		case Variant::PACKED_INT64_ARRAY:
-		case Variant::PACKED_FLOAT32_ARRAY:
-		case Variant::PACKED_FLOAT64_ARRAY:
-		case Variant::PACKED_STRING_ARRAY:
-		case Variant::PACKED_VECTOR2_ARRAY:
-		case Variant::PACKED_VECTOR3_ARRAY:
-		case Variant::PACKED_COLOR_ARRAY:
-			WARN_PRINT_ONCE_ED("Lua type not yet supported");
+			sol::stack::push(lua_state, (Quaternion) value);
+			break;
 
-		case Variant::NIL:
+		case Variant::TRANSFORM2D:
+			sol::stack::push(lua_state, (Transform2D) value);
+			break;
+
+		case Variant::AABB:
+			sol::stack::push(lua_state, (AABB) value);
+			break;
+
+		case Variant::BASIS:
+			sol::stack::push(lua_state, (Basis) value);
+			break;
+
+		case Variant::TRANSFORM3D:
+			sol::stack::push(lua_state, (Transform3D) value);
+			break;
+
+		case Variant::PROJECTION:
+			sol::stack::push(lua_state, (Projection) value);
+			break;
+
+		case Variant::COLOR:
+			sol::stack::push(lua_state, (Color) value);
+			break;
+
+		case Variant::NODE_PATH:
+			sol::stack::push(lua_state, (NodePath) value);
+			break;
+
+		case Variant::RID:
+			sol::stack::push(lua_state, (RID) value);
+			break;
+
+		case Variant::OBJECT:
+			sol::stack::push(lua_state, (Object *) value);
+			break;
+
+		case Variant::CALLABLE:
+			sol::stack::push(lua_state, (Callable) value);
+			break;
+
+		case Variant::SIGNAL:
+			sol::stack::push(lua_state, (Signal) value);
+			break;
+
+		case Variant::DICTIONARY:
+			sol::stack::push(lua_state, (Dictionary) value);
+			break;
+
+		case Variant::ARRAY:
+			sol::stack::push(lua_state, (Array) value);
+			break;
+
+		case Variant::PACKED_BYTE_ARRAY:
+			sol::stack::push(lua_state, (PackedByteArray) value);
+			break;
+
+		case Variant::PACKED_INT32_ARRAY:
+			sol::stack::push(lua_state, (PackedInt32Array) value);
+			break;
+
+		case Variant::PACKED_INT64_ARRAY:
+			sol::stack::push(lua_state, (PackedInt64Array) value);
+			break;
+
+		case Variant::PACKED_FLOAT32_ARRAY:
+			sol::stack::push(lua_state, (PackedFloat32Array) value);
+			break;
+
+		case Variant::PACKED_FLOAT64_ARRAY:
+			sol::stack::push(lua_state, (PackedFloat64Array) value);
+			break;
+
+		case Variant::PACKED_STRING_ARRAY:
+			sol::stack::push(lua_state, (PackedStringArray) value);
+			break;
+
+		case Variant::PACKED_VECTOR2_ARRAY:
+			sol::stack::push(lua_state, (PackedVector2Array) value);
+			break;
+
+		case Variant::PACKED_VECTOR3_ARRAY:
+			sol::stack::push(lua_state, (PackedVector3Array) value);
+			break;
+
+		case Variant::PACKED_COLOR_ARRAY:
+			sol::stack::push(lua_state, (PackedColorArray) value);
+			break;
+
 		default:
+		case Variant::NIL:
 			sol::stack::push(lua_state, sol::nil);
 			break;
 	}

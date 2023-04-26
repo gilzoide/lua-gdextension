@@ -49,6 +49,7 @@ int luaopen_godot_math(lua_State *L) {
 	register_rect2(state);
 	register_rect2i(state);
 	register_plane(state);
+	register_quaternion(state);
 
 	return 0;
 }
