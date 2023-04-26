@@ -116,20 +116,20 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 				case Variant::QUATERNION:
 					return userdata.template as<Quaternion>();
 
-				case Variant::TRANSFORM2D:
-					return userdata.template as<Transform2D>();
-
 				case Variant::AABB:
 					return userdata.template as<AABB>();
 
 				case Variant::BASIS:
 					return userdata.template as<Basis>();
 
-				case Variant::TRANSFORM3D:
-					return userdata.template as<Transform3D>();
-
 				case Variant::PROJECTION:
 					return userdata.template as<Projection>();
+
+				case Variant::TRANSFORM2D:
+					return userdata.template as<Transform2D>();
+
+				case Variant::TRANSFORM3D:
+					return userdata.template as<Transform3D>();
 
 				case Variant::COLOR:
 					return userdata.template as<Color>();
@@ -301,10 +301,6 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			sol::stack::push(lua_state, (Quaternion) value);
 			break;
 
-		case Variant::TRANSFORM2D:
-			sol::stack::push(lua_state, (Transform2D) value);
-			break;
-
 		case Variant::AABB:
 			sol::stack::push(lua_state, (AABB) value);
 			break;
@@ -313,12 +309,16 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			sol::stack::push(lua_state, (Basis) value);
 			break;
 
-		case Variant::TRANSFORM3D:
-			sol::stack::push(lua_state, (Transform3D) value);
-			break;
-
 		case Variant::PROJECTION:
 			sol::stack::push(lua_state, (Projection) value);
+			break;
+
+		case Variant::TRANSFORM2D:
+			sol::stack::push(lua_state, (Transform2D) value);
+			break;
+
+		case Variant::TRANSFORM3D:
+			sol::stack::push(lua_state, (Transform3D) value);
 			break;
 
 		case Variant::COLOR:
