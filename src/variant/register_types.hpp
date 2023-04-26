@@ -38,6 +38,31 @@ void register_vector4i(sol::state_view& state);
 void register_rect2(sol::state_view& state);
 void register_rect2i(sol::state_view& state);
 void register_plane(sol::state_view& state);
+void register_quaternion(sol::state_view& state);
+void register_aabb(sol::state_view& state);
+void register_basis(sol::state_view& state);
+void register_transform2d(sol::state_view& state);
+void register_transform3d(sol::state_view& state);
+void register_projection(sol::state_view& state);
+
+void register_color(sol::state_view& state);
+void register_node_path(sol::state_view& state);
+void register_rid(sol::state_view& state);
+void register_object(sol::state_view& state);
+void register_callable(sol::state_view& state);
+void register_signal(sol::state_view& state);
+void register_dictionary(sol::state_view& state);
+void register_array(sol::state_view& state);
+
+void register_packed_byte_array(sol::state_view& state);
+void register_packed_int32_array(sol::state_view& state);
+void register_packed_int64_array(sol::state_view& state);
+void register_packed_float32_array(sol::state_view& state);
+void register_packed_float64_array(sol::state_view& state);
+void register_packed_string_array(sol::state_view& state);
+void register_packed_vector2_array(sol::state_view& state);
+void register_packed_vector3_array(sol::state_view& state);
+void register_packed_color_array(sol::state_view& state);
 
 }
 
