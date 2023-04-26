@@ -34,7 +34,13 @@ void register_plane(sol::state_view& state) {
 	state.new_usertype<Plane>(
 		"Plane",
 		// constructors
-		sol::call_constructor, sol::constructors<Plane(), Plane(real_t, real_t, real_t, real_t), Plane(const Vector3&, real_t), Plane(const Vector3&, const Vector3&), Plane(const Vector3&, const Vector3&, const Vector3&)>(),
+		sol::call_constructor, sol::constructors<
+			Plane(),
+			Plane(real_t, real_t, real_t, real_t),
+			Plane(const Vector3&, real_t),
+			Plane(const Vector3&, const Vector3&),
+			Plane(const Vector3&, const Vector3&, const Vector3&)
+		>(),
 		// properties
 		"normal", &Plane::normal,
 		"d", &Plane::d,

@@ -36,7 +36,10 @@ void register_vector4(sol::state_view& state) {
 	state.new_usertype<Vector4>(
 		"Vector4",
 		// constructors
-		sol::call_constructor, sol::constructors<Vector4(), Vector4(real_t, real_t, real_t, real_t)>(),
+		sol::call_constructor, sol::constructors<
+			Vector4(),
+			Vector4(real_t, real_t, real_t, real_t)
+		>(),
 		// properties
 		"x", &Vector4::x,  // (x, y, z, w)
 		"y", &Vector4::y,

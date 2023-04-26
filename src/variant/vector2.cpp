@@ -36,7 +36,10 @@ void register_vector2(sol::state_view& state) {
 	state.new_usertype<Vector2>(
 		"Vector2",
 		// constructors
-		sol::call_constructor, sol::constructors<Vector2(), Vector2(real_t, real_t)>(),
+		sol::call_constructor, sol::constructors<
+			Vector2(),
+			Vector2(real_t, real_t)
+		>(),
 		// properties
 		"x", &Vector2::x,  // (x, y)
 		"y", &Vector2::y,

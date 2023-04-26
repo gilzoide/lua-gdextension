@@ -36,7 +36,11 @@ void register_rect2i(sol::state_view& state) {
 	state.new_usertype<Rect2i>(
 		"Rect2i",
 		// constructors
-		sol::call_constructor, sol::constructors<Rect2i(), Rect2i(int, int, int, int), Rect2i(const Point2i&, const Size2i&)>(),
+		sol::call_constructor, sol::constructors<
+			Rect2i(),
+			Rect2i(int, int, int, int),
+			Rect2i(const Point2i&, const Size2i&)
+		>(),
 		// properties
 		"position", &Rect2i::position,
 		"size", &Rect2i::size,
