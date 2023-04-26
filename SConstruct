@@ -26,8 +26,15 @@ if env["target"] == "template_debug":
 
 env.Append(CPPPATH="lib/sol2/include")
 
+# Setup variant build dir for each setup
+def remove_prefix(s, prefix):
+    return s[len(prefix):] if s.startswith(prefix) else s
+
+build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
+VariantDir(build_dir, 'src', duplicate=False)
+
 # Build Lua GDExtension
-sources = Glob("src/*.cpp") + Glob("src/variant/*.cpp")
+sources = Glob("{}/*.cpp".format(build_dir)) + Glob("{}/variant/*.cpp".format(build_dir))
 if env["platform"] == "macos":
     library = env.SharedLibrary(
         "addons/lua-gdextension/build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(
