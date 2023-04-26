@@ -21,6 +21,7 @@
  */
 #include "register_types.hpp"
 
+#include "vector_helpers.hpp"
 #include "../constants.hpp"
 
 #include <godot_cpp/variant/basis.hpp>

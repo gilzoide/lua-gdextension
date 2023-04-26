@@ -19,25 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __REGISTER_TYPES_HPP__
-#define __REGISTER_TYPES_HPP__
-
-#include "../custom_sol.hpp"
-#include "../godot_utils.hpp"
-
-using namespace godot;
+#ifndef __VECTOR_HELPERS_HPP__
+#define __VECTOR_HELPERS_HPP__
 
 namespace luagdextension {
 
-void register_vector2(sol::state_view& state);
-void register_vector2i(sol::state_view& state);
-void register_vector3(sol::state_view& state);
-void register_vector3i(sol::state_view& state);
-void register_vector4(sol::state_view& state);
-void register_vector4i(sol::state_view& state);
-void register_rect2(sol::state_view& state);
-void register_rect2i(sol::state_view& state);
-void register_plane(sol::state_view& state);
+template<typename TVector>
+char vector_min_axis(const TVector& v) {
+	const char *vector_axes = "xyzw";
+	return vector_axes[v.min_axis_index()];
+}
+
+template<typename TVector>
+char vector_max_axis(const TVector& v) {
+	const char *vector_axes = "xyzw";
+	return vector_axes[v.max_axis_index()];
+}
 
 }
 
