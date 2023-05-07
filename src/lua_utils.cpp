@@ -29,6 +29,7 @@
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 #if LUA_VERSION_NUM >= 503
 #include <sol/utility/is_integer.hpp>
 #endif
@@ -422,7 +423,7 @@ static const char *file_reader(lua_State *L, FileReaderData *data, size_t *size)
 Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size) {
 	auto file = FileAccess::open(filename, godot::FileAccess::READ);
 	if (file == nullptr) {
-		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + error_to_string(FileAccess::get_open_error())) % filename));
+		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + UtilityFunctions::error_string(FileAccess::get_open_error())) % filename));
 	}
 
 	FileReaderData reader_data;
