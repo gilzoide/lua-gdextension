@@ -1,6 +1,7 @@
 [configuration]
 
 entry_symbol = "luagdextension_entrypoint"
+compatibility_minimum = "4.1"
 
 [libraries]
 
