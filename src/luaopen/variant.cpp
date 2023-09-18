@@ -41,7 +41,7 @@ Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_ob
 	Variant result;
 	Variant::evaluate(VarOperator, to_variant(a), to_variant(b), result, is_valid);
 	if (!is_valid) {
-		UtilityFunctions::printerr("TODO: OPERATOR ERROR ", to_variant(a), " ", to_variant(b));
+		luaL_error(a.lua_state(), "Error in operator. TODO: format error information");
 	}
 	return result;
 }
@@ -52,7 +52,7 @@ Variant evaluate_unary_operator(const sol::stack_object& a) {
 	Variant result;
 	Variant::evaluate(VarOperator, to_variant(a), Variant(), result, is_valid);
 	if (!is_valid) {
-		UtilityFunctions::printerr("TODO: OPERATOR ERROR ", to_variant(a));
+		luaL_error(a.lua_state(), "Error in operator. TODO: format error information");
 	}
 	return result;
 }
@@ -70,7 +70,7 @@ sol::stack_object variant_index(const Variant& variant, const sol::stack_object&
 	bool is_valid;
 	Variant result = variant.get(to_variant(key), &is_valid);
 	if (!is_valid) {
-		UtilityFunctions::printerr("TODO: INDEX ERROR ", to_variant(key));
+		luaL_error(L, "Error in __index. TODO: format error information");
 	}
 	return to_lua(L, result);
 }
@@ -79,7 +79,7 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	bool is_valid;
 	variant.set(to_variant(key), to_variant(value), &is_valid);
 	if (!is_valid) {
-		UtilityFunctions::printerr("TODO: NEWINDEX ERROR ", to_variant(key));
+		luaL_error(key.lua_state(), "Error in __newindex. TODO: format error information");
 	}
 }
 

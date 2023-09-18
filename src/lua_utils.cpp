@@ -31,9 +31,7 @@
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#if LUA_VERSION_NUM >= 503
 #include <sol/utility/is_integer.hpp>
-#endif
 
 using namespace godot;
 
@@ -61,11 +59,9 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return object.template as<String>();
 
 		case sol::type::number:
-#if LUA_VERSION_NUM >= 503
 			if (sol::utility::is_integer(object)) {
 				return object.template as<int64_t>();
 			}
-#endif
 			return object.template as<double>();
 
 		case sol::type::table:

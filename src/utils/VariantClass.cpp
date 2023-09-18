@@ -43,7 +43,7 @@ Variant VariantClass::construct(const sol::variadic_args& args) {
 	GDExtensionCallError error;
 	internal::gdextension_interface_variant_construct((GDExtensionVariantType) type, &result, (GDExtensionConstVariantPtr *) variant_args.argv(), variant_args.argc(), &error);
 	if (error.error != GDEXTENSION_CALL_OK) {
-		luaL_error(args.lua_state(), "TODO: Error in constructor");
+		luaL_error(args.lua_state(), "Error in constructor. TODO: format error information");
 	}
 	return result;
 }
