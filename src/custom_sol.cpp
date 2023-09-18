@@ -48,7 +48,3 @@ int sol_lua_push(lua_State* L, const StringName& str) {
 	return sol::stack::push(L, to_string_view(bytes));
 }
 
-Variant sol_lua_get(sol::types<Variant>, lua_State* L, int index, sol::stack::record& tracking) {
-	return to_variant(sol::stack_object(L, index));
-}
-
