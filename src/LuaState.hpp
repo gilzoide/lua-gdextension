@@ -69,10 +69,10 @@ public:
 		LUA = LUA_BASE | LUA_PACKAGE | LUA_COROUTINE | LUA_STRING | LUA_OS | LUA_MATH | LUA_TABLE | LUA_DEBUG | LUA_BIT32 | LUA_IO | LUA_FFI | LUA_JIT | LUA_UTF8,
 
 		// ----- Godot ----
-		GODOT_MATH = 1 << 13,
+		GODOT_VARIANT = 1 << 13,
 
 		// all of the above
-		GODOT = GODOT_MATH,
+		GODOT = GODOT_VARIANT,
 	};
 
 	LuaState();

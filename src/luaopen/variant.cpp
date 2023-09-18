@@ -20,38 +20,10 @@
  * SOFTWARE.
  */
 
-#include "luaopen_godot.hpp"
-
-#include "variant/register_types.hpp"
-
 #include <sol/sol.hpp>
 
-using namespace godot;
-using namespace luagdextension;
-
-int luaopen_godot(lua_State *L) {
-	luaL_requiref(L, "godot.math", &luaopen_godot_math, 0);
-	lua_pop(L, 1);
-
-	return 0;
-}
-
-
-int luaopen_godot_math(lua_State *L) {
+int luaopen_godot_variant(lua_State *L) {
 	sol::state_view state = L;
-
-	register_vector2(state);
-	register_vector2i(state);
-	register_vector3(state);
-	register_vector3i(state);
-	register_vector4(state);
-	register_vector4i(state);
-	register_rect2(state);
-	register_rect2i(state);
-	register_plane(state);
-	register_quaternion(state);
-	register_aabb(state);
-	register_basis(state);
 
 	return 0;
 }

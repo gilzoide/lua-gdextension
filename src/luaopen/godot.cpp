@@ -19,16 +19,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
 
-#include "lua.hpp"
+#include "godot.hpp"
 
-extern "C" {
+#include <sol/sol.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_math(lua_State *L);
+int luaopen_godot(lua_State *L) {
 
+	return 0;
 }
 
-#endif
