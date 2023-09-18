@@ -51,6 +51,7 @@ int luaopen_godot_math(lua_State *L) {
 	register_plane(state);
 	register_quaternion(state);
 	register_aabb(state);
+	register_basis(state);
 
 	return 0;
 }
