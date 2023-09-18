@@ -46,12 +46,23 @@ Variant construct_variant_from_lua(const sol::variadic_args& args) {
 }
 
 template<Variant::Operator VarOperator>
-Variant evaluate_operator(const sol::stack_object& a, const sol::stack_object& b) {
+Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
 	Variant::evaluate(VarOperator, to_variant(a), to_variant(b), result, is_valid);
 	if (!is_valid) {
-		UtilityFunctions::printerr("TODO: OPERATOR ERROR");
+		UtilityFunctions::printerr("TODO: OPERATOR ERROR ", to_variant(a), " ", to_variant(b));
+	}
+	return result;
+}
+
+template<Variant::Operator VarOperator>
+Variant evaluate_unary_operator(const sol::stack_object& a) {
+	bool is_valid;
+	Variant result;
+	Variant::evaluate(VarOperator, to_variant(a), Variant(), result, is_valid);
+	if (!is_valid) {
+		UtilityFunctions::printerr("TODO: OPERATOR ERROR ", to_variant(a));
 	}
 	return result;
 }
@@ -102,23 +113,23 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(const char *v)
 		>(),
 		// comparison
-		sol::meta_function::equal_to, &evaluate_operator<Variant::OP_EQUAL>,
-		sol::meta_function::less_than, &evaluate_operator<Variant::OP_LESS>,
-		sol::meta_function::less_than_or_equal_to, &evaluate_operator<Variant::OP_LESS_EQUAL>,
+		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,
+		sol::meta_function::less_than, &evaluate_binary_operator<Variant::OP_LESS>,
+		sol::meta_function::less_than_or_equal_to, &evaluate_binary_operator<Variant::OP_LESS_EQUAL>,
 		// mathematic
-		sol::meta_function::addition, &evaluate_operator<Variant::OP_ADD>,
-		sol::meta_function::subtraction, &evaluate_operator<Variant::OP_SUBTRACT>,
-		sol::meta_function::multiplication, &evaluate_operator<Variant::OP_MULTIPLY>,
-		sol::meta_function::division, &evaluate_operator<Variant::OP_DIVIDE>,
-		sol::meta_function::unary_minus, &evaluate_operator<Variant::OP_NEGATE>,
-		sol::meta_function::modulus, &evaluate_operator<Variant::OP_MODULE>,
+		sol::meta_function::addition, &evaluate_binary_operator<Variant::OP_ADD>,
+		sol::meta_function::subtraction, &evaluate_binary_operator<Variant::OP_SUBTRACT>,
+		sol::meta_function::multiplication, &evaluate_binary_operator<Variant::OP_MULTIPLY>,
+		sol::meta_function::division, &evaluate_binary_operator<Variant::OP_DIVIDE>,
+		sol::meta_function::unary_minus, &evaluate_unary_operator<Variant::OP_NEGATE>,
+		sol::meta_function::modulus, &evaluate_binary_operator<Variant::OP_MODULE>,
 		// bitwise
-		sol::meta_function::bitwise_left_shift, &evaluate_operator<Variant::OP_SHIFT_LEFT>,
-		sol::meta_function::bitwise_right_shift, &evaluate_operator<Variant::OP_SHIFT_RIGHT>,
-		sol::meta_function::bitwise_and, &evaluate_operator<Variant::OP_BIT_AND>,
-		sol::meta_function::bitwise_or, &evaluate_operator<Variant::OP_BIT_OR>,
-		sol::meta_function::bitwise_xor, &evaluate_operator<Variant::OP_BIT_XOR>,
-		sol::meta_function::bitwise_not, &evaluate_operator<Variant::OP_BIT_NEGATE>,
+		sol::meta_function::bitwise_left_shift, &evaluate_binary_operator<Variant::OP_SHIFT_LEFT>,
+		sol::meta_function::bitwise_right_shift, &evaluate_binary_operator<Variant::OP_SHIFT_RIGHT>,
+		sol::meta_function::bitwise_and, &evaluate_binary_operator<Variant::OP_BIT_AND>,
+		sol::meta_function::bitwise_or, &evaluate_binary_operator<Variant::OP_BIT_OR>,
+		sol::meta_function::bitwise_xor, &evaluate_binary_operator<Variant::OP_BIT_XOR>,
+		sol::meta_function::bitwise_not, &evaluate_unary_operator<Variant::OP_BIT_NEGATE>,
 		// misc
 		sol::meta_function::index, &variant_index,
 		sol::meta_function::new_index, &variant_newindex,
