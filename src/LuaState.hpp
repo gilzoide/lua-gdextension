@@ -23,7 +23,7 @@
 #define __LUA_STATE_HPP__
 
 #include "LuaTable.hpp"
-#include "custom_sol.hpp"
+#include "utils/custom_sol.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/hash_set.hpp>

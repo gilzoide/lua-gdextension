@@ -19,53 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#include "MethodBindByName.hpp"
 
-#include "utils/custom_sol.hpp"
+#include "VariantArguments.hpp"
 
-#include <godot_cpp/classes/ref_counted.hpp>
-
-using namespace godot;
+#include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+MethodBindByName::MethodBindByName(const StringName& method_name) : method_name(method_name) {}
 
-public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+const StringName& MethodBindByName::get_method_name() const {
+	return method_name;
+}
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::protected_function_result& function_result);
+Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
+	VariantArguments variant_args = args;
 
-	String get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
-};
+	Variant result;
+	GDExtensionCallError error;
+	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error != GDEXTENSION_CALL_OK) {
+		UtilityFunctions::printerr("Invalid call to method ", method_name, " in Variant of type ", variant.get_type());
+	}
+	return result;
+}
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
-
-#endif

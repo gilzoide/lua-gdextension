@@ -22,9 +22,8 @@
 #ifndef __LUA_UTILS_HPP__
 #define __LUA_UTILS_HPP__
 
-#include "custom_sol.hpp"
+#include "utils/custom_sol.hpp"
 
-#include <array>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
@@ -47,28 +46,6 @@ Dictionary to_dictionary(const sol::table& table);
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
 Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-
-class VariantArguments {
-	Vector<Variant> variants;
-	Vector<const Variant *> variant_pointers;
-
-public:
-	VariantArguments(const sol::variadic_args& args);
-
-	int argc() const;
-	const Variant **argv();
-	const Variant *const *argv() const;
-};
-
-class MethodBindByName {
-	StringName method_name;
-
-public:
-	MethodBindByName(const StringName& method_name);
-
-	const StringName& get_method_name() const;
-	Variant call(Variant& variant, const sol::variadic_args& args) const;
-};
 
 }
 

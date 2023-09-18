@@ -27,6 +27,8 @@
 
 #include "../godot_utils.hpp"
 #include "../lua_utils.hpp"
+#include "../utils/VariantArguments.hpp"
+#include "../utils/MethodBindByName.hpp"
 
 using namespace godot;
 

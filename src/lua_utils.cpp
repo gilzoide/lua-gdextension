@@ -217,43 +217,4 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 	return to_variant(lua_state.safe_script((lua_Reader) file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
 }
 
-VariantArguments::VariantArguments(const sol::variadic_args& args) {
-	for (auto it : args) {
-		variants.append(to_variant(it));
-	}
-	for (int i = 0; i < variants.size(); i++) {
-		variant_pointers.append(variants.ptr() + i);
-	}
-}
-
-int VariantArguments::argc() const {
-	return variants.size();
-}
-
-const Variant **VariantArguments::argv() {
-	return variant_pointers.ptrw();
-}
-const Variant *const *VariantArguments::argv() const {
-	return variant_pointers.ptr();
-}
-
-MethodBindByName::MethodBindByName(const StringName& method_name) : method_name(method_name) {}
-
-const StringName& MethodBindByName::get_method_name() const {
-	return method_name;
-}
-
-Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
-	VariantArguments variant_args = args;
-
-	Variant result;
-	GDExtensionCallError error;
-	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
-	if (error.error != GDEXTENSION_CALL_OK) {
-		UtilityFunctions::printerr("Invalid call to method ", method_name, " in Variant of type ", variant.get_type());
-	}
-	return result;
-}
-
-
 }

@@ -25,7 +25,6 @@
 #include <string>
 #include <string_view>
 
-#include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/string.hpp>
 
