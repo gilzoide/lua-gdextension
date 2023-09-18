@@ -28,24 +28,12 @@
 #include "../godot_utils.hpp"
 #include "../lua_utils.hpp"
 #include "../utils/VariantArguments.hpp"
+#include "../utils/VariantClass.hpp"
 #include "../utils/MethodBindByName.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
-
-template<Variant::Type VarType>
-Variant construct_variant_from_lua(const sol::variadic_args& args) {
-	VariantArguments variant_args = args;
-
-	Variant result;
-	GDExtensionCallError error;
-	internal::gdextension_interface_variant_construct((GDExtensionVariantType) VarType, &result, (GDExtensionConstVariantPtr *) variant_args.argv(), variant_args.argc(), &error);
-	if (error.error != GDEXTENSION_CALL_OK) {
-		UtilityFunctions::printerr("TODO: CONSTRUCT ERROR");
-	}
-	return result;
-}
 
 template<Variant::Operator VarOperator>
 Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_object& b) {
@@ -144,43 +132,49 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::to_string, &MethodBindByName::get_method_name
 	);
 
+	state.new_usertype<VariantClass>(
+		"VariantClass",
+		sol::meta_function::call, &VariantClass::construct,
+		sol::meta_function::to_string, &VariantClass::get_type_name
+	);
+
 	// math types
-	state.set_function("Vector2", &construct_variant_from_lua<Variant::VECTOR2>);
-	state.set_function("Vector2i", &construct_variant_from_lua<Variant::VECTOR2I>);
-	state.set_function("Rect2", &construct_variant_from_lua<Variant::RECT2>);
-	state.set_function("Rect2i", &construct_variant_from_lua<Variant::RECT2I>);
-	state.set_function("Vector3", &construct_variant_from_lua<Variant::VECTOR3>);
-	state.set_function("Vector3i", &construct_variant_from_lua<Variant::VECTOR3I>);
-	state.set_function("Transform2D", &construct_variant_from_lua<Variant::TRANSFORM2D>);
-	state.set_function("Vector4", &construct_variant_from_lua<Variant::VECTOR4>);
-	state.set_function("Vector4i", &construct_variant_from_lua<Variant::VECTOR4I>);
-	state.set_function("Plane", &construct_variant_from_lua<Variant::PLANE>);
-	state.set_function("Quaternion", &construct_variant_from_lua<Variant::QUATERNION>);
-	state.set_function("AABB", &construct_variant_from_lua<Variant::AABB>);
-	state.set_function("Basis", &construct_variant_from_lua<Variant::BASIS>);
-	state.set_function("Transform3D", &construct_variant_from_lua<Variant::TRANSFORM3D>);
-	state.set_function("Projection", &construct_variant_from_lua<Variant::PROJECTION>);
+	state.set("Vector2", VariantClass(Variant::VECTOR2));
+	state.set("Vector2i", VariantClass(Variant::VECTOR2I));
+	state.set("Rect2", VariantClass(Variant::RECT2));
+	state.set("Rect2i", VariantClass(Variant::RECT2I));
+	state.set("Vector3", VariantClass(Variant::VECTOR3));
+	state.set("Vector3i", VariantClass(Variant::VECTOR3I));
+	state.set("Transform2D", VariantClass(Variant::TRANSFORM2D));
+	state.set("Vector4", VariantClass(Variant::VECTOR4));
+	state.set("Vector4i", VariantClass(Variant::VECTOR4I));
+	state.set("Plane", VariantClass(Variant::PLANE));
+	state.set("Quaternion", VariantClass(Variant::QUATERNION));
+	state.set("AABB", VariantClass(Variant::AABB));
+	state.set("Basis", VariantClass(Variant::BASIS));
+	state.set("Transform3D", VariantClass(Variant::TRANSFORM3D));
+	state.set("Projection", VariantClass(Variant::PROJECTION));
 
 	// misc types
-	state.set_function("Color", &construct_variant_from_lua<Variant::COLOR>);
-	state.set_function("StringName", &construct_variant_from_lua<Variant::STRING_NAME>);
-	state.set_function("NodePath", &construct_variant_from_lua<Variant::NODE_PATH>);
-	state.set_function("RID", &construct_variant_from_lua<Variant::RID>);
-	state.set_function("Callable", &construct_variant_from_lua<Variant::CALLABLE>);
-	state.set_function("Signal", &construct_variant_from_lua<Variant::SIGNAL>);
-	state.set_function("Dictionary", &construct_variant_from_lua<Variant::DICTIONARY>);
-	state.set_function("Array", &construct_variant_from_lua<Variant::ARRAY>);
+	state.set("Color", VariantClass(Variant::COLOR));
+	state.set("StringName", VariantClass(Variant::STRING_NAME));
+	state.set("NodePath", VariantClass(Variant::NODE_PATH));
+	state.set("RID", VariantClass(Variant::RID));
+	state.set("Callable", VariantClass(Variant::CALLABLE));
+	state.set("Signal", VariantClass(Variant::SIGNAL));
+	state.set("Dictionary", VariantClass(Variant::DICTIONARY));
+	state.set("Array", VariantClass(Variant::ARRAY));
 
 	// typed arrays
-	state.set_function("PackedByteArray", &construct_variant_from_lua<Variant::PACKED_BYTE_ARRAY>);
-	state.set_function("PackedInt32Array", &construct_variant_from_lua<Variant::PACKED_INT32_ARRAY>);
-	state.set_function("PackedInt64Array", &construct_variant_from_lua<Variant::PACKED_INT64_ARRAY>);
-	state.set_function("PackedFloat32Array", &construct_variant_from_lua<Variant::PACKED_FLOAT32_ARRAY>);
-	state.set_function("PackedFloat64Array", &construct_variant_from_lua<Variant::PACKED_FLOAT64_ARRAY>);
-	state.set_function("PackedStringArray", &construct_variant_from_lua<Variant::PACKED_STRING_ARRAY>);
-	state.set_function("PackedVector2Array", &construct_variant_from_lua<Variant::PACKED_VECTOR2_ARRAY>);
-	state.set_function("PackedVector3Array", &construct_variant_from_lua<Variant::PACKED_VECTOR3_ARRAY>);
-	state.set_function("PackedColorArray", &construct_variant_from_lua<Variant::PACKED_COLOR_ARRAY>);
+	state.set("PackedByteArray", VariantClass(Variant::PACKED_BYTE_ARRAY));
+	state.set("PackedInt32Array", VariantClass(Variant::PACKED_INT32_ARRAY));
+	state.set("PackedInt64Array", VariantClass(Variant::PACKED_INT64_ARRAY));
+	state.set("PackedFloat32Array", VariantClass(Variant::PACKED_FLOAT32_ARRAY));
+	state.set("PackedFloat64Array", VariantClass(Variant::PACKED_FLOAT64_ARRAY));
+	state.set("PackedStringArray", VariantClass(Variant::PACKED_STRING_ARRAY));
+	state.set("PackedVector2Array", VariantClass(Variant::PACKED_VECTOR2_ARRAY));
+	state.set("PackedVector3Array", VariantClass(Variant::PACKED_VECTOR3_ARRAY));
+	state.set("PackedColorArray", VariantClass(Variant::PACKED_COLOR_ARRAY));
 
 	return 0;
 }
