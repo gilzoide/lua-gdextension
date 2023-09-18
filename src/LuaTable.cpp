@@ -60,24 +60,12 @@ size_t LuaTable::size() const {
 
 Dictionary LuaTable::to_dictionary() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
-	
-	Dictionary dict;
-	for (auto it : table) {
-		sol::object key, value;
-		std::tie(key, value) = it;
-		dict[to_variant(key)] = to_variant(value);
-	}
-	return dict;
+	return luagdextension::to_dictionary(table);
 }
 
 Array LuaTable::to_array() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Array(), "LuaTable does not have a valid table");
-
-	Array arr;
-	for (int i = 1; i <= table.size(); i++) {
-		arr.append(to_variant(table.get<sol::object>(i)));
-	}
-	return arr;
+	return luagdextension::to_array(table);
 }
 
 void LuaTable::_bind_methods() {

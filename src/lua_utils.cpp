@@ -167,6 +167,22 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	return sol::stack_object(lua_state, -1);
 }
 
+Array to_array(const sol::table& table) {
+	Array arr;
+	for (int i = 1; i <= table.size(); i++) {
+		arr.append(to_variant(table.get<sol::object>(i)));
+	}
+	return arr;
+}
+
+Dictionary to_dictionary(const sol::table& table) {
+	Dictionary dict;
+	for (auto it : table.pairs()) {
+		dict[to_variant(it.first)] = to_variant(it.second);
+	}
+	return dict;
+}
+
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
 	PackedByteArray bytes = chunk.to_utf8_buffer();
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
