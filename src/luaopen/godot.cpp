@@ -24,7 +24,9 @@
 
 #include <sol/sol.hpp>
 
-int luaopen_godot(lua_State *L) {
+extern "C" int luaopen_godot(lua_State *L) {
+	luaL_requiref(L, "godot.variant", &luaopen_godot_variant, 0);
+	lua_pop(L, 1);
 
 	return 0;
 }
