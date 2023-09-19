@@ -58,16 +58,19 @@ Variant evaluate_unary_operator(const sol::stack_object& a) {
 }
 
 sol::stack_object variant_index(const Variant& variant, const sol::stack_object& key) {
+	bool is_valid;
 	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
-		if (variant.has_method(string_name)) {
+		if (Variant::has_member(variant.get_type(), string_name)) {
+			return to_lua(L, variant.get_named(string_name, is_valid));
+		}
+		else if (variant.has_method(string_name)) {
 			sol::stack::push(L, MethodBindByName(string_name));
 			return sol::stack_object(L, -1);
 		}
 	}
 
-	bool is_valid;
 	Variant result = variant.get(to_variant(key), &is_valid);
 	if (!is_valid) {
 		luaL_error(L, "Error in __index. TODO: format error information");
