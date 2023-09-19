@@ -23,7 +23,7 @@
 #include "LuaTable.hpp"
 
 #include "LuaState.hpp"
-#include "lua_utils.hpp"
+#include "utils/convert_godot_lua.hpp"
 #include "utils/convert_godot_std.hpp"
 
 using namespace godot;

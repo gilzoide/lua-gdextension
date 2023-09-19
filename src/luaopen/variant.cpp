@@ -25,7 +25,7 @@
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "../lua_utils.hpp"
+#include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantClass.hpp"

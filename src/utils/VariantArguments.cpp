@@ -21,7 +21,7 @@
  */
 #include "VariantArguments.hpp"
 
-#include "../lua_utils.hpp"
+#include "convert_godot_lua.hpp"
 
 namespace luagdextension {
 

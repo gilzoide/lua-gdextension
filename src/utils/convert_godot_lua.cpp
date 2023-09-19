@@ -19,11 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "lua_utils.hpp"
+#include "convert_godot_lua.hpp"
 
-#include "LuaError.hpp"
-#include "LuaTable.hpp"
-#include "utils/convert_godot_std.hpp"
+#include "../LuaError.hpp"
+#include "../LuaTable.hpp"
+#include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
@@ -35,18 +35,6 @@
 using namespace godot;
 
 namespace luagdextension {
-
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
-	if (nsize == 0) {
-		if (ptr != nullptr) {
-			memfree(ptr);
-		}
-		return nullptr;
-	}
-	else {
-		return memrealloc(ptr, nsize);
-	}
-}
 
 template<typename ref_t>
 Variant to_variant(const sol::basic_object<ref_t>& object) {

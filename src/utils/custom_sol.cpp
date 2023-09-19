@@ -21,7 +21,7 @@
  */
 #include "custom_sol.hpp"
 
-#include "../lua_utils.hpp"
+#include "convert_godot_lua.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/variant/packed_byte_array.hpp>

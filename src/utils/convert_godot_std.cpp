@@ -21,8 +21,6 @@
  */
 #include "convert_godot_std.hpp"
 
-using namespace godot;
-
 namespace luagdextension {
 
 std::string to_std_string(const String& s) {

@@ -19,21 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
+#ifndef __UTILS_CONVERT_GODOT_LUA_HPP__
+#define __UTILS_CONVERT_GODOT_LUA_HPP__
 
-#include "utils/custom_sol.hpp"
+#include "custom_sol.hpp"
 
-#include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
-
-/// Lua memory allocation callback.
-/// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 
 Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
@@ -49,4 +44,4 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 
 }
 
-#endif
+#endif  // __UTILS_CONVERT_GODOT_STD_HPP__

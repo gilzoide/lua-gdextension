@@ -23,13 +23,27 @@
 
 #include "LuaState.hpp"
 #include "LuaError.hpp"
-#include "lua_utils.hpp"
 #include "luaopen/godot.hpp"
+#include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 
 namespace luagdextension {
+
+/// Lua memory allocation callback.
+/// Uses Godot memory functions.
+void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+	if (nsize == 0) {
+		if (ptr != nullptr) {
+			memfree(ptr);
+		}
+		return nullptr;
+	}
+	else {
+		return memrealloc(ptr, nsize);
+	}
+}
 
 LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 	table = lua_state.globals();

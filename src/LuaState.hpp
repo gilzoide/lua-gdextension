@@ -32,6 +32,12 @@ using namespace godot;
 
 namespace luagdextension {
 
+/**
+ * Lua memory allocation callback.
+ * Uses Godot memory functions.
+ */
+void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
+
 class LuaState : public LuaTable {
 	GDCLASS(LuaState, LuaTable);
 
