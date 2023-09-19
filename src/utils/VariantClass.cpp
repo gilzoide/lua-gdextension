@@ -22,6 +22,7 @@
 #include "VariantClass.hpp"
 
 #include "VariantArguments.hpp"
+#include "convert_godot_lua.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
@@ -37,6 +38,15 @@ String VariantClass::get_type_name() const {
 }
 
 Variant VariantClass::construct(const sol::variadic_args& args) {
+	if (args.size() == 1 && args.get_type() == sol::type::table) {
+		if (type == Variant::ARRAY) {
+			return to_array(args.get<sol::stack_table>());
+		}
+		else if (type == Variant::DICTIONARY) {
+			return to_dictionary(args.get<sol::stack_table>());
+		}
+	}
+
 	VariantArguments variant_args = args;
 
 	Variant result;
