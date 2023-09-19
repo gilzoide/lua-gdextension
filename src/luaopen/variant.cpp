@@ -86,6 +86,10 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	}
 }
 
+bool variant_is(const Variant& a, const VariantClass& cls) {
+	return a.get_type() == cls.get_type();
+}
+
 }
 
 using namespace luagdextension;
@@ -105,6 +109,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(double v),
 			Variant(const char *v)
 		>(),
+		"is", &variant_is,
 		// comparison
 		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,
 		sol::meta_function::less_than, &evaluate_binary_operator<Variant::OP_LESS>,
