@@ -23,7 +23,6 @@
 
 #include "LuaState.hpp"
 #include "LuaError.hpp"
-#include "godot_utils.hpp"
 #include "lua_utils.hpp"
 #include "luaopen/godot.hpp"
 

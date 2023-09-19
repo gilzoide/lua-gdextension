@@ -19,9 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "godot_utils.hpp"
-
-#include <godot_cpp/godot.hpp>
+#include "convert_godot_std.hpp"
 
 using namespace godot;
 

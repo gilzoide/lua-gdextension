@@ -23,8 +23,7 @@
 
 #include "LuaError.hpp"
 #include "LuaTable.hpp"
-#include "constants.hpp"
-#include "godot_utils.hpp"
+#include "utils/convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>

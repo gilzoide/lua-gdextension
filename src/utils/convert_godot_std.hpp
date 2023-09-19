@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __GODOT_UTILS_HPP__
-#define __GODOT_UTILS_HPP__
+#ifndef __UTILS_CONVERT_GODOT_STD_HPP__
+#define __UTILS_CONVERT_GODOT_STD_HPP__
 
 #include <string>
 #include <string_view>
@@ -37,4 +37,4 @@ std::string_view to_string_view(const PackedByteArray& bytes);
 
 }
 
-#endif
+#endif  // __UTILS_CONVERT_GODOT_STD_HPP__

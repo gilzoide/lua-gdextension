@@ -23,8 +23,8 @@
 #include "LuaTable.hpp"
 
 #include "LuaState.hpp"
-#include "godot_utils.hpp"
 #include "lua_utils.hpp"
+#include "utils/convert_godot_std.hpp"
 
 using namespace godot;
 
@@ -44,7 +44,6 @@ LuaTable::~LuaTable() {
 
 Variant LuaTable::geti(int64_t index) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
-
 	return to_variant(table[index].get<sol::object>());
 }
 
@@ -54,7 +53,6 @@ void LuaTable::seti(int64_t index, const Variant& value) {
 
 size_t LuaTable::size() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
-
 	return table.size();
 }
 
