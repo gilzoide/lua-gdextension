@@ -141,6 +141,12 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::to_string, &VariantClass::get_type_name
 	);
 
+	// atomic types
+	state.set("bool", VariantClass(Variant::BOOL));
+	state.set("int", VariantClass(Variant::INT));
+	state.set("float", VariantClass(Variant::FLOAT));
+	state.set("String", VariantClass(Variant::STRING));
+
 	// math types
 	state.set("Vector2", VariantClass(Variant::VECTOR2));
 	state.set("Vector2i", VariantClass(Variant::VECTOR2I));
