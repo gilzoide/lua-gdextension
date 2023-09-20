@@ -73,9 +73,6 @@ sol::stack_object variant_index(const Variant& variant, const sol::stack_object&
 	}
 
 	Variant result = variant.get(to_variant(key), &is_valid);
-	if (!is_valid) {
-		luaL_error(L, "Error in __index. TODO: format error information");
-	}
 	return to_lua(L, result);
 }
 
