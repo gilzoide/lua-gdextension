@@ -92,9 +92,16 @@ sol::stack_object variant_index(const Variant& variant, const sol::stack_object&
 
 void variant_newindex(Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
 	bool is_valid;
-	variant.set(to_variant(key), to_variant(value), &is_valid);
+	Variant var_key = to_variant(key);
+	Variant var_value = to_variant(value);
+	variant.set(var_key, var_value, &is_valid);
 	if (!is_valid) {
-		luaL_error(key.lua_state(), "Error in __newindex. TODO: format error information");
+		luaL_error(
+			key.lua_state(),
+			"Could not set value for key '%s' with an object of type %s",
+			var_key.stringify().to_utf8_buffer().ptr(),
+			get_type_name(variant).ptr()
+		);
 	}
 }
 
