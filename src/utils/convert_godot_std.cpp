@@ -21,6 +21,8 @@
  */
 #include "convert_godot_std.hpp"
 
+#include <godot_cpp/classes/object.hpp>
+
 namespace luagdextension {
 
 std::string to_std_string(const String& s) {
@@ -34,6 +36,72 @@ std::string to_std_string(const String& s) {
 
 std::string_view to_string_view(const PackedByteArray& bytes) {
 	return std::string_view((const char *) bytes.ptr(), bytes.size());
+}
+
+PackedByteArray get_type_name(const Variant& variant) {
+	Variant::Type type = variant.get_type();
+	if (type == Variant::OBJECT) {
+		Object *object = variant;
+		return object->get_class().to_ascii_buffer();
+	}
+	else {
+		return Variant::get_type_name(type).to_ascii_buffer();
+	}
+}
+
+const char *get_operator_name(Variant::Operator op) {
+	switch (op) {
+		case Variant::OP_EQUAL:
+			return "==";
+		case Variant::OP_NOT_EQUAL:
+			return "~=";
+		case Variant::OP_LESS:
+			return "<";
+		case Variant::OP_LESS_EQUAL:
+			return "<=";
+		case Variant::OP_GREATER:
+			return ">";
+		case Variant::OP_GREATER_EQUAL:
+			return ">=";
+		case Variant::OP_ADD:
+			return "+";
+		case Variant::OP_SUBTRACT:
+			return "-";
+		case Variant::OP_MULTIPLY:
+			return "*";
+		case Variant::OP_DIVIDE:
+			return "/";
+		case Variant::OP_NEGATE:
+			return "-";
+		case Variant::OP_POSITIVE:
+			return "+";
+		case Variant::OP_MODULE:
+			return "%";
+		case Variant::OP_SHIFT_LEFT:
+			return "<<";
+		case Variant::OP_SHIFT_RIGHT:
+			return ">>";
+		case Variant::OP_BIT_AND:
+			return "&";
+		case Variant::OP_BIT_OR:
+			return "|";
+		case Variant::OP_BIT_XOR:
+			return "^";
+		case Variant::OP_BIT_NEGATE:
+			return "~";
+		case Variant::OP_AND:
+			return "and";
+		case Variant::OP_OR:
+			return "or";
+		case Variant::OP_XOR:
+			return "^";
+		case Variant::OP_NOT:
+			return "not";
+		case Variant::OP_IN:
+			return "in";
+		default:
+			return "";
+	}
 }
 
 }

@@ -40,9 +40,17 @@ template<Variant::Operator VarOperator>
 Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
-	Variant::evaluate(VarOperator, to_variant(a), to_variant(b), result, is_valid);
+	Variant var_a = to_variant(a);
+	Variant var_b = to_variant(b);
+	Variant::evaluate(VarOperator, var_a, var_b, result, is_valid);
 	if (!is_valid) {
-		luaL_error(a.lua_state(), "Error in operator. TODO: format error information");
+		luaL_error(
+			a.lua_state(),
+			"Invalid call to operator %s between %s and %s.",
+			get_operator_name(VarOperator),
+			get_type_name(var_a).ptr(),
+			get_type_name(var_b).ptr()
+		);
 	}
 	return result;
 }
@@ -51,9 +59,15 @@ template<Variant::Operator VarOperator>
 Variant evaluate_unary_operator(const sol::stack_object& a) {
 	bool is_valid;
 	Variant result;
-	Variant::evaluate(VarOperator, to_variant(a), Variant(), result, is_valid);
+	Variant var_a = to_variant(a);
+	Variant::evaluate(VarOperator, var_a, Variant(), result, is_valid);
 	if (!is_valid) {
-		luaL_error(a.lua_state(), "Error in operator. TODO: format error information");
+		luaL_error(
+			a.lua_state(),
+			"Invalid call to operator %s with type %s.",
+			get_operator_name(VarOperator),
+			get_type_name(var_a).ptr()
+		);
 	}
 	return result;
 }

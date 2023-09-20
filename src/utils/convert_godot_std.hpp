@@ -27,6 +27,7 @@
 
 #include <godot_cpp/variant/packed_byte_array.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
@@ -34,6 +35,9 @@ namespace luagdextension {
 
 std::string to_std_string(const String& s);
 std::string_view to_string_view(const PackedByteArray& bytes);
+
+PackedByteArray get_type_name(const Variant& variant);
+const char *get_operator_name(Variant::Operator op);
 
 }
 
