@@ -19,35 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_VARIANT_CLASS_HPP__
-#define __UTILS_VARIANT_CLASS_HPP__
+#include "VariantClassMethod.hpp"
 
-#include "custom_sol.hpp"
-#include <godot_cpp/variant/variant.hpp>
-
-using namespace godot;
+#include "VariantArguments.hpp"
 
 namespace luagdextension {
 
-/**
- * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
- */
-class VariantClass {
-protected:
-	Variant::Type type;
+VariantClassMethod::VariantClassMethod(Variant::Type type, const StringName& method_name) : type(type), method_name(method_name) {}
 
-public:
-	VariantClass(Variant::Type type);
-
-	Variant::Type get_type() const;
-	String get_type_name() const;
-
-	Variant construct(const sol::variadic_args& args) const;
-	bool has_method(const StringName& method) const;
-
-	static void register_usertype(sol::state_view& state);
-};
-
+Variant::Type VariantClassMethod::get_type() const {
+	return type;
 }
 
-#endif  // __UTILS_VARIANT_CLASS_HPP__
+const StringName& VariantClassMethod::get_method_name() const {
+	return method_name;
+}
+
+Variant VariantClassMethod::call(const sol::variadic_args& args) const {
+	VariantArguments variant_args = args;
+
+	Variant result;
+	GDExtensionCallError error;
+	Variant::call_static(type, method_name, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error != GDEXTENSION_CALL_OK) {
+		PackedByteArray method_name_utf8 = method_name.to_utf8_buffer();
+		luaL_error(args.lua_state(), "Invalid static call to method %s in Variant of type %d", method_name_utf8.ptr(), type);
+	}
+	return result;
+}
+
+void VariantClassMethod::register_usertype(sol::state_view& state) {
+	state.new_usertype<VariantClassMethod>(
+		"VariantClassMethod",
+		sol::call_constructor, sol::constructors<
+			VariantClassMethod(Variant::Type, const StringName&)
+		>(),
+		sol::meta_function::call, &VariantClassMethod::call
+	);
+}
+
+}

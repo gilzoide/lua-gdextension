@@ -29,6 +29,7 @@
 #include "../utils/convert_godot_std.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantClass.hpp"
+#include "../utils/VariantClassMethod.hpp"
 #include "../utils/MethodBindByName.hpp"
 
 using namespace godot;
@@ -136,6 +137,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 
 	MethodBindByName::register_usertype(state);
 	VariantClass::register_usertype(state);
+	VariantClassMethod::register_usertype(state);
 
 	// atomic types
 	state.set("bool", VariantClass(Variant::BOOL));
