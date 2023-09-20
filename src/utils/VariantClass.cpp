@@ -37,7 +37,7 @@ String VariantClass::get_type_name() const {
 	return Variant::get_type_name(type);
 }
 
-Variant VariantClass::construct(const sol::variadic_args& args) {
+Variant VariantClass::construct(const sol::variadic_args& args) const {
 	if (args.size() == 1 && args.get_type() == sol::type::table) {
 		if (type == Variant::ARRAY) {
 			return to_array(args.get<sol::stack_table>());
@@ -56,6 +56,14 @@ Variant VariantClass::construct(const sol::variadic_args& args) {
 		luaL_error(args.lua_state(), "Error in constructor. TODO: format error information");
 	}
 	return result;
+}
+
+void VariantClass::register_usertype(sol::state_view& state) {
+	state.new_usertype<VariantClass>(
+		"VariantClass",
+		sol::meta_function::call, &VariantClass::construct,
+		sol::meta_function::to_string, &VariantClass::get_type_name
+	);
 }
 
 }

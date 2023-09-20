@@ -24,7 +24,6 @@
 
 #include "custom_sol.hpp"
 
-#include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
@@ -42,6 +41,8 @@ public:
 
 	const StringName& get_method_name() const;
 	Variant call(Variant& variant, const sol::variadic_args& args) const;
+
+	static void register_usertype(sol::state_view& L);
 };
 
 }

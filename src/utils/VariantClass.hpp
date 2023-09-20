@@ -42,7 +42,9 @@ public:
 	Variant::Type get_type() const;
 	String get_type_name() const;
 
-	Variant construct(const sol::variadic_args& args);
+	Variant construct(const sol::variadic_args& args) const;
+
+	static void register_usertype(sol::state_view& state);
 };
 
 }

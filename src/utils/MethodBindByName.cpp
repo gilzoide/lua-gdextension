@@ -45,4 +45,15 @@ Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args)
 	return result;
 }
 
+void MethodBindByName::register_usertype(sol::state_view& state) {
+	state.new_usertype<MethodBindByName>(
+		"MethodBindByName",
+		sol::call_constructor, sol::constructors<
+			MethodBindByName(const StringName&)
+		>(),
+		sol::meta_function::call, &MethodBindByName::call,
+		sol::meta_function::to_string, &MethodBindByName::get_method_name
+	);
+}
+
 }

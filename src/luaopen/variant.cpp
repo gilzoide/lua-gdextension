@@ -134,17 +134,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::to_string, &Variant::operator String
 	);
 
-	state.new_usertype<MethodBindByName>(
-		"MethodBindByName",
-		sol::meta_function::call, &MethodBindByName::call,
-		sol::meta_function::to_string, &MethodBindByName::get_method_name
-	);
-
-	state.new_usertype<VariantClass>(
-		"VariantClass",
-		sol::meta_function::call, &VariantClass::construct,
-		sol::meta_function::to_string, &VariantClass::get_type_name
-	);
+	MethodBindByName::register_usertype(state);
+	VariantClass::register_usertype(state);
 
 	// atomic types
 	state.set("bool", VariantClass(Variant::BOOL));
