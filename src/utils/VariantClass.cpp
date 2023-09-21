@@ -21,8 +21,8 @@
  */
 #include "VariantClass.hpp"
 
+#include "MethodBindByName.hpp"
 #include "VariantArguments.hpp"
-#include "VariantClassMethod.hpp"
 #include "convert_godot_lua.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -71,7 +71,7 @@ static sol::stack_object __index(const VariantClass& cls, const sol::stack_objec
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
 		if (cls.has_method(method)) {
-			sol::stack::push(L, VariantClassMethod(cls.get_type(), method));
+			sol::stack::push(L, MethodBindByName(method));
 			return sol::stack_object(L, -1);
 		}
 	}

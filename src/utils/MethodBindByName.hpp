@@ -41,6 +41,7 @@ public:
 
 	const StringName& get_method_name() const;
 	Variant call(Variant& variant, const sol::variadic_args& args) const;
+	std::tuple<bool, Variant> pcall(Variant& variant, const sol::variadic_args& args) const;
 
 	static void register_usertype(sol::state_view& L);
 };

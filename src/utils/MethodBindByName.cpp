@@ -22,6 +22,8 @@
 #include "MethodBindByName.hpp"
 
 #include "VariantArguments.hpp"
+#include "convert_godot_lua.hpp"
+#include "convert_godot_std.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -34,15 +36,11 @@ const StringName& MethodBindByName::get_method_name() const {
 }
 
 Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
-	VariantArguments variant_args = args;
+	return luagdextension::variant_call(variant, to_string_view(method_name.to_ascii_buffer()), args);
+}
 
-	Variant result;
-	GDExtensionCallError error;
-	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
-	if (error.error != GDEXTENSION_CALL_OK) {
-		UtilityFunctions::printerr("Invalid call to method ", method_name, " in Variant of type ", variant.get_type());
-	}
-	return result;
+std::tuple<bool, Variant> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args) const {
+	return luagdextension::variant_pcall(variant, to_string_view(method_name.to_ascii_buffer()), args);
 }
 
 void MethodBindByName::register_usertype(sol::state_view& state) {
@@ -51,6 +49,8 @@ void MethodBindByName::register_usertype(sol::state_view& state) {
 		sol::call_constructor, sol::constructors<
 			MethodBindByName(const StringName&)
 		>(),
+		"call", &MethodBindByName::call,
+		"pcall", &MethodBindByName::pcall,
 		sol::meta_function::call, &MethodBindByName::call,
 		sol::meta_function::to_string, &MethodBindByName::get_method_name
 	);

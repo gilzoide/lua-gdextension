@@ -23,6 +23,7 @@
 
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
+#include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -169,6 +170,39 @@ Dictionary to_dictionary(const sol::table& table) {
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
 	PackedByteArray bytes = chunk.to_utf8_buffer();
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
+}
+
+Variant variant_call(Variant& variant, const std::string_view& method, const sol::variadic_args& args) {
+	VariantArguments variant_args = args;
+	StringName method_name = method.data();
+
+	Variant result;
+	GDExtensionCallError error;
+	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error != GDEXTENSION_CALL_OK) {
+		String message = String("Invalid call to method '{0}' in object of type {1}: {2}").format(Array::make(method_name, get_type_name(variant), to_string(error)));
+		luaL_error(
+			args.lua_state(),
+			"%s",
+			message.ascii().ptr()
+		);
+	}
+	return result;
+}
+
+std::tuple<bool, Variant> variant_pcall(Variant& variant, const std::string_view& method, const sol::variadic_args& args) {
+	VariantArguments variant_args = args;
+	StringName method_name = method.data();
+
+	Variant result;
+	GDExtensionCallError error;
+	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error == GDEXTENSION_CALL_OK) {
+		return std::make_tuple(true, result);
+	}
+	else {
+		return std::make_tuple(false, to_string(error));
+	}
 }
 
 struct FileReaderData {

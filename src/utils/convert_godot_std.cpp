@@ -38,14 +38,14 @@ std::string_view to_string_view(const PackedByteArray& bytes) {
 	return std::string_view((const char *) bytes.ptr(), bytes.size());
 }
 
-PackedByteArray get_type_name(const Variant& variant) {
+String get_type_name(const Variant& variant) {
 	Variant::Type type = variant.get_type();
 	if (type == Variant::OBJECT) {
 		Object *object = variant;
-		return object->get_class().to_ascii_buffer();
+		return object->get_class();
 	}
 	else {
-		return Variant::get_type_name(type).to_ascii_buffer();
+		return Variant::get_type_name(type);
 	}
 }
 
@@ -99,6 +99,26 @@ const char *get_operator_name(Variant::Operator op) {
 			return "not";
 		case Variant::OP_IN:
 			return "in";
+		default:
+			return "";
+	}
+}
+
+String to_string(const GDExtensionCallError& call_error) {
+	switch (call_error.error) {
+        case GDEXTENSION_CALL_ERROR_INVALID_METHOD:
+			return "Invalid method";
+		case GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT:
+			return "Invalid argument";
+		case GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS:
+			return "Too many arguments";
+		case GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS:
+			return "Too few arguments";
+		case GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL:
+			return "Instance is null";
+		case GDEXTENSION_CALL_ERROR_METHOD_NOT_CONST:
+			return "Method is not const";
+		case GDEXTENSION_CALL_OK:
 		default:
 			return "";
 	}
