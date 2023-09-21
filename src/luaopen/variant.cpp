@@ -109,6 +109,10 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	}
 }
 
+int variant_length(Variant variant, const sol::this_state& state) {
+	return variant_call(variant, "size", sol::variadic_args(state, 0));
+}
+
 bool variant_is(const Variant& a, const VariantClass& cls) {
 	return a.get_type() == cls.get_type();
 }
@@ -156,6 +160,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		// misc
 		sol::meta_function::index, &variant_index,
 		sol::meta_function::new_index, &variant_newindex,
+		sol::meta_function::length, &variant_length,
 		sol::meta_function::to_string, &Variant::operator String
 	);
 
