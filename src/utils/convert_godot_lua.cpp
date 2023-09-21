@@ -172,37 +172,37 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
-Variant variant_call(Variant& variant, const std::string_view& method, const sol::variadic_args& args) {
+Variant variant_call(Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
-	StringName method_name = method.data();
 
 	Variant result;
 	GDExtensionCallError error;
-	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
+	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error != GDEXTENSION_CALL_OK) {
-		String message = String("Invalid call to method '{0}' in object of type {1}: {2}").format(Array::make(method_name, get_type_name(variant), to_string(error)));
-		luaL_error(
-			args.lua_state(),
-			"%s",
-			message.ascii().ptr()
-		);
+		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
+		lua_error(args.lua_state(), error, message);
 	}
 	return result;
 }
+Variant variant_call(Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_call(variant, StringName(method), args);
+}
 
-std::tuple<bool, Variant> variant_pcall(Variant& variant, const std::string_view& method, const sol::variadic_args& args) {
+std::tuple<bool, Variant> variant_pcall(Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
-	StringName method_name = method.data();
 
 	Variant result;
 	GDExtensionCallError error;
-	variant.call(method_name, variant_args.argv(), variant_args.argc(), result, error);
+	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error == GDEXTENSION_CALL_OK) {
 		return std::make_tuple(true, result);
 	}
 	else {
 		return std::make_tuple(false, to_string(error));
 	}
+}
+std::tuple<bool, Variant> variant_pcall(Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_pcall(variant, StringName(method), args);
 }
 
 struct FileReaderData {
@@ -232,6 +232,12 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 	reader_data.file = file.ptr();
 	reader_data.buffer_size = buffer_size;
 	return to_variant(lua_state.safe_script((lua_Reader) file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
+}
+
+void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {
+	CharString prefix = prefix_message.ascii();
+	CharString error_str = to_string(call_error).ascii();
+	luaL_error(L, "%s: %s", prefix.ptr(), error_str.ptr());
 }
 
 }

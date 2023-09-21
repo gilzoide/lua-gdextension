@@ -36,11 +36,11 @@ const StringName& MethodBindByName::get_method_name() const {
 }
 
 Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
-	return luagdextension::variant_call(variant, to_string_view(method_name.to_ascii_buffer()), args);
+	return luagdextension::variant_call(variant, method_name, args);
 }
 
 std::tuple<bool, Variant> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args) const {
-	return luagdextension::variant_pcall(variant, to_string_view(method_name.to_ascii_buffer()), args);
+	return luagdextension::variant_pcall(variant, method_name, args);
 }
 
 void MethodBindByName::register_usertype(sol::state_view& state) {

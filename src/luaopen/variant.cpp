@@ -43,12 +43,14 @@ Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_ob
 	Variant var_b = to_variant(b);
 	Variant::evaluate(VarOperator, var_a, var_b, result, is_valid);
 	if (!is_valid) {
+		CharString a_str = get_type_name(var_a).ascii();
+		CharString b_str = get_type_name(var_b).ascii();
 		luaL_error(
 			a.lua_state(),
 			"Invalid call to operator %s between %s and %s.",
 			get_operator_name(VarOperator),
-			get_type_name(var_a).ptr(),
-			get_type_name(var_b).ptr()
+			a_str.ptr(),
+			b_str.ptr()
 		);
 	}
 	return result;
@@ -61,11 +63,12 @@ Variant evaluate_unary_operator(const sol::stack_object& a) {
 	Variant var_a = to_variant(a);
 	Variant::evaluate(VarOperator, var_a, Variant(), result, is_valid);
 	if (!is_valid) {
+		CharString a_str = get_type_name(var_a).ascii();
 		luaL_error(
 			a.lua_state(),
 			"Invalid call to operator %s with type %s.",
 			get_operator_name(VarOperator),
-			get_type_name(var_a).ptr()
+			a_str.ptr()
 		);
 	}
 	return result;
@@ -95,11 +98,13 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	Variant var_value = to_variant(value);
 	variant.set(var_key, var_value, &is_valid);
 	if (!is_valid) {
+		CharString key_str = var_key.stringify().utf8();
+		CharString variant_str = get_type_name(variant).ascii();
 		luaL_error(
 			key.lua_state(),
 			"Could not set value for key '%s' with an object of type %s",
-			var_key.stringify().to_utf8_buffer().ptr(),
-			get_type_name(variant).ptr()
+			key_str.ptr(),
+			variant_str.ptr()
 		);
 	}
 }
@@ -127,8 +132,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(double v),
 			Variant(const char *v)
 		>(),
-		"call", &variant_call,
-		"pcall", &variant_pcall,
+		"call", sol::resolve<Variant(Variant&, const char *, const sol::variadic_args&)>(&variant_call),
+		"pcall", sol::resolve<std::tuple<bool, Variant>(Variant&, const char *, const sol::variadic_args&)>(&variant_pcall),
 		"is", &variant_is,
 		// comparison
 		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,
