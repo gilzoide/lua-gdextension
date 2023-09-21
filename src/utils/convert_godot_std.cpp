@@ -94,7 +94,7 @@ const char *get_operator_name(Variant::Operator op) {
 		case Variant::OP_OR:
 			return "or";
 		case Variant::OP_XOR:
-			return "^";
+			return "~";
 		case Variant::OP_NOT:
 			return "not";
 		case Variant::OP_IN:
