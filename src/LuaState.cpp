@@ -111,6 +111,9 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_VARIANT)) {
 			lua_state.require("godot.variant", &luaopen_godot_variant, false);
 		}
+		if (libraries.has_flag(GODOT_UTILITY_FUNCTIONS)) {
+			lua_state.require("godot.utility_functions", &luaopen_godot_utility_functions, false);
+		}
 	}
 }
 
@@ -152,6 +155,7 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA);
 
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
+	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
 	BIND_BITFIELD_FLAG(GODOT);
 
 	// Methods

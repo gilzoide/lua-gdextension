@@ -28,8 +28,7 @@
 #ifndef __CUSTOM_SOL_HPP__
 #define __CUSTOM_SOL_HPP__
 
-#include <godot_cpp/variant/string.hpp>
-#include <godot_cpp/variant/string_name.hpp>
+#include <godot_cpp/variant/variant.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;
@@ -53,5 +52,40 @@ bool sol_lua_check(sol::types<StringName>, lua_State* L, int index, Handler&& ha
 }
 StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking);
 int sol_lua_push(lua_State* L, const StringName& str);
+
+// Custom push conversions to Variant
+int sol_lua_push(lua_State* L, const Vector2 &v);
+int sol_lua_push(lua_State* L, const Vector2i &v);
+int sol_lua_push(lua_State* L, const Rect2 &v);
+int sol_lua_push(lua_State* L, const Rect2i &v);
+int sol_lua_push(lua_State* L, const Vector3 &v);
+int sol_lua_push(lua_State* L, const Vector3i &v);
+int sol_lua_push(lua_State* L, const Transform2D &v);
+int sol_lua_push(lua_State* L, const Vector4 &v);
+int sol_lua_push(lua_State* L, const Vector4i &v);
+int sol_lua_push(lua_State* L, const Plane &v);
+int sol_lua_push(lua_State* L, const Quaternion &v);
+int sol_lua_push(lua_State* L, const AABB &v);
+int sol_lua_push(lua_State* L, const Basis &v);
+int sol_lua_push(lua_State* L, const Transform3D &v);
+int sol_lua_push(lua_State* L, const Projection &v);
+int sol_lua_push(lua_State* L, const Color &v);
+int sol_lua_push(lua_State* L, const NodePath &v);
+int sol_lua_push(lua_State* L, const RID &v);
+int sol_lua_push(lua_State* L, const ObjectID &v);
+int sol_lua_push(lua_State* L, Object *v);
+int sol_lua_push(lua_State* L, const Callable &v);
+int sol_lua_push(lua_State* L, const Signal &v);
+int sol_lua_push(lua_State* L, const Dictionary &v);
+int sol_lua_push(lua_State* L, const Array &v);
+int sol_lua_push(lua_State* L, const PackedByteArray &v);
+int sol_lua_push(lua_State* L, const PackedInt32Array &v);
+int sol_lua_push(lua_State* L, const PackedInt64Array &v);
+int sol_lua_push(lua_State* L, const PackedFloat32Array &v);
+int sol_lua_push(lua_State* L, const PackedFloat64Array &v);
+int sol_lua_push(lua_State* L, const PackedStringArray &v);
+int sol_lua_push(lua_State* L, const PackedVector2Array &v);
+int sol_lua_push(lua_State* L, const PackedVector3Array &v);
+int sol_lua_push(lua_State* L, const PackedColorArray &v);
 
 #endif
