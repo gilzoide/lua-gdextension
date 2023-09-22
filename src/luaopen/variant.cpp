@@ -169,6 +169,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(double v),
 			Variant(const char *v)
 		>(),
+		"booleanize", &Variant::booleanize,
+		"duplicate", &Variant::duplicate,
 		"call", sol::resolve<Variant(Variant&, const char *, const sol::variadic_args&)>(&variant_call),
 		"pcall", sol::resolve<std::tuple<bool, Variant>(Variant&, const char *, const sol::variadic_args&)>(&variant_pcall),
 		"get_type", &variant_get_type,
