@@ -67,21 +67,24 @@ bool VariantClass::has_method(const StringName& method) const {
 	return error.error != GDEXTENSION_CALL_ERROR_INVALID_METHOD && error.error != GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
 }
 
-static sol::stack_object __index(const VariantClass& cls, const sol::stack_object& key) {
+bool VariantClass::operator==(const VariantClass& other) const {
+	return type == other.type;
+}
+
+static sol::optional<MethodBindByName> __index(const VariantClass& cls, const sol::stack_object& key) {
 	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
 		if (cls.has_method(method)) {
-			sol::stack::push(L, MethodBindByName(method));
-			return sol::stack_object(L, -1);
+			return MethodBindByName(method);
 		}
 	}
-	sol::stack::push(L, sol::nil);
-	return sol::stack_object(L, -1);
+	return {};
 }
 void VariantClass::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantClass>(
 		"VariantClass",
+		"has_method", &VariantClass::has_method,
 		sol::meta_function::index, &__index,
 		sol::meta_function::call, &VariantClass::construct,
 		sol::meta_function::to_string, &VariantClass::get_type_name

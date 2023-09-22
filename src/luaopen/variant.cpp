@@ -133,6 +133,10 @@ std::tuple<sol::object, sol::object> variant_pairs(const Variant& variant, sol::
 	return ObjectIterator::object_pairs(variant, state);
 }
 
+VariantClass variant_get_type(const Variant& variant) {
+	return VariantClass(variant.get_type());
+}
+
 bool variant_is(const Variant& variant, const sol::stack_object& type) {
 	if (type.get_type() == sol::type::nil) {
 		return variant.get_type() == Variant::NIL;
@@ -167,6 +171,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		>(),
 		"call", sol::resolve<Variant(Variant&, const char *, const sol::variadic_args&)>(&variant_call),
 		"pcall", sol::resolve<std::tuple<bool, Variant>(Variant&, const char *, const sol::variadic_args&)>(&variant_pcall),
+		"get_type", &variant_get_type,
+		"get_type_name", &get_type_name,
 		"is", &variant_is,
 		// comparison
 		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,

@@ -45,6 +45,8 @@ public:
 	Variant construct(const sol::variadic_args& args) const;
 	bool has_method(const StringName& method) const;
 
+	bool operator==(const VariantClass& other) const;
+
 	static void register_usertype(sol::state_view& state);
 };
 
