@@ -29,24 +29,43 @@
 
 using namespace godot;
 
-namespace luagdextension {
+namespace luagdextension::function_wrapper {
 
+/**
+ * Argument wrapper for converting Lua objects to Variant.
+ * If T is Variant, wrapper argument will be sol::object.
+ * Otherwise, use T.
+ */
 template<typename T>
 struct WrappedArg {
 	// T == Variant ? sol::object : T
 	using type = typename std::conditional<std::is_same<std::decay_t<T>, Variant>::value, sol::object, T>::type;
 };
 
-template<typename T> decltype(auto) unwrap_variant(T value) { return value; }
-template<> inline decltype(auto) unwrap_variant(sol::object value) { return to_variant(value); }
+/// Unwrap a value. Returns value unchanged, by default
+template<typename T> decltype(auto) unwrap_value(T value) { return value; }
+/// Unwrap a Lua object to Variant.
+template<> inline decltype(auto) unwrap_value(sol::object value) { return to_variant(value); }
 
+}
+
+namespace luagdextension {
+
+/**
+ * Wrap a function to be used in Lua.
+ * Variant arguments are converted nicely, so the runtime doesn't crash.
+ */
 template<typename RetType, typename... VariantArgs>
 decltype(auto) wrap_function(RetType(*f)(VariantArgs... args)) {
-	return [f](typename WrappedArg<VariantArgs>::type... lua_args) {
-		return f(unwrap_variant(lua_args)...);
+	return [f](typename function_wrapper::WrappedArg<VariantArgs>::type... lua_args) {
+		return f(function_wrapper::unwrap_value(lua_args)...);
 	};
 }
 
+/**
+ * Wrap a variadic function to be used in Lua.
+ * Variant arguments are converted nicely, so the runtime won't crash.
+ */
 template<typename T>
 decltype(auto) wrap_function(T(*f)(const Variant **, GDExtensionInt)) {
 	return [f](sol::variadic_args args) {
