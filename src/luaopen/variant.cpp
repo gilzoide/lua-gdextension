@@ -133,8 +133,17 @@ std::tuple<sol::object, sol::object> variant_pairs(const Variant& variant, sol::
 	return ObjectIterator::object_pairs(variant, state);
 }
 
-bool variant_is(const Variant& a, const VariantClass& cls) {
-	return a.get_type() == cls.get_type();
+bool variant_is(const Variant& variant, const sol::stack_object& type) {
+	if (type.get_type() == sol::type::nil) {
+		return variant.get_type() == Variant::NIL;
+	}
+	else if (type.get_type() == sol::type::string) {
+		return get_type_name(variant) == type.as<String>();
+	}
+	else if (type.is<VariantClass>()) {
+		return variant.get_type() == type.as<VariantClass>().get_type();
+	}
+	return false;
 }
 
 }
