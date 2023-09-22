@@ -173,6 +173,9 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		"pcall", sol::resolve<std::tuple<bool, Variant>(Variant&, const char *, const sol::variadic_args&)>(&variant_pcall),
 		"get_type", &variant_get_type,
 		"get_type_name", &get_type_name,
+		"hash", &Variant::hash,
+		"recursive_hash", &Variant::recursive_hash,
+		"hash_compare", &Variant::hash_compare,
 		"is", &variant_is,
 		// comparison
 		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,
