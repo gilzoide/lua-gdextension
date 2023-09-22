@@ -22,6 +22,7 @@
 #include "ObjectIterator.hpp"
 
 #include "convert_godot_lua.hpp"
+#include "convert_godot_std.hpp"
 
 namespace luagdextension {
 
@@ -58,7 +59,8 @@ std::tuple<sol::object, sol::object> ObjectIterator::object_pairs(const Variant&
 		);
 	}
 	else {
-		luaL_error(state, "Invalid iterator");
+		CharString var_type = get_type_name(variant).ascii();
+		luaL_error(state, "Object of type %s does not support 'pairs' iteration", var_type.ptr());
 		return {};
 	}
 }
