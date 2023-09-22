@@ -40,7 +40,11 @@ build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
 VariantDir(build_dir, 'src', duplicate=False)
 
 # Build Lua GDExtension
-sources = Glob("{}/*.cpp".format(build_dir)) + Glob("{}/variant/*.cpp".format(build_dir))
+source_directories = [".", "luaopen", "utils"]
+sources = [
+    Glob("{}/{}/*.cpp".format(build_dir, directory))
+    for directory in source_directories
+]
 if env["platform"] == "macos":
     library = env.SharedLibrary(
         "addons/lua-gdextension/build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(

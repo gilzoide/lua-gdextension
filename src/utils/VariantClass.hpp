@@ -19,53 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#ifndef __UTILS_VARIANT_CLASS_HPP__
+#define __UTILS_VARIANT_CLASS_HPP__
 
-#include "utils/custom_sol.hpp"
-
-#include <godot_cpp/classes/ref_counted.hpp>
+#include "custom_sol.hpp"
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+/**
+ * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
+ */
+class VariantClass {
+protected:
+	Variant::Type type;
 
 public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+	VariantClass(Variant::Type type);
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::protected_function_result& function_result);
+	Variant::Type get_type() const;
+	String get_type_name() const;
 
-	String get_message() const;
-	void set_message(const String& message);
+	Variant construct(const sol::variadic_args& args) const;
+	bool has_method(const StringName& method) const;
 
-	Status get_status() const;
-	void set_status(Status status);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
+	static void register_usertype(sol::state_view& state);
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __UTILS_VARIANT_CLASS_HPP__

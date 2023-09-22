@@ -19,53 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#ifndef __UTILS_CONVERT_GODOT_STD_HPP__
+#define __UTILS_CONVERT_GODOT_STD_HPP__
 
-#include "utils/custom_sol.hpp"
+#include <string>
+#include <string_view>
 
-#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+std::string to_std_string(const String& s);
+std::string_view to_string_view(const PackedByteArray& bytes);
 
-public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+String get_type_name(const Variant& variant);
+const char *get_operator_name(Variant::Operator op);
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::protected_function_result& function_result);
-
-	String get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
-};
+String to_string(const GDExtensionCallError& call_error);
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __UTILS_CONVERT_GODOT_STD_HPP__

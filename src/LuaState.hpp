@@ -23,7 +23,7 @@
 #define __LUA_STATE_HPP__
 
 #include "LuaTable.hpp"
-#include "custom_sol.hpp"
+#include "utils/custom_sol.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/templates/hash_set.hpp>
@@ -31,6 +31,12 @@
 using namespace godot;
 
 namespace luagdextension {
+
+/**
+ * Lua memory allocation callback.
+ * Uses Godot memory functions.
+ */
+void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 
 class LuaState : public LuaTable {
 	GDCLASS(LuaState, LuaTable);
@@ -69,10 +75,10 @@ public:
 		LUA = LUA_BASE | LUA_PACKAGE | LUA_COROUTINE | LUA_STRING | LUA_OS | LUA_MATH | LUA_TABLE | LUA_DEBUG | LUA_BIT32 | LUA_IO | LUA_FFI | LUA_JIT | LUA_UTF8,
 
 		// ----- Godot ----
-		GODOT_MATH = 1 << 13,
+		GODOT_VARIANT = 1 << 13,
 
 		// all of the above
-		GODOT = GODOT_MATH,
+		GODOT = GODOT_VARIANT,
 	};
 
 	LuaState();

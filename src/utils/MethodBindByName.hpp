@@ -19,23 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __GODOT_UTILS_HPP__
-#define __GODOT_UTILS_HPP__
+#ifndef __UTILS_METHOD_BIND_BY_NAME_HPP__
+#define __UTILS_METHOD_BIND_BY_NAME_HPP__
 
-#include <string>
-#include <string_view>
+#include "custom_sol.hpp"
 
-#include <godot_cpp/classes/global_constants.hpp>
-#include <godot_cpp/variant/packed_byte_array.hpp>
-#include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-std::string to_std_string(const String& s);
-std::string_view to_string_view(const PackedByteArray& bytes);
+/**
+ * Utility class to call a method by name.
+ */
+class MethodBindByName {
+	StringName method_name;
+
+public:
+	MethodBindByName(const StringName& method_name);
+
+	const StringName& get_method_name() const;
+	Variant call(Variant& variant, const sol::variadic_args& args) const;
+	std::tuple<bool, Variant> pcall(Variant& variant, const sol::variadic_args& args) const;
+
+	static void register_usertype(sol::state_view& state);
+};
 
 }
 
-#endif
+#endif  // __UTILS_METHOD_BIND_BY_NAME_HPP__

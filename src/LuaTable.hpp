@@ -22,7 +22,7 @@
 #ifndef __LUA_TABLE_HPP__
 #define __LUA_TABLE_HPP__
 
-#include "custom_sol.hpp"
+#include "utils/custom_sol.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>

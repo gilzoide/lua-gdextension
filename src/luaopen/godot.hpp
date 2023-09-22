@@ -19,22 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __VECTOR_HELPERS_HPP__
-#define __VECTOR_HELPERS_HPP__
+#ifndef __LUAOPEN_GODOT_HPP__
+#define __LUAOPEN_GODOT_HPP__
 
-namespace luagdextension {
+#include "lua.hpp"
 
-template<typename TVector>
-char vector_min_axis(const TVector& v) {
-	const char *vector_axes = "xyzw";
-	return vector_axes[v.min_axis_index()];
-}
+extern "C" {
 
-template<typename TVector>
-char vector_max_axis(const TVector& v) {
-	const char *vector_axes = "xyzw";
-	return vector_axes[v.max_axis_index()];
-}
+int luaopen_godot(lua_State *L);
+int luaopen_godot_variant(lua_State *L);
 
 }
 

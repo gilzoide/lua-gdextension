@@ -19,29 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_UTILS_HPP__
-#define __LUA_UTILS_HPP__
+#include "DictionaryIterator.hpp"
 
-#include "custom_sol.hpp"
-
-#include <godot_cpp/variant/variant.hpp>
-
-using namespace godot;
+#include "convert_godot_lua.hpp"
 
 namespace luagdextension {
 
-/// Lua memory allocation callback.
-/// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
+DictionaryIterator::DictionaryIterator(const Dictionary& dictionary)
+		: dictionary(dictionary), keys(dictionary.keys()), index(-1) {}
 
-Variant to_variant(const sol::object& object);
-Variant to_variant(const sol::stack_object& object);
-Variant to_variant(const sol::protected_function_result& function_result);
-sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
-
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-
+std::tuple<Variant, Variant> DictionaryIterator::iter_next() {
+	index++;
+	if (index < keys.size()) {
+		Variant key = keys[index];
+		return std::make_tuple(key, dictionary.get(key, Variant()));
+	}
+	else {
+		return std::make_tuple(Variant(), Variant());
+	}
 }
 
-#endif
+std::tuple<sol::object, sol::object> DictionaryIterator::iter_next_lua(sol::this_state state) {
+	Variant key, value;
+	std::tie(key, value) = iter_next();
+	if (key.get_type() != Variant::NIL) {
+		return std::make_tuple(to_lua(state, key), to_lua(state, value));
+	}
+	else {
+		return std::make_tuple(sol::nil, sol::nil);
+	}
+}
+
+std::tuple<sol::object, sol::object> DictionaryIterator::dictionary_pairs(const Dictionary& dictionary, sol::this_state state) {
+	return std::make_tuple(
+		sol::make_object(state, &DictionaryIterator::iter_next_lua),
+		sol::make_object(state, DictionaryIterator(dictionary))
+	);
+}
+
+}

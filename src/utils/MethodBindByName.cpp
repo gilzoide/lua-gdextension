@@ -19,13 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __CONSTANTS_HPP__
-#define __CONSTANTS_HPP__
+#include "MethodBindByName.hpp"
+
+#include "VariantArguments.hpp"
+#include "convert_godot_lua.hpp"
+#include "convert_godot_std.hpp"
+
+#include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
 
-constexpr const char *LUA_META_VARIANT_TYPE = "__variant_type";
+MethodBindByName::MethodBindByName(const StringName& method_name) : method_name(method_name) {}
 
+const StringName& MethodBindByName::get_method_name() const {
+	return method_name;
 }
 
-#endif
+Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
+	return luagdextension::variant_call(variant, method_name, args);
+}
+
+std::tuple<bool, Variant> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args) const {
+	return luagdextension::variant_pcall(variant, method_name, args);
+}
+
+void MethodBindByName::register_usertype(sol::state_view& state) {
+	state.new_usertype<MethodBindByName>(
+		"MethodBindByName",
+		sol::call_constructor, sol::constructors<
+			MethodBindByName(const StringName&)
+		>(),
+		"call", &MethodBindByName::call,
+		"pcall", &MethodBindByName::pcall,
+		sol::meta_function::call, &MethodBindByName::call,
+		sol::meta_function::to_string, &MethodBindByName::get_method_name
+	);
+}
+
+}

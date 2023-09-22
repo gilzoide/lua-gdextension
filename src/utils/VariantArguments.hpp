@@ -19,16 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_VARIANT_ARGUMENTS_HPP__
+#define __UTILS_VARIANT_ARGUMENTS_HPP__
 
-#include "lua.hpp"
+#include "custom_sol.hpp"
 
-extern "C" {
+#include <godot_cpp/templates/vector.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_math(lua_State *L);
+using namespace godot;
+
+namespace luagdextension {
+
+/**
+ * Convert between sol::variadic_args to Variant argc/argv.
+ */
+class VariantArguments {
+	Vector<Variant> variants;
+	Vector<const Variant *> variant_pointers;
+
+public:
+	VariantArguments(const sol::variadic_args& args);
+
+	int argc() const;
+	const Variant **argv();
+	const Variant *const *argv() const;
+};
 
 }
 
-#endif
+#endif  // __UTILS_VARIANT_ARGUMENTS_HPP__

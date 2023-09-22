@@ -19,26 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "godot_utils.hpp"
+#ifndef __UTILS_DICTIONARY_ITERATOR_HPP__
+#define __UTILS_DICTIONARY_ITERATOR_HPP__
 
-#include <godot_cpp/godot.hpp>
+#include "custom_sol.hpp"
+
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-std::string to_std_string(const String& s) {
-	if (s.is_empty()) {
-		return "";
-	}
+class DictionaryIterator {
+	Dictionary dictionary;
+	Array keys;
+	int index;
 
-	PackedByteArray bytes = s.to_utf8_buffer();
-	return std::string((const char *) bytes.ptr(), bytes.size());
+public:
+	DictionaryIterator(const Dictionary& dictionary);
+
+	std::tuple<Variant, Variant> iter_next();
+	std::tuple<sol::object, sol::object> iter_next_lua(sol::this_state state);
+
+	static std::tuple<sol::object, sol::object> dictionary_pairs(const Dictionary& dictionary, sol::this_state state);
+};
+
 }
 
-std::string_view to_string_view(const PackedByteArray& bytes) {
-	return std::string_view((const char *) bytes.ptr(), bytes.size());
-}
-
-}
+#endif  // __UTILS_DICTIONARY_ITERATOR_HPP__
 

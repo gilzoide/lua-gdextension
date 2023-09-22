@@ -19,53 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#include "custom_sol.hpp"
 
-#include "utils/custom_sol.hpp"
+#include "convert_godot_lua.hpp"
+#include "convert_godot_std.hpp"
 
-#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 
-using namespace godot;
+using namespace luagdextension;
 
-namespace luagdextension {
-
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
-
-public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
-
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::protected_function_result& function_result);
-
-	String get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
-};
-
+String sol_lua_get(sol::types<String>, lua_State* L, int index, sol::stack::record& tracking) {
+	auto sv = sol::stack::get<std::string_view>(L, index);
+	return String::utf8(sv.data(), sv.size());
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+int sol_lua_push(lua_State* L, const String& str) {
+	PackedByteArray bytes = str.to_utf8_buffer();
+	return sol::stack::push(L, to_string_view(bytes));
+}
+
+StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking) {
+	const char *str = sol::stack::get<const char *>(L, index);
+	return StringName(str);
+}
+
+int sol_lua_push(lua_State* L, const StringName& str) {
+	PackedByteArray bytes = str.to_utf8_buffer();
+	return sol::stack::push(L, to_string_view(bytes));
+}
+

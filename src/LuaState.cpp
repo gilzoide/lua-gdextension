@@ -23,14 +23,27 @@
 
 #include "LuaState.hpp"
 #include "LuaError.hpp"
-#include "godot_utils.hpp"
-#include "lua_utils.hpp"
-#include "luaopen_godot.hpp"
+#include "luaopen/godot.hpp"
+#include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 
 namespace luagdextension {
+
+/// Lua memory allocation callback.
+/// Uses Godot memory functions.
+void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+	if (nsize == 0) {
+		if (ptr != nullptr) {
+			memfree(ptr);
+		}
+		return nullptr;
+	}
+	else {
+		return memrealloc(ptr, nsize);
+	}
+}
 
 LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 	table = lua_state.globals();
@@ -95,8 +108,8 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		lua_state.require("godot", &luaopen_godot, false);
 	}
 	else {
-		if (libraries.has_flag(GODOT_MATH)) {
-			lua_state.require("godot.math", &luaopen_godot_math, false);
+		if (libraries.has_flag(GODOT_VARIANT)) {
+			lua_state.require("godot.variant", &luaopen_godot_variant, false);
 		}
 	}
 }
@@ -138,7 +151,7 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA_UTF8);
 	BIND_BITFIELD_FLAG(LUA);
 
-	BIND_BITFIELD_FLAG(GODOT_MATH);
+	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT);
 
 	// Methods

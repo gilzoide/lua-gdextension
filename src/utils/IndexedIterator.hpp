@@ -19,36 +19,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __UTILS_INDEXED_ITERATOR_HPP__
+#define __UTILS_INDEXED_ITERATOR_HPP__
+
 #include "custom_sol.hpp"
 
-#include "godot_utils.hpp"
-#include "lua_utils.hpp"
+#include <godot_cpp/variant/variant.hpp>
 
-#include <godot_cpp/variant/packed_byte_array.hpp>
+using namespace godot;
 
-using namespace luagdextension;
+namespace luagdextension {
 
-String sol_lua_get(sol::types<String>, lua_State* L, int index, sol::stack::record& tracking) {
-	auto sv = sol::stack::get<std::string_view>(L, index);
-	return String::utf8(sv.data(), sv.size());
+class IndexedIterator {
+	Variant variant;
+	int index;
+
+public:
+	IndexedIterator(const Variant& variant);
+
+	std::tuple<int, Variant> iter_next();
+	std::tuple<sol::object, sol::object> iter_next_lua(sol::this_state state);
+
+	static bool supports_indexed_pairs(const Variant& variant);
+	static std::tuple<sol::object, sol::object> indexed_pairs(const Variant& variant, sol::this_state state);
+};
+
 }
 
-int sol_lua_push(lua_State* L, const String& str) {
-	PackedByteArray bytes = str.to_utf8_buffer();
-	return sol::stack::push(L, to_string_view(bytes));
-}
-
-StringName sol_lua_get(sol::types<StringName>, lua_State* L, int index, sol::stack::record& tracking) {
-	const char *str = sol::stack::get<const char *>(L, index);
-	return StringName(str);
-}
-
-int sol_lua_push(lua_State* L, const StringName& str) {
-	PackedByteArray bytes = str.to_utf8_buffer();
-	return sol::stack::push(L, to_string_view(bytes));
-}
-
-Variant sol_lua_get(sol::types<Variant>, lua_State* L, int index, sol::stack::record& tracking) {
-	return to_variant(sol::stack_object(L, index));
-}
+#endif  // __UTILS_INDEXED_ITERATOR_HPP__
 
