@@ -19,33 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_METHOD_BIND_BY_NAME_HPP__
-#define __UTILS_METHOD_BIND_BY_NAME_HPP__
+#include "ObjectIterator.hpp"
 
-#include "custom_sol.hpp"
-
-#include <godot_cpp/variant/variant.hpp>
-
-using namespace godot;
+#include "convert_godot_lua.hpp"
 
 namespace luagdextension {
 
-/**
- * Utility class to call a method by name.
- */
-class MethodBindByName {
-	StringName method_name;
+ObjectIterator::ObjectIterator(const Variant& variant, const Variant& iterator)
+		: variant(variant), iterator(iterator) {}
 
-public:
-	MethodBindByName(const StringName& method_name);
-
-	const StringName& get_method_name() const;
-	Variant call(Variant& variant, const sol::variadic_args& args) const;
-	std::tuple<bool, Variant> pcall(Variant& variant, const sol::variadic_args& args) const;
-
-	static void register_usertype(sol::state_view& state);
-};
-
+Variant ObjectIterator::iter_next() {
+	bool is_valid;
+	if (variant.iter_next(iterator, is_valid)) {
+		return variant.iter_get(iterator, is_valid);
+	}
+	else {
+		return Variant();
+	}
 }
 
-#endif  // __UTILS_METHOD_BIND_BY_NAME_HPP__
+sol::object ObjectIterator::iter_next_lua(sol::this_state state) {
+	bool is_valid;
+	if (variant.iter_next(iterator, is_valid)) {
+		return to_lua(state, variant.iter_get(iterator, is_valid));
+	}
+	else {
+		return sol::nil;
+	}
+}
+
+std::tuple<sol::object, sol::object> ObjectIterator::object_pairs(const Variant& variant, sol::this_state state) {
+	bool is_valid;
+	Variant iterator = variant.iter_get(variant, is_valid);
+	if (is_valid) {
+		return std::make_tuple(
+			sol::make_object(state, &ObjectIterator::iter_next_lua),
+			sol::make_object(state, ObjectIterator(variant, iterator))
+		);
+	}
+	else {
+		luaL_error(state, "Invalid iterator");
+		return {};
+	}
+}
+
+}

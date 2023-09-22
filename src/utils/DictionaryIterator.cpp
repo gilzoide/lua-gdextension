@@ -19,33 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_METHOD_BIND_BY_NAME_HPP__
-#define __UTILS_METHOD_BIND_BY_NAME_HPP__
+#include "DictionaryIterator.hpp"
 
-#include "custom_sol.hpp"
-
-#include <godot_cpp/variant/variant.hpp>
-
-using namespace godot;
+#include "convert_godot_lua.hpp"
 
 namespace luagdextension {
 
-/**
- * Utility class to call a method by name.
- */
-class MethodBindByName {
-	StringName method_name;
+DictionaryIterator::DictionaryIterator(const Dictionary& dictionary)
+		: dictionary(dictionary), keys(dictionary.keys()), index(-1) {}
 
-public:
-	MethodBindByName(const StringName& method_name);
-
-	const StringName& get_method_name() const;
-	Variant call(Variant& variant, const sol::variadic_args& args) const;
-	std::tuple<bool, Variant> pcall(Variant& variant, const sol::variadic_args& args) const;
-
-	static void register_usertype(sol::state_view& state);
-};
-
+std::tuple<Variant, Variant> DictionaryIterator::iter_next() {
+	index++;
+	if (index < keys.size()) {
+		Variant key = keys[index];
+		return std::make_tuple(key, dictionary.get(key, Variant()));
+	}
+	else {
+		return std::make_tuple(Variant(), Variant());
+	}
 }
 
-#endif  // __UTILS_METHOD_BIND_BY_NAME_HPP__
+std::tuple<sol::object, sol::object> DictionaryIterator::iter_next_lua(sol::this_state state) {
+	Variant key, value;
+	std::tie(key, value) = iter_next();
+	if (key.get_type() != Variant::NIL) {
+		return std::make_tuple(to_lua(state, key), to_lua(state, value));
+	}
+	else {
+		return std::make_tuple(sol::nil, sol::nil);
+	}
+}
+
+std::tuple<sol::object, sol::object> DictionaryIterator::dictionary_pairs(const Dictionary& dictionary, sol::this_state state) {
+	return std::make_tuple(
+		sol::make_object(state, &DictionaryIterator::iter_next_lua),
+		sol::make_object(state, DictionaryIterator(dictionary))
+	);
+}
+
+}

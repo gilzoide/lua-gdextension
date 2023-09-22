@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_METHOD_BIND_BY_NAME_HPP__
-#define __UTILS_METHOD_BIND_BY_NAME_HPP__
+#ifndef __UTILS_OBJECT_ITERATOR_HPP__
+#define __UTILS_OBJECT_ITERATOR_HPP__
 
 #include "custom_sol.hpp"
 
@@ -30,22 +30,20 @@ using namespace godot;
 
 namespace luagdextension {
 
-/**
- * Utility class to call a method by name.
- */
-class MethodBindByName {
-	StringName method_name;
+class ObjectIterator {
+	Variant variant;
+	Variant iterator;
 
 public:
-	MethodBindByName(const StringName& method_name);
+	ObjectIterator(const Variant& variant, const Variant& iterator);
 
-	const StringName& get_method_name() const;
-	Variant call(Variant& variant, const sol::variadic_args& args) const;
-	std::tuple<bool, Variant> pcall(Variant& variant, const sol::variadic_args& args) const;
+	Variant iter_next();
+	sol::object iter_next_lua(sol::this_state state);
 
-	static void register_usertype(sol::state_view& state);
+	static std::tuple<sol::object, sol::object> object_pairs(const Variant& variant, sol::this_state state);
 };
 
 }
 
-#endif  // __UTILS_METHOD_BIND_BY_NAME_HPP__
+#endif  // __UTILS_OBJECT_ITERATOR_HPP__
+

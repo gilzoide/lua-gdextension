@@ -27,6 +27,9 @@
 
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
+#include "../utils/DictionaryIterator.hpp"
+#include "../utils/IndexedIterator.hpp"
+#include "../utils/ObjectIterator.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantClass.hpp"
 #include "../utils/MethodBindByName.hpp"
@@ -47,7 +50,7 @@ Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_ob
 		CharString b_str = get_type_name(var_b).ascii();
 		luaL_error(
 			a.lua_state(),
-			"Invalid call to operator %s between %s and %s.",
+			"Invalid call to operator '%s' between %s and %s.",
 			get_operator_name(VarOperator),
 			a_str.ptr(),
 			b_str.ptr()
@@ -117,6 +120,19 @@ String variant_concat(const sol::stack_object& a, const sol::stack_object& b) {
 	return String(to_variant(a)) + String(to_variant(b));
 }
 
+std::tuple<sol::object, sol::object> variant_pairs(const Variant& variant, sol::this_state state) {
+	if (variant.get_type() == Variant::DICTIONARY) {
+		Dictionary dictionary = variant;
+		return DictionaryIterator::dictionary_pairs(dictionary, state);
+	}
+
+	if (IndexedIterator::supports_indexed_pairs(variant)) {
+		return IndexedIterator::indexed_pairs(variant, state);
+	}
+
+	return ObjectIterator::object_pairs(variant, state);
+}
+
 bool variant_is(const Variant& a, const VariantClass& cls) {
 	return a.get_type() == cls.get_type();
 }
@@ -166,6 +182,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::new_index, &variant_newindex,
 		sol::meta_function::length, &variant_length,
 		sol::meta_function::concatenation, &variant_concat,
+		sol::meta_function::pairs, &variant_pairs,
 		sol::meta_function::to_string, &Variant::operator String
 	);
 
