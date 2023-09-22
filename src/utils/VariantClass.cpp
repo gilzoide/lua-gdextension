@@ -60,7 +60,7 @@ Variant VariantClass::construct(const sol::variadic_args& args) const {
 	return result;
 }
 
-bool VariantClass::has_method(const StringName& method) const {
+bool VariantClass::has_static_method(const StringName& method) const {
 	Variant result;
 	GDExtensionCallError error;
 	Variant::call_static(type, method, (const Variant **) NULL, 0, result, error);
@@ -75,7 +75,7 @@ static sol::optional<MethodBindByName> __index(const VariantClass& cls, const so
 	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
-		if (cls.has_method(method)) {
+		if (cls.has_static_method(method)) {
 			return MethodBindByName(method);
 		}
 	}
@@ -84,7 +84,7 @@ static sol::optional<MethodBindByName> __index(const VariantClass& cls, const so
 void VariantClass::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantClass>(
 		"VariantClass",
-		"has_method", &VariantClass::has_method,
+		"has_static_method", &VariantClass::has_static_method,
 		sol::meta_function::index, &__index,
 		sol::meta_function::call, &VariantClass::construct,
 		sol::meta_function::to_string, &VariantClass::get_type_name
