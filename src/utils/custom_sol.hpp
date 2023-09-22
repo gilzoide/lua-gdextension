@@ -28,8 +28,7 @@
 #ifndef __CUSTOM_SOL_HPP__
 #define __CUSTOM_SOL_HPP__
 
-#include <godot_cpp/variant/string.hpp>
-#include <godot_cpp/variant/string_name.hpp>
+#include <godot_cpp/variant/variant.hpp>
 #include <sol/sol.hpp>
 
 using namespace godot;

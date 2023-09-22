@@ -76,9 +76,10 @@ public:
 
 		// ----- Godot ----
 		GODOT_VARIANT = 1 << 13,
+		GODOT_UTILITY_FUNCTIONS = 1 << 14,
 
 		// all of the above
-		GODOT = GODOT_VARIANT,
+		GODOT = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS,
 	};
 
 	LuaState();

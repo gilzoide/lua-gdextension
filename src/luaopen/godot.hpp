@@ -28,6 +28,7 @@ extern "C" {
 
 int luaopen_godot(lua_State *L);
 int luaopen_godot_variant(lua_State *L);
+int luaopen_godot_utility_functions(lua_State *L);
 
 }
 
