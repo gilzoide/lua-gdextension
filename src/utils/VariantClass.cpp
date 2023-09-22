@@ -60,7 +60,7 @@ Variant VariantClass::construct(const sol::variadic_args& args) const {
 	return result;
 }
 
-bool VariantClass::has_static_method(const StringName& method) const {
+bool VariantClass::has_static_method(StringName method) const {
 	Variant result;
 	GDExtensionCallError error;
 	Variant::call_static(type, method, (const Variant **) NULL, 0, result, error);

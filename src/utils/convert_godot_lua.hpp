@@ -39,10 +39,8 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
 Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 
-Variant variant_call(Variant& variant, const StringName& method, const sol::variadic_args& args);
-Variant variant_call(Variant& variant, const char *method, const sol::variadic_args& args);
-std::tuple<bool, Variant> variant_pcall(Variant& variant, const StringName& method, const sol::variadic_args& args);
-std::tuple<bool, Variant> variant_pcall(Variant& variant, const char *method, const sol::variadic_args& args);
+Variant variant_call(Variant& variant, StringName method, const sol::variadic_args& args);
+std::tuple<bool, Variant> variant_pcall(Variant& variant, StringName method, const sol::variadic_args& args);
 
 Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
 Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
