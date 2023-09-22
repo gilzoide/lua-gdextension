@@ -1,5 +1,5 @@
 # Lua GDExtension
-Godot 4 native extension for using the Lua programming language.
+Godot 4.1+ native extension for using the Lua programming language.
 
 
 ## Features
@@ -23,13 +23,13 @@ Godot 4 native extension for using the Lua programming language.
       print(result["vector"])  # (1, 2)
       print(result["invalid key"])  # <null>
   ```
-- Dynamic type constructors, so that all Variant constructors are available
+- Bindings for all Variant types.
   ```lua
   local v = Vector3(1, 2, 3)
   print(v:length())  -- 3.74165749549866
   ```
-- Dynamic method calls, so the whole API for types/classes are available.
-  Static type methods are also available.
+- All object methods are available, including static Variant methods.
+  They are dispatched dynamically at runtime.
   ```lua
   local b = Basis:from_euler(Vector3(1, 2, 3))
   print(b)  -- "[X: (0.51996, 0.076247, 0.850781), Y: (-0.698763, -0.534895, 0.474991), Z: (0.491295, -0.841471, -0.224845)]"
@@ -47,7 +47,18 @@ Godot 4 native extension for using the Lua programming language.
   print(dict["hello"])  -- "world"
   print(dict["invalid key"])  -- nil
   ```
-- `Variant` implements all operator metamethods, `__tostring`, custom iteration via `__pairs` for types that support it, length operator `__len` that calls `size()` method in types that support it
+- Custom iteration via `__pairs` for types that support it, like Arrays, packed arrays, Dictionaries and some math types.
+  ```lua
+  local dictionary = Dictionary{ hello = "world", key = "value" }
+  for key, value in pairs(dictionary) do
+      print(key .. ": " .. value)
+  end
+  ```
+- Length operator (`#`) as a shortcut for calling the `size()` method.
+  ```lua
+  local array = Array{ 1, 2, 3, 4 }
+  print(#array)  -- 4
+  ```
 - Runtime type check using the `is` method
   ```lua
   local array = Array()
@@ -63,7 +74,7 @@ Godot 4 native extension for using the Lua programming language.
 
 
 ## TODO
-- [ ] Bind utility functions to Lua
+- [X] Bind utility functions to Lua
 - [ ] Add support for getting global singletons from Lua
 - [ ] Add support for getting classes from Lua
 - [ ] Lua ScriptLanguageExtension
