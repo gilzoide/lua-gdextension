@@ -22,11 +22,25 @@
 
 #include "godot.hpp"
 
-#include <godot_cpp/variant/utility_functions.hpp>
-
+#include "../utils/VariantArguments.hpp"
 #include "../utils/custom_sol.hpp"
 
+// We can't call variadic templates at runtime, so we need access
+// to the private/internal functions accepting Variant arrays
+// (what the hack?)
+#define private public
+#include <godot_cpp/variant/utility_functions.hpp>
+#undef private
+
 using namespace godot;
+
+template<typename T>
+decltype(auto) wrap_variadic_function(T(*f)(const Variant **, GDExtensionInt)) {
+	return [f](sol::variadic_args args) {
+		luagdextension::VariantArguments var_args = args;
+		return f(var_args.argv(), var_args.argc());
+	};
+}
 
 extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
@@ -93,26 +107,10 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("wrap", &UtilityFunctions::wrap);
 	state.set("wrapi", &UtilityFunctions::wrapi);
 	state.set("wrapf", &UtilityFunctions::wrapf);
-	/* private: static Variant max_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static Variant max(const Variant &arg1, const Variant &arg2, const Args&... args) { */
-	/* 	std::array<Variant, 2 + sizeof...(Args)> variant_args { arg1, arg2, Variant(args)... }; */
-	/* 	std::array<const Variant *, 2 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	return max_internal(call_args.data(), variant_args.size()); */
-	/* } */
+	state.set("max", wrap_variadic_function(&UtilityFunctions::max_internal));
 	state.set("maxi", &UtilityFunctions::maxi);
 	state.set("maxf", &UtilityFunctions::maxf);
-	/* private: static Variant min_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static Variant min(const Variant &arg1, const Variant &arg2, const Args&... args) { */
-	/* 	std::array<Variant, 2 + sizeof...(Args)> variant_args { arg1, arg2, Variant(args)... }; */
-	/* 	std::array<const Variant *, 2 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	return min_internal(call_args.data(), variant_args.size()); */
-	/* } */
+	state.set("min", wrap_variadic_function(&UtilityFunctions::min_internal));
 	state.set("mini", &UtilityFunctions::mini);
 	state.set("minf", &UtilityFunctions::minf);
 	state.set("clamp", &UtilityFunctions::clamp);
@@ -130,97 +128,17 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("rand_from_seed", &UtilityFunctions::rand_from_seed);
 	state.set("weakref", &UtilityFunctions::weakref);
 	state.set("type_of", &UtilityFunctions::type_of);
-	/* private: static String str_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static String str(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	return str_internal(call_args.data(), variant_args.size()); */
-	/* } */
+	state.set("str", wrap_variadic_function(&UtilityFunctions::str_internal));
 	state.set("error_string", &UtilityFunctions::error_string);
-	/* private: static void print_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void print(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	print_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void print_rich_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void print_rich(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	print_rich_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void printerr_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void printerr(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	printerr_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void printt_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void printt(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	printt_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void prints_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void prints(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	prints_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void printraw_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void printraw(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	printraw_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void print_verbose_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void print_verbose(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	print_verbose_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void push_error_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void push_error(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	push_error_internal(call_args.data(), variant_args.size()); */
-	/* } */
-	/* private: static void push_warning_internal(const Variant **args, GDExtensionInt arg_count); */
-	/* public: template<class... Args> static void push_warning(const Variant &arg1, const Args&... args) { */
-	/* 	std::array<Variant, 1 + sizeof...(Args)> variant_args { arg1, Variant(args)... }; */
-	/* 	std::array<const Variant *, 1 + sizeof...(Args)> call_args; */
-	/* 	for(size_t i = 0; i < variant_args.size(); i++) { */
-	/* 		call_args[i] = &variant_args[i]; */
-	/* 	} */
-	/* 	push_warning_internal(call_args.data(), variant_args.size()); */
-	/* } */
+	state.set("print", wrap_variadic_function(&UtilityFunctions::print_internal));
+	state.set("print_rich", wrap_variadic_function(&UtilityFunctions::print_rich_internal));
+	state.set("printerr", wrap_variadic_function(&UtilityFunctions::printerr_internal));
+	state.set("printt", wrap_variadic_function(&UtilityFunctions::printt_internal));
+	state.set("prints", wrap_variadic_function(&UtilityFunctions::prints_internal));
+	state.set("printraw", wrap_variadic_function(&UtilityFunctions::printraw_internal));
+	state.set("print_verbose", wrap_variadic_function(&UtilityFunctions::print_verbose_internal));
+	state.set("push_error", wrap_variadic_function(&UtilityFunctions::push_error_internal));
+	state.set("push_warning", wrap_variadic_function(&UtilityFunctions::push_warning_internal));
 	state.set("var_to_str", &UtilityFunctions::var_to_str);
 	state.set("str_to_var", &UtilityFunctions::str_to_var);
 	state.set("var_to_bytes", &UtilityFunctions::var_to_bytes);
