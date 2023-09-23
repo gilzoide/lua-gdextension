@@ -19,17 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_METATABLE_HPP__
+#define __UTILS_METATABLE_HPP__
 
-#include "lua.hpp"
+#include <sol/sol.hpp>
 
-extern "C" {
+namespace luagdextension {
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
+template<typename ref_t>
+sol::optional<sol::function> get_metamethod(const sol::basic_table<ref_t>& table, sol::meta_function function) {
+	sol::optional<sol::metatable> metatable = table[sol::metatable_key];
+	if (metatable.has_value()) {
+		return metatable.value()[function];
+	}
+	else {
+		return {};
+	}
+}
+
+template<typename ref_t, typename... Args>
+sol::optional<sol::protected_function_result> call_metamethod(const sol::basic_table<ref_t>& table, sol::meta_function function, Args... args) {
+	auto method = get_metamethod(table, function);
+	if (method.has_value()) {
+		return method.value()(table, args...);
+	}
+	else {
+		return {};
+	}
+}
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+#endif  // __UTILS_METATABLE_HPP__

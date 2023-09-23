@@ -25,6 +25,7 @@
 #include "LuaState.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/convert_godot_std.hpp"
+#include "utils/metatable.hpp"
 
 using namespace godot;
 
@@ -94,7 +95,13 @@ bool LuaTable::_set(const StringName& property_name, const Variant& value) {
 }
 
 String LuaTable::_to_string() const {
-	return String("[LuaTable:0x%x]") % (int64_t) table.pointer();
+	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
+	if (tostring_result.has_value()) {
+		return to_variant(tostring_result.value());
+	}
+	else {
+		return String("[LuaTable:0x%x]") % (int64_t) table.pointer();
+	}
 }
 
 }
