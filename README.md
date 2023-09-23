@@ -54,22 +54,31 @@ Godot 4.1+ native extension for using the Lua programming language.
       print(key .. ": " .. value)
   end
   ```
-- Length operator (`#`) as a shortcut for calling the `size()` method.
+- Length operator (`#`) as a shortcut for calling the `size()` method in any object that supports it.
   ```lua
   local array = Array{ 1, 2, 3, 4 }
   print(#array)  -- 4
   ```
-- Runtime type check using the `is` method
+- Runtime type check using the `is` method.
   ```lua
   local array = Array()
   print(array:is(Array))  -- true
   print(array:is(Dictionary))  -- false
   ```
-- `pcall` method for protected calls
+- `pcall` method for protected calls.
   ```lua
   local v = Vector2(1, 2)
   print(v:pcall('length'))  -- true    2.2360680103302
   print(v:pcall('invalid method'))  -- false   "Invalid method"
+  ```
+- Bindings for all Godot utility functions.
+  ```lua
+  local d1 = Dictionary()
+  local d2 = Dictionary()
+  print(is_same(d1, d2))  -- false
+  print(is_same(d2, d2))  -- true
+
+  print(lerp(5, 10, 0.15))  -- 5.75
   ```
 
 
