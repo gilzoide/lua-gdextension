@@ -19,38 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaError.hpp"
-#include "LuaState.hpp"
-#include "LuaTable.hpp"
-#include "LuaUserdata.hpp"
+#ifndef __LUA_USERDATA_HPP__
+#define __LUA_USERDATA_HPP__
 
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/core/class_db.hpp>
+#include "LuaTable.hpp"
 
 using namespace godot;
-using namespace luagdextension;
 
-static void initialize(ModuleInitializationLevel level) {
-	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
+namespace luagdextension {
 
-	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
+class LuaUserdata : public LuaTable {
+	GDCLASS(LuaUserdata, LuaTable);
 
-	ClassDB::register_class<LuaState>();
+public:
+	LuaUserdata();
+	LuaUserdata(sol::userdata&& userdata);
+	LuaUserdata(const sol::userdata& userdata);
+
+protected:
+	static void _bind_methods();
+	
+	String _to_string() const;
+};
+
 }
 
-extern "C" GDExtensionBool luagdextension_entrypoint(
-	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
-	GDExtensionClassLibraryPtr p_library,
-	GDExtensionInitialization *r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
+#endif
 
-	init_obj.register_initializer(&initialize);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
-
-	return init_obj.init();
-}

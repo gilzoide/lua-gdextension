@@ -19,38 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaError.hpp"
-#include "LuaState.hpp"
-#include "LuaTable.hpp"
+
 #include "LuaUserdata.hpp"
 
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/core/class_db.hpp>
+#include "LuaState.hpp"
+#include "utils/convert_godot_lua.hpp"
+#include "utils/metatable.hpp"
 
 using namespace godot;
-using namespace luagdextension;
 
-static void initialize(ModuleInitializationLevel level) {
-	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
+namespace luagdextension {
 
-	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
+LuaUserdata::LuaUserdata() : LuaTable() {}
 
-	ClassDB::register_class<LuaState>();
+LuaUserdata::LuaUserdata(sol::userdata&& userdata) : LuaTable(userdata) {}
+
+LuaUserdata::LuaUserdata(const sol::userdata& userdata) : LuaTable(userdata) {}
+
+void LuaUserdata::_bind_methods() {
 }
 
-extern "C" GDExtensionBool luagdextension_entrypoint(
-	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
-	GDExtensionClassLibraryPtr p_library,
-	GDExtensionInitialization *r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
+String LuaUserdata::_to_string() const {
+	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
+	if (tostring_result.has_value()) {
+		return to_variant(tostring_result.value());
+	}
+	else {
+		return String("[LuaUserdata:0x%x]") % (int64_t) table.pointer();
+	}
+}
 
-	init_obj.register_initializer(&initialize);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
-
-	return init_obj.init();
 }
