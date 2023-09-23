@@ -22,6 +22,7 @@
 #include "MethodBindByName.hpp"
 
 #include "VariantArguments.hpp"
+#include "VariantClass.hpp"
 #include "convert_godot_lua.hpp"
 #include "convert_godot_std.hpp"
 
@@ -35,12 +36,15 @@ StringName MethodBindByName::get_method_name() const {
 	return method_name;
 }
 
-sol::stack_object MethodBindByName::call(sol::this_state state, Variant& variant, const sol::variadic_args& args) const {
-	return variant_call_string_name(state, variant, method_name, args);
-}
-
-std::tuple<bool, sol::object> MethodBindByName::pcall(sol::this_state state, Variant& variant, const sol::variadic_args& args) const {
-	return variant_pcall_string_name(state, variant, method_name, args);
+sol::stack_object MethodBindByName::call(sol::this_state state, const sol::stack_object& self, const sol::variadic_args& args) const {
+	if (self.is<VariantClass>()) {
+		VariantClass var_type = self.as<VariantClass>();
+		return variant_static_call_string_name(state, var_type.get_type(), method_name, args);
+	}
+	else {
+		Variant variant = to_variant(self);
+		return variant_call_string_name(state, variant, method_name, args);
+	}
 }
 
 void MethodBindByName::register_usertype(sol::state_view& state) {
@@ -50,7 +54,6 @@ void MethodBindByName::register_usertype(sol::state_view& state) {
 			MethodBindByName(const StringName&)
 		>(),
 		"call", &MethodBindByName::call,
-		"pcall", &MethodBindByName::pcall,
 		sol::meta_function::call, &MethodBindByName::call,
 		sol::meta_function::to_string, &MethodBindByName::get_method_name
 	);

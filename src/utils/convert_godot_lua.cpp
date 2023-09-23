@@ -172,6 +172,18 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
+sol::stack_object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
+	VariantArguments variant_args = args;
+
+	Variant result;
+	GDExtensionCallError error;
+	Variant::call_static(type, method, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error != GDEXTENSION_CALL_OK) {
+		String message = String("Invalid static call to method '{0}' in type {1}").format(Array::make(method, Variant::get_type_name(type)));
+		lua_error(args.lua_state(), error, message);
+	}
+	return to_lua(state, result);
+}
 sol::stack_object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 

@@ -39,6 +39,7 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
 Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 
+sol::stack_object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args);
 sol::stack_object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
 sol::stack_object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
 std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
