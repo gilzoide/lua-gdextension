@@ -24,6 +24,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "VariantArguments.hpp"
+#include "VariantClass.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -59,6 +60,9 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			if (object.template is<Variant>()) {
 				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
 				return Variant(variant_ptr);
+			}
+			else if (object.template is<VariantClass>()) {
+				return object.template as<VariantClass>().get_type_name();
 			}
 			else {
 				WARN_PRINT_ONCE_ED("Lua type 'full userdata' is not supported yet");
