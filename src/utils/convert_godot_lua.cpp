@@ -24,6 +24,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "VariantArguments.hpp"
+#include "VariantClass.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -59,6 +60,9 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			if (object.template is<Variant>()) {
 				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
 				return Variant(variant_ptr);
+			}
+			else if (object.template is<VariantClass>()) {
+				return object.template as<VariantClass>().get_type_name();
 			}
 			else {
 				WARN_PRINT_ONCE_ED("Lua type 'full userdata' is not supported yet");
@@ -172,7 +176,19 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
-Variant variant_call(Variant& variant, StringName method, const sol::variadic_args& args) {
+sol::stack_object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
+	VariantArguments variant_args = args;
+
+	Variant result;
+	GDExtensionCallError error;
+	Variant::call_static(type, method, variant_args.argv(), variant_args.argc(), result, error);
+	if (error.error != GDEXTENSION_CALL_OK) {
+		String message = String("Invalid static call to method '{0}' in type {1}").format(Array::make(method, Variant::get_type_name(type)));
+		lua_error(args.lua_state(), error, message);
+	}
+	return to_lua(state, result);
+}
+sol::stack_object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -182,21 +198,27 @@ Variant variant_call(Variant& variant, StringName method, const sol::variadic_ar
 		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
 		lua_error(args.lua_state(), error, message);
 	}
-	return result;
+	return to_lua(state, result);
+}
+sol::stack_object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_call_string_name(state, variant, method, args);
 }
 
-std::tuple<bool, Variant> variant_pcall(Variant& variant, StringName method, const sol::variadic_args& args) {
+std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
 	GDExtensionCallError error;
 	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error == GDEXTENSION_CALL_OK) {
-		return std::make_tuple(true, result);
+		return std::make_tuple(true, to_lua(state, result));
 	}
 	else {
-		return std::make_tuple(false, to_string(error));
+		return std::make_tuple(false, to_lua(state, to_string(error)));
 	}
+}
+std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_pcall_string_name(state, variant, method, args);
 }
 
 struct FileReaderData {

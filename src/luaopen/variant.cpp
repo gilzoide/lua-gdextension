@@ -39,7 +39,7 @@ using namespace godot;
 namespace luagdextension {
 
 template<Variant::Operator VarOperator>
-Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_object& b) {
+sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -49,18 +49,18 @@ Variant evaluate_binary_operator(const sol::stack_object& a, const sol::stack_ob
 		CharString a_str = get_type_name(var_a).ascii();
 		CharString b_str = get_type_name(var_b).ascii();
 		luaL_error(
-			a.lua_state(),
+			state,
 			"Invalid call to operator '%s' between %s and %s.",
 			get_operator_name(VarOperator),
 			a_str.ptr(),
 			b_str.ptr()
 		);
 	}
-	return result;
+	return to_lua(state, result);
 }
 
 template<Variant::Operator VarOperator>
-Variant evaluate_unary_operator(const sol::stack_object& a) {
+sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -68,34 +68,33 @@ Variant evaluate_unary_operator(const sol::stack_object& a) {
 	if (!is_valid) {
 		CharString a_str = get_type_name(var_a).ascii();
 		luaL_error(
-			a.lua_state(),
+			state,
 			"Invalid call to operator %s with type %s.",
 			get_operator_name(VarOperator),
 			a_str.ptr()
 		);
 	}
-	return result;
+	return to_lua(state, result);
 }
 
-sol::stack_object variant_index(const Variant& variant, const sol::stack_object& key) {
+sol::stack_object variant_index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
 	bool is_valid;
-	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
 		if (Variant::has_member(variant.get_type(), string_name)) {
-			return to_lua(L, variant.get_named(string_name, is_valid));
+			return to_lua(state, variant.get_named(string_name, is_valid));
 		}
 		else if (variant.has_method(string_name)) {
-			sol::stack::push(L, MethodBindByName(string_name));
-			return sol::stack_object(L, -1);
+			sol::stack::push(state, MethodBindByName(string_name));
+			return sol::stack_object(state, -1);
 		}
 	}
 
 	Variant result = variant.get(to_variant(key), &is_valid);
-	return to_lua(L, result);
+	return to_lua(state, result);
 }
 
-void variant_newindex(Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
+void variant_newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
 	bool is_valid;
 	Variant var_key = to_variant(key);
 	Variant var_value = to_variant(value);
@@ -104,7 +103,7 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 		CharString key_str = var_key.stringify().utf8();
 		CharString variant_str = get_type_name(variant).ascii();
 		luaL_error(
-			key.lua_state(),
+			state,
 			"Could not set value for key '%s' with an object of type %s",
 			key_str.ptr(),
 			variant_str.ptr()
@@ -112,25 +111,24 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	}
 }
 
-int variant_length(Variant& variant, const sol::this_state& state) {
-	return variant_call(variant, "size", sol::variadic_args(state, 0));
+sol::stack_object variant_length(sol::this_state state, Variant& variant) {
+	return variant_call_string_name(state, variant, "size", sol::variadic_args(state, 0));
 }
 
 String variant_concat(const sol::stack_object& a, const sol::stack_object& b) {
 	return String(to_variant(a)) + String(to_variant(b));
 }
 
-std::tuple<sol::object, sol::object> variant_pairs(const Variant& variant, sol::this_state state) {
+std::tuple<sol::object, sol::object> variant_pairs(sol::this_state state, const Variant& variant) {
 	if (variant.get_type() == Variant::DICTIONARY) {
-		Dictionary dictionary = variant;
-		return DictionaryIterator::dictionary_pairs(dictionary, state);
+		return DictionaryIterator::dictionary_pairs(state, variant);
 	}
 
 	if (IndexedIterator::supports_indexed_pairs(variant)) {
-		return IndexedIterator::indexed_pairs(variant, state);
+		return IndexedIterator::indexed_pairs(state, variant);
 	}
 
-	return ObjectIterator::object_pairs(variant, state);
+	return ObjectIterator::object_pairs(state, variant);
 }
 
 VariantClass variant_get_type(const Variant& variant) {

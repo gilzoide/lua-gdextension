@@ -22,8 +22,7 @@
 
 #include "godot.hpp"
 
-#include "../utils/VariantArguments.hpp"
-#include "../utils/custom_sol.hpp"
+#include "../utils/function_wrapper.hpp"
 
 // We can't call variadic templates at runtime, so we need access
 // to the private/internal functions accepting Variant arrays
@@ -33,14 +32,7 @@
 #undef private
 
 using namespace godot;
-
-template<typename T>
-decltype(auto) wrap_variadic_function(T(*f)(const Variant **, GDExtensionInt)) {
-	return [f](sol::variadic_args args) {
-		luagdextension::VariantArguments var_args = args;
-		return f(var_args.argv(), var_args.argc());
-	};
-}
+using namespace luagdextension;
 
 extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
@@ -59,22 +51,22 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("fmod", &UtilityFunctions::fmod);
 	state.set("fposmod", &UtilityFunctions::fposmod);
 	state.set("posmod", &UtilityFunctions::posmod);
-	state.set("floor", &UtilityFunctions::floor);
+	state.set("floor", wrap_function(&UtilityFunctions::floor));
 	state.set("floorf", &UtilityFunctions::floorf);
 	state.set("floori", &UtilityFunctions::floori);
-	state.set("ceil", &UtilityFunctions::ceil);
+	state.set("ceil", wrap_function(&UtilityFunctions::ceil));
 	state.set("ceilf", &UtilityFunctions::ceilf);
 	state.set("ceili", &UtilityFunctions::ceili);
-	state.set("round", &UtilityFunctions::round);
+	state.set("round", wrap_function(&UtilityFunctions::round));
 	state.set("roundf", &UtilityFunctions::roundf);
 	state.set("roundi", &UtilityFunctions::roundi);
-	state.set("abs", &UtilityFunctions::abs);
+	state.set("abs", wrap_function(&UtilityFunctions::abs));
 	state.set("absf", &UtilityFunctions::absf);
 	state.set("absi", &UtilityFunctions::absi);
-	state.set("sign", &UtilityFunctions::sign);
+	state.set("sign", wrap_function(&UtilityFunctions::sign));
 	state.set("signf", &UtilityFunctions::signf);
 	state.set("signi", &UtilityFunctions::signi);
-	state.set("snapped", &UtilityFunctions::snapped);
+	state.set("snapped", wrap_function(&UtilityFunctions::snapped));
 	state.set("snappedf", &UtilityFunctions::snappedf);
 	state.set("snappedi", &UtilityFunctions::snappedi);
 	state.set("pow", &UtilityFunctions::pow);
@@ -87,7 +79,7 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("is_finite", &UtilityFunctions::is_finite);
 	state.set("ease", &UtilityFunctions::ease);
 	state.set("step_decimals", &UtilityFunctions::step_decimals);
-	state.set("lerp", &UtilityFunctions::lerp);
+	state.set("lerp", wrap_function(&UtilityFunctions::lerp));
 	state.set("lerpf", &UtilityFunctions::lerpf);
 	state.set("cubic_interpolate", &UtilityFunctions::cubic_interpolate);
 	state.set("cubic_interpolate_angle", &UtilityFunctions::cubic_interpolate_angle);
@@ -104,16 +96,16 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("rad_to_deg", &UtilityFunctions::rad_to_deg);
 	state.set("linear_to_db", &UtilityFunctions::linear_to_db);
 	state.set("db_to_linear", &UtilityFunctions::db_to_linear);
-	state.set("wrap", &UtilityFunctions::wrap);
+	state.set("wrap", wrap_function(&UtilityFunctions::wrap));
 	state.set("wrapi", &UtilityFunctions::wrapi);
 	state.set("wrapf", &UtilityFunctions::wrapf);
-	state.set("max", wrap_variadic_function(&UtilityFunctions::max_internal));
+	state.set("max", wrap_function(&UtilityFunctions::max_internal));
 	state.set("maxi", &UtilityFunctions::maxi);
 	state.set("maxf", &UtilityFunctions::maxf);
-	state.set("min", wrap_variadic_function(&UtilityFunctions::min_internal));
+	state.set("min", wrap_function(&UtilityFunctions::min_internal));
 	state.set("mini", &UtilityFunctions::mini);
 	state.set("minf", &UtilityFunctions::minf);
-	state.set("clamp", &UtilityFunctions::clamp);
+	state.set("clamp", wrap_function(&UtilityFunctions::clamp));
 	state.set("clampi", &UtilityFunctions::clampi);
 	state.set("clampf", &UtilityFunctions::clampf);
 	state.set("nearest_po2", &UtilityFunctions::nearest_po2);
@@ -126,34 +118,33 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	state.set("randfn", &UtilityFunctions::randfn);
 	state.set("seed", &UtilityFunctions::seed);
 	state.set("rand_from_seed", &UtilityFunctions::rand_from_seed);
-	state.set("weakref", &UtilityFunctions::weakref);
-	state.set("type_of", &UtilityFunctions::type_of);
-	state.set("str", wrap_variadic_function(&UtilityFunctions::str_internal));
+	state.set("weakref", wrap_function(&UtilityFunctions::weakref));
+	state.set("type_of", wrap_function(&UtilityFunctions::type_of));
+	state.set("str", wrap_function(&UtilityFunctions::str_internal));
 	state.set("error_string", &UtilityFunctions::error_string);
-	state.set("print", wrap_variadic_function(&UtilityFunctions::print_internal));
-	state.set("print_rich", wrap_variadic_function(&UtilityFunctions::print_rich_internal));
-	state.set("printerr", wrap_variadic_function(&UtilityFunctions::printerr_internal));
-	state.set("printt", wrap_variadic_function(&UtilityFunctions::printt_internal));
-	state.set("prints", wrap_variadic_function(&UtilityFunctions::prints_internal));
-	state.set("printraw", wrap_variadic_function(&UtilityFunctions::printraw_internal));
-	state.set("print_verbose", wrap_variadic_function(&UtilityFunctions::print_verbose_internal));
-	state.set("push_error", wrap_variadic_function(&UtilityFunctions::push_error_internal));
-	state.set("push_warning", wrap_variadic_function(&UtilityFunctions::push_warning_internal));
-	state.set("var_to_str", &UtilityFunctions::var_to_str);
-	state.set("str_to_var", &UtilityFunctions::str_to_var);
-	state.set("var_to_bytes", &UtilityFunctions::var_to_bytes);
-	state.set("bytes_to_var", &UtilityFunctions::bytes_to_var);
-	state.set("var_to_bytes_with_objects", &UtilityFunctions::var_to_bytes_with_objects);
-	state.set("bytes_to_var_with_objects", &UtilityFunctions::bytes_to_var_with_objects);
-	state.set("hash", &UtilityFunctions::hash);
+	state.set("print", wrap_function(&UtilityFunctions::print_internal));
+	state.set("print_rich", wrap_function(&UtilityFunctions::print_rich_internal));
+	state.set("printerr", wrap_function(&UtilityFunctions::printerr_internal));
+	state.set("printt", wrap_function(&UtilityFunctions::printt_internal));
+	state.set("prints", wrap_function(&UtilityFunctions::prints_internal));
+	state.set("printraw", wrap_function(&UtilityFunctions::printraw_internal));
+	state.set("print_verbose", wrap_function(&UtilityFunctions::print_verbose_internal));
+	state.set("push_error", wrap_function(&UtilityFunctions::push_error_internal));
+	state.set("push_warning", wrap_function(&UtilityFunctions::push_warning_internal));
+	state.set("var_to_str", wrap_function(&UtilityFunctions::var_to_str));
+	state.set("str_to_var", wrap_function(&UtilityFunctions::str_to_var));
+	state.set("var_to_bytes", wrap_function(&UtilityFunctions::var_to_bytes));
+	state.set("bytes_to_var", wrap_function(&UtilityFunctions::bytes_to_var));
+	state.set("var_to_bytes_with_objects", wrap_function(&UtilityFunctions::var_to_bytes_with_objects));
+	state.set("bytes_to_var_with_objects", wrap_function(&UtilityFunctions::bytes_to_var_with_objects));
+	state.set("hash", wrap_function(&UtilityFunctions::hash));
 	state.set("instance_from_id", &UtilityFunctions::instance_from_id);
 	state.set("is_instance_id_valid", &UtilityFunctions::is_instance_id_valid);
-	state.set("is_instance_valid", &UtilityFunctions::is_instance_valid);
+	state.set("is_instance_valid", wrap_function(&UtilityFunctions::is_instance_valid));
 	state.set("rid_allocate_id", &UtilityFunctions::rid_allocate_id);
 	state.set("rid_from_int64", &UtilityFunctions::rid_from_int64);
-	state.set("is_same", &UtilityFunctions::is_same);
+	state.set("is_same", wrap_function(&UtilityFunctions::is_same));
 
 	return 0;
 }
-
 

@@ -58,7 +58,7 @@ bool IndexedIterator::supports_indexed_pairs(const Variant& variant) {
 	return is_valid;
 }
 
-std::tuple<sol::object, sol::object> IndexedIterator::indexed_pairs(const Variant& indexed, sol::this_state state) {
+std::tuple<sol::object, sol::object> IndexedIterator::indexed_pairs(sol::this_state state, const Variant& indexed) {
 	return std::make_tuple(
 		sol::make_object(state, &IndexedIterator::iter_next_lua),
 		sol::make_object(state, IndexedIterator(indexed))
