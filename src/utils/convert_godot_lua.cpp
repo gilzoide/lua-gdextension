@@ -172,7 +172,7 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
-Variant variant_call(Variant& variant, StringName method, const sol::variadic_args& args) {
+sol::stack_object variant_call(Variant& variant, StringName method, const sol::variadic_args& args, sol::this_state state) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -182,20 +182,20 @@ Variant variant_call(Variant& variant, StringName method, const sol::variadic_ar
 		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
 		lua_error(args.lua_state(), error, message);
 	}
-	return result;
+	return to_lua(state, result);
 }
 
-std::tuple<bool, Variant> variant_pcall(Variant& variant, StringName method, const sol::variadic_args& args) {
+std::tuple<bool, sol::stack_object> variant_pcall(Variant& variant, StringName method, const sol::variadic_args& args, sol::this_state state) {
 	VariantArguments variant_args = args;
 
 	Variant result;
 	GDExtensionCallError error;
 	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error == GDEXTENSION_CALL_OK) {
-		return std::make_tuple(true, result);
+		return std::make_tuple(true, to_lua(state, result));
 	}
 	else {
-		return std::make_tuple(false, to_string(error));
+		return std::make_tuple(false, to_lua(state, to_string(error)));
 	}
 }
 

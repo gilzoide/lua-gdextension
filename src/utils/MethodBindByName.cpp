@@ -31,16 +31,16 @@ namespace luagdextension {
 
 MethodBindByName::MethodBindByName(const StringName& method_name) : method_name(method_name) {}
 
-const StringName& MethodBindByName::get_method_name() const {
+StringName MethodBindByName::get_method_name() const {
 	return method_name;
 }
 
-Variant MethodBindByName::call(Variant& variant, const sol::variadic_args& args) const {
-	return luagdextension::variant_call(variant, method_name, args);
+sol::stack_object MethodBindByName::call(Variant& variant, const sol::variadic_args& args, sol::this_state state) const {
+	return variant_call(variant, method_name, args, state);
 }
 
-std::tuple<bool, Variant> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args) const {
-	return luagdextension::variant_pcall(variant, method_name, args);
+std::tuple<bool, sol::stack_object> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args, sol::this_state state) const {
+	return variant_pcall(variant, method_name, args, state);
 }
 
 void MethodBindByName::register_usertype(sol::state_view& state) {
