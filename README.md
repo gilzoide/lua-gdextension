@@ -29,10 +29,11 @@ Godot 4.1+ native extension for using the Lua programming language.
   print(v:length())  -- 3.74165749549866
   ```
 - All object methods are available, including static Variant methods.
-  They are dispatched dynamically at runtime.
+  Everything is dispatched dynamically at runtime.
   ```lua
   local b = Basis:from_euler(Vector3(1, 2, 3))
   print(b)  -- "[X: (0.51996, 0.076247, 0.850781), Y: (-0.698763, -0.534895, 0.474991), Z: (0.491295, -0.841471, -0.224845)]"
+	print(b:determinant())  -- 0.99999994039536
   ```
 - Array/Dictionary constructors accepting table arguments
   ```lua
@@ -86,5 +87,8 @@ Godot 4.1+ native extension for using the Lua programming language.
 - [X] Bind utility functions to Lua
 - [ ] Add support for getting global singletons from Lua
 - [ ] Add support for getting classes from Lua
+- [ ] Submit to Asset Library
 - [ ] Lua ScriptLanguageExtension
 - [ ] Support for building with LuaJIT
+- [ ] Automated unit tests
+- [ ] Automated build and distribution
