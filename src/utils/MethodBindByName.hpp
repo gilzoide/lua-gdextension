@@ -40,8 +40,8 @@ public:
 	MethodBindByName(const StringName& method_name);
 
 	StringName get_method_name() const;
-	sol::stack_object call(Variant& variant, const sol::variadic_args& args, sol::this_state state) const;
-	std::tuple<bool, sol::stack_object> pcall(Variant& variant, const sol::variadic_args& args, sol::this_state state) const;
+	sol::stack_object call(sol::this_state state, Variant& variant, const sol::variadic_args& args) const;
+	std::tuple<bool, sol::object> pcall(sol::this_state state, Variant& variant, const sol::variadic_args& args) const;
 
 	static void register_usertype(sol::state_view& state);
 };

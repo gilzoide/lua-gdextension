@@ -172,7 +172,7 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
-sol::stack_object variant_call(Variant& variant, StringName method, const sol::variadic_args& args, sol::this_state state) {
+sol::stack_object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -184,8 +184,11 @@ sol::stack_object variant_call(Variant& variant, StringName method, const sol::v
 	}
 	return to_lua(state, result);
 }
+sol::stack_object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_call_string_name(state, variant, method, args);
+}
 
-std::tuple<bool, sol::stack_object> variant_pcall(Variant& variant, StringName method, const sol::variadic_args& args, sol::this_state state) {
+std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -197,6 +200,9 @@ std::tuple<bool, sol::stack_object> variant_pcall(Variant& variant, StringName m
 	else {
 		return std::make_tuple(false, to_lua(state, to_string(error)));
 	}
+}
+std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+	return variant_pcall_string_name(state, variant, method, args);
 }
 
 struct FileReaderData {

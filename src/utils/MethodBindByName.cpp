@@ -35,12 +35,12 @@ StringName MethodBindByName::get_method_name() const {
 	return method_name;
 }
 
-sol::stack_object MethodBindByName::call(Variant& variant, const sol::variadic_args& args, sol::this_state state) const {
-	return variant_call(variant, method_name, args, state);
+sol::stack_object MethodBindByName::call(sol::this_state state, Variant& variant, const sol::variadic_args& args) const {
+	return variant_call_string_name(state, variant, method_name, args);
 }
 
-std::tuple<bool, sol::stack_object> MethodBindByName::pcall(Variant& variant, const sol::variadic_args& args, sol::this_state state) const {
-	return variant_pcall(variant, method_name, args, state);
+std::tuple<bool, sol::object> MethodBindByName::pcall(sol::this_state state, Variant& variant, const sol::variadic_args& args) const {
+	return variant_pcall_string_name(state, variant, method_name, args);
 }
 
 void MethodBindByName::register_usertype(sol::state_view& state) {
