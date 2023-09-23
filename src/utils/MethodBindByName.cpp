@@ -32,7 +32,7 @@ namespace luagdextension {
 
 MethodBindByName::MethodBindByName(const StringName& method_name) : method_name(method_name) {}
 
-StringName MethodBindByName::get_method_name() const {
+const StringName& MethodBindByName::get_method_name() const {
 	return method_name;
 }
 

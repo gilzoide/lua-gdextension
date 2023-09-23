@@ -39,7 +39,7 @@ class MethodBindByName {
 public:
 	MethodBindByName(const StringName& method_name);
 
-	StringName get_method_name() const;
+	const StringName& get_method_name() const;
 	sol::stack_object call(sol::this_state state, const sol::stack_object& self, const sol::variadic_args& args) const;
 
 	static void register_usertype(sol::state_view& state);
