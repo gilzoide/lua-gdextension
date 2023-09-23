@@ -50,7 +50,7 @@ std::tuple<sol::object, sol::object> DictionaryIterator::iter_next_lua(sol::this
 	}
 }
 
-std::tuple<sol::object, sol::object> DictionaryIterator::dictionary_pairs(const Dictionary& dictionary, sol::this_state state) {
+std::tuple<sol::object, sol::object> DictionaryIterator::dictionary_pairs(sol::this_state state, const Dictionary& dictionary) {
 	return std::make_tuple(
 		sol::make_object(state, &DictionaryIterator::iter_next_lua),
 		sol::make_object(state, DictionaryIterator(dictionary))

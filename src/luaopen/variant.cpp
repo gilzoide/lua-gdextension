@@ -39,7 +39,7 @@ using namespace godot;
 namespace luagdextension {
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_binary_operator(const sol::stack_object& a, const sol::stack_object& b, sol::this_state state) {
+sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -60,7 +60,7 @@ sol::stack_object evaluate_binary_operator(const sol::stack_object& a, const sol
 }
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_unary_operator(const sol::stack_object& a, sol::this_state state) {
+sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -77,7 +77,7 @@ sol::stack_object evaluate_unary_operator(const sol::stack_object& a, sol::this_
 	return to_lua(state, result);
 }
 
-sol::stack_object variant_index(const Variant& variant, const sol::stack_object& key, sol::this_state state) {
+sol::stack_object variant_index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
 	bool is_valid;
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
@@ -94,7 +94,7 @@ sol::stack_object variant_index(const Variant& variant, const sol::stack_object&
 	return to_lua(state, result);
 }
 
-void variant_newindex(Variant& variant, const sol::stack_object& key, const sol::stack_object& value, sol::this_state state) {
+void variant_newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
 	bool is_valid;
 	Variant var_key = to_variant(key);
 	Variant var_value = to_variant(value);
@@ -111,7 +111,7 @@ void variant_newindex(Variant& variant, const sol::stack_object& key, const sol:
 	}
 }
 
-sol::stack_object variant_length(Variant& variant, sol::this_state state) {
+sol::stack_object variant_length(sol::this_state state, Variant& variant) {
 	return variant_call_string_name(state, variant, "size", sol::variadic_args(state, 0));
 }
 
@@ -119,17 +119,16 @@ String variant_concat(const sol::stack_object& a, const sol::stack_object& b) {
 	return String(to_variant(a)) + String(to_variant(b));
 }
 
-std::tuple<sol::object, sol::object> variant_pairs(const Variant& variant, sol::this_state state) {
+std::tuple<sol::object, sol::object> variant_pairs(sol::this_state state, const Variant& variant) {
 	if (variant.get_type() == Variant::DICTIONARY) {
-		Dictionary dictionary = variant;
-		return DictionaryIterator::dictionary_pairs(dictionary, state);
+		return DictionaryIterator::dictionary_pairs(state, variant);
 	}
 
 	if (IndexedIterator::supports_indexed_pairs(variant)) {
-		return IndexedIterator::indexed_pairs(variant, state);
+		return IndexedIterator::indexed_pairs(state, variant);
 	}
 
-	return ObjectIterator::object_pairs(variant, state);
+	return ObjectIterator::object_pairs(state, variant);
 }
 
 VariantClass variant_get_type(const Variant& variant) {

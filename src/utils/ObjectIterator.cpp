@@ -49,7 +49,7 @@ sol::object ObjectIterator::iter_next_lua(sol::this_state state) {
 	}
 }
 
-std::tuple<sol::object, sol::object> ObjectIterator::object_pairs(const Variant& variant, sol::this_state state) {
+std::tuple<sol::object, sol::object> ObjectIterator::object_pairs(sol::this_state state, const Variant& variant) {
 	bool is_valid;
 	Variant iterator = variant.iter_get(variant, is_valid);
 	if (is_valid) {

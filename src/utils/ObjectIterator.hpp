@@ -40,7 +40,7 @@ public:
 	Variant iter_next();
 	sol::object iter_next_lua(sol::this_state state);
 
-	static std::tuple<sol::object, sol::object> object_pairs(const Variant& variant, sol::this_state state);
+	static std::tuple<sol::object, sol::object> object_pairs(sol::this_state state, const Variant& variant);
 };
 
 }
