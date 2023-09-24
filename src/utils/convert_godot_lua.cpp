@@ -25,7 +25,6 @@
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
 #include "VariantArguments.hpp"
-#include "VariantClass.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>

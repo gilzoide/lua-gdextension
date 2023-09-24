@@ -31,7 +31,7 @@
 #include "../utils/IndexedIterator.hpp"
 #include "../utils/ObjectIterator.hpp"
 #include "../utils/VariantArguments.hpp"
-#include "../utils/VariantClass.hpp"
+#include "../utils/VariantType.hpp"
 #include "../utils/MethodBindByName.hpp"
 
 using namespace godot;
@@ -131,8 +131,8 @@ std::tuple<sol::object, sol::object> variant_pairs(sol::this_state state, const 
 	return ObjectIterator::object_pairs(state, variant);
 }
 
-VariantClass variant_get_type(const Variant& variant) {
-	return VariantClass(variant.get_type());
+VariantType variant_get_type(const Variant& variant) {
+	return VariantType(variant.get_type());
 }
 
 bool variant_is(const Variant& variant, const sol::stack_object& type) {
@@ -142,8 +142,8 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 	else if (type.get_type() == sol::type::string) {
 		return get_type_name(variant) == type.as<String>();
 	}
-	else if (type.is<VariantClass>()) {
-		return variant.get_type() == type.as<VariantClass>().get_type();
+	else if (type.is<VariantType>()) {
+		return variant.get_type() == type.as<VariantType>().get_type();
 	}
 	return false;
 }
@@ -205,51 +205,51 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	);
 
 	MethodBindByName::register_usertype(state);
-	VariantClass::register_usertype(state);
+	VariantType::register_usertype(state);
 
 	// atomic types
-	state.set("bool", VariantClass(Variant::BOOL));
-	state.set("int", VariantClass(Variant::INT));
-	state.set("float", VariantClass(Variant::FLOAT));
-	state.set("String", VariantClass(Variant::STRING));
+	state.set("bool", VariantType(Variant::BOOL));
+	state.set("int", VariantType(Variant::INT));
+	state.set("float", VariantType(Variant::FLOAT));
+	state.set("String", VariantType(Variant::STRING));
 
 	// math types
-	state.set("Vector2", VariantClass(Variant::VECTOR2));
-	state.set("Vector2i", VariantClass(Variant::VECTOR2I));
-	state.set("Rect2", VariantClass(Variant::RECT2));
-	state.set("Rect2i", VariantClass(Variant::RECT2I));
-	state.set("Vector3", VariantClass(Variant::VECTOR3));
-	state.set("Vector3i", VariantClass(Variant::VECTOR3I));
-	state.set("Transform2D", VariantClass(Variant::TRANSFORM2D));
-	state.set("Vector4", VariantClass(Variant::VECTOR4));
-	state.set("Vector4i", VariantClass(Variant::VECTOR4I));
-	state.set("Plane", VariantClass(Variant::PLANE));
-	state.set("Quaternion", VariantClass(Variant::QUATERNION));
-	state.set("AABB", VariantClass(Variant::AABB));
-	state.set("Basis", VariantClass(Variant::BASIS));
-	state.set("Transform3D", VariantClass(Variant::TRANSFORM3D));
-	state.set("Projection", VariantClass(Variant::PROJECTION));
+	state.set("Vector2", VariantType(Variant::VECTOR2));
+	state.set("Vector2i", VariantType(Variant::VECTOR2I));
+	state.set("Rect2", VariantType(Variant::RECT2));
+	state.set("Rect2i", VariantType(Variant::RECT2I));
+	state.set("Vector3", VariantType(Variant::VECTOR3));
+	state.set("Vector3i", VariantType(Variant::VECTOR3I));
+	state.set("Transform2D", VariantType(Variant::TRANSFORM2D));
+	state.set("Vector4", VariantType(Variant::VECTOR4));
+	state.set("Vector4i", VariantType(Variant::VECTOR4I));
+	state.set("Plane", VariantType(Variant::PLANE));
+	state.set("Quaternion", VariantType(Variant::QUATERNION));
+	state.set("AABB", VariantType(Variant::AABB));
+	state.set("Basis", VariantType(Variant::BASIS));
+	state.set("Transform3D", VariantType(Variant::TRANSFORM3D));
+	state.set("Projection", VariantType(Variant::PROJECTION));
 
 	// misc types
-	state.set("Color", VariantClass(Variant::COLOR));
-	state.set("StringName", VariantClass(Variant::STRING_NAME));
-	state.set("NodePath", VariantClass(Variant::NODE_PATH));
-	state.set("RID", VariantClass(Variant::RID));
-	state.set("Callable", VariantClass(Variant::CALLABLE));
-	state.set("Signal", VariantClass(Variant::SIGNAL));
-	state.set("Dictionary", VariantClass(Variant::DICTIONARY));
-	state.set("Array", VariantClass(Variant::ARRAY));
+	state.set("Color", VariantType(Variant::COLOR));
+	state.set("StringName", VariantType(Variant::STRING_NAME));
+	state.set("NodePath", VariantType(Variant::NODE_PATH));
+	state.set("RID", VariantType(Variant::RID));
+	state.set("Callable", VariantType(Variant::CALLABLE));
+	state.set("Signal", VariantType(Variant::SIGNAL));
+	state.set("Dictionary", VariantType(Variant::DICTIONARY));
+	state.set("Array", VariantType(Variant::ARRAY));
 
 	// typed arrays
-	state.set("PackedByteArray", VariantClass(Variant::PACKED_BYTE_ARRAY));
-	state.set("PackedInt32Array", VariantClass(Variant::PACKED_INT32_ARRAY));
-	state.set("PackedInt64Array", VariantClass(Variant::PACKED_INT64_ARRAY));
-	state.set("PackedFloat32Array", VariantClass(Variant::PACKED_FLOAT32_ARRAY));
-	state.set("PackedFloat64Array", VariantClass(Variant::PACKED_FLOAT64_ARRAY));
-	state.set("PackedStringArray", VariantClass(Variant::PACKED_STRING_ARRAY));
-	state.set("PackedVector2Array", VariantClass(Variant::PACKED_VECTOR2_ARRAY));
-	state.set("PackedVector3Array", VariantClass(Variant::PACKED_VECTOR3_ARRAY));
-	state.set("PackedColorArray", VariantClass(Variant::PACKED_COLOR_ARRAY));
+	state.set("PackedByteArray", VariantType(Variant::PACKED_BYTE_ARRAY));
+	state.set("PackedInt32Array", VariantType(Variant::PACKED_INT32_ARRAY));
+	state.set("PackedInt64Array", VariantType(Variant::PACKED_INT64_ARRAY));
+	state.set("PackedFloat32Array", VariantType(Variant::PACKED_FLOAT32_ARRAY));
+	state.set("PackedFloat64Array", VariantType(Variant::PACKED_FLOAT64_ARRAY));
+	state.set("PackedStringArray", VariantType(Variant::PACKED_STRING_ARRAY));
+	state.set("PackedVector2Array", VariantType(Variant::PACKED_VECTOR2_ARRAY));
+	state.set("PackedVector3Array", VariantType(Variant::PACKED_VECTOR3_ARRAY));
+	state.set("PackedColorArray", VariantType(Variant::PACKED_COLOR_ARRAY));
 
 	return 0;
 }

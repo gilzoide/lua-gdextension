@@ -19,8 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_VARIANT_CLASS_HPP__
-#define __UTILS_VARIANT_CLASS_HPP__
+#ifndef __UTILS_VARIANT_TYPE_HPP__
+#define __UTILS_VARIANT_TYPE_HPP__
 
 #include "custom_sol.hpp"
 #include <godot_cpp/variant/variant.hpp>
@@ -32,12 +32,12 @@ namespace luagdextension {
 /**
  * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
  */
-class VariantClass {
+class VariantType {
 protected:
 	Variant::Type type;
 
 public:
-	VariantClass(Variant::Type type);
+	VariantType(Variant::Type type);
 
 	Variant::Type get_type() const;
 	String get_type_name() const;
@@ -45,11 +45,11 @@ public:
 	Variant construct(const sol::variadic_args& args) const;
 	bool has_static_method(StringName method) const;
 
-	bool operator==(const VariantClass& other) const;
+	bool operator==(const VariantType& other) const;
 
 	static void register_usertype(sol::state_view& state);
 };
 
 }
 
-#endif  // __UTILS_VARIANT_CLASS_HPP__
+#endif  // __UTILS_VARIANT_TYPE_HPP__
