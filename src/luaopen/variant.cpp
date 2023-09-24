@@ -25,14 +25,15 @@
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "../utils/convert_godot_lua.hpp"
-#include "../utils/convert_godot_std.hpp"
+#include "../utils/Class.hpp"
 #include "../utils/DictionaryIterator.hpp"
 #include "../utils/IndexedIterator.hpp"
 #include "../utils/ObjectIterator.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
 #include "../utils/MethodBindByName.hpp"
+#include "../utils/convert_godot_lua.hpp"
+#include "../utils/convert_godot_std.hpp"
 
 using namespace godot;
 
@@ -140,10 +141,20 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 		return variant.get_type() == Variant::NIL;
 	}
 	else if (type.get_type() == sol::type::string) {
-		return get_type_name(variant) == type.as<String>();
+		if (variant.get_type() == Variant::OBJECT) {
+			Object *obj = variant;
+			return obj->is_class(type.as<String>());
+		}
+		else {
+			return Variant::get_type_name(variant.get_type()) == type.as<String>();
+		}
 	}
 	else if (type.is<VariantType>()) {
 		return variant.get_type() == type.as<VariantType>().get_type();
+	}
+	else if (type.is<Class>() && variant.get_type() == Variant::OBJECT) {
+		Object *obj = variant;
+		return obj->is_class(type.as<Class>().get_name());
 	}
 	return false;
 }
