@@ -21,6 +21,7 @@
  */
 #include "_G_metatable.hpp"
 
+#include "Class.hpp"
 #include "convert_godot_lua.hpp"
 #include "module_names.hpp"
 
@@ -31,6 +32,9 @@ using namespace godot;
 namespace luagdextension {
 
 sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_object key) {
+	static Engine *engine = Engine::get_singleton();
+	static Object *class_db = engine->get_singleton("ClassDB");
+
 	if (key.get_type() != sol::type::string) {
 		return sol::nil;
 	}
@@ -38,11 +42,16 @@ sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_obje
 	auto registry = sol::state_view(state).registry();
 	if (registry.get_or(module_names::singleton_access, false)) {
 		auto class_name = key.as<StringName>();
-		auto engine = Engine::get_singleton();
 		if (engine->has_singleton(class_name)) {
 			Variant singleton = engine->get_singleton(class_name);
-			_G[key] = singleton;
-			return to_lua(state, singleton);
+			return _G[key] = to_lua(state, singleton);
+		}
+	}
+	if (registry.get_or(module_names::classes, false)) {
+		StringName class_name = key.as<StringName>();
+		if (class_db->call("class_exists", class_name)) {
+			Class cls(class_name);
+			return _G[key] = sol::make_object(state, cls);
 		}
 	}
 	return sol::nil;

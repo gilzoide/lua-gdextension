@@ -30,6 +30,9 @@ using namespace luagdextension;
 extern "C" int luaopen_godot_classes(lua_State *L) {
 	sol::state_view state = L;
 
+	state.registry()[module_names::classes] = true;
+	Class::register_usertype(state);
+
 	return 0;
 }
 
