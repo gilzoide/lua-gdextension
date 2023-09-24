@@ -23,17 +23,15 @@ Godot 4.1+ native extension for using the Lua programming language.
       print(result["vector"])  # (1, 2)
       print(result["invalid key"])  # <null>
   ```
-- Bindings for all Variant types.
+- Bindings for all Variant types and classes.
+  Methods are dispatched dynamically at runtime, so that all classes are supported, even those registered at runtime like ones implemented via GDExtension.
   ```lua
   local v = Vector3(1, 2, 3)
   print(v:length())  -- 3.74165749549866
-  ```
-- All object methods are available, including static Variant methods.
-  Everything is dispatched dynamically at runtime.
-  ```lua
-  local b = Basis:from_euler(Vector3(1, 2, 3))
-  print(b)  -- "[X: (0.51996, 0.076247, 0.850781), Y: (-0.698763, -0.534895, 0.474991), Z: (0.491295, -0.841471, -0.224845)]"
-	print(b:determinant())  -- 0.99999994039536
+
+  local n = Node:new()
+  print(n:is_inside_tree())  -- false
+  n:queue_free()
   ```
 - Array/Dictionary constructors accepting table arguments
   ```lua
@@ -87,7 +85,7 @@ Godot 4.1+ native extension for using the Lua programming language.
 - [X] Bind utility functions to Lua
 - [ ] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
-- [ ] Add support for getting classes from Lua
+- [X] Add support for getting classes from Lua
 - [ ] Submit to Asset Library
 - [ ] Lua ScriptLanguageExtension
 - [ ] Support for building with LuaJIT
