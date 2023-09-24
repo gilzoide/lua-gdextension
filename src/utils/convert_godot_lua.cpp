@@ -151,6 +151,14 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	return sol::stack_object(lua_state, -1);
 }
 
+Array to_array(const sol::variadic_args& args) {
+	Array arr;
+	for (auto it : args) {
+		arr.append(to_variant(it.get<sol::object>()));
+	}
+	return arr;
+}
+
 Array to_array(const sol::table& table) {
 	Array arr;
 	for (int i = 1; i <= table.size(); i++) {
