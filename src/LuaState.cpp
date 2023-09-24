@@ -24,6 +24,7 @@
 #include "LuaState.hpp"
 #include "LuaError.hpp"
 #include "luaopen/godot.hpp"
+#include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/module_names.hpp"
 
@@ -47,6 +48,7 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 }
 
 LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
+	setup_G_metatable(lua_state);
 	table = lua_state.globals();
 	valid_states.insert(lua_state);
 }
@@ -115,6 +117,9 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_UTILITY_FUNCTIONS)) {
 			lua_state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
 		}
+		if (libraries.has_flag(GODOT_SINGLETONS)) {
+			lua_state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
+		}
 	}
 }
 
@@ -157,6 +162,7 @@ void LuaState::_bind_methods() {
 
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
+	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
 	BIND_BITFIELD_FLAG(GODOT);
 
 	// Methods

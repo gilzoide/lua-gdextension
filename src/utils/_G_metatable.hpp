@@ -19,18 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_G_METATABLE_HPP__
+#define __UTILS_G_METATABLE_HPP__
 
-struct lua_State;
+#include <sol/sol.hpp>
 
-extern "C" {
+namespace luagdextension {
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
+void setup_G_metatable(sol::state_view& state);
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+#endif  // __UTILS_G_METATABLE_HPP__

@@ -33,6 +33,7 @@ extern "C" int luaopen_godot(lua_State *L) {
 
 	state.require(module_names::variant, &luaopen_godot_variant, false);
 	state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
+	state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 
 	return 0;
 }
