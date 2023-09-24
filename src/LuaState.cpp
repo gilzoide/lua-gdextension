@@ -25,6 +25,7 @@
 #include "LuaError.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/convert_godot_lua.hpp"
+#include "utils/module_names.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/file_access.hpp>
@@ -105,14 +106,14 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 	}
 
 	if (libraries.has_flag(GODOT)) {
-		lua_state.require("godot", &luaopen_godot, false);
+		lua_state.require(module_names::godot, &luaopen_godot, false);
 	}
 	else {
 		if (libraries.has_flag(GODOT_VARIANT)) {
-			lua_state.require("godot.variant", &luaopen_godot_variant, false);
+			lua_state.require(module_names::variant, &luaopen_godot_variant, false);
 		}
 		if (libraries.has_flag(GODOT_UTILITY_FUNCTIONS)) {
-			lua_state.require("godot.utility_functions", &luaopen_godot_utility_functions, false);
+			lua_state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
 		}
 	}
 }

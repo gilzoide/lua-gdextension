@@ -19,21 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __UTILS_MODULE_NAMES_HPP__
+#define __UTILS_MODULE_NAMES_HPP__
 
-#include "godot.hpp"
+namespace luagdextension::module_names {
 
-#include "../utils/module_names.hpp"
+constexpr char godot[] = "godot";
+constexpr char variant[] = "godot.variant";
+constexpr char utility_functions[] = "godot.utility_functions";
 
-#include <sol/sol.hpp>
-
-using namespace luagdextension;
-
-extern "C" int luaopen_godot(lua_State *L) {
-	sol::state_view state = L;
-
-	state.require(module_names::variant, &luaopen_godot_variant, false);
-	state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
-
-	return 0;
 }
 
+#endif  // __UTILS_MODULE_NAMES_HPP__
