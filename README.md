@@ -85,7 +85,8 @@ Godot 4.1+ native extension for using the Lua programming language.
 
 ## TODO
 - [X] Bind utility functions to Lua
-- [ ] Add support for getting global singletons from Lua
+- [ ] Bind enums and constants to Lua
+- [X] Add support for getting global singletons from Lua
 - [ ] Add support for getting classes from Lua
 - [ ] Submit to Asset Library
 - [ ] Lua ScriptLanguageExtension

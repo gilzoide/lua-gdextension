@@ -19,18 +19,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_MODULE_NAMES_HPP__
+#define __UTILS_MODULE_NAMES_HPP__
 
-struct lua_State;
+namespace luagdextension::module_names {
 
-extern "C" {
-
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
+constexpr char godot[] = "godot";
+constexpr char variant[] = "godot.variant";
+constexpr char utility_functions[] = "godot.utility_functions";
+constexpr char singleton_access[] = "godot.singleton_access";
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+#endif  // __UTILS_MODULE_NAMES_HPP__

@@ -19,18 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#include "_G_metatable.hpp"
 
-struct lua_State;
+#include "convert_godot_lua.hpp"
+#include "module_names.hpp"
 
-extern "C" {
+#include <godot_cpp/classes/engine.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
+using namespace godot;
+
+namespace luagdextension {
+
+sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_object key) {
+	if (key.get_type() != sol::type::string) {
+		return sol::nil;
+	}
+
+	auto registry = sol::state_view(state).registry();
+	if (registry.get_or(module_names::singleton_access, false)) {
+		auto class_name = key.as<StringName>();
+		auto engine = Engine::get_singleton();
+		if (engine->has_singleton(class_name)) {
+			Variant singleton = engine->get_singleton(class_name);
+			_G[key] = singleton;
+			return to_lua(state, singleton);
+		}
+	}
+	return sol::nil;
+}
+
+void setup_G_metatable(sol::state_view& state) {
+	state.globals()[sol::metatable_key] = state.create_table_with(
+		sol::meta_function::index, &__index
+	);
+}
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__

@@ -22,13 +22,18 @@
 
 #include "godot.hpp"
 
+#include "../utils/module_names.hpp"
+
 #include <sol/sol.hpp>
+
+using namespace luagdextension;
 
 extern "C" int luaopen_godot(lua_State *L) {
 	sol::state_view state = L;
 
-	state.require("godot.variant", &luaopen_godot_variant, false);
-	state.require("godot.utility_functions", &luaopen_godot_utility_functions, false);
+	state.require(module_names::variant, &luaopen_godot_variant, false);
+	state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
+	state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 
 	return 0;
 }
