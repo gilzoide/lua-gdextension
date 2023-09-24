@@ -17,5 +17,6 @@ build/*
 *.framework
 compile_commands.json
 
-# Test GDScript files
-*.gd
+# Test project files
+.godot/
+test/godot
