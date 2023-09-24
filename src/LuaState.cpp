@@ -62,7 +62,7 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		libraries = LUA | GODOT;
 	}
 
-	if (libraries.has_flag(LUA)) {
+	if ((libraries & LUA) == LUA) {
 		lua_state.open_libraries();
 	}
 	else {
@@ -107,7 +107,7 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		}
 	}
 
-	if (libraries.has_flag(GODOT)) {
+	if ((libraries & GODOT) == GODOT) {
 		lua_state.require(module_names::godot, &luaopen_godot, false);
 	}
 	else {
