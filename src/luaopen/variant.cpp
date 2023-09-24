@@ -52,8 +52,8 @@ sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::sta
 			state,
 			"Invalid call to operator '%s' between %s and %s.",
 			get_operator_name(VarOperator),
-			a_str.ptr(),
-			b_str.ptr()
+			a_str.get_data(),
+			b_str.get_data()
 		);
 	}
 	return to_lua(state, result);
@@ -71,7 +71,7 @@ sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stac
 			state,
 			"Invalid call to operator %s with type %s.",
 			get_operator_name(VarOperator),
-			a_str.ptr()
+			a_str.get_data()
 		);
 	}
 	return to_lua(state, result);
@@ -105,8 +105,8 @@ void variant_newindex(sol::this_state state, Variant& variant, const sol::stack_
 		luaL_error(
 			state,
 			"Could not set value for key '%s' with an object of type %s",
-			key_str.ptr(),
-			variant_str.ptr()
+			key_str.get_data(),
+			variant_str.get_data()
 		);
 	}
 }

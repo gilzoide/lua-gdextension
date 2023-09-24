@@ -23,6 +23,7 @@
 
 #include "convert_godot_lua.hpp"
 
+#include <godot_cpp/core/object.hpp>
 #include <godot_cpp/godot.hpp>
 
 namespace luagdextension {

@@ -257,7 +257,7 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {
 	CharString prefix = prefix_message.ascii();
 	CharString error_str = to_string(call_error).ascii();
-	luaL_error(L, "%s: %s", prefix.ptr(), error_str.ptr());
+	luaL_error(L, "%s: %s", prefix.get_data(), error_str.get_data());
 }
 
 }

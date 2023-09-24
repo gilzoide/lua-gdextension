@@ -60,7 +60,7 @@ std::tuple<sol::object, sol::object> ObjectIterator::object_pairs(sol::this_stat
 	}
 	else {
 		CharString var_type = get_type_name(variant).ascii();
-		luaL_error(state, "Object of type %s does not support 'pairs' iteration", var_type.ptr());
+		luaL_error(state, "Object of type %s does not support 'pairs' iteration", var_type.get_data());
 		return {};
 	}
 }
