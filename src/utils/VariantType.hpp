@@ -23,6 +23,7 @@
 #define __UTILS_VARIANT_TYPE_HPP__
 
 #include "custom_sol.hpp"
+
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;

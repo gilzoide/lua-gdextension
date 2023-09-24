@@ -19,19 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
 
-struct lua_State;
+#include "../utils/Class.hpp"
+#include "../utils/module_names.hpp"
 
-extern "C" {
+#include <sol/sol.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
-int luaopen_godot_classes(lua_State *L);
+using namespace luagdextension;
 
+extern "C" int luaopen_godot_classes(lua_State *L) {
+	sol::state_view state = L;
+
+	return 0;
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__

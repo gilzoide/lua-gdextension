@@ -28,6 +28,7 @@ constexpr char godot[] = "godot";
 constexpr char variant[] = "godot.variant";
 constexpr char utility_functions[] = "godot.utility_functions";
 constexpr char singleton_access[] = "godot.singleton_access";
+constexpr char classes[] = "godot.classes";
 
 }
 
