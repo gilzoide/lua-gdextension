@@ -22,7 +22,7 @@
 #include "MethodBindByName.hpp"
 
 #include "VariantArguments.hpp"
-#include "VariantClass.hpp"
+#include "VariantType.hpp"
 #include "convert_godot_lua.hpp"
 #include "convert_godot_std.hpp"
 
@@ -37,8 +37,8 @@ const StringName& MethodBindByName::get_method_name() const {
 }
 
 sol::stack_object MethodBindByName::call(sol::this_state state, const sol::stack_object& self, const sol::variadic_args& args) const {
-	if (self.is<VariantClass>()) {
-		VariantClass var_type = self.as<VariantClass>();
+	if (self.is<VariantType>()) {
+		VariantType var_type = self.as<VariantType>();
 		return variant_static_call_string_name(state, var_type.get_type(), method_name, args);
 	}
 	else {

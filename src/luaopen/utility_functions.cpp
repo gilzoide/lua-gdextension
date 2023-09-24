@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-#include "godot.hpp"
-
 #include "../utils/function_wrapper.hpp"
 
 // We can't call variadic templates at runtime, so we need access

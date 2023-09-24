@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-#include "godot.hpp"
-
 #include "../utils/module_names.hpp"
 
 #include <sol/sol.hpp>

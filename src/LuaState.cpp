@@ -120,6 +120,9 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_SINGLETONS)) {
 			lua_state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 		}
+		if (libraries.has_flag(GODOT_CLASSES)) {
+			lua_state.require(module_names::classes, &luaopen_godot_classes, false);
+		}
 	}
 }
 
@@ -163,6 +166,7 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
 	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
+	BIND_BITFIELD_FLAG(GODOT_CLASSES);
 	BIND_BITFIELD_FLAG(GODOT);
 
 	// Methods

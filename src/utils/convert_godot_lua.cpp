@@ -25,7 +25,6 @@
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
 #include "VariantArguments.hpp"
-#include "VariantClass.hpp"
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -152,6 +151,14 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	return sol::stack_object(lua_state, -1);
 }
 
+Array to_array(const sol::variadic_args& args) {
+	Array arr;
+	for (auto it : args) {
+		arr.append(to_variant(it.get<sol::object>()));
+	}
+	return arr;
+}
+
 Array to_array(const sol::table& table) {
 	Array arr;
 	for (int i = 1; i <= table.size(); i++) {
@@ -250,7 +257,7 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {
 	CharString prefix = prefix_message.ascii();
 	CharString error_str = to_string(call_error).ascii();
-	luaL_error(L, "%s: %s", prefix.ptr(), error_str.ptr());
+	luaL_error(L, "%s: %s", prefix.get_data(), error_str.get_data());
 }
 
 }

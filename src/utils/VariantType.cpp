@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "VariantClass.hpp"
+#include "VariantType.hpp"
 
 #include "MethodBindByName.hpp"
 #include "VariantArguments.hpp"
@@ -28,17 +28,17 @@
 
 namespace luagdextension {
 
-VariantClass::VariantClass(Variant::Type type) : type(type) {}
+VariantType::VariantType(Variant::Type type) : type(type) {}
 
-Variant::Type VariantClass::get_type() const {
+Variant::Type VariantType::get_type() const {
 	return type;
 }
 
-String VariantClass::get_type_name() const {
+String VariantType::get_type_name() const {
 	return Variant::get_type_name(type);
 }
 
-Variant VariantClass::construct(const sol::variadic_args& args) const {
+Variant VariantType::construct(const sol::variadic_args& args) const {
 	if (args.size() == 1 && args.get_type() == sol::type::table) {
 		if (type == Variant::ARRAY) {
 			return to_array(args.get<sol::stack_table>());
@@ -60,18 +60,18 @@ Variant VariantClass::construct(const sol::variadic_args& args) const {
 	return result;
 }
 
-bool VariantClass::has_static_method(StringName method) const {
+bool VariantType::has_static_method(StringName method) const {
 	Variant result;
 	GDExtensionCallError error;
 	Variant::call_static(type, method, (const Variant **) NULL, 0, result, error);
 	return error.error != GDEXTENSION_CALL_ERROR_INVALID_METHOD && error.error != GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
 }
 
-bool VariantClass::operator==(const VariantClass& other) const {
+bool VariantType::operator==(const VariantType& other) const {
 	return type == other.type;
 }
 
-static sol::optional<MethodBindByName> __index(const VariantClass& cls, const sol::stack_object& key) {
+static sol::optional<MethodBindByName> __index(const VariantType& cls, const sol::stack_object& key) {
 	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
@@ -81,13 +81,13 @@ static sol::optional<MethodBindByName> __index(const VariantClass& cls, const so
 	}
 	return {};
 }
-void VariantClass::register_usertype(sol::state_view& state) {
-	state.new_usertype<VariantClass>(
+void VariantType::register_usertype(sol::state_view& state) {
+	state.new_usertype<VariantType>(
 		"VariantClass",
-		"has_static_method", &VariantClass::has_static_method,
+		"has_static_method", &VariantType::has_static_method,
 		sol::meta_function::index, &__index,
-		sol::meta_function::call, &VariantClass::construct,
-		sol::meta_function::to_string, &VariantClass::get_type_name
+		sol::meta_function::call, &VariantType::construct,
+		sol::meta_function::to_string, &VariantType::get_type_name
 	);
 }
 

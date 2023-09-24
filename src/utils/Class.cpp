@@ -19,19 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#include "Class.hpp"
 
-struct lua_State;
+#include "convert_godot_lua.hpp"
 
-extern "C" {
+#include <godot_cpp/core/object.hpp>
+#include <godot_cpp/godot.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
-int luaopen_godot_classes(lua_State *L);
+namespace luagdextension {
 
+Class::Class(const StringName& class_name) : class_name(class_name) {}
+
+const StringName& Class::get_name() const {
+	return class_name;
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+Variant Class::construct(const sol::variadic_args& args) const {
+	GDExtensionObjectPtr obj_ptr = godot::internal::gdextension_interface_classdb_construct_object(class_name._native_ptr());
+	Object *obj = godot::internal::get_object_instance_binding(obj_ptr);
+	if (obj->has_method("_init")) {
+		obj->callv("_init", to_array(args));
+	}
+	return obj;
+}
+
+bool Class::operator==(const Class& other) const {
+	return class_name == other.class_name;
+}
+
+void Class::register_usertype(sol::state_view& state) {
+	state.new_usertype<Class>(
+		"Class",
+		"new", &Class::construct,
+		sol::meta_function::to_string, &Class::get_name
+	);
+}
+
+}

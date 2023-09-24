@@ -19,19 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_VARIANT_TYPE_HPP__
+#define __UTILS_VARIANT_TYPE_HPP__
 
-struct lua_State;
+#include "custom_sol.hpp"
 
-extern "C" {
+#include <godot_cpp/variant/variant.hpp>
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
-int luaopen_godot_classes(lua_State *L);
+using namespace godot;
+
+namespace luagdextension {
+
+/**
+ * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
+ */
+class VariantType {
+protected:
+	Variant::Type type;
+
+public:
+	VariantType(Variant::Type type);
+
+	Variant::Type get_type() const;
+	String get_type_name() const;
+
+	Variant construct(const sol::variadic_args& args) const;
+	bool has_static_method(StringName method) const;
+
+	bool operator==(const VariantType& other) const;
+
+	static void register_usertype(sol::state_view& state);
+};
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+#endif  // __UTILS_VARIANT_TYPE_HPP__

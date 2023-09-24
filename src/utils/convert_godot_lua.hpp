@@ -36,6 +36,7 @@ Variant to_variant(const sol::stack_proxy_base& object);
 Variant to_variant(const sol::protected_function_result& function_result);
 sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
 
+Array to_array(const sol::variadic_args& args);
 Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 
