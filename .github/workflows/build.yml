@@ -33,7 +33,7 @@ jobs:
           python -m pip install scons==4.5.2
       - name: Build artifact
         run: |
-          scons platform=linux target={{ matrix.target }}
+          scons platform=linux target=${{ matrix.target }}
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
