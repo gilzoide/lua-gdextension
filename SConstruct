@@ -59,7 +59,9 @@ else:
     )
 
 # Build zip distribution
+addons_license = env.Install(target="addons/lua-gdextension", source="LICENSE")
 zip_sources = [
+    addons_license,
     "addons/lua-gdextension/luagdextension.gdextension",
     *Glob("addons/lua-gdextension/build/libluagdextension*"),
 ]
