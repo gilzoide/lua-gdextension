@@ -14,6 +14,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        platform:
+          - linux
         target:
           - template_debug
           - template_release
@@ -43,10 +45,10 @@ jobs:
             build/*.template_*
             lib/godot-cpp/gen
             lib/godot-cpp/src/**.template_*
-          key: ${{ runner.os }}-scons
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
-          scons platform=linux target=${{ matrix.target }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
