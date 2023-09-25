@@ -28,24 +28,12 @@ namespace luagdextension {
 IndexedIterator::IndexedIterator(const Variant& variant)
 		: variant(variant), index(-1) {}
 
-std::tuple<int, Variant> IndexedIterator::iter_next() {
+std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_state state) {
 	index++;
 	bool is_valid, is_out_of_bounds;
 	Variant result = variant.get_indexed(index, is_valid, is_out_of_bounds);
 	if (is_valid && !is_out_of_bounds) {
-		return std::make_tuple(index, result);
-	}
-	else {
-		return std::make_tuple(-1, Variant());
-	}
-}
-
-std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_state state) {
-	int index;
-	Variant value;
-	std::tie(index, value) = iter_next();
-	if (index >= 0) {
-		return std::make_tuple(sol::make_object(state, index), to_lua(state, value));
+		return std::make_tuple(sol::make_object(state, index), to_lua(state, result));
 	}
 	else {
 		return std::make_tuple(sol::nil, sol::nil);
@@ -53,6 +41,23 @@ std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_st
 }
 
 bool IndexedIterator::supports_indexed_pairs(const Variant& variant) {
+	switch (variant.get_type()) {
+        case godot::Variant::ARRAY:
+        case godot::Variant::PACKED_BYTE_ARRAY:
+        case godot::Variant::PACKED_INT32_ARRAY:
+        case godot::Variant::PACKED_INT64_ARRAY:
+        case godot::Variant::PACKED_FLOAT32_ARRAY:
+        case godot::Variant::PACKED_FLOAT64_ARRAY:
+        case godot::Variant::PACKED_STRING_ARRAY:
+        case godot::Variant::PACKED_VECTOR2_ARRAY:
+        case godot::Variant::PACKED_VECTOR3_ARRAY:
+        case godot::Variant::PACKED_COLOR_ARRAY:
+        case godot::Variant::VARIANT_MAX:
+			return true;
+		default:
+			break;
+	}
+
 	bool is_valid, is_out_of_bounds;
 	variant.get_indexed(0, is_valid, is_out_of_bounds);
 	return is_valid;
