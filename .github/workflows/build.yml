@@ -29,7 +29,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential
+          sudo apt-get install build-essential g++-multilib
       - name: Set up Python (for SCons)
         uses: actions/setup-python@v4
         with:
