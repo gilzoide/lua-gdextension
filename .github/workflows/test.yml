@@ -19,7 +19,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install scons
-      - name: Cache SCons files
+      - name: Cache
         uses: actions/cache@v3
         with:
           path: |
@@ -28,7 +28,17 @@ jobs:
       - name: Build artifact
         run: |
           scons
+      - name: Install Godot
+        run: |
+          curl --location $GODOT_RELEASE_URL --output godot.zip
+          unzip godot.zip
+          mv Godot_* godot
+          touch _sc_
+        env:
+          GODOT_RELEASE_URL: https://github.com/godotengine/godot/releases/download/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip
       - name: Run tests
         run: |
           scons test
+        env:
+          GODOT_BIN: ./godot
 
