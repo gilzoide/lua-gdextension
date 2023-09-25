@@ -37,7 +37,6 @@ class IndexedIterator {
 public:
 	IndexedIterator(const Variant& variant);
 
-	std::tuple<int, Variant> iter_next();
 	std::tuple<sol::object, sol::object> iter_next_lua(sol::this_state state);
 
 	static bool supports_indexed_pairs(const Variant& variant);

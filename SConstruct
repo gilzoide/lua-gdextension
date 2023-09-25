@@ -58,4 +58,7 @@ else:
         source=sources,
     )
 
+if "test" in COMMAND_LINE_TARGETS:
+    env.Execute("godot --headless --quit --path test --script test_entrypoint.gd")
+
 Default(library)
