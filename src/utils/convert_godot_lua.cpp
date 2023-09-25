@@ -24,6 +24,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
+#include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
 
@@ -67,15 +68,15 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 		}
 
 		case sol::type::thread:
-			WARN_PRINT_ONCE_ED("Lua type 'thread' is not supported yet");
+			luaL_error(object.lua_state(), "Lua type 'thread' is not supported yet");
 			return Variant();
 
 		case sol::type::function:
-			WARN_PRINT_ONCE_ED("Lua type 'function' is not supported yet");
+			luaL_error(object.lua_state(), "Lua type 'function' is not supported yet");
 			return Variant();
 
 		case sol::type::lightuserdata:
-			WARN_PRINT_ONCE_ED("Lua type 'light userdata' is not supported yet");
+			luaL_error(object.lua_state(), "Lua type 'light userdata' is not supported yet");
 			return Variant();
 
 		case sol::type::none:
@@ -175,9 +176,17 @@ Dictionary to_dictionary(const sol::table& table) {
 	return dict;
 }
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
-	PackedByteArray bytes = chunk.to_utf8_buffer();
-	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
+sol::table to_table(sol::state_view& state, const Dictionary& dictionary) {
+	sol::table table = state.create_table();
+	if (!dictionary.is_empty()) {
+		DictionaryIterator iterator(dictionary);
+		while (auto kvp = iterator.iter_next()) {
+			Variant key, value;
+			std::tie(key, value) = kvp.value();
+			table[to_lua(state, key)] = to_lua(state, value);
+		}
+	}
+	return table;
 }
 
 sol::stack_object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
@@ -223,6 +232,11 @@ std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, V
 }
 std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
 	return variant_pcall_string_name(state, variant, method, args);
+}
+
+Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
+	PackedByteArray bytes = chunk.to_utf8_buffer();
+	return to_variant(lua_state.safe_script(to_string_view(bytes), sol::script_pass_on_error, to_std_string(chunkname)));
 }
 
 struct FileReaderData {

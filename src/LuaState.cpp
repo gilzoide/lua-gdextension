@@ -126,6 +126,10 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 	}
 }
 
+LuaTable *LuaState::create_table(const Dictionary& initial_values) {
+	return memnew(LuaTable(to_table(lua_state, initial_values)));
+}
+
 Variant LuaState::do_string(const String& chunk, const String& chunkname) {
 	return ::luagdextension::do_string(lua_state, chunk, chunkname);
 }
@@ -171,6 +175,7 @@ void LuaState::_bind_methods() {
 
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA | GODOT)));
+	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);

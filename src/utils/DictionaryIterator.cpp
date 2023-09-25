@@ -28,21 +28,22 @@ namespace luagdextension {
 DictionaryIterator::DictionaryIterator(const Dictionary& dictionary)
 		: dictionary(dictionary), keys(dictionary.keys()), index(-1) {}
 
-std::tuple<Variant, Variant> DictionaryIterator::iter_next() {
+sol::optional<std::tuple<Variant, Variant>> DictionaryIterator::iter_next() {
 	index++;
 	if (index < keys.size()) {
 		Variant key = keys[index];
 		return std::make_tuple(key, dictionary.get(key, Variant()));
 	}
 	else {
-		return std::make_tuple(Variant(), Variant());
+		return {};
 	}
 }
 
 std::tuple<sol::object, sol::object> DictionaryIterator::iter_next_lua(sol::this_state state) {
-	Variant key, value;
-	std::tie(key, value) = iter_next();
-	if (key.get_type() != Variant::NIL) {
+	auto kvp = iter_next();
+	if (kvp.has_value()) {
+		Variant key, value;
+		std::tie(key, value) = kvp.value();
 		return std::make_tuple(to_lua(state, key), to_lua(state, value));
 	}
 	else {

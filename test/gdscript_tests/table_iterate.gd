@@ -7,7 +7,7 @@ func test():
 		test_n(i)
 
 func test_n(n: int):
-	var table = lua_state.do_string("return {}")
+	var table = lua_state.create_table()
 	
 	for i in n:
 		table.set(str("key", i), str("Hello ", i))
@@ -15,4 +15,4 @@ func test_n(n: int):
 	var iteration_count = 0
 	for k in table:
 		iteration_count += 1
-	assert(iteration_count == n, "Iterated only %d times over LuaTable with %d items" % [iteration_count, n])
+	assert(iteration_count == n, "Iterated %d times over LuaTable with %d items" % [iteration_count, n])

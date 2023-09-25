@@ -38,7 +38,7 @@ class DictionaryIterator {
 public:
 	DictionaryIterator(const Dictionary& dictionary);
 
-	std::tuple<Variant, Variant> iter_next();
+	sol::optional<std::tuple<Variant, Variant>> iter_next();
 	std::tuple<sol::object, sol::object> iter_next_lua(sol::this_state state);
 
 	static std::tuple<sol::object, sol::object> dictionary_pairs(sol::this_state state, const Dictionary& dictionary);
