@@ -49,3 +49,33 @@ jobs:
           path: |
             addons/lua-gdextension/build/libluagdextension.*
 
+  build_distribution_zip:
+    name: Build distribution zip
+    needs: [build_linux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install scons
+      - name: Download artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Copy artifacts to build folder
+        run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+      - name: Make distribution zip
+        run: |
+          scons zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lua-gdextension
+          path: |
+            build/*.zip
+
+
