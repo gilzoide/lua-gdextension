@@ -58,6 +58,15 @@ else:
         source=sources,
     )
 
+# Build zip distribution
+zip_sources = [
+    "addons/lua-gdextension/luagdextension.gdextension",
+    *Glob("addons/lua-gdextension/build/libluagdextension*"),
+]
+env.Zip("build/lua-gdextension.zip", zip_sources)
+env.Alias("zip", "build/lua-gdextension.zip")
+
+# .PHONY targets
 if "test" in COMMAND_LINE_TARGETS:
     env.Execute("godot --headless --quit --path test --script test_entrypoint.gd")
 
