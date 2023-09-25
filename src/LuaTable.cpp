@@ -67,6 +67,43 @@ Array LuaTable::to_array() const {
 	return luagdextension::to_array(table);
 }
 
+bool LuaTable::_iter_init(const Variant& iter) const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
+	lua_State *L = table.lua_state();
+	auto table_popper = sol::stack::push_pop(table);
+	lua_pushnil(L);
+	if (lua_next(L, -2)) {
+		Array arg = iter;
+		arg[0] = to_variant(sol::stack_object(L, -2));
+		lua_pop(L, 2);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool LuaTable::_iter_next(const Variant& iter) const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
+	lua_State *L = table.lua_state();
+	Array arg = iter;
+	auto table_popper = sol::stack::push_pop(table);
+	auto key = to_lua(L, arg[0]);
+	if (lua_next(L, -2)) {
+		arg[0] = to_variant(sol::stack_object(L, -2));
+		lua_pop(L, 2);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+Variant LuaTable::_iter_get(const Variant& iter) const {
+	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
+	return iter;
+}
+
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
 	ClassDB::bind_method(D_METHOD("seti"), &LuaTable::seti);
@@ -74,6 +111,10 @@ void LuaTable::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
 	ClassDB::bind_method(D_METHOD("to_array"), &LuaTable::to_array);
+
+	ClassDB::bind_method(D_METHOD("_iter_init", "iter"), &LuaTable::_iter_init);
+	ClassDB::bind_method(D_METHOD("_iter_next", "iter"), &LuaTable::_iter_next);
+	ClassDB::bind_method(D_METHOD("_iter_get", "iter"), &LuaTable::_iter_get);
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {

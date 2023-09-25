@@ -42,17 +42,17 @@ std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_st
 
 bool IndexedIterator::supports_indexed_pairs(const Variant& variant) {
 	switch (variant.get_type()) {
-        case godot::Variant::ARRAY:
-        case godot::Variant::PACKED_BYTE_ARRAY:
-        case godot::Variant::PACKED_INT32_ARRAY:
-        case godot::Variant::PACKED_INT64_ARRAY:
-        case godot::Variant::PACKED_FLOAT32_ARRAY:
-        case godot::Variant::PACKED_FLOAT64_ARRAY:
-        case godot::Variant::PACKED_STRING_ARRAY:
-        case godot::Variant::PACKED_VECTOR2_ARRAY:
-        case godot::Variant::PACKED_VECTOR3_ARRAY:
-        case godot::Variant::PACKED_COLOR_ARRAY:
-        case godot::Variant::VARIANT_MAX:
+		case godot::Variant::ARRAY:
+		case godot::Variant::PACKED_BYTE_ARRAY:
+		case godot::Variant::PACKED_INT32_ARRAY:
+		case godot::Variant::PACKED_INT64_ARRAY:
+		case godot::Variant::PACKED_FLOAT32_ARRAY:
+		case godot::Variant::PACKED_FLOAT64_ARRAY:
+		case godot::Variant::PACKED_STRING_ARRAY:
+		case godot::Variant::PACKED_VECTOR2_ARRAY:
+		case godot::Variant::PACKED_VECTOR3_ARRAY:
+		case godot::Variant::PACKED_COLOR_ARRAY:
+		case godot::Variant::VARIANT_MAX:
 			return true;
 		default:
 			break;

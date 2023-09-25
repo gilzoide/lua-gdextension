@@ -47,6 +47,10 @@ public:
 	Dictionary to_dictionary() const;
 	Array to_array() const;
 
+	bool _iter_init(const Variant& iter) const;
+	bool _iter_next(const Variant& iter) const;
+	Variant _iter_get(const Variant& iter) const;
+
 protected:
 	static void _bind_methods();
 	

@@ -14,5 +14,10 @@ func _initialize():
 			printerr("🗴 ", lua_script, ": ", result.message)
 		else:
 			print("✓ ", lua_script)
+
+	for gdscript in DirAccess.get_files_at("res://gdscript_tests"):
+		var file_name = "res://gdscript_tests/" + gdscript
+		var obj = load(file_name).new()
+		obj.test()
 	
 	quit(0 if all_success else -1)
