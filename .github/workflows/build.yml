@@ -4,11 +4,15 @@ defaults:
   run:
     shell: bash
 
+env:
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache
+
 jobs:
   build_linux:
     name: Build Linux
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         target:
           - template_debug
@@ -31,6 +35,15 @@ jobs:
       - name: Install scons
         run: |
           python -m pip install scons==4.5.2
+      - name: Cache SCons files and compiled files
+        uses: actions/cache@v3
+        with:
+          path: |
+            $SCONS_CACHE
+            build/*.template_*
+            lib/godot-cpp/gen
+            lib/godot-cpp/src/**.template_*
+          key: ${{ runner.os }}-scons
       - name: Build artifact
         run: |
           scons platform=linux target=${{ matrix.target }}
