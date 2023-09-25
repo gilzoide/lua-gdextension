@@ -69,10 +69,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install scons
       - name: Download artifacts
         id: download
         uses: actions/download-artifact@v3
@@ -80,14 +76,12 @@ jobs:
           path: artifacts
       - name: Copy artifacts to build folder
         run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
-      - name: Make distribution zip
-        run: |
-          scons zip
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: lua-gdextension
           path: |
-            build/*.zip
-
+            addons/lua-gdextension/LICENSE
+            addons/lua-gdextension/*.gdextension
+            addons/lua-gdextension/build/libluagdextension*
 
