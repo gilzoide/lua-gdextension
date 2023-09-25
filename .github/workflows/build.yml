@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ${{ matrix.packages }}
+          sudo apt-get install ${{ join(matrix.packages, ' ') }}
       - name: Cache SCons files and compiled files
         uses: actions/cache@v3
         with:
@@ -57,7 +57,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: linux-x86_32-x86_64
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
 
