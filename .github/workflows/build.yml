@@ -9,7 +9,7 @@ env:
 
 jobs:
   build_linux:
-    name: ${{ matrix.name }}
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -19,21 +19,17 @@ jobs:
         platform: [linux, windows]
         include:
           - platform: linux
-            arch: x86_32
-            name: Linux (x86_32)
-            packages: [build-essential, g++-multilib, scons]
+            arch: x86_64
+            packages: [scons]
           - platform: linux
-            arch: x86_64
-            name: Linux (x86_64)
-            packages: [build-essential, scons]
+            arch: x86_32
+            packages: [g++-multilib, scons]
           - platform: windows
             arch: x86_64
-            name: Windows (x86_64)
-            packages: [build-essential, g++-mingw-w64, scons]
+            packages: [g++-mingw-w64, scons]
           - platform: windows
             arch: x86_32
-            name: Windows (x86_32)
-            packages: [build-essential, g++-mingw-w64, scons]
+            packages: [g++-mingw-w64, scons]
     steps:
       - uses: actions/checkout@v3
         with:
