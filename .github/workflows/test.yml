@@ -28,17 +28,13 @@ jobs:
       - name: Build artifact
         run: |
           scons
-      - name: Install Godot
-        run: |
-          curl --location $GODOT_RELEASE_URL --output godot.zip
-          unzip godot.zip
-          mv Godot_* godot
-          touch _sc_
-        env:
-          GODOT_RELEASE_URL: https://github.com/godotengine/godot/releases/download/4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip
+      - uses: vitorgus/setup-godot@v1
+        with:
+          godot-version: 4.1.1
+          download-templates: false
       - name: Run tests
         run: |
+          # Must run Godot editor at least once for it to generate .godot folder
+          godot --editor --headless --quit --path test
           scons test
-        env:
-          GODOT_BIN: ./godot
 
