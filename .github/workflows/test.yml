@@ -1,0 +1,34 @@
+name: Test
+on: [push, pull_request]
+defaults:
+  run:
+    shell: bash
+
+env:
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache
+
+jobs:
+  test_linux:
+    name: Run tests on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install scons
+      - name: Cache SCons files
+        uses: actions/cache@v3
+        with:
+          path: |
+            $SCONS_CACHE
+          key: linux-x86_64-template_debug-test
+      - name: Build artifact
+        run: |
+          scons
+      - name: Run tests
+        run: |
+          scons test
+
