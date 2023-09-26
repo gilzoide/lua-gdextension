@@ -19,29 +19,22 @@ jobs:
         platform: [linux, windows, android]
         include:
           - platform: linux
-            arch: x86_64
-            packages: [scons]
-          - platform: linux
             arch: x86_32
-            packages: [g++-multilib, scons]
+            packages: [g++-multilib]
           - platform: windows
-            arch: x86_64
-            packages: [g++-mingw-w64, scons]
-          - platform: windows
-            arch: x86_32
-            packages: [g++-mingw-w64, scons]
-          - platform: android
-            arch: x86_64
-            packages: [scons]
-          - platform: android
-            arch: x86_32
-            packages: [scons]
+            packages: [g++-mingw-w64]
           - platform: android
             arch: arm64
-            packages: [scons]
+            target: template_debug
+          - platform: android
+            arch: arm64
+            target: template_release
           - platform: android
             arch: arm32
-            packages: [scons]
+            target: template_debug
+          - platform: android
+            arch: arm32
+            target: template_release
     steps:
       - uses: actions/checkout@v3
         with:
@@ -49,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ${{ join(matrix.packages, ' ') }}
+          sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
       - name: Cache SCons files and compiled files
         uses: actions/cache@v3
         with:
