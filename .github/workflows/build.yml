@@ -114,6 +114,8 @@ jobs:
             runner-os: macos-latest
             godot-release: 4.1.1-stable/Godot_v4.1.1-stable_macos.universal.zip
             godot-bin: ./Godot.app/Contents/MacOS/Godot
+    env:
+      GODOT_BIN: ${{ matrix.godot-bin }}
     steps:
       - uses: actions/checkout@v3
       - name: Download artifacts
@@ -138,8 +140,6 @@ jobs:
       - name: Run tests
         run: |
           $GODOT_BIN --headless --quit --path test --script test_entrypoint.gd
-        env:
-          GODOT_BIN: ${{ matrix.godot-bin }}
 
   build_distribution_zip:
     name: Build distribution zip
