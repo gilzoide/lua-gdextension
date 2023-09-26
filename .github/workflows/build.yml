@@ -123,6 +123,8 @@ jobs:
           path: artifacts
       - name: Copy artifacts to build folder
         run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+        env:
+          MSYS_NO_PATHCONV: 1
       - name: Download Godot
         run: |
           curl --location https://github.com/godotengine/godot/releases/download/${{ matrix.godot-release }} --output godot.zip
