@@ -122,7 +122,7 @@ jobs:
         with:
           path: artifacts
       - name: Copy artifacts to build folder
-        run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+        run: cp -r '${{ steps.download.outputs.download-path }}'/**/libluagdextension* addons/lua-gdextension/build
         env:
           MSYS_NO_PATHCONV: 1
       - name: Download Godot
