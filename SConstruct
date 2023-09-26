@@ -35,7 +35,9 @@ else:  # build library
         env.Append(CPPDEFINES="LUA_USE_WINDOWS")
     elif env["platform"] == "macos":
         env.Append(CPPDEFINES="LUA_USE_MACOSX")
-    elif env["platform"] == "linux":
+    elif env["platform"] == "ios":
+        env.Append(CPPDEFINES="LUA_USE_IOS")
+    elif env["platform"] in ["linux", "android"]:
         env.Append(CPPDEFINES="LUA_USE_LINUX")
     else:
         env.Append(CPPDEFINES="LUA_USE_POSIX")
