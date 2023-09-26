@@ -32,9 +32,14 @@ jobs:
           - platform: android
             arch: arm32
             target: template_debug
+            scons-args: android_api_level=19
           - platform: android
             arch: arm32
             target: template_release
+            scons-args: android_api_level=19
+          - platform: android
+            arch: x86_32
+            scons-args: android_api_level=19
     steps:
       - uses: actions/checkout@v3
         with:
@@ -50,7 +55,7 @@ jobs:
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ join(matrix.scons-args, ' ') }}
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
