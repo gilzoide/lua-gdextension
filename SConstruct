@@ -45,7 +45,7 @@ else:  # build library
     env.Append(CPPPATH="lib/lua")
 
     # Sol defines
-    env.Append(CPPDEFINES="SOL_EXCEPTIONS_SAFE_PROPAGATION")
+    env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0"])
     if env["target"] == "template_debug":
         env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON", "SOL_PRINT_ERRORS"])
 
