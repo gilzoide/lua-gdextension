@@ -52,7 +52,7 @@ void LuaTable::seti(int64_t index, const Variant& value) {
 	table[index] = to_lua(table.lua_state(), value);
 }
 
-size_t LuaTable::size() const {
+int64_t LuaTable::size() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
 	return table.size();
 }
