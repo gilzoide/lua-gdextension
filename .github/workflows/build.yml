@@ -94,6 +94,47 @@ jobs:
           path: |
             addons/lua-gdextension/build/libluagdextension.*
 
+  test_distribution:
+    name: Test ${{ matrix.name }}
+    needs: [build_linux, build_macos]
+    runs-on: ${{ matrix.runner-os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            runner-os: ubuntu-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip
+            godot-bin: ./Godot_v4.1.1-stable_linux.x86_64
+          - name: Windows
+            runner-os: windows-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_win64.exe.zip
+            godot-bin: ./Godot_v4.1.1-stable_win64.exe
+          - name: macOS
+            runner-os: macos-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_macos.universal.zip
+            godot-bin: ./Godot.app/Contents/MacOS/Godot
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Copy artifacts to build folder
+        run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+      - name: Download Godot
+        run: |
+          curl --location https://github.com/godotengine/godot/releases/download/${{ matrix.godot-release }} --output godot.zip
+          unzip godot.zip
+      - name: Run tests
+        run: |
+          # Must run Godot editor at least once for to generate .godot folder
+          $GODOT_BIN --headless --quit --path test --editor
+          # Now run the tests
+          $GODOT_BIN --headless --quit --path test --script test_entrypoint.gd
+        env:
+          GODOT_BIN: ${{ matrix.godot-bin }}
 
   build_distribution_zip:
     name: Build distribution zip
