@@ -131,7 +131,7 @@ jobs:
           unzip godot.zip
       # Must run Godot editor at least once to generate .godot folder
       - name: Generate .godot folder
-        runs: |
+        run: |
           $GODOT_BIN --headless --quit --path test --editor
         continue-on-error: true
       # Now run the tests
