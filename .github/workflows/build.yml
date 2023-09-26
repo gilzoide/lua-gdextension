@@ -16,7 +16,7 @@ jobs:
       matrix:
         target: [template_debug, template_release]
         arch: [x86_64, x86_32]
-        platform: [linux, windows]
+        platform: [linux, windows, android]
         include:
           - platform: linux
             arch: x86_64
@@ -30,6 +30,18 @@ jobs:
           - platform: windows
             arch: x86_32
             packages: [g++-mingw-w64, scons]
+          - platform: android
+            arch: x86_64
+            packages: [scons]
+          - platform: android
+            arch: x86_32
+            packages: [scons]
+          - platform: android
+            arch: arm64
+            packages: [scons]
+          - platform: android
+            arch: arm32
+            packages: [scons]
     steps:
       - uses: actions/checkout@v3
         with:
