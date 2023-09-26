@@ -105,8 +105,8 @@ Variant LuaTable::_iter_get(const Variant& iter) const {
 }
 
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
-	ClassDB::bind_method(D_METHOD("seti"), &LuaTable::seti);
+	ClassDB::bind_method(D_METHOD("geti", "index"), &LuaTable::geti);
+	ClassDB::bind_method(D_METHOD("seti", "index", "value"), &LuaTable::seti);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
