@@ -57,9 +57,45 @@ jobs:
           path: |
             addons/lua-gdextension/build/libluagdextension.*
 
+  build_macos:
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [template_debug, template_release]
+        arch: [universal]
+        platform: [macos, ios]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          brew install scons
+      - name: Cache SCons files and compiled files
+        uses: actions/cache@v3
+        with:
+          path: |
+            $SCONS_CACHE
+            build/*.template_*
+            lib/godot-cpp/gen/
+            lib/godot-cpp/src/**/*.template_*
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+      - name: Build artifact
+        run: |
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          path: |
+            addons/lua-gdextension/build/libluagdextension.*
+
+
   build_distribution_zip:
     name: Build distribution zip
-    needs: [build_linux]
+    needs: [build_linux, build_macos]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
