@@ -46,11 +46,7 @@ jobs:
       - name: Cache SCons files and compiled files
         uses: actions/cache@v3
         with:
-          path: |
-            .scons-cache/
-            build/*.template_*
-            lib/godot-cpp/gen/
-            lib/godot-cpp/src/**/*.template_*
+          path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
@@ -81,11 +77,7 @@ jobs:
       - name: Cache SCons files and compiled files
         uses: actions/cache@v3
         with:
-          path: |
-            .scons-cache/
-            build/*.template_*
-            lib/godot-cpp/gen/
-            lib/godot-cpp/src/**/*.template_*
+          path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
