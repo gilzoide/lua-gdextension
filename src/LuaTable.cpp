@@ -52,7 +52,7 @@ void LuaTable::seti(int64_t index, const Variant& value) {
 	table[index] = to_lua(table.lua_state(), value);
 }
 
-size_t LuaTable::size() const {
+int64_t LuaTable::size() const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
 	return table.size();
 }
@@ -105,8 +105,8 @@ Variant LuaTable::_iter_get(const Variant& iter) const {
 }
 
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("geti"), &LuaTable::geti);
-	ClassDB::bind_method(D_METHOD("seti"), &LuaTable::seti);
+	ClassDB::bind_method(D_METHOD("geti", "index"), &LuaTable::geti);
+	ClassDB::bind_method(D_METHOD("seti", "index", "value"), &LuaTable::seti);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);

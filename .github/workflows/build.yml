@@ -1,0 +1,168 @@
+name: Build
+on: [push, pull_request]
+defaults:
+  run:
+    shell: bash
+
+env:
+  SCONS_CACHE: ${{ github.workspace }}/.scons-cache
+
+jobs:
+  build_linux:
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [template_debug, template_release]
+        arch: [x86_64, x86_32]
+        platform: [linux, windows, android]
+        include:
+          - platform: linux
+            arch: x86_32
+            packages: [g++-multilib]
+          - platform: windows
+            packages: [g++-mingw-w64]
+          - platform: android
+            arch: arm64
+            target: template_debug
+          - platform: android
+            arch: arm64
+            target: template_release
+          - platform: android
+            arch: arm32
+            target: template_debug
+            scons-args: android_api_level=19
+          - platform: android
+            arch: arm32
+            target: template_release
+            scons-args: android_api_level=19
+          - platform: android
+            arch: x86_32
+            scons-args: android_api_level=19
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
+      - name: Cache SCons files and compiled files
+        uses: actions/cache@v3
+        with:
+          path: .scons-cache/
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+      - name: Build artifact
+        run: |
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ join(matrix.scons-args, ' ') }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          path: |
+            addons/lua-gdextension/build/libluagdextension.*
+
+  build_macos:
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [template_debug, template_release]
+        arch: [universal]
+        platform: [macos, ios]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Install dependencies
+        run: |
+          brew install scons
+      - name: Cache SCons files and compiled files
+        uses: actions/cache@v3
+        with:
+          path: .scons-cache/
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+      - name: Build artifact
+        run: |
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          path: |
+            addons/lua-gdextension/build/libluagdextension.*
+
+  test_distribution:
+    name: Test ${{ matrix.name }}
+    needs: [build_linux, build_macos]
+    runs-on: ${{ matrix.runner-os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux
+            runner-os: ubuntu-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_linux.x86_64.zip
+            godot-bin: ./Godot_v4.1.1-stable_linux.x86_64
+          - name: Windows
+            runner-os: windows-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_win64.exe.zip
+            godot-bin: ./Godot_v4.1.1-stable_win64.exe
+          - name: macOS
+            runner-os: macos-latest
+            godot-release: 4.1.1-stable/Godot_v4.1.1-stable_macos.universal.zip
+            godot-bin: ./Godot.app/Contents/MacOS/Godot
+    env:
+      GODOT_BIN: ${{ matrix.godot-bin }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Copy artifacts to build folder
+        run: cp -r '${{ steps.download.outputs.download-path }}'/**/libluagdextension* addons/lua-gdextension/build
+        env:
+          MSYS_NO_PATHCONV: 1
+      - name: Download Godot
+        run: |
+          curl --location https://github.com/godotengine/godot/releases/download/${{ matrix.godot-release }} --output godot.zip
+          unzip godot.zip
+      # Must run Godot editor at least once to generate .godot folder
+      - name: Generate .godot folder
+        run: |
+          $GODOT_BIN --headless --quit --path test --editor
+        continue-on-error: true
+      # Now run the tests
+      - name: Run tests
+        run: |
+          $GODOT_BIN --headless --quit --path test --script test_entrypoint.gd
+
+  build_distribution_zip:
+    name: Build distribution zip
+    needs: [build_linux, build_macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Download artifacts
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Copy artifacts to build folder
+        run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: lua-gdextension
+          path: |
+            LICENSE
+            addons/lua-gdextension/LICENSE
+            addons/lua-gdextension/*.gdextension
+            addons/lua-gdextension/build/libluagdextension*
+

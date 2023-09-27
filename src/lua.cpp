@@ -22,6 +22,17 @@
 
 extern "C" {
 
+#ifdef LUA_USE_ANDROID
+	#define LUA_USE_LINUX
+#endif
+
+// 32-bit Android before API 24 don't define `fseeko`, `ftello` and `off_t`
+#ifdef LUA_USE_ANDROID_32
+	#define l_fseek(f,o,w)		fseek(f,o,w)
+	#define l_ftell(f)		ftell(f)
+	#define l_seeknum		long
+#endif
+
 #include <onelua.c>
 
 }

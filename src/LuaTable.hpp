@@ -42,7 +42,7 @@ public:
 
 	Variant geti(int64_t index) const;
 	void seti(int64_t index, const Variant& value);
-	size_t size() const;
+	int64_t size() const;
 
 	Dictionary to_dictionary() const;
 	Array to_array() const;
