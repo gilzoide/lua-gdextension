@@ -29,13 +29,13 @@ namespace luagdextension {
 template<typename ref_t>
 sol::optional<sol::function> get_metamethod(const sol::basic_table<ref_t>& table, sol::meta_function function) {
 	sol::optional<sol::metatable> opt_metatable = table[sol::metatable_key];
-	return opt_metatable.map([&](auto metatable) { return metatable[function]; });
+	return opt_metatable.map([&](const auto& metatable) { return metatable[function]; });
 }
 
 template<typename ref_t, typename... Args>
 sol::optional<sol::protected_function_result> call_metamethod(const sol::basic_table<ref_t>& table, sol::meta_function function, Args... args) {
-	sol::optional<sol::function> opt_method = get_metamethod(table, function);
-	return opt_method.map([&](auto method) { return method(table, args...); });
+	sol::optional<sol::protected_function> opt_method = get_metamethod(table, function);
+	return opt_method.map([&](const auto& method) { return method(table, args...); });
 }
 
 }
