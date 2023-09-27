@@ -89,5 +89,6 @@ Godot 4.1+ native extension for using the Lua programming language.
 - [ ] Submit to Asset Library
 - [ ] Lua ScriptLanguageExtension
 - [ ] Support for building with LuaJIT
-- [ ] Automated unit tests
-- [ ] Automated build and distribution
+- [X] Automated unit tests
+- [X] Automated build and distribution
+- [ ] Lua REPL editor plugin
