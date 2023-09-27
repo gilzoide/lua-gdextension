@@ -5,10 +5,10 @@ compatibility_minimum = "4.1"
 
 [libraries]
 
-macos.debug = "build/libluagdextension.macos.template_debug.framework"
-macos.release = "build/libluagdextension.macos.template_release.framework"
-ios.debug = "build/libluagdextension.ios.template_debug.framework"
-ios.release = "build/libluagdextension.ios.template_release.framework"
+macos.debug = "build/libluagdextension.macos.template_debug.universal.dylib"
+macos.release = "build/libluagdextension.macos.template_release.universal.dylib"
+ios.debug = "build/libluagdextension.ios.template_debug.universal.dylib"
+ios.release = "build/libluagdextension.ios.template_release.universal.dylib"
 windows.debug.x86_32 = "build/libluagdextension.windows.template_debug.x86_32.dll"
 windows.release.x86_32 = "build/libluagdextension.windows.template_release.x86_32.dll"
 windows.debug.x86_64 = "build/libluagdextension.windows.template_debug.x86_64.dll"
