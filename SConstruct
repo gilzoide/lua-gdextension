@@ -68,17 +68,9 @@ else:  # build library
         Glob("{}/{}/*.cpp".format(build_dir, directory))
         for directory in source_directories
     ]
-    if env["platform"] in ["macos", "ios"]:
-        library = env.SharedLibrary(
-            "addons/lua-gdextension/build/libluagdextension.{}.{}.framework/libluagdextension.{}.{}".format(
-                env["platform"], env["target"], env["platform"], env["target"]
-            ),
-            source=sources,
-        )
-    else:
-        library = env.SharedLibrary(
-            "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
-            source=sources,
-        )
+    library = env.SharedLibrary(
+        "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+        source=sources,
+    )
 
     Default(library)
