@@ -22,6 +22,7 @@
 #include "LuaFunction.hpp"
 
 #include "LuaState.hpp"
+#include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 
@@ -42,7 +43,29 @@ LuaFunction::~LuaFunction() {
 }
 
 void LuaFunction::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);
+}
 
+Variant LuaFunction::invokev(const Array& args) {
+	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
+	lua_State *L = function.lua_state();
+	int arg_count = args.size();
+	for (int i = 0; i < arg_count; i++) {
+		std::ignore = to_lua(L, args[i]);
+	}
+	sol::variadic_args lua_args(L, -arg_count);
+	return to_variant(function.call(lua_args));
+}
+
+Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
+	lua_State *L = function.lua_state();
+	for (int i = 0; i < arg_count; i++) {
+		std::ignore = to_lua(L, *args[i]);
+	}
+	sol::variadic_args lua_args(L, -arg_count);
+	return to_variant(function.call(lua_args));
 }
 
 String LuaFunction::_to_string() const {
