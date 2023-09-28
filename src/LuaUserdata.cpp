@@ -30,7 +30,9 @@ using namespace godot;
 
 namespace luagdextension {
 
-LuaUserdata::LuaUserdata() : LuaTable() {}
+LuaUserdata::LuaUserdata() : LuaTable(true) {
+	ERR_PRINT("LuaUserdata should never be instantiated manually!");
+}
 
 LuaUserdata::LuaUserdata(sol::userdata&& userdata) : LuaTable(userdata) {}
 
