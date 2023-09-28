@@ -80,7 +80,7 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return Variant();
 
 		case sol::type::none:
-		case sol::type::lua_nil:
+		case sol::type::nil:
 		default:
 			return Variant();
 	}

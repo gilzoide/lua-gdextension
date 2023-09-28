@@ -19,40 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaError.hpp"
-#include "LuaFunction.hpp"
-#include "LuaState.hpp"
-#include "LuaTable.hpp"
-#include "LuaUserdata.hpp"
+#ifndef __LUA_FUNCTION_HPP__
+#define __LUA_FUNCTION_HPP__
 
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/core/class_db.hpp>
+#include "utils/custom_sol.hpp"
+
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
-using namespace luagdextension;
 
-static void initialize(ModuleInitializationLevel level) {
-	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
+namespace luagdextension {
 
-	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaFunction>();
-	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
+class LuaFunction : public RefCounted {
+	GDCLASS(LuaFunction, RefCounted);
 
-	ClassDB::register_class<LuaState>();
+public:
+	LuaFunction();
+	LuaFunction(sol::protected_function&& function);
+	LuaFunction(const sol::protected_function& function);
+	~LuaFunction();
+
+protected:
+	static void _bind_methods();
+	
+	String _to_string() const;
+
+	// Using union avoids automatic destruction
+	// This is necessary to only destroy functions if the corresponding LuaState is still valid
+	union {
+		sol::protected_function function;
+	};
+};
+
 }
 
-extern "C" GDExtensionBool luagdextension_entrypoint(
-	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
-	GDExtensionClassLibraryPtr p_library,
-	GDExtensionInitialization *r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
-
-	init_obj.register_initializer(&initialize);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
-
-	return init_obj.init();
-}
+#endif  // __LUA_FUNCTION_HPP__

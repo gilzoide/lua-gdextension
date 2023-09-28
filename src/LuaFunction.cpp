@@ -19,40 +19,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaError.hpp"
 #include "LuaFunction.hpp"
+
 #include "LuaState.hpp"
-#include "LuaTable.hpp"
-#include "LuaUserdata.hpp"
 
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/core/error_macros.hpp>
 
-using namespace godot;
-using namespace luagdextension;
+namespace luagdextension {
 
-static void initialize(ModuleInitializationLevel level) {
-	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
-
-	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaFunction>();
-	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
-
-	ClassDB::register_class<LuaState>();
+LuaFunction::LuaFunction() : function() {
+	ERR_PRINT("LuaUserdata should never be instantiated manually!");
 }
 
-extern "C" GDExtensionBool luagdextension_entrypoint(
-	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
-	GDExtensionClassLibraryPtr p_library,
-	GDExtensionInitialization *r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
+LuaFunction::LuaFunction(sol::protected_function&& function) : function(function) {}
 
-	init_obj.register_initializer(&initialize);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+LuaFunction::LuaFunction(const sol::protected_function& function) : function(function) {}
 
-	return init_obj.init();
+LuaFunction::~LuaFunction() {
+	if (function.valid() && LuaState::is_valid(function.lua_state())) {
+		function.~basic_protected_function();
+	}
+}
+
+void LuaFunction::_bind_methods() {
+
+}
+
+String LuaFunction::_to_string() const {
+	return String("[LuaFunction:0x%x]") % (int64_t) function.pointer();
+}
+
 }
