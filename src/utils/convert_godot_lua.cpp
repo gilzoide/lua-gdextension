@@ -22,6 +22,7 @@
 #include "convert_godot_lua.hpp"
 
 #include "../LuaError.hpp"
+#include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
 #include "DictionaryIterator.hpp"
@@ -72,15 +73,14 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return Variant();
 
 		case sol::type::function:
-			luaL_error(object.lua_state(), "Lua type 'function' is not supported yet");
-			return Variant();
+			return memnew(LuaFunction(object.template as<sol::protected_function>()));
 
 		case sol::type::lightuserdata:
 			luaL_error(object.lua_state(), "Lua type 'light userdata' is not supported yet");
 			return Variant();
 
 		case sol::type::none:
-		case sol::type::lua_nil:
+		case sol::type::nil:
 		default:
 			return Variant();
 	}

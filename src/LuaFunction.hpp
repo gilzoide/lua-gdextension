@@ -19,36 +19,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __LUA_FUNCTION_HPP__
+#define __LUA_FUNCTION_HPP__
 
-#include "LuaUserdata.hpp"
+#include "utils/custom_sol.hpp"
 
-#include "LuaState.hpp"
-#include "utils/convert_godot_lua.hpp"
-#include "utils/metatable.hpp"
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-LuaUserdata::LuaUserdata() : LuaTable(true) {
-	ERR_PRINT("LuaUserdata should never be instantiated manually!");
+class LuaFunction : public RefCounted {
+	GDCLASS(LuaFunction, RefCounted);
+
+public:
+	LuaFunction();
+	LuaFunction(sol::protected_function&& function);
+	LuaFunction(const sol::protected_function& function);
+	~LuaFunction();
+
+	Variant invokev(const Array& args);
+	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+
+protected:
+	static void _bind_methods();
+	
+	String _to_string() const;
+
+	// Using union avoids automatic destruction
+	// This is necessary to only destroy functions if the corresponding LuaState is still valid
+	union {
+		sol::protected_function function;
+	};
+};
+
 }
 
-LuaUserdata::LuaUserdata(sol::userdata&& userdata) : LuaTable(userdata) {}
-
-LuaUserdata::LuaUserdata(const sol::userdata& userdata) : LuaTable(userdata) {}
-
-void LuaUserdata::_bind_methods() {
-}
-
-String LuaUserdata::_to_string() const {
-	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
-	if (tostring_result.has_value()) {
-		return to_variant(tostring_result.value());
-	}
-	else {
-		return String("[LuaUserdata:0x%x]") % (int64_t) table.pointer();
-	}
-}
-
-}
+#endif  // __LUA_FUNCTION_HPP__

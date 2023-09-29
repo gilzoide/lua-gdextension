@@ -27,11 +27,17 @@
 #include "utils/convert_godot_std.hpp"
 #include "utils/metatable.hpp"
 
+#include <godot_cpp/core/error_macros.hpp>
+
 using namespace godot;
 
 namespace luagdextension {
 
-LuaTable::LuaTable() : table() {}
+LuaTable::LuaTable() : table() {
+	ERR_PRINT("LuaTable should never be instantiated manually!");
+}
+
+LuaTable::LuaTable(bool) : table() {}
 
 LuaTable::LuaTable(sol::table&& table) : table(table) {}
 

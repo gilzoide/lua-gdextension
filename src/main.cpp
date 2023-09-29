@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "LuaError.hpp"
+#include "LuaFunction.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
 #include "LuaUserdata.hpp"
@@ -36,6 +37,7 @@ static void initialize(ModuleInitializationLevel level) {
 	}
 
 	ClassDB::register_class<LuaError>();
+	ClassDB::register_class<LuaFunction>();
 	ClassDB::register_class<LuaTable>();
 	ClassDB::register_class<LuaUserdata>();
 

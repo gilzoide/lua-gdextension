@@ -52,6 +52,9 @@ public:
 	Variant _iter_get(const Variant& iter) const;
 
 protected:
+	/// Same as `LuaTable()`, but without printing any error.
+	/// This is supposed to be used by subclasses to suppress the error message.
+	LuaTable(bool);
 	static void _bind_methods();
 	
 	bool _get(const StringName& property_name, Variant& r_value) const;
