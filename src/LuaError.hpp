@@ -55,6 +55,8 @@ public:
 	Status get_status() const;
 	void set_status(Status status);
 
+	operator String() const;
+
 protected:
 	static void _bind_methods();
 

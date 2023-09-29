@@ -50,6 +50,10 @@ void LuaError::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "status"), "set_status", "get_status");
 }
 
+LuaError::operator String() const {
+	return _to_string();
+}
+
 String LuaError::_to_string() const {
 	return message;
 }

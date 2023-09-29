@@ -68,6 +68,10 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 	return to_variant(function.call(lua_args));
 }
 
+LuaFunction::operator String() const {
+	return _to_string();
+}
+
 String LuaFunction::_to_string() const {
 	return String("[LuaFunction:0x%x]") % (int64_t) function.pointer();
 }

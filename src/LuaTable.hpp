@@ -51,6 +51,8 @@ public:
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
 
+	operator String() const;
+
 protected:
 	/// Same as `LuaTable()`, but without printing any error.
 	/// This is supposed to be used by subclasses to suppress the error message.

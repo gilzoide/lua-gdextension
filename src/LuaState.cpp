@@ -182,6 +182,10 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 }
 
+LuaState::operator String() const {
+	return _to_string();
+}
+
 String LuaState::_to_string() const {
 	return String("[LuaState:0x%x]") % (int64_t) lua_state.lua_state();
 }

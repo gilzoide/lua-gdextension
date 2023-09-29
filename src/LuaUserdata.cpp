@@ -41,6 +41,10 @@ LuaUserdata::LuaUserdata(const sol::userdata& userdata) : LuaTable(userdata) {}
 void LuaUserdata::_bind_methods() {
 }
 
+LuaUserdata::operator String() const {
+	return _to_string();
+}
+
 String LuaUserdata::_to_string() const {
 	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
 	if (tostring_result.has_value()) {

@@ -96,6 +96,8 @@ public:
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;
 
+	operator String() const;
+
 	static bool is_valid(lua_State *L);
 
 protected:

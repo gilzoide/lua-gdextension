@@ -141,6 +141,10 @@ bool LuaTable::_set(const StringName& property_name, const Variant& value) {
 	return true;
 }
 
+LuaTable::operator String() const {
+	return _to_string();
+}
+
 String LuaTable::_to_string() const {
 	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
 	if (tostring_result.has_value()) {

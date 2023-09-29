@@ -43,6 +43,8 @@ public:
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
+	operator String() const;
+
 protected:
 	static void _bind_methods();
 	
