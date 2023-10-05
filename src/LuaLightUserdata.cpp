@@ -19,42 +19,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaError.hpp"
-#include "LuaFunction.hpp"
 #include "LuaLightUserdata.hpp"
-#include "LuaState.hpp"
-#include "LuaTable.hpp"
-#include "LuaUserdata.hpp"
 
-#include <godot_cpp/godot.hpp>
-#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
-using namespace godot;
-using namespace luagdextension;
+namespace luagdextension {
 
-static void initialize(ModuleInitializationLevel level) {
-	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
-		return;
-	}
+LuaLightUserdata::LuaLightUserdata() : lightuserdata() {}
+LuaLightUserdata::LuaLightUserdata(sol::lightuserdata&& lightuserdata) : lightuserdata(lightuserdata) {}
+LuaLightUserdata::LuaLightUserdata(const sol::lightuserdata& lightuserdata) : lightuserdata(lightuserdata) {}
 
-	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaFunction>();
-	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
-	ClassDB::register_class<LuaLightUserdata>();
-
-	ClassDB::register_class<LuaState>();
+uint64_t LuaLightUserdata::get_value() const {
+	return (uint64_t) lightuserdata.as<void *>();
 }
 
-extern "C" GDExtensionBool luagdextension_entrypoint(
-	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
-	GDExtensionClassLibraryPtr p_library,
-	GDExtensionInitialization *r_initialization
-) {
-	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
+LuaLightUserdata::operator String() const {
+	return _to_string();
+}
 
-	init_obj.register_initializer(&initialize);
-	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+void LuaLightUserdata::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_value"), &LuaLightUserdata::get_value);
+}
 
-	return init_obj.init();
+String LuaLightUserdata::_to_string() const {
+	return UtilityFunctions::str("[LuaLightUserdata:0x", String::num_uint64(get_value(), 16), "]");
+}
+
 }
