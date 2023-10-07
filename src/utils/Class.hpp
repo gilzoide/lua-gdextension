@@ -41,6 +41,7 @@ public:
 	Class(const StringName& class_name);
 
 	const StringName& get_name() const;
+	sol::optional<int64_t> get_constant(const StringName& name) const;
 
 	Variant construct(const sol::variadic_args& args) const;
 
