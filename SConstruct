@@ -14,7 +14,7 @@ if "zip" in COMMAND_LINE_TARGETS:
     env.Alias("zip", "build/lua-gdextension.zip")
 elif "test" in COMMAND_LINE_TARGETS:
     godot_bin = os.getenv("GODOT_BIN", "godot")
-    env.Execute(f"{godot_bin} --headless --quit --path test --script test_entrypoint.gd")
+    Exit(env.Execute(f"{godot_bin} --headless --quit --path test --script test_entrypoint.gd"))
 else:  # build library
     env = SConscript("lib/godot-cpp/SConstruct").Clone()
 

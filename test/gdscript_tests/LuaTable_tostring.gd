@@ -1,7 +1,7 @@
 extends RefCounted
 
 
-func test():
+func test_metatable_tostring() -> bool:
 	var lua_state = LuaState.new()
 	lua_state.open_libraries()
 	var table = lua_state.do_string("""

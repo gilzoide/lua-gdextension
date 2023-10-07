@@ -2,14 +2,19 @@ extends RefCounted
 
 var lua_state = LuaState.new()
 
-func test() -> bool:
-	var all_success = true
-	for i in range(0, 5):
-		if not test_n(i):
-			all_success = false
-	return all_success
+func test_empty() -> bool:
+	return _test_n(0)
 
-func test_n(n: int) -> bool:
+
+func test_1() -> bool:
+	return _test_n(1)
+
+
+func test_10() -> bool:
+	return _test_n(10)
+
+
+func _test_n(n: int) -> bool:
 	var table = lua_state.create_table()
 	
 	for i in n:

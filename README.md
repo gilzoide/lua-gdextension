@@ -1,5 +1,5 @@
 # Lua GDExtension
-![GitHub Actions badge](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)
+[![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
 Godot 4.1.2+ native extension for using the Lua programming language.
 
@@ -94,3 +94,8 @@ Godot 4.1.2+ native extension for using the Lua programming language.
 - [X] Automated unit tests
 - [X] Automated build and distribution
 - [ ] Lua REPL editor plugin
+
+
+## Other projects for using Lua in Godot 4
+- https://github.com/WeaselGames/godot_luaAPI
+- https://github.com/perbone/luascript

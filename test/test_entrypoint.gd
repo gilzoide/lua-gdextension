@@ -19,12 +19,16 @@ func _initialize():
 			print("✓ ", lua_script)
 
 	for gdscript in DirAccess.get_files_at(GDSCRIPT_TEST_DIR):
+		print("> ", gdscript, ":")
 		var file_name = str(GDSCRIPT_TEST_DIR, "/", gdscript)
 		var obj = load(file_name).new()
-		if not obj.test():
-			all_success = false
-			printerr("🗴 ", gdscript)
-		else:
-			print("✓ ", gdscript)
+		for method in obj.get_method_list():
+			var method_name = method.name
+			if method_name.begins_with("test"):
+				if not obj.call(method_name):
+					all_success = false
+					printerr("  🗴 ", method_name)
+				else:
+					print("  ✓ ", method_name)
 	
 	quit(0 if all_success else -1)
