@@ -21,8 +21,10 @@
  */
 #include "convert_godot_lua.hpp"
 
+#include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
+#include "../LuaLightUserdata.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
 #include "DictionaryIterator.hpp"
@@ -69,15 +71,13 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 		}
 
 		case sol::type::thread:
-			luaL_error(object.lua_state(), "Lua type 'thread' is not supported yet");
-			return Variant();
+			return memnew(LuaCoroutine(object.template as<sol::thread>()));
 
 		case sol::type::function:
 			return memnew(LuaFunction(object.template as<sol::protected_function>()));
 
 		case sol::type::lightuserdata:
-			luaL_error(object.lua_state(), "Lua type 'light userdata' is not supported yet");
-			return Variant();
+			return memnew(LuaLightUserdata(object.template as<sol::lightuserdata>()));
 
 		case sol::type::none:
 		case sol::type::nil:

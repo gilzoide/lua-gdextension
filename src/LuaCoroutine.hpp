@@ -19,31 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_FUNCTION_HPP__
-#define __LUA_FUNCTION_HPP__
+#ifndef __LUA_COROUTINE_HPP__
+#define __LUA_COROUTINE_HPP__
 
 #include "utils/custom_sol.hpp"
-
+#include <gdextension_interface.h>
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction : public RefCounted {
-	GDCLASS(LuaFunction, RefCounted);
+class LuaFunction;
+
+class LuaCoroutine : public RefCounted {
+	GDCLASS(LuaCoroutine, RefCounted);
 
 public:
-	LuaFunction();
-	LuaFunction(sol::protected_function&& function);
-	LuaFunction(const sol::protected_function& function);
-	~LuaFunction();
+	enum LuaCoroutineStatus {
+		STATUS_OK = (int) sol::call_status::ok,
+		STATUS_YIELD = (int) sol::call_status::yielded,
+		STATUS_ERRRUN = (int) sol::call_status::runtime,
+		STATUS_ERRMEM = (int) sol::call_status::memory,
+		STATUS_ERRGCMM = (int) sol::call_status::gc,
+		STATUS_ERRERR = (int) sol::call_status::handler,
+		STATUS_SYNTAX = (int) sol::call_status::syntax,
+		STATUS_FILE = (int) sol::call_status::file,
+	};
 
-	Variant invokev(const Array& args);
-	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+	LuaCoroutine() = default;
+	LuaCoroutine(sol::coroutine&& coroutine);
+	LuaCoroutine(const sol::coroutine& coroutine);
 
-	const sol::protected_function& get_function() const;
+	static LuaCoroutine *create(LuaFunction *function);
+
+	LuaCoroutineStatus get_status() const;
+	Variant resumev(const Array& args);
+	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
 	operator String() const;
 
@@ -52,13 +64,10 @@ protected:
 	
 	String _to_string() const;
 
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy functions if the corresponding LuaState is still valid
-	union {
-		sol::protected_function function;
-	};
+	sol::coroutine coroutine;
 };
 
 }
+VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::LuaCoroutineStatus);
 
-#endif  // __LUA_FUNCTION_HPP__
+#endif
