@@ -72,7 +72,6 @@ bool VariantType::operator==(const VariantType& other) const {
 }
 
 static sol::optional<MethodBindByName> __index(const VariantType& cls, const sol::stack_object& key) {
-	lua_State *L = key.lua_state();
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
 		if (cls.has_static_method(method)) {
