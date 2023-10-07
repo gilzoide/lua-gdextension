@@ -75,8 +75,10 @@ void LuaCoroutine::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaCoroutine::get_status);
 	ClassDB::bind_method(D_METHOD("resumev", "arguments"), &LuaCoroutine::resumev);
-	ClassDB::bind_static_method(get_class_static(), D_METHOD("create"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
+	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "resume", &LuaCoroutine::resume);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "status"), "", "get_status");
 }
 
 String LuaCoroutine::_to_string() const {
