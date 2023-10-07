@@ -21,6 +21,7 @@
  */
 
 #include <sol/sol.hpp>
+#include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/variant/variant.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
