@@ -41,6 +41,10 @@ LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
+	if (arg_count == 0) {
+		return to_variant(coroutine.call());
+	}
+
 	lua_State *L = coroutine.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, *args[i]);
@@ -50,8 +54,12 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	lua_State *L = coroutine.lua_state();
 	int arg_count = args.size();
+	if (arg_count == 0) {
+		return to_variant(coroutine.call());
+	}
+
+	lua_State *L = coroutine.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
 	}
@@ -75,8 +83,8 @@ void LuaCoroutine::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaCoroutine::get_status);
 	ClassDB::bind_method(D_METHOD("resumev", "arguments"), &LuaCoroutine::resumev);
-	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "resume", &LuaCoroutine::resume);
+	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status"), "", "get_status");
 }
