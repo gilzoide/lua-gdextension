@@ -38,10 +38,10 @@ static void initialize(ModuleInitializationLevel level) {
 		return;
 	}
 
-	ClassDB::register_class<LuaCoroutine>();
+	ClassDB::register_abstract_class<LuaCoroutine>();
 	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaFunction>();
-	ClassDB::register_class<LuaLightUserdata>();
+	ClassDB::register_abstract_class<LuaFunction>();
+	ClassDB::register_abstract_class<LuaLightUserdata>();
 	ClassDB::register_class<LuaTable>();
 
 	ClassDB::register_class<LuaState>();
