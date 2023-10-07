@@ -23,6 +23,7 @@
 
 #include "convert_godot_lua.hpp"
 
+#include <godot_cpp/classes/class_db_singleton.hpp>
 #include <godot_cpp/core/object.hpp>
 #include <godot_cpp/godot.hpp>
 
@@ -32,6 +33,16 @@ Class::Class(const StringName& class_name) : class_name(class_name) {}
 
 const StringName& Class::get_name() const {
 	return class_name;
+}
+
+sol::optional<int64_t> Class::get_constant(const StringName& name) const {
+	ClassDBSingleton *class_db = ClassDBSingleton::get_singleton();
+	if (class_db->class_has_integer_constant(class_name, name)) {
+		return class_db->class_get_integer_constant(class_name, name);
+	}
+	else {
+		return {};
+	}
 }
 
 Variant Class::construct(const sol::variadic_args& args) const {
@@ -47,10 +58,20 @@ bool Class::operator==(const Class& other) const {
 	return class_name == other.class_name;
 }
 
+static sol::optional<int64_t> __index(sol::this_state state, const Class& cls, sol::stack_object key) {
+	if (key.get_type() == sol::type::string) {
+		StringName name = key.as<StringName>();
+		return cls.get_constant(name);
+	}
+	else {
+		return {};
+	}
+}
 void Class::register_usertype(sol::state_view& state) {
 	state.new_usertype<Class>(
 		"Class",
 		"new", &Class::construct,
+		sol::meta_function::index, &__index,
 		sol::meta_function::to_string, &Class::get_name
 	);
 }
