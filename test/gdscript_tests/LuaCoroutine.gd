@@ -43,7 +43,7 @@ func test_status():
 	var coroutine = LuaCoroutine.create(yielding_function)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	coroutine.resume()
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true
 
 
@@ -51,7 +51,7 @@ func test_status_lua():
 	var coroutine = _create_coroutine_lua()
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	coroutine.resume()
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true
 
 
@@ -62,7 +62,7 @@ func test_send_and_receive_arguments():
 		assert(result == i)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	assert(coroutine.resume() == null)
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true
 
 
@@ -73,7 +73,7 @@ func test_send_and_receive_arguments_lua():
 		assert(result == i)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	assert(coroutine.resume() == null)
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true
 
 
@@ -84,7 +84,7 @@ func test_send_and_receive_array_arguments():
 		assert(result == i)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	assert(coroutine.resumev([]) == null)
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true
 
 
@@ -95,5 +95,5 @@ func test_send_and_receive_array_arguments_lua():
 		assert(result == i)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
 	assert(coroutine.resumev([]) == null)
-	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	assert(coroutine.status == LuaCoroutine.STATUS_DEAD)
 	return true

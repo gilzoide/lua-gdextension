@@ -28,12 +28,11 @@
 
 namespace luagdextension {
 
-LuaCoroutine::LuaCoroutine(sol::thread&& thread) : thread(thread), status((int) thread.status()) {}
-LuaCoroutine::LuaCoroutine(const sol::thread& thread) : thread(thread), status((int) thread.status()) {}
+LuaCoroutine::LuaCoroutine(sol::thread&& thread) : thread(thread) {}
+LuaCoroutine::LuaCoroutine(const sol::thread& thread) : thread(thread) {}
 LuaCoroutine::LuaCoroutine(const sol::function& function) {
 	thread = sol::thread::create(function.lua_state());
 	function.push(thread.thread_state());
-	status = LUA_YIELD;
 }
 
 LuaCoroutine::~LuaCoroutine() {
@@ -48,7 +47,7 @@ LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 }
 
 LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
-	return (LuaCoroutineStatus) status;
+	return (LuaCoroutineStatus) thread.status();
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
@@ -60,7 +59,7 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 	}
 
 	int nresults;
-	status = lua_resume(L, NULL, arg_count, &nresults);
+	int status = lua_resume(L, NULL, arg_count, &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
 	return to_variant(function_result);
 }
@@ -73,7 +72,7 @@ Variant LuaCoroutine::resumev(const Array& args) {
 	}
 
 	int nresults;
-	status = lua_resume(L, NULL, arg_count, &nresults);
+	int status = lua_resume(L, NULL, arg_count, &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
 	return to_variant(function_result);
 }
@@ -89,6 +88,7 @@ void LuaCoroutine::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_ERRSYNTAX);
 	BIND_ENUM_CONSTANT(STATUS_ERRMEM);
 	BIND_ENUM_CONSTANT(STATUS_ERRERR);
+	BIND_ENUM_CONSTANT(STATUS_DEAD);
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaCoroutine::get_status);
 	ClassDB::bind_method(D_METHOD("resumev", "arguments"), &LuaCoroutine::resumev);

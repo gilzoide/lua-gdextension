@@ -43,6 +43,7 @@ public:
 		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
 		STATUS_ERRMEM = LUA_ERRMEM,
 		STATUS_ERRERR = LUA_ERRERR,
+		STATUS_DEAD = (int) sol::thread_status::dead,
 	};
 
 	LuaCoroutine() = default;
@@ -65,7 +66,6 @@ protected:
 	String _to_string() const;
 
 	sol::thread thread;
-	int status;
 };
 
 }
