@@ -46,6 +46,8 @@ public:
 	};
 
 	LuaCoroutine() = default;
+	LuaCoroutine(sol::thread&& thread);
+	LuaCoroutine(const sol::thread& thread);
 	LuaCoroutine(const sol::function& function);
 	~LuaCoroutine();
 

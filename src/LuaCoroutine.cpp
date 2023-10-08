@@ -28,6 +28,8 @@
 
 namespace luagdextension {
 
+LuaCoroutine::LuaCoroutine(sol::thread&& thread) : thread(thread), status((int) thread.status()) {}
+LuaCoroutine::LuaCoroutine(const sol::thread& thread) : thread(thread), status((int) thread.status()) {}
 LuaCoroutine::LuaCoroutine(const sol::function& function) {
 	thread = sol::thread::create(function.lua_state());
 	function.push(thread.thread_state());
