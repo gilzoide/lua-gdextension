@@ -39,13 +39,13 @@ static void initialize(ModuleInitializationLevel level) {
 	}
 
 	ClassDB::register_abstract_class<LuaCoroutine>();
-	ClassDB::register_class<LuaError>();
 	ClassDB::register_abstract_class<LuaFunction>();
 	ClassDB::register_abstract_class<LuaLightUserdata>();
-	ClassDB::register_class<LuaTable>();
+	ClassDB::register_abstract_class<LuaTable>();
+	ClassDB::register_abstract_class<LuaUserdata>();
 
+	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
-	ClassDB::register_class<LuaUserdata>();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(
