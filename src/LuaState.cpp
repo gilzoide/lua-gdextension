@@ -47,9 +47,8 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-LuaState::LuaState() : LuaTable(true), lua_state(sol::default_at_panic, lua_alloc) {
+LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 	setup_G_metatable(lua_state);
-	table = lua_state.globals();
 	valid_states.insert(lua_state);
 }
 
@@ -139,7 +138,7 @@ Variant LuaState::do_file(const String& filename, int buffer_size) {
 }
 
 LuaTable *LuaState::get_globals() const {
-	return memnew(LuaTable(table));
+	return memnew(LuaTable(lua_state.globals()));
 }
 
 LuaTable *LuaState::get_registry() const {
