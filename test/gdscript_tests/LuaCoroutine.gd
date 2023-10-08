@@ -40,3 +40,14 @@ func test_send_and_receive_arguments():
 	assert(coroutine.resume() == null)
 	assert(coroutine.status == LuaCoroutine.STATUS_OK)
 	return true
+
+
+func test_send_and_receive_array_arguments():
+	var coroutine = LuaCoroutine.create(yielding_function)
+	for i in range(0, 10):
+		var result = coroutine.resumev([i])
+		assert(result == i)
+	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
+	assert(coroutine.resumev([]) == null)
+	assert(coroutine.status == LuaCoroutine.STATUS_OK)
+	return true
