@@ -37,6 +37,6 @@ func test_send_and_receive_arguments():
 		var result = coroutine.resume(i)
 		assert(result == i)
 	assert(coroutine.status == LuaCoroutine.STATUS_YIELD)
-	coroutine.resume()
+	assert(coroutine.resume() == null)
 	assert(coroutine.status == LuaCoroutine.STATUS_OK)
 	return true

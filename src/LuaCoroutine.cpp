@@ -28,8 +28,17 @@
 
 namespace luagdextension {
 
-LuaCoroutine::LuaCoroutine(sol::coroutine&& coroutine) : coroutine(coroutine) {}
-LuaCoroutine::LuaCoroutine(const sol::coroutine& coroutine) : coroutine(coroutine) {}
+LuaCoroutine::LuaCoroutine(const sol::function& function) {
+	thread = sol::thread::create(function.lua_state());
+	function.push(thread.lua_state());
+	status = LUA_YIELD;
+}
+
+LuaCoroutine::~LuaCoroutine() {
+#if LUA_VERSION_NUM >= 504
+	lua_closethread(thread.lua_state(), NULL);
+#endif
+}
 
 LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 	ERR_FAIL_COND_V_MSG(!function, nullptr, "Function cannot be null");
@@ -37,34 +46,34 @@ LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 }
 
 LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
-	return (LuaCoroutineStatus) coroutine.status();
+	return (LuaCoroutineStatus) status;
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	if (arg_count == 0) {
-		return to_variant(coroutine.call());
+	lua_State *L = thread.lua_state();
+	if (arg_count > 0) {
+		for (int i = 0; i < arg_count; i++) {
+			std::ignore = to_lua(L, *args[i]);
+		}
 	}
 
-	lua_State *L = coroutine.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, *args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(coroutine.call(lua_args));
+	int nresults;
+	status = lua_resume(L, NULL, arg_count, &nresults);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
+	return to_variant(function_result);
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
+	lua_State *L = thread.lua_state();
 	int arg_count = args.size();
-	if (arg_count == 0) {
-		return to_variant(coroutine.call());
-	}
-
-	lua_State *L = coroutine.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
 	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(coroutine.call(lua_args));
+
+	int nresults;
+	status = lua_resume(L, NULL, arg_count, &nresults);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
+	return to_variant(function_result);
 }
 
 LuaCoroutine::operator String() const {
@@ -75,11 +84,9 @@ void LuaCoroutine::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
 	BIND_ENUM_CONSTANT(STATUS_ERRRUN);
+	BIND_ENUM_CONSTANT(STATUS_ERRSYNTAX);
 	BIND_ENUM_CONSTANT(STATUS_ERRMEM);
-	BIND_ENUM_CONSTANT(STATUS_ERRGCMM);
 	BIND_ENUM_CONSTANT(STATUS_ERRERR);
-	BIND_ENUM_CONSTANT(STATUS_SYNTAX);
-	BIND_ENUM_CONSTANT(STATUS_FILE);
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaCoroutine::get_status);
 	ClassDB::bind_method(D_METHOD("resumev", "arguments"), &LuaCoroutine::resumev);
@@ -90,7 +97,7 @@ void LuaCoroutine::_bind_methods() {
 }
 
 String LuaCoroutine::_to_string() const {
-	return UtilityFunctions::str("[LuaCoroutine:0x", String::num_uint64((uint64_t) coroutine.pointer(), 16), "]");
+	return UtilityFunctions::str("[LuaCoroutine:0x", String::num_uint64((uint64_t) thread.pointer(), 16), "]");
 }
 
 }

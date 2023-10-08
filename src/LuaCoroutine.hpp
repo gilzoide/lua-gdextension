@@ -37,19 +37,17 @@ class LuaCoroutine : public RefCounted {
 
 public:
 	enum LuaCoroutineStatus {
-		STATUS_OK = (int) sol::call_status::ok,
-		STATUS_YIELD = (int) sol::call_status::yielded,
-		STATUS_ERRRUN = (int) sol::call_status::runtime,
-		STATUS_ERRMEM = (int) sol::call_status::memory,
-		STATUS_ERRGCMM = (int) sol::call_status::gc,
-		STATUS_ERRERR = (int) sol::call_status::handler,
-		STATUS_SYNTAX = (int) sol::call_status::syntax,
-		STATUS_FILE = (int) sol::call_status::file,
+		STATUS_OK = LUA_OK,
+		STATUS_YIELD = LUA_YIELD,
+		STATUS_ERRRUN = LUA_ERRRUN,
+		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
+		STATUS_ERRMEM = LUA_ERRMEM,
+		STATUS_ERRERR = LUA_ERRERR,
 	};
 
 	LuaCoroutine() = default;
-	LuaCoroutine(sol::coroutine&& coroutine);
-	LuaCoroutine(const sol::coroutine& coroutine);
+	LuaCoroutine(const sol::function& function);
+	~LuaCoroutine();
 
 	static LuaCoroutine *create(LuaFunction *function);
 
@@ -64,7 +62,8 @@ protected:
 	
 	String _to_string() const;
 
-	sol::coroutine coroutine;
+	sol::thread thread;
+	int status;
 };
 
 }
