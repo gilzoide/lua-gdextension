@@ -30,10 +30,6 @@ namespace luagdextension {
 
 LuaCoroutine::LuaCoroutine(sol::thread&& thread) : thread(thread) {}
 LuaCoroutine::LuaCoroutine(const sol::thread& thread) : thread(thread) {}
-LuaCoroutine::LuaCoroutine(const sol::function& function) {
-	thread = sol::thread::create(function.lua_state());
-	function.push(thread.thread_state());
-}
 
 LuaCoroutine::~LuaCoroutine() {
 #if LUA_VERSION_NUM >= 504
@@ -41,9 +37,15 @@ LuaCoroutine::~LuaCoroutine() {
 #endif
 }
 
+LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
+	sol::thread thread = sol::thread::create(function.lua_state());
+	function.push(thread.thread_state());
+	return memnew(LuaCoroutine(thread));
+}
+
 LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 	ERR_FAIL_COND_V_MSG(!function, nullptr, "Function cannot be null");
-	return memnew(LuaCoroutine(function->get_function()));
+	return create(function->get_function());
 }
 
 LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {

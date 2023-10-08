@@ -49,9 +49,9 @@ public:
 	LuaCoroutine() = default;
 	LuaCoroutine(sol::thread&& thread);
 	LuaCoroutine(const sol::thread& thread);
-	LuaCoroutine(const sol::function& function);
 	~LuaCoroutine();
 
+	static LuaCoroutine *create(const sol::function& function);
 	static LuaCoroutine *create(LuaFunction *function);
 
 	LuaCoroutineStatus get_status() const;
