@@ -30,7 +30,7 @@ namespace luagdextension {
 
 LuaCoroutine::LuaCoroutine(const sol::function& function) {
 	thread = sol::thread::create(function.lua_state());
-	function.push(thread.lua_state());
+	function.push(thread.thread_state());
 	status = LUA_YIELD;
 }
 
@@ -50,7 +50,7 @@ LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	lua_State *L = thread.lua_state();
+	lua_State *L = thread.thread_state();
 	if (arg_count > 0) {
 		for (int i = 0; i < arg_count; i++) {
 			std::ignore = to_lua(L, *args[i]);
@@ -64,7 +64,7 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	lua_State *L = thread.lua_state();
+	lua_State *L = thread.thread_state();
 	int arg_count = args.size();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
