@@ -53,6 +53,8 @@ LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
+	ERR_FAIL_COND_V_MSG(thread.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+
 	lua_State *L = thread.thread_state();
 	if (arg_count > 0) {
 		for (int i = 0; i < arg_count; i++) {
@@ -67,6 +69,8 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
+	ERR_FAIL_COND_V_MSG(thread.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+
 	lua_State *L = thread.thread_state();
 	int arg_count = args.size();
 	for (int i = 0; i < arg_count; i++) {
