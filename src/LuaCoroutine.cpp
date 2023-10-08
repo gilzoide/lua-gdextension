@@ -49,7 +49,7 @@ LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 }
 
 LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
-	return (LuaCoroutineStatus) thread.status();
+	return static_cast<LuaCoroutineStatus>(thread.status());
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
@@ -64,7 +64,7 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 
 	int nresults;
 	int status = lua_resume(L, NULL, arg_count, &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
 	return to_variant(function_result);
 }
 
@@ -79,7 +79,7 @@ Variant LuaCoroutine::resumev(const Array& args) {
 
 	int nresults;
 	int status = lua_resume(L, NULL, arg_count, &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, (sol::call_status) status);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
 	return to_variant(function_result);
 }
 
