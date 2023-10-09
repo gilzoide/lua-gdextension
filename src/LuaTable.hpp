@@ -22,17 +22,18 @@
 #ifndef __LUA_TABLE_HPP__
 #define __LUA_TABLE_HPP__
 
+#include "LuaObject.hpp"
+
 #include "utils/custom_sol.hpp"
 
-#include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaTable : public RefCounted {
-	GDCLASS(LuaTable, RefCounted);
+class LuaTable : public LuaObject {
+	GDCLASS(LuaTable, LuaObject);
 
 public:
 	LuaTable();
@@ -50,6 +51,8 @@ public:
 	bool _iter_init(const Variant& iter) const;
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
+
+	sol::object get_lua_object() const override;
 
 	operator String() const;
 
