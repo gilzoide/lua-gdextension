@@ -149,6 +149,12 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			sol::stack::push(lua_state, (StringName) value);
 			break;
 
+		case Variant::OBJECT:
+			if (LuaObject *lua_obj = Object::cast_to<LuaObject>(value)) {
+				sol::stack::push(lua_state, lua_obj->get_lua_object());
+				break;
+			}
+			// fallthrough
 		default:
 			sol::stack::push(lua_state, value);
 			break;

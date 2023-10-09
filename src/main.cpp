@@ -23,6 +23,7 @@
 #include "LuaError.hpp"
 #include "LuaFunction.hpp"
 #include "LuaLightUserdata.hpp"
+#include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
 #include "LuaUserdata.hpp"
@@ -37,6 +38,8 @@ static void initialize(ModuleInitializationLevel level) {
 	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
+
+	ClassDB::register_abstract_class<LuaObject>();
 
 	ClassDB::register_abstract_class<LuaCoroutine>();
 	ClassDB::register_abstract_class<LuaFunction>();
