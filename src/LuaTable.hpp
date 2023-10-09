@@ -32,14 +32,13 @@ using namespace godot;
 
 namespace luagdextension {
 
-class LuaTable : public LuaObject {
+class LuaTable : public LuaObjectSubclass<sol::table> {
 	GDCLASS(LuaTable, LuaObject);
 
 public:
 	LuaTable();
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
-	~LuaTable();
 
 	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
 	void set_value(const Variant& key, const Variant& value);
@@ -52,25 +51,13 @@ public:
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
 
-	sol::object get_lua_object() const override;
-
-	operator String() const;
-
 protected:
-	/// Same as `LuaTable()`, but without printing any error.
-	/// This is supposed to be used by subclasses to suppress the error message.
-	LuaTable(bool);
 	static void _bind_methods();
 	
 	bool _get(const StringName& property_name, Variant& r_value) const;
 	bool _set(const StringName& property_name, const Variant& value);
-	String _to_string() const;
 
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy tables if the corresponding LuaState is still valid
-	union {
-		sol::table table;
-	};
+	String _to_string() const override;
 };
 
 }

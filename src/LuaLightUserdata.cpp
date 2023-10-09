@@ -25,28 +25,10 @@
 
 namespace luagdextension {
 
-LuaLightUserdata::LuaLightUserdata() : lightuserdata() {}
-LuaLightUserdata::LuaLightUserdata(sol::lightuserdata&& lightuserdata) : lightuserdata(lightuserdata) {}
-LuaLightUserdata::LuaLightUserdata(const sol::lightuserdata& lightuserdata) : lightuserdata(lightuserdata) {}
+LuaLightUserdata::LuaLightUserdata() : LuaObjectSubclass() {}
+LuaLightUserdata::LuaLightUserdata(sol::lightuserdata&& lightuserdata) : LuaObjectSubclass(lightuserdata) {}
+LuaLightUserdata::LuaLightUserdata(const sol::lightuserdata& lightuserdata) : LuaObjectSubclass(lightuserdata) {}
 
-uint64_t LuaLightUserdata::get_value() const {
-	return (uint64_t) lightuserdata.as<void *>();
-}
-
-sol::object LuaLightUserdata::get_lua_object() const {
-	return lightuserdata;
-}
-
-LuaLightUserdata::operator String() const {
-	return _to_string();
-}
-
-void LuaLightUserdata::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_value"), &LuaLightUserdata::get_value);
-}
-
-String LuaLightUserdata::_to_string() const {
-	return UtilityFunctions::str("[LuaLightUserdata:0x", String::num_uint64(get_value(), 16), "]");
-}
+void LuaLightUserdata::_bind_methods() {}
 
 }

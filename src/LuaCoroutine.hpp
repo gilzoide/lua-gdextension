@@ -32,7 +32,7 @@ namespace luagdextension {
 
 class LuaFunction;
 
-class LuaCoroutine : public LuaObject {
+class LuaCoroutine : public LuaObjectSubclass<sol::thread> {
 	GDCLASS(LuaCoroutine, LuaObject);
 
 public:
@@ -46,7 +46,7 @@ public:
 		STATUS_DEAD = (int) sol::thread_status::dead,
 	};
 
-	LuaCoroutine() = default;
+	LuaCoroutine();
 	LuaCoroutine(sol::thread&& thread);
 	LuaCoroutine(const sol::thread& thread);
 	~LuaCoroutine();
@@ -58,16 +58,8 @@ public:
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
-	sol::object get_lua_object() const override;
-
-	operator String() const;
-
 protected:
 	static void _bind_methods();
-	
-	String _to_string() const;
-
-	sol::thread thread;
 };
 
 }

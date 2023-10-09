@@ -28,34 +28,21 @@ using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction : public LuaObject {
+class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
 	GDCLASS(LuaFunction, LuaObject);
 
 public:
 	LuaFunction();
 	LuaFunction(sol::protected_function&& function);
 	LuaFunction(const sol::protected_function& function);
-	~LuaFunction();
 
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	const sol::protected_function& get_function() const;
 
-	sol::object get_lua_object() const override;
-
-	operator String() const;
-
 protected:
 	static void _bind_methods();
-	
-	String _to_string() const;
-
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy functions if the corresponding LuaState is still valid
-	union {
-		sol::protected_function function;
-	};
 };
 
 }

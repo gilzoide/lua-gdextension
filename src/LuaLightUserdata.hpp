@@ -28,7 +28,7 @@ using namespace godot;
 
 namespace luagdextension {
 
-class LuaLightUserdata : public LuaObject {
+class LuaLightUserdata : public LuaObjectSubclass<sol::lightuserdata> {
 	GDCLASS(LuaLightUserdata, LuaObject);
 
 public:
@@ -36,18 +36,8 @@ public:
 	LuaLightUserdata(sol::lightuserdata&& lightuserdata);
 	LuaLightUserdata(const sol::lightuserdata& lightuserdata);
 
-	uint64_t get_value() const;
-
-	sol::object get_lua_object() const override;
-
-	operator String() const;
-
 protected:
 	static void _bind_methods();
-	
-	String _to_string() const;
-
-	sol::lightuserdata lightuserdata;
 };
 
 }

@@ -23,14 +23,24 @@
 
 namespace luagdextension {
 
-sol::object LuaObject::get_lua_object() const {
-	return sol::nil;
+const sol::reference& LuaObject::get_lua_object() const {
+	throw "LuaObject subclass must override get_lua_object!";
 }
 
 lua_State *LuaObject::get_lua_state() const {
 	return get_lua_object().lua_state();
 }
 
-void LuaObject::_bind_methods() {}
+uint64_t LuaObject::to_pointer() const {
+	return (int64_t) get_lua_object().pointer();
+}
+
+void LuaObject::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("to_pointer"), &LuaObject::to_pointer);
+}
+
+String LuaObject::_to_string() const {
+	return String("[%s:0x%x]") % Array::make(get_class(), to_pointer());
+}
 
 }
