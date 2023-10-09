@@ -49,13 +49,33 @@ LuaTable::~LuaTable() {
 	}
 }
 
-Variant LuaTable::geti(int64_t index) const {
+Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
 	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
-	return to_variant(table[index].get<sol::object>());
+
+	lua_State *L = table.lua_state();
+	sol::stack::push(L, table);
+	std::ignore = to_lua(L, key);
+	lua_gettable(L, -2);
+	Variant value;
+	if (lua_isnoneornil(L, -1)) {
+		value = default_value;
+	}
+	else {
+		value = to_variant(sol::stack_object(L, -1));
+	}
+	lua_pop(L, 2);
+	return value;
 }
 
-void LuaTable::seti(int64_t index, const Variant& value) {
-	table[index] = to_lua(table.lua_state(), value);
+void LuaTable::set_value(const Variant& key, const Variant& value) {
+	ERR_FAIL_COND_EDMSG(!table.valid(), "LuaTable does not have a valid table");
+
+	lua_State *L = table.lua_state();
+	sol::stack::push(L, table);
+	std::ignore = to_lua(L, key);
+	std::ignore = to_lua(L, value);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
 }
 
 int64_t LuaTable::size() const {
@@ -111,8 +131,8 @@ Variant LuaTable::_iter_get(const Variant& iter) const {
 }
 
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("geti", "index"), &LuaTable::geti);
-	ClassDB::bind_method(D_METHOD("seti", "index", "value"), &LuaTable::seti);
+	ClassDB::bind_method(D_METHOD("get_value", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);

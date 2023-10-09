@@ -40,8 +40,8 @@ public:
 	LuaTable(const sol::table& table);
 	~LuaTable();
 
-	Variant geti(int64_t index) const;
-	void seti(int64_t index, const Variant& value);
+	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
+	void set_value(const Variant& key, const Variant& value);
 	int64_t size() const;
 
 	Dictionary to_dictionary() const;
