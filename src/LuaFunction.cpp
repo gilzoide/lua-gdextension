@@ -40,6 +40,10 @@ LuaFunction::~LuaFunction() {
 	}
 }
 
+sol::object LuaFunction::get_lua_object() const {
+	return function;
+}
+
 void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);

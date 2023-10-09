@@ -22,17 +22,14 @@
 #ifndef __LUA_FUNCTION_HPP__
 #define __LUA_FUNCTION_HPP__
 
-#include "utils/custom_sol.hpp"
-
-#include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/variant.hpp>
+#include "LuaObject.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction : public RefCounted {
-	GDCLASS(LuaFunction, RefCounted);
+class LuaFunction : public LuaObject {
+	GDCLASS(LuaFunction, LuaObject);
 
 public:
 	LuaFunction();
@@ -44,6 +41,8 @@ public:
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	const sol::protected_function& get_function() const;
+
+	sol::object get_lua_object() const override;
 
 	operator String() const;
 
