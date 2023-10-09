@@ -22,15 +22,14 @@
 #ifndef __LUA_LIGHTUSERDATA_HPP__
 #define __LUA_LIGHTUSERDATA_HPP__
 
-#include "utils/custom_sol.hpp"
-#include <godot_cpp/classes/ref_counted.hpp>
+#include "LuaObject.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaLightUserdata : public RefCounted {
-	GDCLASS(LuaLightUserdata, RefCounted);
+class LuaLightUserdata : public LuaObject {
+	GDCLASS(LuaLightUserdata, LuaObject);
 
 public:
 	LuaLightUserdata();
@@ -38,6 +37,8 @@ public:
 	LuaLightUserdata(const sol::lightuserdata& lightuserdata);
 
 	uint64_t get_value() const;
+
+	sol::object get_lua_object() const override;
 
 	operator String() const;
 

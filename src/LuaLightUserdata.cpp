@@ -33,6 +33,10 @@ uint64_t LuaLightUserdata::get_value() const {
 	return (uint64_t) lightuserdata.as<void *>();
 }
 
+sol::object LuaLightUserdata::get_lua_object() const {
+	return lightuserdata;
+}
+
 LuaLightUserdata::operator String() const {
 	return _to_string();
 }
