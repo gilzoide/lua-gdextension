@@ -34,20 +34,20 @@ func test_get_value() -> bool:
 	""")
 	assert(table is LuaTable)
 	for i in range(1, table.size() + 1):
-		assert(table.get_value(i) == i)
-	assert(table.get_value("hello") == "world")
-	assert(table.get_value("invalid") == null)
-	assert(table.get_value("invalid_with_defaul", "default") == "default")
-	assert(table.get_value("some_vector2") == Vector2())
-	assert(table.get_value(table) == "self")
+		assert(table.get(i) == i)
+	assert(table.get("hello") == "world")
+	assert(table.get("invalid") == null)
+	assert(table.get("invalid_with_defaul", "default") == "default")
+	assert(table.get("some_vector2") == Vector2())
+	assert(table.get(table) == "self")
 	return true
 
 
 func test_set_value() -> bool:
 	var table = lua_state.create_table()
-	table.set_value(1, 1)
-	table.set_value(2, 2)
-	table.set_value(3, 3)
-	table.set_value(4, 4)
+	table.set(1, 1)
+	table.set(2, 2)
+	table.set(3, 3)
+	table.set(4, 4)
 	assert(table.size() == 4)
 	return true

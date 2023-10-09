@@ -137,6 +137,8 @@ sol::object LuaTable::get_lua_object() const {
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_value", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
+	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set_value);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
