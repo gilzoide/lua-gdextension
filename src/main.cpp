@@ -19,6 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "LuaCoroutine.hpp"
 #include "LuaError.hpp"
 #include "LuaFunction.hpp"
 #include "LuaLightUserdata.hpp"
@@ -37,13 +38,14 @@ static void initialize(ModuleInitializationLevel level) {
 		return;
 	}
 
+	ClassDB::register_abstract_class<LuaCoroutine>();
 	ClassDB::register_class<LuaError>();
-	ClassDB::register_class<LuaFunction>();
+	ClassDB::register_abstract_class<LuaFunction>();
+	ClassDB::register_abstract_class<LuaLightUserdata>();
 	ClassDB::register_class<LuaTable>();
-	ClassDB::register_class<LuaUserdata>();
-	ClassDB::register_class<LuaLightUserdata>();
 
 	ClassDB::register_class<LuaState>();
+	ClassDB::register_class<LuaUserdata>();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(

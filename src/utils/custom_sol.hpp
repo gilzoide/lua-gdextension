@@ -88,4 +88,9 @@ int sol_lua_push(lua_State* L, const PackedVector2Array &v);
 int sol_lua_push(lua_State* L, const PackedVector3Array &v);
 int sol_lua_push(lua_State* L, const PackedColorArray &v);
 
+// Polyfill for Lua 5.4's lua_resume
+#if LUA_VERSION_NUM < 504
+int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults);
+#endif
+
 #endif

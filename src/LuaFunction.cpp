@@ -31,9 +31,7 @@ namespace luagdextension {
 LuaFunction::LuaFunction() : function() {
 	ERR_PRINT("LuaUserdata should never be instantiated manually!");
 }
-
 LuaFunction::LuaFunction(sol::protected_function&& function) : function(function) {}
-
 LuaFunction::LuaFunction(const sol::protected_function& function) : function(function) {}
 
 LuaFunction::~LuaFunction() {
@@ -49,8 +47,12 @@ void LuaFunction::_bind_methods() {
 
 Variant LuaFunction::invokev(const Array& args) {
 	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
-	lua_State *L = function.lua_state();
 	int arg_count = args.size();
+	if (arg_count == 0) {
+		return to_variant(function.call());
+	}
+
+	lua_State *L = function.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
 	}
@@ -60,12 +62,20 @@ Variant LuaFunction::invokev(const Array& args) {
 
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
 	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
+	if (arg_count == 0) {
+		return to_variant(function.call());
+	}
+
 	lua_State *L = function.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
 	return to_variant(function.call(lua_args));
+}
+
+const sol::protected_function& LuaFunction::get_function() const {
+	return function;
 }
 
 LuaFunction::operator String() const {

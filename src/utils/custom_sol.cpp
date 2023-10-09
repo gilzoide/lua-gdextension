@@ -82,3 +82,12 @@ int sol_lua_push(lua_State* L, const PackedVector2Array &v) { to_lua(L, Variant(
 int sol_lua_push(lua_State* L, const PackedVector3Array &v) { to_lua(L, Variant(v)); return 1; }
 int sol_lua_push(lua_State* L, const PackedColorArray &v) { to_lua(L, Variant(v)); return 1; }
 
+#if LUA_VERSION_NUM < 504
+int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults) {
+	int status = lua_resume(L, from, nargs);
+	if (nresults) {
+		nresults = lua_gettop(L);
+	}
+	return status;
+}
+#endif

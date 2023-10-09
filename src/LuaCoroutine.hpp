@@ -19,31 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_FUNCTION_HPP__
-#define __LUA_FUNCTION_HPP__
+#ifndef __LUA_COROUTINE_HPP__
+#define __LUA_COROUTINE_HPP__
 
 #include "utils/custom_sol.hpp"
-
+#include <gdextension_interface.h>
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction : public RefCounted {
-	GDCLASS(LuaFunction, RefCounted);
+class LuaFunction;
+
+class LuaCoroutine : public RefCounted {
+	GDCLASS(LuaCoroutine, RefCounted);
 
 public:
-	LuaFunction();
-	LuaFunction(sol::protected_function&& function);
-	LuaFunction(const sol::protected_function& function);
-	~LuaFunction();
+	enum LuaCoroutineStatus {
+		STATUS_OK = LUA_OK,
+		STATUS_YIELD = LUA_YIELD,
+		STATUS_ERRRUN = LUA_ERRRUN,
+		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
+		STATUS_ERRMEM = LUA_ERRMEM,
+		STATUS_ERRERR = LUA_ERRERR,
+		STATUS_DEAD = (int) sol::thread_status::dead,
+	};
 
-	Variant invokev(const Array& args);
-	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+	LuaCoroutine() = default;
+	LuaCoroutine(sol::thread&& thread);
+	LuaCoroutine(const sol::thread& thread);
+	~LuaCoroutine();
 
-	const sol::protected_function& get_function() const;
+	static LuaCoroutine *create(const sol::function& function);
+	static LuaCoroutine *create(LuaFunction *function);
+
+	LuaCoroutineStatus get_status() const;
+	Variant resumev(const Array& args);
+	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
 	operator String() const;
 
@@ -52,13 +65,10 @@ protected:
 	
 	String _to_string() const;
 
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy functions if the corresponding LuaState is still valid
-	union {
-		sol::protected_function function;
-	};
+	sol::thread thread;
 };
 
 }
+VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::LuaCoroutineStatus);
 
-#endif  // __LUA_FUNCTION_HPP__
+#endif
