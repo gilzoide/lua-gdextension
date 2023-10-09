@@ -32,12 +32,6 @@ LuaCoroutine::LuaCoroutine() : LuaObjectSubclass() {}
 LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaObjectSubclass(thread) {}
 LuaCoroutine::LuaCoroutine(const sol::thread& thread) : LuaObjectSubclass(thread) {}
 
-LuaCoroutine::~LuaCoroutine() {
-#if LUA_VERSION_NUM >= 504
-	lua_closethread(lua_object.thread_state(), NULL);
-#endif
-}
-
 LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 	sol::thread thread = sol::thread::create(function.lua_state());
 	function.push(thread.thread_state());

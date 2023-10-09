@@ -49,7 +49,6 @@ public:
 	LuaCoroutine();
 	LuaCoroutine(sol::thread&& thread);
 	LuaCoroutine(const sol::thread& thread);
-	~LuaCoroutine();
 
 	static LuaCoroutine *create(const sol::function& function);
 	static LuaCoroutine *create(LuaFunction *function);
