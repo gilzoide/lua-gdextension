@@ -22,9 +22,9 @@
 #ifndef __LUA_COROUTINE_HPP__
 #define __LUA_COROUTINE_HPP__
 
-#include "utils/custom_sol.hpp"
+#include "LuaObject.hpp"
+
 #include <gdextension_interface.h>
-#include <godot_cpp/classes/ref_counted.hpp>
 
 using namespace godot;
 
@@ -32,8 +32,8 @@ namespace luagdextension {
 
 class LuaFunction;
 
-class LuaCoroutine : public RefCounted {
-	GDCLASS(LuaCoroutine, RefCounted);
+class LuaCoroutine : public LuaObject {
+	GDCLASS(LuaCoroutine, LuaObject);
 
 public:
 	enum LuaCoroutineStatus {
@@ -57,6 +57,8 @@ public:
 	LuaCoroutineStatus get_status() const;
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
+
+	sol::object get_lua_object() const override;
 
 	operator String() const;
 

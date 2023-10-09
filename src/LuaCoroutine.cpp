@@ -83,6 +83,10 @@ Variant LuaCoroutine::resumev(const Array& args) {
 	return to_variant(function_result);
 }
 
+sol::object LuaCoroutine::get_lua_object() const {
+	return thread;
+}
+
 LuaCoroutine::operator String() const {
 	return _to_string();
 }
