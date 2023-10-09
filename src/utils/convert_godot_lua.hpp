@@ -34,6 +34,7 @@ Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
 Variant to_variant(const sol::stack_proxy_base& object);
 Variant to_variant(const sol::protected_function_result& function_result);
+Variant to_variant(lua_State *L, int index);
 sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
 
 Array to_array(const sol::variadic_args& args);

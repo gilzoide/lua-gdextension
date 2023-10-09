@@ -61,7 +61,7 @@ Variant LuaTable::get_value(const Variant& key, const Variant& default_value) co
 		value = default_value;
 	}
 	else {
-		value = to_variant(sol::stack_object(L, -1));
+		value = to_variant(L, -1);
 	}
 	lua_pop(L, 2);
 	return value;
@@ -100,7 +100,7 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 	lua_pushnil(L);
 	if (lua_next(L, -2)) {
 		Array arg = iter;
-		arg[0] = to_variant(sol::stack_object(L, -2));
+		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
 	}
@@ -116,7 +116,7 @@ bool LuaTable::_iter_next(const Variant& iter) const {
 	auto table_popper = sol::stack::push_pop(table);
 	auto key = to_lua(L, arg[0]);
 	if (lua_next(L, -2)) {
-		arg[0] = to_variant(sol::stack_object(L, -2));
+		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
 	}
