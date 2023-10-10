@@ -5,7 +5,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
 
 
 ## Features
-- Godot classes for creating Lua states and interacting with them: `LuaState`, `LuaError`, `LuaTable`, `LuaUserdata`
+- Godot classes for creating Lua states and interacting with them: `LuaState`, `LuaError`, `LuaCoroutine`, `LuaFunction`, `LuaLightUserdata`, `LuaTable` and `LuaUserdata`
   ```gdscript
   var lua = LuaState.new()
   lua.open_libraries()  # this imports Lua and Godot APIs to the state
