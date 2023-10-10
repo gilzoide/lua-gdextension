@@ -31,16 +31,16 @@ lua_State *LuaObject::get_lua_state() const {
 	return get_lua_object().lua_state();
 }
 
-uint64_t LuaObject::to_pointer() const {
-	return (int64_t) get_lua_object().pointer();
+uint64_t LuaObject::get_pointer_value() const {
+	return (uint64_t) get_lua_object().pointer();
 }
 
 void LuaObject::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("to_pointer"), &LuaObject::to_pointer);
+	ClassDB::bind_method(D_METHOD("get_pointer_value"), &LuaObject::get_pointer_value);
 }
 
 String LuaObject::_to_string() const {
-	return String("[%s:0x%x]") % Array::make(get_class(), to_pointer());
+	return String("[%s:0x%x]") % Array::make(get_class(), get_pointer_value());
 }
 
 }

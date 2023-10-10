@@ -38,7 +38,7 @@ public:
 	virtual const sol::reference& get_lua_object() const;
 	lua_State *get_lua_state() const;
 
-	uint64_t to_pointer() const;
+	uint64_t get_pointer_value() const;
 
 protected:
 	static void _bind_methods();
