@@ -30,29 +30,10 @@ using namespace godot;
 
 namespace luagdextension {
 
-LuaUserdata::LuaUserdata() : LuaTable(true) {
-	ERR_PRINT("LuaUserdata should never be instantiated manually!");
-}
-
+LuaUserdata::LuaUserdata() : LuaTable() {}
 LuaUserdata::LuaUserdata(sol::userdata&& userdata) : LuaTable(userdata) {}
-
 LuaUserdata::LuaUserdata(const sol::userdata& userdata) : LuaTable(userdata) {}
 
-void LuaUserdata::_bind_methods() {
-}
-
-LuaUserdata::operator String() const {
-	return _to_string();
-}
-
-String LuaUserdata::_to_string() const {
-	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
-	if (tostring_result.has_value()) {
-		return to_variant(tostring_result.value());
-	}
-	else {
-		return String("[LuaUserdata:0x%x]") % (int64_t) table.pointer();
-	}
-}
+void LuaUserdata::_bind_methods() {}
 
 }

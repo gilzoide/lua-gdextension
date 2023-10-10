@@ -19,49 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
-
 #include "LuaObject.hpp"
-
-#include <gdextension_interface.h>
-
-using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
+const sol::reference& LuaObject::get_lua_object() const {
+	throw "LuaObject subclass must override get_lua_object!";
+}
 
-class LuaCoroutine : public LuaObjectSubclass<sol::thread> {
-	GDCLASS(LuaCoroutine, LuaObject);
+lua_State *LuaObject::get_lua_state() const {
+	return get_lua_object().lua_state();
+}
 
-public:
-	enum LuaCoroutineStatus {
-		STATUS_OK = LUA_OK,
-		STATUS_YIELD = LUA_YIELD,
-		STATUS_ERRRUN = LUA_ERRRUN,
-		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
-		STATUS_ERRMEM = LUA_ERRMEM,
-		STATUS_ERRERR = LUA_ERRERR,
-		STATUS_DEAD = (int) sol::thread_status::dead,
-	};
+uint64_t LuaObject::get_pointer_value() const {
+	return (uint64_t) get_lua_object().pointer();
+}
 
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
+void LuaObject::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_pointer_value"), &LuaObject::get_pointer_value);
+}
 
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
-
-	LuaCoroutineStatus get_status() const;
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-protected:
-	static void _bind_methods();
-};
+String LuaObject::_to_string() const {
+	return String("[%s:0x%x]") % Array::make(get_class(), get_pointer_value());
+}
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::LuaCoroutineStatus);
-
-#endif

@@ -28,17 +28,9 @@
 
 namespace luagdextension {
 
-LuaFunction::LuaFunction() : function() {
-	ERR_PRINT("LuaUserdata should never be instantiated manually!");
-}
-LuaFunction::LuaFunction(sol::protected_function&& function) : function(function) {}
-LuaFunction::LuaFunction(const sol::protected_function& function) : function(function) {}
-
-LuaFunction::~LuaFunction() {
-	if (function.valid() && LuaState::is_valid(function.lua_state())) {
-		function.~basic_protected_function();
-	}
-}
+LuaFunction::LuaFunction() : LuaObjectSubclass() {}
+LuaFunction::LuaFunction(sol::protected_function&& function) : LuaObjectSubclass(function) {}
+LuaFunction::LuaFunction(const sol::protected_function& function) : LuaObjectSubclass(function) {}
 
 void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
@@ -46,44 +38,34 @@ void LuaFunction::_bind_methods() {
 }
 
 Variant LuaFunction::invokev(const Array& args) {
-	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
 	int arg_count = args.size();
 	if (arg_count == 0) {
-		return to_variant(function.call());
+		return to_variant(lua_object.call());
 	}
 
-	lua_State *L = function.lua_state();
+	lua_State *L = lua_object.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(function.call(lua_args));
+	return to_variant(lua_object.call(lua_args));
 }
 
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
-	ERR_FAIL_COND_V_EDMSG(!function.valid(), Variant(), "LuaFunction does not have a valid function");
 	if (arg_count == 0) {
-		return to_variant(function.call());
+		return to_variant(lua_object.call());
 	}
 
-	lua_State *L = function.lua_state();
+	lua_State *L = lua_object.lua_state();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(function.call(lua_args));
+	return to_variant(lua_object.call(lua_args));
 }
 
 const sol::protected_function& LuaFunction::get_function() const {
-	return function;
-}
-
-LuaFunction::operator String() const {
-	return _to_string();
-}
-
-String LuaFunction::_to_string() const {
-	return String("[LuaFunction:0x%x]") % (int64_t) function.pointer();
+	return lua_object;
 }
 
 }

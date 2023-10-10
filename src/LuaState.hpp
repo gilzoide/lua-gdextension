@@ -22,15 +22,16 @@
 #ifndef __LUA_STATE_HPP__
 #define __LUA_STATE_HPP__
 
-#include "LuaTable.hpp"
 #include "utils/custom_sol.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/templates/hash_set.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
+
+class LuaTable;
 
 /**
  * Lua memory allocation callback.
@@ -38,8 +39,8 @@ namespace luagdextension {
  */
 void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 
-class LuaState : public LuaTable {
-	GDCLASS(LuaState, LuaTable);
+class LuaState : public RefCounted {
+	GDCLASS(LuaState, RefCounted);
 
 public:
 	enum Library {
@@ -98,7 +99,7 @@ public:
 
 	operator String() const;
 
-	static bool is_valid(lua_State *L);
+	static LuaState *find_lua_state(lua_State *L);
 
 protected:
 	static void _bind_methods();
@@ -108,7 +109,7 @@ protected:
 	sol::state lua_state;
 
 private:
-	static HashSet<lua_State *> valid_states;
+	static HashMap<lua_State *, LuaState *> valid_states;
 };
 
 }

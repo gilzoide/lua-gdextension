@@ -119,6 +119,10 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 	}
 }
 
+Variant to_variant(lua_State *L, int index) {
+	return to_variant(sol::stack_object(L, index));
+}
+
 sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	switch (value.get_type()) {
 		case Variant::NIL:
@@ -145,6 +149,12 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			sol::stack::push(lua_state, (StringName) value);
 			break;
 
+		case Variant::OBJECT:
+			if (LuaObject *lua_obj = Object::cast_to<LuaObject>(value)) {
+				sol::stack::push(lua_state, lua_obj->get_lua_object());
+				break;
+			}
+			// fallthrough
 		default:
 			sol::stack::push(lua_state, value);
 			break;

@@ -19,49 +19,69 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
+#ifndef __LUA_OBJECT_HPP__
+#define __LUA_OBJECT_HPP__
 
-#include "LuaObject.hpp"
+#include "LuaState.hpp"
 
-#include <gdextension_interface.h>
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <sol/sol.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaObjectSubclass<sol::thread> {
-	GDCLASS(LuaCoroutine, LuaObject);
+class LuaObject : public RefCounted {
+	GDCLASS(LuaObject, RefCounted);
 
 public:
-	enum LuaCoroutineStatus {
-		STATUS_OK = LUA_OK,
-		STATUS_YIELD = LUA_YIELD,
-		STATUS_ERRRUN = LUA_ERRRUN,
-		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
-		STATUS_ERRMEM = LUA_ERRMEM,
-		STATUS_ERRERR = LUA_ERRERR,
-		STATUS_DEAD = (int) sol::thread_status::dead,
-	};
+	virtual const sol::reference& get_lua_object() const;
+	lua_State *get_lua_state() const;
 
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
-
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
-
-	LuaCoroutineStatus get_status() const;
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
+	uint64_t get_pointer_value() const;
 
 protected:
 	static void _bind_methods();
+
+	virtual String _to_string() const;
+};
+
+
+template<class TReference>
+class LuaObjectSubclass : public LuaObject {
+public:
+	LuaObjectSubclass() {
+		throw "FIXME: LuaObjectSubclass should never be instanced with default constructor";
+	}
+	LuaObjectSubclass(TReference&& lua_object) : lua_object(lua_object) {
+		if (!lua_object.valid()) {
+			throw "FIXME: invalid reference to Lua object";
+		}
+		if (LuaState *state = LuaState::find_lua_state(get_lua_state())) {
+			lua_state = Ref(state);
+		}
+	}
+	LuaObjectSubclass(const TReference& lua_object) : lua_object(lua_object) {
+		if (!lua_object.valid()) {
+			throw "FIXME: invalid reference to Lua object";
+		}
+		if (LuaState *state = LuaState::find_lua_state(get_lua_state())) {
+			lua_state = Ref(state);
+		}
+	}
+
+	const sol::reference& get_lua_object() const {
+		return lua_object;
+	}
+
+protected:
+	TReference lua_object;
+
+private:
+	Ref<LuaState> lua_state;
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::LuaCoroutineStatus);
 
 #endif
+

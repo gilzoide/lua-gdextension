@@ -19,10 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <string_view>
-
 #include "LuaState.hpp"
+
 #include "LuaError.hpp"
+#include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
@@ -47,10 +47,9 @@ void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-LuaState::LuaState() : LuaTable(true), lua_state(sol::default_at_panic, lua_alloc) {
+LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 	setup_G_metatable(lua_state);
-	table = lua_state.globals();
-	valid_states.insert(lua_state);
+	valid_states.insert(lua_state, this);
 }
 
 LuaState::~LuaState() {
@@ -139,15 +138,20 @@ Variant LuaState::do_file(const String& filename, int buffer_size) {
 }
 
 LuaTable *LuaState::get_globals() const {
-	return memnew(LuaTable(table));
+	return memnew(LuaTable(lua_state.globals()));
 }
 
 LuaTable *LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
 }
 
-bool LuaState::is_valid(lua_State *L) {
-	return valid_states.has(L);
+LuaState *LuaState::find_lua_state(lua_State *L) {
+	if (LuaState **ptr = valid_states.getptr(L)) {
+		return *ptr;
+	}
+	else {
+		return nullptr;
+	}
 }
 
 void LuaState::_bind_methods() {
@@ -180,6 +184,10 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+
+	// Properties
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_globals");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_registry");
 }
 
 LuaState::operator String() const {
@@ -190,6 +198,6 @@ String LuaState::_to_string() const {
 	return String("[LuaState:0x%x]") % (int64_t) lua_state.lua_state();
 }
 
-HashSet<lua_State *> LuaState::valid_states;
+HashMap<lua_State *, LuaState *> LuaState::valid_states;
 
 }

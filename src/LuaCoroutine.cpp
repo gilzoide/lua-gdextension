@@ -28,14 +28,9 @@
 
 namespace luagdextension {
 
-LuaCoroutine::LuaCoroutine(sol::thread&& thread) : thread(thread) {}
-LuaCoroutine::LuaCoroutine(const sol::thread& thread) : thread(thread) {}
-
-LuaCoroutine::~LuaCoroutine() {
-#if LUA_VERSION_NUM >= 504
-	lua_closethread(thread.lua_state(), NULL);
-#endif
-}
+LuaCoroutine::LuaCoroutine() : LuaObjectSubclass() {}
+LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaObjectSubclass(thread) {}
+LuaCoroutine::LuaCoroutine(const sol::thread& thread) : LuaObjectSubclass(thread) {}
 
 LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 	sol::thread thread = sol::thread::create(function.lua_state());
@@ -49,13 +44,13 @@ LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 }
 
 LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
-	return static_cast<LuaCoroutineStatus>(thread.status());
+	return static_cast<LuaCoroutineStatus>(lua_object.status());
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	ERR_FAIL_COND_V_MSG(thread.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
 
-	lua_State *L = thread.thread_state();
+	lua_State *L = lua_object.thread_state();
 	if (arg_count > 0) {
 		for (int i = 0; i < arg_count; i++) {
 			std::ignore = to_lua(L, *args[i]);
@@ -69,9 +64,9 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	ERR_FAIL_COND_V_MSG(thread.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
 
-	lua_State *L = thread.thread_state();
+	lua_State *L = lua_object.thread_state();
 	int arg_count = args.size();
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, args[i]);
@@ -81,10 +76,6 @@ Variant LuaCoroutine::resumev(const Array& args) {
 	int status = lua_resume(L, NULL, arg_count, &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
 	return to_variant(function_result);
-}
-
-LuaCoroutine::operator String() const {
-	return _to_string();
 }
 
 void LuaCoroutine::_bind_methods() {
@@ -102,10 +93,6 @@ void LuaCoroutine::_bind_methods() {
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status"), "", "get_status");
-}
-
-String LuaCoroutine::_to_string() const {
-	return UtilityFunctions::str("[LuaCoroutine:0x", String::num_uint64((uint64_t) thread.pointer(), 16), "]");
 }
 
 }

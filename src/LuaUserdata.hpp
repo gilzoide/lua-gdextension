@@ -36,12 +36,8 @@ public:
 	LuaUserdata(sol::userdata&& userdata);
 	LuaUserdata(const sol::userdata& userdata);
 
-	operator String() const;
-
 protected:
 	static void _bind_methods();
-	
-	String _to_string() const;
 };
 
 }

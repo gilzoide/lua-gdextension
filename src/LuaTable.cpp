@@ -22,7 +22,6 @@
 
 #include "LuaTable.hpp"
 
-#include "LuaState.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/convert_godot_std.hpp"
 #include "utils/metatable.hpp"
@@ -33,54 +32,54 @@ using namespace godot;
 
 namespace luagdextension {
 
-LuaTable::LuaTable() : table() {
-	ERR_PRINT("LuaTable should never be instantiated manually!");
-}
+LuaTable::LuaTable() : LuaObjectSubclass() {}
+LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
+LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
-LuaTable::LuaTable(bool) : table() {}
-
-LuaTable::LuaTable(sol::table&& table) : table(table) {}
-
-LuaTable::LuaTable(const sol::table& table) : table(table) {}
-
-LuaTable::~LuaTable() {
-	if (table.valid() && LuaState::is_valid(table.lua_state())) {
-		table.~basic_table_core();
+Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
+	lua_State *L = get_lua_state();
+	sol::stack::push(L, lua_object);
+	std::ignore = to_lua(L, key);
+	lua_gettable(L, -2);
+	Variant value;
+	if (lua_isnoneornil(L, -1)) {
+		value = default_value;
 	}
+	else {
+		value = to_variant(L, -1);
+	}
+	lua_pop(L, 2);
+	return value;
 }
 
-Variant LuaTable::geti(int64_t index) const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
-	return to_variant(table[index].get<sol::object>());
-}
-
-void LuaTable::seti(int64_t index, const Variant& value) {
-	table[index] = to_lua(table.lua_state(), value);
+void LuaTable::set_value(const Variant& key, const Variant& value) {
+	lua_State *L = get_lua_state();
+	sol::stack::push(L, lua_object);
+	std::ignore = to_lua(L, key);
+	std::ignore = to_lua(L, value);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
 }
 
 int64_t LuaTable::size() const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), 0, "LuaTable does not have a valid table");
-	return table.size();
+	return lua_object.size();
 }
 
 Dictionary LuaTable::to_dictionary() const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), Dictionary(), "LuaTable does not have a valid table");
-	return luagdextension::to_dictionary(table);
+	return luagdextension::to_dictionary(lua_object);
 }
 
 Array LuaTable::to_array() const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), Array(), "LuaTable does not have a valid table");
-	return luagdextension::to_array(table);
+	return luagdextension::to_array(lua_object);
 }
 
 bool LuaTable::_iter_init(const Variant& iter) const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
-	lua_State *L = table.lua_state();
-	auto table_popper = sol::stack::push_pop(table);
+	lua_State *L = get_lua_state();
+	auto table_popper = sol::stack::push_pop(lua_object);
 	lua_pushnil(L);
 	if (lua_next(L, -2)) {
 		Array arg = iter;
-		arg[0] = to_variant(sol::stack_object(L, -2));
+		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
 	}
@@ -90,13 +89,12 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 }
 
 bool LuaTable::_iter_next(const Variant& iter) const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
-	lua_State *L = table.lua_state();
+	lua_State *L = get_lua_state();
 	Array arg = iter;
-	auto table_popper = sol::stack::push_pop(table);
+	auto table_popper = sol::stack::push_pop(lua_object);
 	auto key = to_lua(L, arg[0]);
 	if (lua_next(L, -2)) {
-		arg[0] = to_variant(sol::stack_object(L, -2));
+		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
 	}
@@ -106,13 +104,14 @@ bool LuaTable::_iter_next(const Variant& iter) const {
 }
 
 Variant LuaTable::_iter_get(const Variant& iter) const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), Variant(), "LuaTable does not have a valid table");
 	return iter;
 }
 
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("geti", "index"), &LuaTable::geti);
-	ClassDB::bind_method(D_METHOD("seti", "index", "value"), &LuaTable::seti);
+	ClassDB::bind_method(D_METHOD("get_value", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
+	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set_value);
 	ClassDB::bind_method(D_METHOD("size"), &LuaTable::size);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
@@ -124,34 +123,26 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
-
 	PackedByteArray bytes = property_name.to_utf8_buffer();
-	r_value = to_variant(table[to_string_view(bytes)].get<sol::object>());
+	r_value = to_variant(lua_object[to_string_view(bytes)].get<sol::object>());
 
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
-	ERR_FAIL_COND_V_EDMSG(!table.valid(), false, "LuaTable does not have a valid table");
-
 	PackedByteArray bytes = property_name.to_utf8_buffer();
-	table[to_string_view(bytes)] = to_lua(table.lua_state(), value);
+	lua_object[to_string_view(bytes)] = to_lua(get_lua_state(), value);
 
 	return true;
 }
 
-LuaTable::operator String() const {
-	return _to_string();
-}
-
 String LuaTable::_to_string() const {
-	auto tostring_result = call_metamethod(table, sol::meta_function::to_string);
+	auto tostring_result = call_metamethod(lua_object, sol::meta_function::to_string);
 	if (tostring_result.has_value()) {
 		return to_variant(tostring_result.value());
 	}
 	else {
-		return String("[LuaTable:0x%x]") % (int64_t) table.pointer();
+		return LuaObjectSubclass::_to_string();
 	}
 }
 

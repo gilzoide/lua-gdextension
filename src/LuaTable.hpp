@@ -22,26 +22,26 @@
 #ifndef __LUA_TABLE_HPP__
 #define __LUA_TABLE_HPP__
 
+#include "LuaObject.hpp"
+
 #include "utils/custom_sol.hpp"
 
-#include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaTable : public RefCounted {
-	GDCLASS(LuaTable, RefCounted);
+class LuaTable : public LuaObjectSubclass<sol::table> {
+	GDCLASS(LuaTable, LuaObject);
 
 public:
 	LuaTable();
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
-	~LuaTable();
 
-	Variant geti(int64_t index) const;
-	void seti(int64_t index, const Variant& value);
+	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
+	void set_value(const Variant& key, const Variant& value);
 	int64_t size() const;
 
 	Dictionary to_dictionary() const;
@@ -51,23 +51,13 @@ public:
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
 
-	operator String() const;
-
 protected:
-	/// Same as `LuaTable()`, but without printing any error.
-	/// This is supposed to be used by subclasses to suppress the error message.
-	LuaTable(bool);
 	static void _bind_methods();
 	
 	bool _get(const StringName& property_name, Variant& r_value) const;
 	bool _set(const StringName& property_name, const Variant& value);
-	String _to_string() const;
 
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy tables if the corresponding LuaState is still valid
-	union {
-		sol::table table;
-	};
+	String _to_string() const override;
 };
 
 }

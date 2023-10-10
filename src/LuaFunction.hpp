@@ -22,41 +22,27 @@
 #ifndef __LUA_FUNCTION_HPP__
 #define __LUA_FUNCTION_HPP__
 
-#include "utils/custom_sol.hpp"
-
-#include <godot_cpp/classes/ref_counted.hpp>
-#include <godot_cpp/variant/variant.hpp>
+#include "LuaObject.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction : public RefCounted {
-	GDCLASS(LuaFunction, RefCounted);
+class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
+	GDCLASS(LuaFunction, LuaObject);
 
 public:
 	LuaFunction();
 	LuaFunction(sol::protected_function&& function);
 	LuaFunction(const sol::protected_function& function);
-	~LuaFunction();
 
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	const sol::protected_function& get_function() const;
 
-	operator String() const;
-
 protected:
 	static void _bind_methods();
-	
-	String _to_string() const;
-
-	// Using union avoids automatic destruction
-	// This is necessary to only destroy functions if the corresponding LuaState is still valid
-	union {
-		sol::protected_function function;
-	};
 };
 
 }
