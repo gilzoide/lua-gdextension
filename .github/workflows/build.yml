@@ -48,11 +48,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
-      - name: Cache SCons files and compiled files
+      - name: Cache SCons files
         uses: actions/cache@v3
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**.{hpp,cpp}') }}
+          restore-keys: |
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ join(matrix.scons-args, ' ') }}
@@ -79,11 +81,13 @@ jobs:
       - name: Install dependencies
         run: |
           brew install scons
-      - name: Cache SCons files and compiled files
+      - name: Cache SCons files
         uses: actions/cache@v3
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**.{hpp,cpp}') }}
+          restore-keys: |
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
