@@ -74,11 +74,13 @@ public:
 		return lua_object;
 	}
 
+private:
+	// WARNING: do not move this member below `lua_object`
+	// We need to keep the LuaState alive while destroying `lua_object`
+	Ref<LuaState> lua_state;
+
 protected:
 	TReference lua_object;
-
-private:
-	Ref<LuaState> lua_state;
 };
 
 }
