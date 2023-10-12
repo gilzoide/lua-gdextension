@@ -29,6 +29,8 @@ using namespace luagdextension;
 extern "C" int luaopen_godot_enums(lua_State *L) {
 	sol::state_view state = L;
 
+#include "../generated/global_enums.hpp"
+
 	return 0;
 }
 

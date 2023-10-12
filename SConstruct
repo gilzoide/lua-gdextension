@@ -25,7 +25,10 @@ else:  # build library
 
     # Generate sources
     env.Command(
-        ["src/generated/utility_functions.hpp"],
+        [
+            "src/generated/global_enums.hpp",
+            "src/generated/utility_functions.hpp",
+        ],
         [
             "src/generate_code.py",
             "lib/godot-cpp/gdextension/extension_api.json",

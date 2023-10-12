@@ -35,6 +35,14 @@ def generate_utility_functions(utility_functions):
     return "\n".join(lines)
 
 
+def generate_enums(global_enums):
+    lines = []
+    for enum in global_enums:
+        lines.append(f"// {enum['name']}")
+        for value in enum["values"]:
+            lines.append(f"""state.set("{value['name']}", {value['value']});""")
+    return "\n".join(lines)
+
 
 def main():
     with open(API_JSON_PATH) as f:
@@ -42,6 +50,10 @@ def main():
 
     with open(path.join(DEST_DIR, "utility_functions.hpp"), "w") as f:
         code = generate_utility_functions(api["utility_functions"])
+        f.write(code)
+
+    with open(path.join(DEST_DIR, "global_enums.hpp"), "w") as f:
+        code = generate_enums(api["global_enums"])
         f.write(code)
 
 
