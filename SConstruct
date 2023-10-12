@@ -26,8 +26,12 @@ else:  # build library
     # Generate sources
     env.Command(
         ["src/generated/utility_functions.hpp"],
-        ["src/generate_code.py", "lib/godot-cpp/gdextension/extension_api.json"],
-        "python $SOURCES"
+        [
+            "src/generate_code.py",
+            "lib/godot-cpp/gdextension/extension_api.json",
+            "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
+        ],
+        "python $SOURCE"
     )
 
     # Compile with debugging symbols
