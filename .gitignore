@@ -17,6 +17,7 @@ build/*
 *.framework
 compile_commands.json
 addons/lua-gdextension/LICENSE
+src/generated/
 
 # Test project files
 .godot/

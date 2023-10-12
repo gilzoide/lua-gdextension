@@ -23,6 +23,13 @@ else:  # build library
     compiledb = env.CompilationDatabase("compile_commands.json")
     env.Alias("compiledb", compiledb)
 
+    # Generate sources
+    env.Command(
+        ["src/generated/utility_functions.hpp"],
+        ["src/generate_code.py", "lib/godot-cpp/gdextension/extension_api.json"],
+        "python $SOURCES"
+    )
+
     # Compile with debugging symbols
     if ARGUMENTS.get("debugging_symbols") == 'true':
         if "-O2" in env["CCFLAGS"]:
