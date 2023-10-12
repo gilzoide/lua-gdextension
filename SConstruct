@@ -24,6 +24,7 @@ else:  # build library
     env.Alias("compiledb", compiledb)
 
     # Generate sources
+    python_bin = os.getenv("PYTHON_BIN", "python")
     env.Command(
         [
             "src/generated/global_enums.hpp",
@@ -34,7 +35,7 @@ else:  # build library
             "lib/godot-cpp/gdextension/extension_api.json",
             "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
         ],
-        "python $SOURCE"
+        action=python_bin + " $SOURCE",
     )
 
     # Compile with debugging symbols

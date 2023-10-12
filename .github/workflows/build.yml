@@ -91,6 +91,8 @@ jobs:
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+        env:
+          PYTHON_BIN: python3
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
