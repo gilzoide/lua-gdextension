@@ -24,14 +24,14 @@ def generate_utility_functions(utility_functions):
             # not mentioned in the header
             continue
         if f.get("is_vararg", False):
-            lines.append(f"""state.set("{name}", wrap_function(&UtilityFunctions::{name}_internal));""")
+            lines.append(f'state.set("{name}", wrap_function(&UtilityFunctions::{name}_internal));')
         elif (
             f.get("return_type") not in PRIMITIVE_VARIANTS
             or any(arg["type"] not in PRIMITIVE_VARIANTS for arg in f.get("arguments", []))
         ):
-            lines.append(f"""state.set("{name}", wrap_function(&UtilityFunctions::{name}));""")
+            lines.append(f'state.set("{name}", wrap_function(&UtilityFunctions::{name}));')
         else:
-            lines.append(f"""state.set("{name}", &UtilityFunctions::{name});""")
+            lines.append(f'state.set("{name}", &UtilityFunctions::{name});')
     return "\n".join(lines)
 
 
@@ -40,7 +40,7 @@ def generate_enums(global_enums):
     for enum in global_enums:
         lines.append(f"// {enum['name']}")
         for value in enum["values"]:
-            lines.append(f"""state.set("{value['name']}", {value['value']});""")
+            lines.append(f'state.set("{value["name"]}", {value["value"]});')
     return "\n".join(lines)
 
 
