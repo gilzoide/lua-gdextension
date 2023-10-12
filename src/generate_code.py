@@ -14,7 +14,9 @@ PRIMITIVE_VARIANTS = [
 
 
 def generate_utility_functions(utility_functions):
-    lines = []
+    lines = [
+        "#undef register_utility_functions\n#define register_utility_functions(state)"
+    ]
     with open(GODOT_CPP_UTILITY_FUNCTIONS) as f:
         godot_cpp_utility_functions = f.read()
     for f in utility_functions:
@@ -24,24 +26,26 @@ def generate_utility_functions(utility_functions):
             # not mentioned in the header
             continue
         if f.get("is_vararg", False):
-            lines.append(f'state.set("{name}", wrap_function(&UtilityFunctions::{name}_internal));')
+            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{name}_internal));')
         elif (
             f.get("return_type") not in PRIMITIVE_VARIANTS
             or any(arg["type"] not in PRIMITIVE_VARIANTS for arg in f.get("arguments", []))
         ):
-            lines.append(f'state.set("{name}", wrap_function(&UtilityFunctions::{name}));')
+            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{name}));')
         else:
-            lines.append(f'state.set("{name}", &UtilityFunctions::{name});')
-    return "\n".join(lines)
+            lines.append(f'\tstate.set("{name}", &UtilityFunctions::{name});')
+    return " \\\n".join(lines) + "\n"
 
 
 def generate_enums(global_enums):
-    lines = []
+    lines = [
+        "#undef register_global_enums\n#define register_global_enums(state)"
+    ]
     for enum in global_enums:
-        lines.append(f"// {enum['name']}")
+        lines.append(f"\t/* {enum['name']} */")
         for value in enum["values"]:
-            lines.append(f'state.set("{value["name"]}", {value["value"]});')
-    return "\n".join(lines)
+            lines.append(f'\tstate.set("{value["name"]}", {value["value"]});')
+    return " \\\n".join(lines) + "\n"
 
 
 def main():

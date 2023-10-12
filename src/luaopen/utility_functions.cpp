@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+#include "../generated/utility_functions.hpp"
 #include "../utils/function_wrapper.hpp"
 
 // We can't call variadic templates at runtime, so we need access
@@ -35,7 +35,7 @@ using namespace luagdextension;
 extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
 
-#include "../generated/utility_functions.hpp"
+	register_utility_functions(state);
 
 	return 0;
 }

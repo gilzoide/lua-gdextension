@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
+#include "../generated/global_enums.hpp"
 #include "../utils/module_names.hpp"
 
 #include <sol/sol.hpp>
@@ -29,7 +29,7 @@ using namespace luagdextension;
 extern "C" int luaopen_godot_enums(lua_State *L) {
 	sol::state_view state = L;
 
-#include "../generated/global_enums.hpp"
+	register_global_enums(state);
 
 	return 0;
 }
