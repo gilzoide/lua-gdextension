@@ -79,7 +79,7 @@ sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stac
 	return to_lua(state, result);
 }
 
-sol::stack_object variant_index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
+sol::stack_object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
 	bool is_valid;
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
@@ -96,7 +96,7 @@ sol::stack_object variant_index(sol::this_state state, const Variant& variant, c
 	return to_lua(state, result);
 }
 
-void variant_newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
+void variant__newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
 	bool is_valid;
 	Variant var_key = to_variant(key);
 	Variant var_value = to_variant(value);
@@ -113,15 +113,15 @@ void variant_newindex(sol::this_state state, Variant& variant, const sol::stack_
 	}
 }
 
-sol::stack_object variant_length(sol::this_state state, Variant& variant) {
+sol::stack_object variant__length(sol::this_state state, Variant& variant) {
 	return variant_call_string_name(state, variant, "size", sol::variadic_args(state, 0));
 }
 
-String variant_concat(const sol::stack_object& a, const sol::stack_object& b) {
+String variant__concat(const sol::stack_object& a, const sol::stack_object& b) {
 	return String(to_variant(a)) + String(to_variant(b));
 }
 
-std::tuple<sol::object, sol::object> variant_pairs(sol::this_state state, const Variant& variant) {
+std::tuple<sol::object, sol::object> variant__pairs(sol::this_state state, const Variant& variant) {
 	if (variant.get_type() == Variant::DICTIONARY) {
 		return DictionaryIterator::dictionary_pairs(state, variant);
 	}
@@ -158,6 +158,16 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 		return obj->is_class(type.as<Class>().get_name());
 	}
 	return false;
+}
+
+sol::stack_object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
+	if (variant.get_type() != Variant::CALLABLE) {
+		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
+	}
+	Callable callable = variant;
+	VariantArguments var_args = args;
+	Variant result = callable.callv(var_args.get_array());
+	return to_lua(state, result);
 }
 
 }
@@ -208,11 +218,12 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::bitwise_xor, &evaluate_binary_operator<Variant::OP_BIT_XOR>,
 		sol::meta_function::bitwise_not, &evaluate_unary_operator<Variant::OP_BIT_NEGATE>,
 		// misc
-		sol::meta_function::index, &variant_index,
-		sol::meta_function::new_index, &variant_newindex,
-		sol::meta_function::length, &variant_length,
-		sol::meta_function::concatenation, &variant_concat,
-		sol::meta_function::pairs, &variant_pairs,
+		sol::meta_function::call, &variant__call,
+		sol::meta_function::index, &variant__index,
+		sol::meta_function::new_index, &variant__newindex,
+		sol::meta_function::length, &variant__length,
+		sol::meta_function::concatenation, &variant__concat,
+		sol::meta_function::pairs, &variant__pairs,
 		sol::meta_function::to_string, &Variant::operator String
 	);
 

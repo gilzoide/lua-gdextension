@@ -207,7 +207,7 @@ sol::stack_object variant_static_call_string_name(sol::this_state state, Variant
 	Variant::call_static(type, method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error != GDEXTENSION_CALL_OK) {
 		String message = String("Invalid static call to method '{0}' in type {1}").format(Array::make(method, Variant::get_type_name(type)));
-		lua_error(args.lua_state(), error, message);
+		lua_error(state, error, message);
 	}
 	return to_lua(state, result);
 }
@@ -219,7 +219,7 @@ sol::stack_object variant_call_string_name(sol::this_state state, Variant& varia
 	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error != GDEXTENSION_CALL_OK) {
 		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
-		lua_error(args.lua_state(), error, message);
+		lua_error(state, error, message);
 	}
 	return to_lua(state, result);
 }

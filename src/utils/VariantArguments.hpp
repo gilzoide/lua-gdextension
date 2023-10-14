@@ -35,7 +35,7 @@ namespace luagdextension {
  * Convert between sol::variadic_args to Variant argc/argv.
  */
 class VariantArguments {
-	Vector<Variant> variants;
+	Array variants;
 	Vector<const Variant *> variant_pointers;
 
 public:
@@ -44,6 +44,7 @@ public:
 	int argc() const;
 	const Variant **argv();
 	const Variant *const *argv() const;
+	const Array& get_array() const;
 };
 
 }

@@ -10,6 +10,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
   var lua = LuaState.new()
   lua.open_libraries()  # this imports Lua and Godot APIs to the state
   
+  # Run Lua code using `LuaState.do_string` or `LuaState.do_file`
   var result = lua.do_string("""
     local vector = Vector2(1, 2)
     return {
@@ -17,13 +18,20 @@ Godot 4.1.2+ native extension for using the Lua programming language.
       vector = vector,
     }
   """)
+  # When error ocurrs in Lua code, it returns an instance of `LuaError`
   if result is LuaError:
-      printerr("Error: ", result)
+      printerr("Error in Lua code: ", result)
   else:
       print(result)  # [LuaTable:0x556069ee50ab]
       print(result["this_is_a_table"])  # true
       print(result["vector"])  # (1, 2)
       print(result["invalid key"])  # <null>
+
+  # Access the global _G table via `LuaState.globals` property
+  lua.globals["a_godot_callable"] = func(): print("Hello from GDScript!")
+  lua.do_string("""
+      a_godot_callable()  -- 'Hello from GDScript!'
+  """)
   ```
 - Bindings for all Variant types and classes.
   Methods are dispatched dynamically at runtime, so that all classes are supported, even those registered at runtime like ones implemented via GDExtension.
@@ -84,6 +92,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
 
 
 ## TODO
+- [X] Bind Variant types to Lua
 - [X] Bind utility functions to Lua
 - [X] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
