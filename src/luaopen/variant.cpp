@@ -161,7 +161,11 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 }
 
 sol::stack_object variant__call(sol::this_state L, const Variant& variant, sol::variadic_args args) {
-	ERR_FAIL_COND_V_MSG(variant.get_type() != Variant::CALLABLE, to_lua(L, Variant()), "Variant must be a Callable to be called.");
+	ERR_FAIL_COND_V_MSG(
+		variant.get_type() != Variant::CALLABLE,
+		to_lua(L, Variant()),
+		String("attempt to call a %s value") % get_type_name(variant)
+	);
 	VariantArguments var_args = args;
 	Callable callable = variant;
 	Variant result = callable.callv(var_args.get_array());
