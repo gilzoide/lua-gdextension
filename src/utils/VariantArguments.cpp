@@ -30,7 +30,7 @@ VariantArguments::VariantArguments(const sol::variadic_args& args) {
 		variants.append(to_variant(it));
 	}
 	for (int i = 0; i < variants.size(); i++) {
-		variant_pointers.append(variants.ptr() + i);
+		variant_pointers.append(&variants[i]);
 	}
 }
 
@@ -43,6 +43,10 @@ const Variant **VariantArguments::argv() {
 }
 const Variant *const *VariantArguments::argv() const {
 	return variant_pointers.ptr();
+}
+
+const Array& VariantArguments::get_array() const {
+	return variants;
 }
 
 }
