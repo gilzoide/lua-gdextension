@@ -1,7 +1,7 @@
 # Lua GDExtension
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
-Godot 4.1.2+ native extension for using the Lua programming language.
+Extension for using the Lua programming language in Godot 4.1.2+
 
 
 ## Features
