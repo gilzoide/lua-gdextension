@@ -57,11 +57,7 @@ LuaState::~LuaState() {
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
-	if (libraries == 0) {
-		libraries = LUA | GODOT;
-	}
-
-	if ((libraries & LUA) == LUA) {
+	if ((libraries & LUA_ALL_LIBS) == LUA_ALL_LIBS) {
 		lua_state.open_libraries();
 	}
 	else {
@@ -106,7 +102,7 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		}
 	}
 
-	if ((libraries & GODOT) == GODOT) {
+	if ((libraries & GODOT_ALL_LIBS) == GODOT_ALL_LIBS) {
 		lua_state.require(module_names::godot, &luaopen_godot, false);
 	}
 	else {
@@ -172,17 +168,17 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA_FFI);
 	BIND_BITFIELD_FLAG(LUA_JIT);
 	BIND_BITFIELD_FLAG(LUA_UTF8);
-	BIND_BITFIELD_FLAG(LUA);
+	BIND_BITFIELD_FLAG(LUA_ALL_LIBS);
 
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
 	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
 	BIND_BITFIELD_FLAG(GODOT_CLASSES);
 	BIND_BITFIELD_FLAG(GODOT_ENUMS);
-	BIND_BITFIELD_FLAG(GODOT);
+	BIND_BITFIELD_FLAG(GODOT_ALL_LIBS);
 
 	// Methods
-	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA | GODOT)));
+	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA_ALL_LIBS | GODOT_ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
