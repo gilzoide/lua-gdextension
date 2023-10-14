@@ -160,16 +160,14 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 	return false;
 }
 
-sol::stack_object variant__call(sol::this_state L, const Variant& variant, sol::variadic_args args) {
-	ERR_FAIL_COND_V_MSG(
-		variant.get_type() != Variant::CALLABLE,
-		to_lua(L, Variant()),
-		String("attempt to call a %s value") % get_type_name(variant)
-	);
-	VariantArguments var_args = args;
+sol::stack_object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
+	if (variant.get_type() != Variant::CALLABLE) {
+		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
+	}
 	Callable callable = variant;
+	VariantArguments var_args = args;
 	Variant result = callable.callv(var_args.get_array());
-	return to_lua(L, result);
+	return to_lua(state, result);
 }
 
 }
