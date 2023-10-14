@@ -70,7 +70,7 @@ public:
 		}
 	}
 
-	const sol::reference& get_lua_object() const {
+	const sol::reference& get_lua_object() const override {
 		return lua_object;
 	}
 

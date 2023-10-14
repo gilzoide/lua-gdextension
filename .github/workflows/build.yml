@@ -52,9 +52,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**.{hpp,cpp}') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ join(matrix.scons-args, ' ') }}
@@ -85,12 +85,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**.{hpp,cpp}') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+        env:
+          PYTHON_BIN: python3
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:

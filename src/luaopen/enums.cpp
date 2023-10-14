@@ -19,20 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#include "../generated/global_enums.hpp"
+#include "../utils/module_names.hpp"
 
-struct lua_State;
+#include <sol/sol.hpp>
 
-extern "C" {
+using namespace luagdextension;
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
-int luaopen_godot_classes(lua_State *L);
-int luaopen_godot_enums(lua_State *L);
+extern "C" int luaopen_godot_enums(lua_State *L) {
+	sol::state_view state = L;
 
+	register_global_enums(state);
+
+	return 0;
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
