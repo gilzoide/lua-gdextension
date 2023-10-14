@@ -30,7 +30,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
   # Access the global _G table via `LuaState.globals` property
   lua.globals["a_godot_callable"] = func(): print("Hello from GDScript!")
   lua.do_string("""
-      a_godot_callable()  -- "Hello from GDScript!"
+      a_godot_callable()  -- 'Hello from GDScript!'
   """)
   ```
 - Bindings for all Variant types and classes.
