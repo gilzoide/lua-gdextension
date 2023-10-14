@@ -35,7 +35,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
   print(n:is_inside_tree())  -- false
   n:queue_free()
   ```
-- Array/Dictionary constructors accepting table arguments
+- Additional Array/Dictionary constructors accepting table arguments
   ```lua
   local array = Array{ "value 0", "value 1" }
   -- Godot Arrays are indexed from 0, instead of 1
@@ -60,7 +60,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
   local array = Array{ 1, 2, 3, 4 }
   print(#array)  -- 4
   ```
-- Runtime type check using the `is` method.
+- Runtime type check for Variants using the `is` method.
   ```lua
   local array = Array()
   print(array:is(Array))  -- true
@@ -85,7 +85,7 @@ Godot 4.1.2+ native extension for using the Lua programming language.
 
 ## TODO
 - [X] Bind utility functions to Lua
-- [ ] Bind enums and constants to Lua
+- [X] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
 - [ ] Submit to Asset Library
