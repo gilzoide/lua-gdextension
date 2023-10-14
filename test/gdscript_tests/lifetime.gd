@@ -10,5 +10,5 @@ func _init():
 
 
 func test_table() -> bool:
-	assert(table.size() == 0)
+	assert(table.length() == 0)
 	return true

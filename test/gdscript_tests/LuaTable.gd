@@ -33,7 +33,7 @@ func test_get_value() -> bool:
 		return t
 	""")
 	assert(table is LuaTable)
-	for i in range(1, table.size() + 1):
+	for i in range(1, table.length() + 1):
 		assert(table.get(i) == i)
 	assert(table.get("hello") == "world")
 	assert(table.get("invalid") == null)
@@ -49,5 +49,5 @@ func test_set_value() -> bool:
 	table.set(2, 2)
 	table.set(3, 3)
 	table.set(4, 4)
-	assert(table.size() == 4)
+	assert(table.length() == 4)
 	return true

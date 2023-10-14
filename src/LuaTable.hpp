@@ -42,7 +42,7 @@ public:
 
 	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
 	void set_value(const Variant& key, const Variant& value);
-	int64_t size() const;
+	int64_t length() const;
 
 	Dictionary to_dictionary() const;
 	Array to_array() const;
