@@ -1,7 +1,7 @@
 # Lua GDExtension
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
-<img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="128" height="128"/>
+<img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
 
 Extension for using the Lua programming language in Godot 4.1.2+
 
