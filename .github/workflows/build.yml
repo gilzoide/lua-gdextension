@@ -141,8 +141,8 @@ jobs:
         run: |
           make test
 
-  build_distribution_zip:
-    name: Build distribution zip
+  distribute_zip:
+    name: Distribute zip
     needs: [build_linux, build_macos]
     runs-on: ubuntu-latest
     steps:
