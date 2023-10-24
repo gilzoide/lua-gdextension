@@ -163,13 +163,4 @@ jobs:
             addons/lua-gdextension/LICENSE
             addons/lua-gdextension/*.gdextension
             addons/lua-gdextension/build/libluagdextension*
-      - name: Release tag
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            LICENSE
-            addons/lua-gdextension/LICENSE
-            addons/lua-gdextension/*.gdextension
-            addons/lua-gdextension/build/libluagdextension*
 
