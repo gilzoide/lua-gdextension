@@ -43,7 +43,7 @@ public:
 	const StringName& get_name() const;
 	sol::optional<int64_t> get_constant(const StringName& name) const;
 
-	Variant construct(const sol::variadic_args& args) const;
+	Variant construct(sol::this_state state, const sol::variadic_args& args) const;
 
 	bool operator==(const Class& other) const;
 

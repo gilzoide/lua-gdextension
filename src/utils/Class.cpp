@@ -45,13 +45,21 @@ sol::optional<int64_t> Class::get_constant(const StringName& name) const {
 	}
 }
 
-Variant Class::construct(const sol::variadic_args& args) const {
-	GDExtensionObjectPtr obj_ptr = godot::internal::gdextension_interface_classdb_construct_object(class_name._native_ptr());
-	Object *obj = godot::internal::get_object_instance_binding(obj_ptr);
-	if (obj->has_method("_init")) {
-		obj->callv("_init", to_array(args));
+Variant Class::construct(sol::this_state state, const sol::variadic_args& args) const {
+	auto class_db = ClassDBSingleton::get_singleton();
+	if (!class_db->can_instantiate(class_name)) {
+		luaL_error(
+			state,
+			"Class '%s' or its base class cannot be instantiated",
+			String(class_name).ascii().get_data()
+		);
 	}
-	return obj;
+	
+	Variant new_obj = class_db->instantiate(class_name);
+	if (new_obj.has_method("_init")) {
+		variant_call_string_name(state, new_obj, "_init", args);
+	}
+	return new_obj;
 }
 
 bool Class::operator==(const Class& other) const {
