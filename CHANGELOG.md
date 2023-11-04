@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/929f8f3971764c42cac641988e93ce6ce5be9452...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.1.0...HEAD)
+
+
+## [0.1.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.1.0)
 ### Added
 - `LuaState` class for holding a Lua state and interacting with it.
   You may create as many instances as you want, each one representing an independent Lua state.
