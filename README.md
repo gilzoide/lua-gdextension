@@ -17,7 +17,7 @@ Extension for using the Lua programming language in Godot 4.1.2+
     + Access singleton objects by name
     + Utility classes, like `print`, `lerp` and `is_same`
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
-    + (TODO) Patch Lua `package.path` and `package.cpath` to accept paths relative to `res://` and `user://`
+    + (TODO) Patch Lua `package.searchers` to accept paths relative to `res://` and `user://`
 - (TODO) Create Godot scripts directly in Lua
 
 
@@ -133,6 +133,7 @@ lua.do_string("""
 - [X] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
+- [ ] Add support for `res://` relative paths in `require`
 - [ ] Submit to Asset Library
 - [ ] Lua ScriptLanguageExtension
 - [ ] Support for building with LuaJIT
