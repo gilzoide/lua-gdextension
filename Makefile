@@ -19,6 +19,12 @@ define UPDATE_CHANGELOG_VERSION_SED_SCRIPT
 }
 endef
 
+define UPDATE_README_VERSION_SED_SCRIPT
+/logo=godotengine/ {
+  s/message=[^)]*/message=$(VERSION)/
+}
+endef
+
 $(ADDONS_DIR)/%: %
 	cp $< $@
 
@@ -31,6 +37,10 @@ build/lua-gdextension.zip: $(ADDONS_SRC) $(addprefix $(ADDONS_DIR)/,$(COPIED_FIL
 build/update_changelog_version.sed:
 	@if [[ -z "$(VERSION)" ]]; then echo "Error: please set the VERSION variable"; false; fi
 	$(file > $@,$(UPDATE_CHANGELOG_VERSION_SED_SCRIPT))
+
+build/update_readme_version.sed:
+	@if [[ -z "$(VERSION)" ]]; then echo "Error: please set the VERSION variable"; false; fi
+	$(file > $@,$(UPDATE_README_VERSION_SED_SCRIPT))
 
 
 test/.godot:
@@ -49,5 +59,6 @@ download-latest-build:
 	cp $(TMPDIR)/addons/lua-gdextension/build/libluagdextension* addons/lua-gdextension/build
 	$(RM) -r $(TMPDIR)
 
-bump-version: build/update_changelog_version.sed
-	sed -i CHANGELOG.md -f $<
+bump-version: build/update_changelog_version.sed build/update_readme_version.sed
+	sed -i CHANGELOG.md -f build/update_changelog_version.sed
+	sed -i README.md -f build/update_readme_version.sed
