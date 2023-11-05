@@ -119,6 +119,15 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 	}
 }
 
+Variant to_variant(const sol::load_result& load_result) {
+	if (!load_result.valid()) {
+		return memnew(LuaError(load_result));
+	}
+	else {
+		return memnew(LuaFunction(load_result.get<sol::protected_function>()));
+	}
+}
+
 Variant to_variant(lua_State *L, int index) {
 	return to_variant(sol::stack_object(L, index));
 }
@@ -276,6 +285,23 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 	reader_data.file = file.ptr();
 	reader_data.buffer_size = buffer_size;
 	return to_variant(lua_state.safe_script((lua_Reader) file_reader, (void *) &reader_data, sol::script_pass_on_error, to_std_string(filename)));
+}
+
+Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname) {
+	PackedByteArray bytes = chunk.to_utf8_buffer();
+	return to_variant(lua_state.load(to_string_view(bytes), to_std_string(chunkname)));
+}
+
+Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size) {
+	auto file = FileAccess::open(filename, godot::FileAccess::READ);
+	if (file == nullptr) {
+		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + UtilityFunctions::error_string(FileAccess::get_open_error())) % filename));
+	}
+
+	FileReaderData reader_data;
+	reader_data.file = file.ptr();
+	reader_data.buffer_size = buffer_size;
+	return to_variant(lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(filename)));
 }
 
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {
