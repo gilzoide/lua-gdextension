@@ -27,9 +27,12 @@
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
 #include "LuaUserdata.hpp"
+#include "script-language/LuaScriptExtension.hpp"
+#include "script-language/LuaScriptLanguageExtension.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/classes/engine.hpp>
 
 using namespace godot;
 using namespace luagdextension;
@@ -39,6 +42,7 @@ static void initialize(ModuleInitializationLevel level) {
 		return;
 	}
 
+	// Lua object wrappers
 	ClassDB::register_abstract_class<LuaObject>();
 
 	ClassDB::register_abstract_class<LuaCoroutine>();
@@ -47,8 +51,23 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_abstract_class<LuaTable>();
 	ClassDB::register_abstract_class<LuaUserdata>();
 
+	// Godot classes for interacting with Lua States
 	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
+
+	// Lua Script Language
+	ClassDB::register_abstract_class<LuaScriptExtension>();
+	ClassDB::register_abstract_class<LuaScriptLanguageExtension>();
+	LuaScriptLanguageExtension::get_or_create_singleton();
+}
+
+static void deinitialize(ModuleInitializationLevel level) {
+	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+		return;
+	}
+
+	// Lua Script Language
+	LuaScriptLanguageExtension::delete_singleton();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(
@@ -59,6 +78,7 @@ extern "C" GDExtensionBool luagdextension_entrypoint(
 	GDExtensionBinding::InitObject init_obj(p_getprocaccess, p_library, r_initialization);
 
 	init_obj.register_initializer(&initialize);
+	init_obj.register_terminator(&deinitialize);
 	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
 
 	return init_obj.init();

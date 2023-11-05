@@ -62,7 +62,7 @@ build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
 VariantDir(build_dir, 'src', duplicate=False)
 
 # Build Lua GDExtension
-source_directories = [".", "luaopen", "utils"]
+source_directories = [".", "luaopen", "utils", "script-language"]
 sources = [
     Glob("{}/{}/*.cpp".format(build_dir, directory))
     for directory in source_directories

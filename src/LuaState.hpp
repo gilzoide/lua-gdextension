@@ -89,7 +89,7 @@ public:
 	LuaState();
 	~LuaState();
 
-	void open_libraries(BitField<Library> libraries);
+	void open_libraries(BitField<Library> libraries = LUA_ALL_LIBS | GODOT_ALL_LIBS);
 
 	LuaTable *create_table(const Dictionary& initial_values = {});
 	Variant load_string(const String& chunk, const String& chunkname = "");
