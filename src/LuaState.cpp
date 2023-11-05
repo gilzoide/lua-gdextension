@@ -132,6 +132,10 @@ Variant LuaState::load_string(const String& chunk, const String& chunkname) {
 	return ::luagdextension::load_string(lua_state, chunk, chunkname);
 }
 
+Variant LuaState::load_file(const String& filename, int buffer_size) {
+	return ::luagdextension::load_file(lua_state, filename);
+}
+
 Variant LuaState::do_string(const String& chunk, const String& chunkname) {
 	return ::luagdextension::do_string(lua_state, chunk, chunkname);
 }
@@ -185,6 +189,7 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA_ALL_LIBS | GODOT_ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname"), &LuaState::load_string, DEFVAL(""));
+	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size"), &LuaState::load_file, DEFVAL(1024));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);

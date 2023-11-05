@@ -292,6 +292,18 @@ Variant load_string(sol::state_view& lua_state, const String& chunk, const Strin
 	return to_variant(lua_state.load(to_string_view(bytes), to_std_string(chunkname)));
 }
 
+Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size) {
+	auto file = FileAccess::open(filename, godot::FileAccess::READ);
+	if (file == nullptr) {
+		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + UtilityFunctions::error_string(FileAccess::get_open_error())) % filename));
+	}
+
+	FileReaderData reader_data;
+	reader_data.file = file.ptr();
+	reader_data.buffer_size = buffer_size;
+	return to_variant(lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(filename)));
+}
+
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {
 	CharString prefix = prefix_message.ascii();
 	CharString error_str = to_string(call_error).ascii();
