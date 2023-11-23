@@ -89,6 +89,8 @@ public:
 	/* bool _handles_global_class_type(const String &type) const override; */
 	/* Dictionary _get_global_class_name(const String &path) const override; */
 
+	LuaState *get_lua_state();
+
 	static LuaScriptLanguageExtension *get_singleton();
 	static LuaScriptLanguageExtension *get_or_create_singleton();
 	static void delete_singleton();

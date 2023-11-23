@@ -46,12 +46,12 @@ public:
 	bool _has_source_code() const override;
 	String _get_source_code() const override;
 	void _set_source_code(const String &code) override;
-	/* Error _reload(bool keep_state) override; */
+	Error _reload(bool keep_state) override;
 	/* TypedArray<Dictionary> _get_documentation() const override; */
 	/* bool _has_method(const StringName &method) const override; */
 	/* Dictionary _get_method_info(const StringName &method) const override; */
 	/* bool _is_tool() const override; */
-	/* bool _is_valid() const override; */
+	bool _is_valid() const override;
 	ScriptLanguage *_get_language() const override;
 	/* bool _has_script_signal(const StringName &signal) const override; */
 	/* TypedArray<Dictionary> _get_script_signal_list() const override; */
@@ -70,6 +70,7 @@ protected:
 	static void _bind_methods();
 
 	String source_code;
+	Variant loaded_class;
 };
 
 }

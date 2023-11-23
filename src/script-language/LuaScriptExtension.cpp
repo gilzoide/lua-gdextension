@@ -22,6 +22,10 @@
 #include "LuaScriptExtension.hpp"
 
 #include "LuaScriptLanguageExtension.hpp"
+#include "../LuaError.hpp"
+#include "../LuaState.hpp"
+
+#include "godot_cpp/classes/global_constants.hpp"
 
 namespace luagdextension {
 
@@ -35,6 +39,32 @@ String LuaScriptExtension::_get_source_code() const {
 
 void LuaScriptExtension::_set_source_code(const String &code) {
 	source_code = code;
+}
+
+Error LuaScriptExtension::_reload(bool keep_state) {
+	Variant result = LuaScriptLanguageExtension::get_singleton()->get_lua_state()->do_string(source_code);
+	if (LuaError *error = Object::cast_to<LuaError>(result)) {
+		loaded_class.clear();
+		switch (error->get_status()) {
+			case LuaError::MEMORY:
+			case LuaError::GC:
+				return ERR_OUT_OF_MEMORY;
+
+			case LuaError::SYNTAX:
+				return ERR_PARSE_ERROR;
+
+			default:
+				return ERR_SCRIPT_FAILED;
+		}
+	}
+	else {
+		loaded_class = result;
+		return OK;
+	}
+}
+
+bool LuaScriptExtension::_is_valid() const {
+	return loaded_class;
 }
 
 ScriptLanguage *LuaScriptExtension::_get_language() const {

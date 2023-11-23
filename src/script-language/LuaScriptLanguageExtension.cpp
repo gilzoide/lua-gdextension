@@ -132,6 +132,10 @@ PackedStringArray LuaScriptLanguageExtension::_get_recognized_extensions() const
 void LuaScriptLanguageExtension::_frame() {
 }
 
+LuaState *LuaScriptLanguageExtension::get_lua_state() {
+	return lua_state;
+}
+
 LuaScriptLanguageExtension *LuaScriptLanguageExtension::get_singleton() {
 	return instance;
 }
