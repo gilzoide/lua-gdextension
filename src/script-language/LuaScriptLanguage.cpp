@@ -19,38 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaScriptLanguageExtension.hpp"
+#include "LuaScriptLanguage.hpp"
 
-#include "LuaScriptExtension.hpp"
+#include "LuaScript.hpp"
 #include "../LuaState.hpp"
+#include "godot_cpp/variant/dictionary.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 
 namespace luagdextension {
 
-String LuaScriptLanguageExtension::_get_name() const {
+String LuaScriptLanguage::_get_name() const {
 	return "Lua";
 }
 
-void LuaScriptLanguageExtension::_init() {
+void LuaScriptLanguage::_init() {
 	lua_state = memnew(LuaState);
 	lua_state->open_libraries();
 }
 
-String LuaScriptLanguageExtension::_get_type() const {
+String LuaScriptLanguage::_get_type() const {
 	return "Lua";
 }
 
-String LuaScriptLanguageExtension::_get_extension() const {
+String LuaScriptLanguage::_get_extension() const {
 	return "lua";
 }
 
-void LuaScriptLanguageExtension::_finish() {
+void LuaScriptLanguage::_finish() {
 	memdelete(lua_state);
 }
 
-PackedStringArray LuaScriptLanguageExtension::_get_reserved_words() const {
+PackedStringArray LuaScriptLanguage::_get_reserved_words() const {
 	return godot::helpers::append_all(PackedStringArray(),
 		// Lua keywords
 		"and", "break", "do", "else", "elseif", "end",
@@ -65,7 +66,7 @@ PackedStringArray LuaScriptLanguageExtension::_get_reserved_words() const {
 	);
 }
 
-bool LuaScriptLanguageExtension::_is_control_flow_keyword(const String &keyword) const {
+bool LuaScriptLanguage::_is_control_flow_keyword(const String &keyword) const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"break", "do", "else", "elseif", "end",
 		"for", "goto", "if", "in",
@@ -74,20 +75,20 @@ bool LuaScriptLanguageExtension::_is_control_flow_keyword(const String &keyword)
 	).has(keyword);
 }
 
-PackedStringArray LuaScriptLanguageExtension::_get_comment_delimiters() const {
+PackedStringArray LuaScriptLanguage::_get_comment_delimiters() const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"--", "--[[ ]]"
 	);
 }
 
-PackedStringArray LuaScriptLanguageExtension::_get_string_delimiters() const {
+PackedStringArray LuaScriptLanguage::_get_string_delimiters() const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"' '", "\" \"", "[[ ]]", "[=[ ]=]"
 	);
 }
 
-Ref<Script> LuaScriptLanguageExtension::_make_template(const String &_template, const String &class_name, const String &base_class_name) const {
-	Ref<LuaScriptExtension> script = memnew(LuaScriptExtension);
+Ref<Script> LuaScriptLanguage::_make_template(const String &_template, const String &class_name, const String &base_class_name) const {
+	Ref<LuaScript> script = memnew(LuaScript);
 	String source_code = _template.replace("_BASE_", base_class_name)
 		.replace("_CLASS_", class_name)
 		.replace("_TS_", "\t");
@@ -95,60 +96,80 @@ Ref<Script> LuaScriptLanguageExtension::_make_template(const String &_template, 
 	return script;
 }
 
-bool LuaScriptLanguageExtension::_is_using_templates() {
+bool LuaScriptLanguage::_is_using_templates() {
 	return false;
 }
 
-String LuaScriptLanguageExtension::_validate_path(const String &path) const {
+String LuaScriptLanguage::_validate_path(const String &path) const {
 	return "";
 }
 
-bool LuaScriptLanguageExtension::_has_named_classes() const {
+bool LuaScriptLanguage::_has_named_classes() const {
 	return false;
 }
 
-bool LuaScriptLanguageExtension::_supports_builtin_mode() const {
+bool LuaScriptLanguage::_supports_builtin_mode() const {
+	return true;
+}
+
+bool LuaScriptLanguage::_supports_documentation() const {
 	return false;
 }
 
-bool LuaScriptLanguageExtension::_supports_documentation() const {
+bool LuaScriptLanguage::_can_inherit_from_file() const {
 	return false;
 }
 
-bool LuaScriptLanguageExtension::_can_inherit_from_file() const {
+bool LuaScriptLanguage::_overrides_external_editor() {
 	return false;
 }
 
-bool LuaScriptLanguageExtension::_overrides_external_editor() {
-	return false;
-}
-
-PackedStringArray LuaScriptLanguageExtension::_get_recognized_extensions() const {
+PackedStringArray LuaScriptLanguage::_get_recognized_extensions() const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"lua"
 	);
 }
 
-void LuaScriptLanguageExtension::_frame() {
+TypedArray<Dictionary> LuaScriptLanguage::_get_public_functions() const {
+	// TODO
+	return {};
 }
 
-LuaState *LuaScriptLanguageExtension::get_lua_state() {
+Dictionary LuaScriptLanguage::_get_public_constants() const {
+	// TODO
+	return {};
+}
+
+TypedArray<Dictionary> LuaScriptLanguage::_get_public_annotations() const {
+	// TODO
+	return {};
+}
+
+void LuaScriptLanguage::_frame() {
+}
+
+Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
+	// TODO
+	return Dictionary();
+}
+
+LuaState *LuaScriptLanguage::get_lua_state() {
 	return lua_state;
 }
 
-LuaScriptLanguageExtension *LuaScriptLanguageExtension::get_singleton() {
+LuaScriptLanguage *LuaScriptLanguage::get_singleton() {
 	return instance;
 }
 
-LuaScriptLanguageExtension *LuaScriptLanguageExtension::get_or_create_singleton() {
+LuaScriptLanguage *LuaScriptLanguage::get_or_create_singleton() {
 	if (!instance) {
-		instance = memnew(LuaScriptLanguageExtension);
+		instance = memnew(LuaScriptLanguage);
 		Engine::get_singleton()->register_script_language(instance);
 	}
 	return instance;
 }
 
-void LuaScriptLanguageExtension::delete_singleton() {
+void LuaScriptLanguage::delete_singleton() {
 	if (instance) {
 		Engine::get_singleton()->unregister_script_language(instance);
 		memdelete(instance);
@@ -156,9 +177,9 @@ void LuaScriptLanguageExtension::delete_singleton() {
 	}
 }
 
-void LuaScriptLanguageExtension::_bind_methods() {
+void LuaScriptLanguage::_bind_methods() {
 }
 
-LuaScriptLanguageExtension *LuaScriptLanguageExtension::instance = nullptr;
+LuaScriptLanguage *LuaScriptLanguage::instance = nullptr;
 
 }

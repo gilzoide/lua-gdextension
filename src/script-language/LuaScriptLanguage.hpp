@@ -31,8 +31,8 @@ namespace luagdextension {
 
 class LuaState;
 
-class LuaScriptLanguageExtension : public ScriptLanguageExtension {
-	GDCLASS(LuaScriptLanguageExtension, ScriptLanguageExtension);
+class LuaScriptLanguage : public ScriptLanguageExtension {
+	GDCLASS(LuaScriptLanguage, ScriptLanguageExtension);
 public:
 	String _get_name() const override;
 	void _init() override;
@@ -78,21 +78,21 @@ public:
 	/* void _reload_all_scripts() override; */
 	/* void _reload_tool_script(const Ref<Script> &script, bool soft_reload) override; */
 	PackedStringArray _get_recognized_extensions() const override;
-	/* TypedArray<Dictionary> _get_public_functions() const override; */
-	/* Dictionary _get_public_constants() const override; */
-	/* TypedArray<Dictionary> _get_public_annotations() const override; */
+	TypedArray<Dictionary> _get_public_functions() const override;
+	Dictionary _get_public_constants() const override;
+	TypedArray<Dictionary> _get_public_annotations() const override;
 	/* void _profiling_start() override; */
 	/* void _profiling_stop() override; */
 	/* int32_t _profiling_get_accumulated_data(ScriptLanguageExtensionProfilingInfo *info_array, int32_t info_max) override; */
 	/* int32_t _profiling_get_frame_data(ScriptLanguageExtensionProfilingInfo *info_array, int32_t info_max) override; */
 	void _frame() override;
 	/* bool _handles_global_class_type(const String &type) const override; */
-	/* Dictionary _get_global_class_name(const String &path) const override; */
+	Dictionary _get_global_class_name(const String &path) const override;
 
 	LuaState *get_lua_state();
 
-	static LuaScriptLanguageExtension *get_singleton();
-	static LuaScriptLanguageExtension *get_or_create_singleton();
+	static LuaScriptLanguage *get_singleton();
+	static LuaScriptLanguage *get_or_create_singleton();
 	static void delete_singleton();
 
 protected:
@@ -101,7 +101,7 @@ protected:
 	LuaState *lua_state;
 
 private:
-	static LuaScriptLanguageExtension *instance;
+	static LuaScriptLanguage *instance;
 };
 
 }

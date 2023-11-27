@@ -27,8 +27,8 @@
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
 #include "LuaUserdata.hpp"
-#include "script-language/LuaScriptExtension.hpp"
-#include "script-language/LuaScriptLanguageExtension.hpp"
+#include "script-language/LuaScript.hpp"
+#include "script-language/LuaScriptLanguage.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -56,9 +56,9 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_class<LuaState>();
 
 	// Lua Script Language
-	ClassDB::register_abstract_class<LuaScriptExtension>();
-	ClassDB::register_abstract_class<LuaScriptLanguageExtension>();
-	LuaScriptLanguageExtension::get_or_create_singleton();
+	ClassDB::register_abstract_class<LuaScript>();
+	ClassDB::register_abstract_class<LuaScriptLanguage>();
+	LuaScriptLanguage::get_or_create_singleton();
 }
 
 static void deinitialize(ModuleInitializationLevel level) {
@@ -67,7 +67,7 @@ static void deinitialize(ModuleInitializationLevel level) {
 	}
 
 	// Lua Script Language
-	LuaScriptLanguageExtension::delete_singleton();
+	LuaScriptLanguage::delete_singleton();
 }
 
 extern "C" GDExtensionBool luagdextension_entrypoint(

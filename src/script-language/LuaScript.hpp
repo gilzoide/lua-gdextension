@@ -23,24 +23,25 @@
 #define __LUA_SCRIPT_EXTENSION_HPP__
 
 #include <godot_cpp/classes/script_extension.hpp>
+#include "../LuaTable.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaScriptLanguageExtension;
+class LuaScriptLanguage;
 
-class LuaScriptExtension : public ScriptExtension {
-	GDCLASS(LuaScriptExtension, ScriptExtension);
+class LuaScript : public ScriptExtension {
+	GDCLASS(LuaScript, ScriptExtension);
 public:
-	/* bool _editor_can_reload_from_file() override; */
+	bool _editor_can_reload_from_file() override;
 	/* void _placeholder_erased(void *placeholder) override; */
-	/* bool _can_instantiate() const override; */
-	/* Ref<Script> _get_base_script() const override; */
-	/* StringName _get_global_name() const override; */
-	/* bool _inherits_script(const Ref<Script> &script) const override; */
-	/* StringName _get_instance_base_type() const override; */
-	/* void *_instance_create(Object *for_object) const override; */
+	bool _can_instantiate() const override;
+	Ref<Script> _get_base_script() const override;
+	StringName _get_global_name() const override;
+	bool _inherits_script(const Ref<Script> &script) const override;
+	StringName _get_instance_base_type() const override;
+	void *_instance_create(Object *for_object) const override;
 	/* void *_placeholder_instance_create(Object *for_object) const override; */
 	/* bool _instance_has(Object *object) const override; */
 	bool _has_source_code() const override;
@@ -50,7 +51,7 @@ public:
 	/* TypedArray<Dictionary> _get_documentation() const override; */
 	/* bool _has_method(const StringName &method) const override; */
 	/* Dictionary _get_method_info(const StringName &method) const override; */
-	/* bool _is_tool() const override; */
+	bool _is_tool() const override;
 	bool _is_valid() const override;
 	ScriptLanguage *_get_language() const override;
 	/* bool _has_script_signal(const StringName &signal) const override; */
@@ -70,7 +71,7 @@ protected:
 	static void _bind_methods();
 
 	String source_code;
-	Variant loaded_class;
+	Ref<LuaTable> loaded_class;
 };
 
 }
