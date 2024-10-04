@@ -124,7 +124,7 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 	}
 }
 
-LuaTable *LuaState::create_table(const Dictionary& initial_values) {
+Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
 	return memnew(LuaTable(to_table(lua_state, initial_values)));
 }
 
@@ -144,11 +144,11 @@ Variant LuaState::do_file(const String& filename, int buffer_size) {
 	return ::luagdextension::do_file(lua_state, filename);
 }
 
-LuaTable *LuaState::get_globals() const {
+Ref<LuaTable> LuaState::get_globals() const {
 	return memnew(LuaTable(lua_state.globals()));
 }
 
-LuaTable *LuaState::get_registry() const {
+Ref<LuaTable> LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
 }
 
