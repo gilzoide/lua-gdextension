@@ -22,7 +22,6 @@
 #ifndef __LUA_SCRIPT_LANGUAGE_EXTENSION_HPP__
 #define __LUA_SCRIPT_LANGUAGE_EXTENSION_HPP__
 
-#include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/script_language_extension.hpp>
 
 using namespace godot;
@@ -46,7 +45,7 @@ public:
 	Ref<Script> _make_template(const String &_template, const String &class_name, const String &base_class_name) const override;
 	/* TypedArray<Dictionary> _get_built_in_templates(const StringName &object) const override; */
 	bool _is_using_templates() override;
-	/* Dictionary _validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const override; */
+	Dictionary _validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const override;
 	String _validate_path(const String &path) const override;
 	Object *_create_script() const override;
 	bool _has_named_classes() const override;
@@ -63,8 +62,8 @@ public:
 	/* void _add_global_constant(const StringName &name, const Variant &value) override; */
 	/* void _add_named_global_constant(const StringName &name, const Variant &value) override; */
 	/* void _remove_named_global_constant(const StringName &name) override; */
-	/* void _thread_enter() override; */
-	/* void _thread_exit() override; */
+	void _thread_enter() override;
+	void _thread_exit() override;
 	/* String _debug_get_error() const override; */
 	/* int32_t _debug_get_stack_level_count() const override; */
 	/* int32_t _debug_get_stack_level_line(int32_t level) const override; */
@@ -86,7 +85,7 @@ public:
 	/* int32_t _profiling_get_accumulated_data(ScriptLanguageExtensionProfilingInfo *info_array, int32_t info_max) override; */
 	/* int32_t _profiling_get_frame_data(ScriptLanguageExtensionProfilingInfo *info_array, int32_t info_max) override; */
 	void _frame() override;
-	/* bool _handles_global_class_type(const String &type) const override; */
+	bool _handles_global_class_type(const String &type) const override;
 	Dictionary _get_global_class_name(const String &path) const override;
 
 	LuaState *get_lua_state();

@@ -22,10 +22,11 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "../LuaTable.hpp"
 #include "../LuaState.hpp"
-#include "godot_cpp/variant/dictionary.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 
 namespace luagdextension {
@@ -100,6 +101,11 @@ bool LuaScriptLanguage::_is_using_templates() {
 	return false;
 }
 
+Dictionary LuaScriptLanguage::_validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const {
+	// TODO
+	return {};
+}
+
 String LuaScriptLanguage::_validate_path(const String &path) const {
 	return "";
 }
@@ -126,6 +132,12 @@ bool LuaScriptLanguage::_can_inherit_from_file() const {
 
 bool LuaScriptLanguage::_overrides_external_editor() {
 	return false;
+}
+
+void LuaScriptLanguage::_thread_enter() {
+}
+
+void LuaScriptLanguage::_thread_exit() {
 }
 
 PackedStringArray LuaScriptLanguage::_get_recognized_extensions() const {
@@ -155,6 +167,10 @@ void LuaScriptLanguage::_frame() {
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
 	// TODO
 	return Dictionary();
+}
+
+bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
+	return lua_state->get_globals()->get(type);
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {

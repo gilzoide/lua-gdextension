@@ -19,6 +19,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include <godot_cpp/classes/script.hpp>
+
 #include "LuaScriptInstance.hpp"
 
 #include "LuaScriptLanguage.hpp"
