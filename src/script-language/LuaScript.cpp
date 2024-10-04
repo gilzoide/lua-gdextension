@@ -25,6 +25,7 @@
 #include "LuaScriptLanguage.hpp"
 #include "../LuaError.hpp"
 #include "../LuaState.hpp"
+#include "../LuaTable.hpp"
 
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/classes/global_constants.hpp"
@@ -38,7 +39,7 @@ bool LuaScript::_editor_can_reload_from_file() {
 }
 
 bool LuaScript::_can_instantiate() const {
-	return true;
+	return Object::cast_to<LuaTable>(script_return_value);
 }
 
 Ref<Script> LuaScript::_get_base_script() const {
@@ -46,7 +47,12 @@ Ref<Script> LuaScript::_get_base_script() const {
 }
 
 StringName LuaScript::_get_global_name() const {
-	return loaded_class.ptr()->get_value("class_name");
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		return table->get_value("class_name");
+	}
+	else {
+		return {};
+	}
 }
 
 bool LuaScript::_inherits_script(const Ref<Script> &script) const {
@@ -54,7 +60,12 @@ bool LuaScript::_inherits_script(const Ref<Script> &script) const {
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	return loaded_class.ptr()->get_value("extends", "RefCounted");
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		return table->get_value("extends", "RefCounted");
+	}
+	else {
+		return {};
+	}
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
@@ -78,7 +89,6 @@ Error LuaScript::_reload(bool keep_state) {
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code);
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
 		UtilityFunctions::push_error(error);
-		loaded_class.unref();
 		switch (error->get_status()) {
 			case LuaError::MEMORY:
 			case LuaError::GC:
@@ -91,26 +101,25 @@ Error LuaScript::_reload(bool keep_state) {
 				return ERR_SCRIPT_FAILED;
 		}
 	}
-	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
-		loaded_class = Ref(table);
-		return OK;
-	}
-	else {
-		UtilityFunctions::push_error("Lua script must return a table");
-		return ERR_SCRIPT_FAILED;
-	}
+	script_return_value = result;
+	return OK;
 }
 
 bool LuaScript::_is_tool() const {
-	return loaded_class->get_value("tool");
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		return table->get_value("tool");
+	}
+	else {
+		return false;
+	}
 }
 
 bool LuaScript::_is_valid() const {
-	return loaded_class.is_valid();
+	return script_return_value;
 }
 
 ScriptLanguage *LuaScript::_get_language() const {
-	return Object::cast_to<ScriptLanguage>(LuaScriptLanguage::get_singleton());
+	return LuaScriptLanguage::get_singleton();
 }
 
 void LuaScript::_bind_methods() {

@@ -23,7 +23,6 @@
 #define __LUA_SCRIPT_EXTENSION_HPP__
 
 #include <godot_cpp/classes/script_extension.hpp>
-#include "../LuaTable.hpp"
 
 using namespace godot;
 
@@ -71,7 +70,7 @@ protected:
 	static void _bind_methods();
 
 	String source_code;
-	Ref<LuaTable> loaded_class;
+	Variant script_return_value;
 };
 
 }
