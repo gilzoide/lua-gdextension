@@ -104,6 +104,10 @@ String LuaScriptLanguage::_validate_path(const String &path) const {
 	return "";
 }
 
+Object *LuaScriptLanguage::_create_script() const {
+	return memnew(LuaScript);
+}
+
 bool LuaScriptLanguage::_has_named_classes() const {
 	return false;
 }

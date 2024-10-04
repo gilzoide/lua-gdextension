@@ -48,7 +48,7 @@ public:
 	bool _is_using_templates() override;
 	/* Dictionary _validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const override; */
 	String _validate_path(const String &path) const override;
-	/* Object *_create_script() const override; */
+	Object *_create_script() const override;
 	bool _has_named_classes() const override;
 	bool _supports_builtin_mode() const override;
 	bool _supports_documentation() const override;

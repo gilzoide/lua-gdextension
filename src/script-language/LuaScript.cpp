@@ -102,7 +102,7 @@ Error LuaScript::_reload(bool keep_state) {
 }
 
 bool LuaScript::_is_tool() const {
-	return loaded_class.ptr()->get_value("tool");
+	return loaded_class->get_value("tool");
 }
 
 bool LuaScript::_is_valid() const {
