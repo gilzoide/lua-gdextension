@@ -196,8 +196,8 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 
 	// Properties
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaTable::get_class_static()), "", "get_globals");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaTable::get_class_static()), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
 }
 
 LuaState::operator String() const {

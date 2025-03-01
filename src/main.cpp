@@ -73,9 +73,9 @@ static void deinitialize(ModuleInitializationLevel level) {
 	}
 
 	// Lua Script Language
-	LuaScriptLanguage::delete_singleton();
-	LuaScriptResourceFormatLoader::unregister_in_godot();
 	LuaScriptResourceFormatSaver::unregister_in_godot();
+	LuaScriptResourceFormatLoader::unregister_in_godot();
+	LuaScriptLanguage::delete_singleton();
 }
 
 __attribute__((visibility("default")))
