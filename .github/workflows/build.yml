@@ -19,7 +19,11 @@ jobs:
         platform: [linux, windows, android]
         include:
           - platform: linux
-            packages: [g++-multilib, g++-arm-linux-gnueabi]
+            arch: x86_32
+            packages: [g++-multilib]
+          - platform: linux
+            arch: arm64
+            packages: [g++-arm-linux-gnueabi]
           - platform: windows
             packages: [g++-mingw-w64]
           - platform: android
