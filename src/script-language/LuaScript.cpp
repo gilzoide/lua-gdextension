@@ -28,14 +28,18 @@
 #include "../LuaTable.hpp"
 
 #include "godot_cpp/core/error_macros.hpp"
+#include "godot_cpp/classes/engine.hpp"
 #include "godot_cpp/classes/global_constants.hpp"
 #include "godot_cpp/godot.hpp"
-#include "godot_cpp/variant/utility_functions.hpp"
 
 namespace luagdextension {
 
 bool LuaScript::_editor_can_reload_from_file() {
 	return true;
+}
+
+void LuaScript::_placeholder_erased(void *p_placeholder) {
+	// TODO
 }
 
 bool LuaScript::_can_instantiate() const {
@@ -74,7 +78,12 @@ void *LuaScript::_instance_create(Object *for_object) const {
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
-	return _instance_create(for_object);
+	return godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton(), (Object *) this, for_object);
+}
+
+bool LuaScript::_instance_has(Object *p_object) const {
+	// TODO
+	return false;
 }
 
 bool LuaScript::_has_source_code() const {
@@ -90,15 +99,19 @@ void LuaScript::_set_source_code(const String &code) {
 }
 
 Error LuaScript::_reload(bool keep_state) {
-	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code);
+	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
-		UtilityFunctions::push_error(error);
+		ERR_PRINT(error->get_message());
 		switch (error->get_status()) {
 			case LuaError::MEMORY:
 			case LuaError::GC:
 				return ERR_OUT_OF_MEMORY;
 
 			case LuaError::SYNTAX:
+				// Let editor load the script, so we can edit it
+				if (Engine::get_singleton()->is_editor_hint()) {
+					break;
+				}
 				return ERR_PARSE_ERROR;
 
 			default:
@@ -109,6 +122,16 @@ Error LuaScript::_reload(bool keep_state) {
 	return OK;
 }
 
+TypedArray<Dictionary> LuaScript::_get_documentation() const {
+	// TODO
+	return {};
+}
+
+String LuaScript::_get_class_icon_path() const {
+	// TODO
+	return {};
+}
+
 bool LuaScript::_has_method(const StringName &method) const {
 	Variant value;
 	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
@@ -117,10 +140,23 @@ bool LuaScript::_has_method(const StringName &method) const {
 	else {
 		value = LuaScriptLanguage::get_singleton()->get_lua_state()->get_globals()->get(method);
 	}
-	if (LuaObject *lua_object = Object::cast_to<LuaObject>(value)) {
-		// TODO
-	}
 	return value.get_type() == Variant::CALLABLE;
+}
+
+bool LuaScript::_has_static_method(const StringName &p_method) const {
+	// In Lua, all methods can be called as static methods
+	// Pass "self" manually if necessary
+	return _has_method(p_method);
+}
+
+Variant LuaScript::_get_script_method_argument_count(const StringName &p_method) const {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
+	// TODO
+	return {};
 }
 
 bool LuaScript::_is_tool() const {
@@ -133,11 +169,74 @@ bool LuaScript::_is_tool() const {
 }
 
 bool LuaScript::_is_valid() const {
-	return script_return_value;
+	return true;
+}
+
+bool LuaScript::_is_abstract() const {
+	return false;
 }
 
 ScriptLanguage *LuaScript::_get_language() const {
 	return LuaScriptLanguage::get_singleton();
+}
+
+bool LuaScript::_has_script_signal(const StringName &p_signal) const {
+	// TODO
+	return {};
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
+	// TODO
+	return {};
+}
+
+bool LuaScript::_has_property_default_value(const StringName &p_property) const {
+	// TODO
+	return {};
+}
+
+Variant LuaScript::_get_property_default_value(const StringName &p_property) const {
+	// TODO
+	return {};
+}
+
+void LuaScript::_update_exports() {
+	// TODO
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
+	// TODO
+	return {};
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
+	// TODO
+	return {};
+}
+
+int32_t LuaScript::_get_member_line(const StringName &p_member) const {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScript::_get_constants() const {
+	// TODO
+	return {};
+}
+
+TypedArray<StringName> LuaScript::_get_members() const {
+	// TODO
+	return {};
+}
+
+bool LuaScript::_is_placeholder_fallback_enabled() const {
+	// TODO
+	return {};
+}
+
+Variant LuaScript::_get_rpc_config() const {
+	// TODO
+	return {};
 }
 
 void LuaScript::_bind_methods() {

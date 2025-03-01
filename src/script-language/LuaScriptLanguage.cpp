@@ -83,6 +83,12 @@ PackedStringArray LuaScriptLanguage::_get_comment_delimiters() const {
 	);
 }
 
+PackedStringArray LuaScriptLanguage::_get_doc_comment_delimiters() const {
+	return godot::helpers::append_all(PackedStringArray(),
+		"---"
+	);
+}
+
 PackedStringArray LuaScriptLanguage::_get_string_delimiters() const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"' '", "\" \"", "[[ ]]", "[=[ ]=]"
@@ -96,6 +102,11 @@ Ref<Script> LuaScriptLanguage::_make_template(const String &_template, const Str
 		.replace("_TS_", "\t");
 	script->set_source_code(source_code);
 	return script;
+}
+
+TypedArray<Dictionary> LuaScriptLanguage::_get_built_in_templates(const StringName &p_object) const {
+	// TODO
+	return {};
 }
 
 bool LuaScriptLanguage::_is_using_templates() {
@@ -133,6 +144,7 @@ bool LuaScriptLanguage::_supports_builtin_mode() const {
 }
 
 bool LuaScriptLanguage::_supports_documentation() const {
+	// TODO: does it support documentation?
 	return false;
 }
 
@@ -140,8 +152,60 @@ bool LuaScriptLanguage::_can_inherit_from_file() const {
 	return false;
 }
 
+int32_t LuaScriptLanguage::_find_function(const String &p_function, const String &p_code) const {
+	// TODO
+	return -1;
+}
+
+String LuaScriptLanguage::_make_function(const String &p_class_name, const String &p_function_name, const PackedStringArray &p_function_args) const {
+	// TODO
+	return {};
+}
+
+bool LuaScriptLanguage::_can_make_function() const {
+	// TODO
+	return {};
+}
+
+Error LuaScriptLanguage::_open_in_external_editor(const Ref<Script> &p_script, int32_t p_line, int32_t p_column) {
+	// TODO
+	return FAILED;
+}
+
 bool LuaScriptLanguage::_overrides_external_editor() {
 	return false;
+}
+
+ScriptLanguage::ScriptNameCasing LuaScriptLanguage::_preferred_file_name_casing() const {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScriptLanguage::_complete_code(const String &p_code, const String &p_path, Object *p_owner) const {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScriptLanguage::_lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner) const {
+	// TODO
+	return {};
+}
+
+String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from_line, int32_t p_to_line) const {
+	// TODO
+	return {};
+}
+
+void LuaScriptLanguage::_add_global_constant(const StringName &p_name, const Variant &p_value) {
+	lua_state->get_globals()->set(p_name, p_value);
+}
+
+void LuaScriptLanguage::_add_named_global_constant(const StringName &p_name, const Variant &p_value) {
+	lua_state->get_globals()->set(p_name, p_value);
+}
+
+void LuaScriptLanguage::_remove_named_global_constant(const StringName &p_name) {
+	lua_state->get_globals()->set(p_name, nullptr);
 }
 
 void LuaScriptLanguage::_thread_enter() {
@@ -149,6 +213,70 @@ void LuaScriptLanguage::_thread_enter() {
 
 void LuaScriptLanguage::_thread_exit() {
 }
+
+String LuaScriptLanguage::_debug_get_error() const {
+	// TODO
+	return {};
+}
+
+int32_t LuaScriptLanguage::_debug_get_stack_level_count() const {
+	// TODO
+	return {};
+}
+
+int32_t LuaScriptLanguage::_debug_get_stack_level_line(int32_t p_level) const {
+	// TODO
+	return {};
+}
+
+String LuaScriptLanguage::_debug_get_stack_level_function(int32_t p_level) const {
+	// TODO
+	return {};
+}
+
+String LuaScriptLanguage::_debug_get_stack_level_source(int32_t p_level) const {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScriptLanguage::_debug_get_stack_level_locals(int32_t p_level, int32_t p_max_subitems, int32_t p_max_depth) {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScriptLanguage::_debug_get_stack_level_members(int32_t p_level, int32_t p_max_subitems, int32_t p_max_depth) {
+	// TODO
+	return {};
+}
+
+void *LuaScriptLanguage::_debug_get_stack_level_instance(int32_t p_level) {
+	// TODO
+	return {};
+}
+
+Dictionary LuaScriptLanguage::_debug_get_globals(int32_t p_max_subitems, int32_t p_max_depth) {
+	// TODO
+	return {};
+}
+
+String LuaScriptLanguage::_debug_parse_stack_level_expression(int32_t p_level, const String &p_expression, int32_t p_max_subitems, int32_t p_max_depth) {
+	// TODO
+	return {};
+}
+
+TypedArray<Dictionary> LuaScriptLanguage::_debug_get_current_stack_info() {
+	// TODO
+	return {};
+}
+
+void LuaScriptLanguage::_reload_all_scripts() {
+	// TODO
+}
+
+void LuaScriptLanguage::_reload_tool_script(const Ref<Script> &p_script, bool p_soft_reload) {
+	// TODO
+}
+
 
 PackedStringArray LuaScriptLanguage::_get_recognized_extensions() const {
 	return godot::helpers::append_all(PackedStringArray(),
@@ -171,16 +299,38 @@ TypedArray<Dictionary> LuaScriptLanguage::_get_public_annotations() const {
 	return {};
 }
 
+void LuaScriptLanguage::_profiling_start() {
+	// TODO
+}
+
+void LuaScriptLanguage::_profiling_stop() {
+	// TODO
+}
+
+void LuaScriptLanguage::_profiling_set_save_native_calls(bool p_enable) {
+	// TODO
+}
+
+int32_t LuaScriptLanguage::_profiling_get_accumulated_data(ScriptLanguageExtensionProfilingInfo *p_info_array, int32_t p_info_max) {
+	// TODO
+	return {};
+}
+
+int32_t LuaScriptLanguage::_profiling_get_frame_data(ScriptLanguageExtensionProfilingInfo *p_info_array, int32_t p_info_max) {
+	// TODO
+	return {};
+}
+
 void LuaScriptLanguage::_frame() {
+}
+
+bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
+	return lua_state->get_globals()->get_value(type);
 }
 
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
 	// TODO
 	return Dictionary();
-}
-
-bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
-	return lua_state->get_globals()->get_value(type);
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {
