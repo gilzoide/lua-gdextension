@@ -29,17 +29,18 @@ jobs:
           - platform: android
             arch: arm64
             target: template_release
+            scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
             arch: arm32
             target: template_debug
-            scons-args: android_api_level=19
+            scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
             arch: arm32
             target: template_release
-            scons-args: android_api_level=19
+            scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
             arch: x86_32
-            scons-args: android_api_level=19
+            scons-args: android_api_level=21 ANDROID_HOME=""
     steps:
       - uses: actions/checkout@v4
         with:
