@@ -15,26 +15,23 @@ jobs:
       fail-fast: false
       matrix:
         target: [template_debug, template_release]
-        arch: [x86_64, x86_32]
+        arch: [x86_64, x86_32, arm64, arm32]
         platform: [linux, windows, android]
         include:
           - platform: linux
-            arch: x86_32
-            packages: [g++-multilib]
+            packages: [g++-multilib, g++-arm-linux-gnueabi]
           - platform: windows
             packages: [g++-mingw-w64]
           - platform: android
-            arch: arm64
             scons-args: android_api_level=21 ANDROID_HOME=""
-          - platform: android
+        exclude:
+          - platform: linux
             arch: arm32
-            scons-args: android_api_level=21 ANDROID_HOME=""
-          - platform: android
-            arch: x86_64
-            scons-args: android_api_level=21 ANDROID_HOME=""
-          - platform: android
-            arch: x86_32
-            scons-args: android_api_level=21 ANDROID_HOME=""
+          # TODO: add support for Windows ARM using llvm-mingw
+          - platform: windows
+            arch: arm64
+          - platform: windows
+            arch: arm32
     steps:
       - uses: actions/checkout@v4
         with:
