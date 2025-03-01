@@ -41,7 +41,7 @@ jobs:
             arch: x86_32
             scons-args: android_api_level=19
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Install dependencies
@@ -49,7 +49,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
       - name: Cache SCons files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -59,7 +59,7 @@ jobs:
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ join(matrix.scons-args, ' ') }}
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
           path: |
@@ -75,14 +75,14 @@ jobs:
         arch: [universal]
         platform: [macos, ios]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Install dependencies
         run: |
           brew install scons
       - name: Cache SCons files
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -94,7 +94,7 @@ jobs:
         env:
           PYTHON_BIN: python3
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
           path: |
@@ -123,10 +123,10 @@ jobs:
     env:
       GODOT_BIN: ${{ matrix.godot-bin }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
         id: download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Copy artifacts to build folder
@@ -146,16 +146,16 @@ jobs:
     needs: [build_linux, build_macos]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download artifacts
         id: download
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
       - name: Copy artifacts to build folder
         run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: lua-gdextension
           path: |
