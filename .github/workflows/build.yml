@@ -105,15 +105,15 @@ jobs:
         include:
           - name: Linux
             runner-os: ubuntu-latest
-            godot-release: 4.1.2-stable/Godot_v4.1.2-stable_linux.x86_64.zip
-            godot-bin: ./Godot_v4.1.2-stable_linux.x86_64
+            godot-release: 4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+            godot-bin: ./Godot_v4.3-stable_linux.x86_64
           - name: Windows
             runner-os: windows-latest
-            godot-release: 4.1.2-stable/Godot_v4.1.2-stable_win64.exe.zip
-            godot-bin: ./Godot_v4.1.2-stable_win64.exe
+            godot-release: 4.3-stable/Godot_v4.3-stable_win64.exe.zip
+            godot-bin: ./Godot_v4.3-stable_win64.exe
           - name: macOS
             runner-os: macos-latest
-            godot-release: 4.1.2-stable/Godot_v4.1.2-stable_macos.universal.zip
+            godot-release: 4.3-stable/Godot_v4.3-stable_macos.universal.zip
             godot-bin: ./Godot.app/Contents/MacOS/Godot
     env:
       GODOT_BIN: ${{ matrix.godot-bin }}
