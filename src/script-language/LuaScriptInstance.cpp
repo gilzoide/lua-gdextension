@@ -78,7 +78,7 @@ void *get_language_func(LuaScriptInstance *instance) {
 }
 
 void free_func(LuaScriptInstance *instance) {
-	memfree(instance);
+	memdelete(instance);
 }
 
 GDExtensionScriptInstanceInfo3 script_instance_info = {
