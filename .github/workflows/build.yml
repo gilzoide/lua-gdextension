@@ -21,14 +21,13 @@ jobs:
           - platform: linux
             arch: x86_32
             packages: [g++-multilib]
-          - platform: linux
-            arch: arm64
-            packages: [g++-arm-linux-gnueabi]
           - platform: windows
             packages: [g++-mingw-w64]
           - platform: android
             scons-args: android_api_level=21 ANDROID_HOME=""
         exclude:
+          - platform: linux
+            arch: arm64
           - platform: linux
             arch: arm32
           # TODO: add support for Windows ARM using llvm-mingw
