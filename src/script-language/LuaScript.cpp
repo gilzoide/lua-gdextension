@@ -61,16 +61,20 @@ bool LuaScript::_inherits_script(const Ref<Script> &script) const {
 
 StringName LuaScript::_get_instance_base_type() const {
 	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		return table->get_value("extends", "RefCounted");
+		return table->get_value("extends", RefCounted::get_class_static());
 	}
 	else {
-		return {};
+		return RefCounted::get_class_static();
 	}
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
-	void *instance = memnew(LuaScriptInstance(for_object, this));
+	void *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
 	return godot::internal::gdextension_interface_script_instance_create(LuaScriptInstance::get_script_instance_info(), instance);
+}
+
+void *LuaScript::_placeholder_instance_create(Object *for_object) const {
+	return _instance_create(for_object);
 }
 
 bool LuaScript::_has_source_code() const {
@@ -103,6 +107,20 @@ Error LuaScript::_reload(bool keep_state) {
 	}
 	script_return_value = result;
 	return OK;
+}
+
+bool LuaScript::_has_method(const StringName &method) const {
+	Variant value;
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		value = table->get(method);
+	}
+	else {
+		value = LuaScriptLanguage::get_singleton()->get_lua_state()->get_globals()->get(method);
+	}
+	if (LuaObject *lua_object = Object::cast_to<LuaObject>(value)) {
+		// TODO
+	}
+	return value.get_type() == Variant::CALLABLE;
 }
 
 bool LuaScript::_is_tool() const {

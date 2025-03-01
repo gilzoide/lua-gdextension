@@ -97,8 +97,8 @@ public:
 	Variant do_string(const String& chunk, const String& chunkname = "");
 	Variant do_file(const String& filename, int buffer_size = 1024);
 
-	Ref<LuaTable> get_globals() const;
-	Ref<LuaTable> get_registry() const;
+	LuaTable *get_globals() const;
+	LuaTable *get_registry() const;
 
 	operator String() const;
 

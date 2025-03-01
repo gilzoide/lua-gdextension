@@ -23,6 +23,7 @@
 #define __LUA_SCRIPT_INSTANCE_HPP__
 
 #include <godot_cpp/classes/object.hpp>
+#include <godot_cpp/classes/ref.hpp>
 
 using namespace godot;
 
@@ -31,12 +32,12 @@ namespace luagdextension {
 class LuaScript;
 
 struct LuaScriptInstance {
-	LuaScriptInstance(Object *owner, const LuaScript *script);
+	LuaScriptInstance(Object *owner, Ref<LuaScript> script);
 
 	static GDExtensionScriptInstanceInfo *get_script_instance_info();
 
 	Object *owner;
-	const LuaScript *script;
+	Ref<LuaScript> script;
 	Dictionary properties;
 };
 

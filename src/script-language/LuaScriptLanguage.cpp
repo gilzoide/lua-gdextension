@@ -22,6 +22,7 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
 
@@ -36,7 +37,7 @@ String LuaScriptLanguage::_get_name() const {
 }
 
 void LuaScriptLanguage::_init() {
-	lua_state = memnew(LuaState);
+	lua_state.instantiate();
 	lua_state->open_libraries();
 }
 
@@ -49,7 +50,7 @@ String LuaScriptLanguage::_get_extension() const {
 }
 
 void LuaScriptLanguage::_finish() {
-	memdelete(lua_state);
+	lua_state.unref();
 }
 
 PackedStringArray LuaScriptLanguage::_get_reserved_words() const {
@@ -102,8 +103,17 @@ bool LuaScriptLanguage::_is_using_templates() {
 }
 
 Dictionary LuaScriptLanguage::_validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const {
-	// TODO
-	return {};
+	Dictionary result;
+	Variant f = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(script, path);
+	if (LuaError *error = Object::cast_to<LuaError>(f)) {
+		Dictionary error_dict;
+		error_dict["path"] = path;
+		error_dict["line"] = 1;
+		error_dict["column"] = 1;
+		error_dict["message"] = error->get_message();
+		result["errors"] = Array::make(error_dict);
+	}
+	return result;
 }
 
 String LuaScriptLanguage::_validate_path(const String &path) const {
@@ -170,11 +180,11 @@ Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
 }
 
 bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
-	return lua_state->get_globals()->get(type);
+	return lua_state->get_globals()->get_value(type);
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {
-	return lua_state;
+	return lua_state.ptr();
 }
 
 LuaScriptLanguage *LuaScriptLanguage::get_singleton() {

@@ -97,7 +97,7 @@ public:
 protected:
 	static void _bind_methods();
 
-	LuaState *lua_state;
+	Ref<LuaState> lua_state;
 
 private:
 	static LuaScriptLanguage *instance;

@@ -41,14 +41,14 @@ public:
 	bool _inherits_script(const Ref<Script> &script) const override;
 	StringName _get_instance_base_type() const override;
 	void *_instance_create(Object *for_object) const override;
-	/* void *_placeholder_instance_create(Object *for_object) const override; */
+	void *_placeholder_instance_create(Object *for_object) const override;
 	/* bool _instance_has(Object *object) const override; */
 	bool _has_source_code() const override;
 	String _get_source_code() const override;
 	void _set_source_code(const String &code) override;
 	Error _reload(bool keep_state) override;
 	/* TypedArray<Dictionary> _get_documentation() const override; */
-	/* bool _has_method(const StringName &method) const override; */
+	bool _has_method(const StringName &method) const override;
 	/* Dictionary _get_method_info(const StringName &method) const override; */
 	bool _is_tool() const override;
 	bool _is_valid() const override;

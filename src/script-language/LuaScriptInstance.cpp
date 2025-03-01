@@ -23,12 +23,13 @@
 
 #include "LuaScriptInstance.hpp"
 
+#include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
-#include "godot_cpp/core/memory.hpp"
+#include "../LuaState.hpp"
 
 namespace luagdextension {
 
-LuaScriptInstance::LuaScriptInstance(Object *owner, const LuaScript *script) : owner(owner), script(script) {}
+LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script) : owner(owner), script(script) {}
 
 GDExtensionScriptInstanceSet set_func;
 GDExtensionScriptInstanceGet get_func;
@@ -59,10 +60,12 @@ GDExtensionScriptInstanceRefCountIncremented refcount_incremented_func;
 GDExtensionScriptInstanceRefCountDecremented refcount_decremented_func;
 
 void *get_script_func(LuaScriptInstance *instance) {
-	return (void *) instance->script;
+	return (void *) instance->script.ptr();
 }
 
-GDExtensionScriptInstanceIsPlaceholder is_placeholder_func;
+GDExtensionBool is_placeholder_func(LuaScriptInstance *instance) {
+	return false;
+}
 
 GDExtensionScriptInstanceSet set_fallback_func;
 GDExtensionScriptInstanceGet get_fallback_func;

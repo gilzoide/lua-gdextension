@@ -144,11 +144,11 @@ Variant LuaState::do_file(const String& filename, int buffer_size) {
 	return ::luagdextension::do_file(lua_state, filename);
 }
 
-Ref<LuaTable> LuaState::get_globals() const {
+LuaTable *LuaState::get_globals() const {
 	return memnew(LuaTable(lua_state.globals()));
 }
 
-Ref<LuaTable> LuaState::get_registry() const {
+LuaTable *LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
 }
 
@@ -196,8 +196,8 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 
 	// Properties
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_globals");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaTable::get_class_static()), "", "get_globals");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaTable::get_class_static()), "", "get_registry");
 }
 
 LuaState::operator String() const {
