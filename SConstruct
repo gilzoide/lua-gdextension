@@ -23,9 +23,14 @@ env.Command(
 )
 
 # Compile with debugging symbols
+def remove_options(lst, *options):
+    for opt in options:
+        if opt in lst:
+            lst.remove(opt)
+    
 if ARGUMENTS.get("debugging_symbols") == 'true':
-    if "-O2" in env["CCFLAGS"]:
-        env["CCFLAGS"].remove("-O2")
+    remove_options(env["CCFLAGS"], "-O2")
+    remove_options(env["LINKFLAGS"], "-Wl,-S", "-Wl,-x", "-Wl,-dead_strip")
     env.Append(CCFLAGS=["-g", "-O0"])
 
 # Lua defines
@@ -47,7 +52,7 @@ else:
 
 env.Append(CPPPATH="lib/lua")
 # Lua needs exceptions enabled
-env["CXXFLAGS"].remove("-fno-exceptions")
+remove_options(env["CXXFLAGS"], "-fno-exceptions")
 
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0"])
