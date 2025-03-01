@@ -213,7 +213,7 @@ sol::stack_object variant_static_call_string_name(sol::this_state state, Variant
 
 	Variant result;
 	GDExtensionCallError error;
-	Variant::call_static(type, method, variant_args.argv(), variant_args.argc(), result, error);
+	Variant::callp_static(type, method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error != GDEXTENSION_CALL_OK) {
 		String message = String("Invalid static call to method '{0}' in type {1}").format(Array::make(method, Variant::get_type_name(type)));
 		lua_error(state, error, message);
@@ -225,7 +225,7 @@ sol::stack_object variant_call_string_name(sol::this_state state, Variant& varia
 
 	Variant result;
 	GDExtensionCallError error;
-	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
+	variant.callp(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error != GDEXTENSION_CALL_OK) {
 		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
 		lua_error(state, error, message);
@@ -241,7 +241,7 @@ std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, V
 
 	Variant result;
 	GDExtensionCallError error;
-	variant.call(method, variant_args.argv(), variant_args.argc(), result, error);
+	variant.callp(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error == GDEXTENSION_CALL_OK) {
 		return std::make_tuple(true, to_lua(state, result));
 	}

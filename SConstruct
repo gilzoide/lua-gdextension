@@ -46,6 +46,8 @@ else:
     env.Append(CPPDEFINES="LUA_USE_POSIX")
 
 env.Append(CPPPATH="lib/lua")
+# Lua needs exceptions enabled
+env["CXXFLAGS"].remove("-fno-exceptions")
 
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0"])

@@ -78,6 +78,7 @@ static void deinitialize(ModuleInitializationLevel level) {
 	LuaScriptResourceFormatSaver::unregister_in_godot();
 }
 
+__attribute__((visibility("default")))
 extern "C" GDExtensionBool luagdextension_entrypoint(
 	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
 	GDExtensionClassLibraryPtr p_library,

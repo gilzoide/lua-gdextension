@@ -34,7 +34,8 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script) : own
 GDExtensionScriptInstanceSet set_func;
 GDExtensionScriptInstanceGet get_func;
 GDExtensionScriptInstanceGetPropertyList get_property_list_func;
-GDExtensionScriptInstanceFreePropertyList free_property_list_func;
+GDExtensionScriptInstanceFreePropertyList2 free_property_list_func;
+GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 
 GDExtensionScriptInstancePropertyCanRevert property_can_revert_func;
 GDExtensionScriptInstancePropertyGetRevert property_get_revert_func;
@@ -46,13 +47,15 @@ void *get_owner_func(LuaScriptInstance *instance) {
 GDExtensionScriptInstanceGetPropertyState get_property_state_func;
 
 GDExtensionScriptInstanceGetMethodList get_method_list_func;
-GDExtensionScriptInstanceFreeMethodList free_method_list_func;
+GDExtensionScriptInstanceFreeMethodList2 free_method_list_func;
 GDExtensionScriptInstanceGetPropertyType get_property_type_func;
+GDExtensionScriptInstanceValidateProperty validate_property_func;
 
 GDExtensionScriptInstanceHasMethod has_method_func;
+GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
 GDExtensionScriptInstanceCall call_func;
-GDExtensionScriptInstanceNotification notification_func;
+GDExtensionScriptInstanceNotification2 notification_func;
 
 GDExtensionScriptInstanceToString to_string_func;
 
@@ -78,21 +81,24 @@ void free_func(LuaScriptInstance *instance) {
 	memfree(instance);
 }
 
-GDExtensionScriptInstanceInfo script_instance_info = {
+GDExtensionScriptInstanceInfo3 script_instance_info = {
 	(GDExtensionScriptInstanceSet) set_func,
 	(GDExtensionScriptInstanceGet) get_func,
 	(GDExtensionScriptInstanceGetPropertyList) get_property_list_func,
-	(GDExtensionScriptInstanceFreePropertyList) free_property_list_func,
+	(GDExtensionScriptInstanceFreePropertyList2) free_property_list_func,
+	(GDExtensionScriptInstanceGetClassCategory) get_class_category_func,
 	(GDExtensionScriptInstancePropertyCanRevert) property_can_revert_func,
 	(GDExtensionScriptInstancePropertyGetRevert) property_get_revert_func,
 	(GDExtensionScriptInstanceGetOwner) get_owner_func,
 	(GDExtensionScriptInstanceGetPropertyState) get_property_state_func,
 	(GDExtensionScriptInstanceGetMethodList) get_method_list_func,
-	(GDExtensionScriptInstanceFreeMethodList) free_method_list_func,
+	(GDExtensionScriptInstanceFreeMethodList2) free_method_list_func,
 	(GDExtensionScriptInstanceGetPropertyType) get_property_type_func,
+	(GDExtensionScriptInstanceValidateProperty) validate_property_func,
 	(GDExtensionScriptInstanceHasMethod) has_method_func,
+	(GDExtensionScriptInstanceGetMethodArgumentCount) get_method_argument_count_func,
 	(GDExtensionScriptInstanceCall) call_func,
-	(GDExtensionScriptInstanceNotification) notification_func,
+	(GDExtensionScriptInstanceNotification2) notification_func,
 	(GDExtensionScriptInstanceToString) to_string_func,
 	(GDExtensionScriptInstanceRefCountIncremented) refcount_incremented_func,
 	(GDExtensionScriptInstanceRefCountDecremented) refcount_decremented_func,
@@ -103,7 +109,7 @@ GDExtensionScriptInstanceInfo script_instance_info = {
 	(GDExtensionScriptInstanceGetLanguage) get_language_func,
 	(GDExtensionScriptInstanceFree) free_func,
 };
-GDExtensionScriptInstanceInfo *LuaScriptInstance::get_script_instance_info() {
+GDExtensionScriptInstanceInfo3 *LuaScriptInstance::get_script_instance_info() {
 	return &script_instance_info;
 }
 

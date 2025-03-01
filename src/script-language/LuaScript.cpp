@@ -70,7 +70,7 @@ StringName LuaScript::_get_instance_base_type() const {
 
 void *LuaScript::_instance_create(Object *for_object) const {
 	void *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
-	return godot::internal::gdextension_interface_script_instance_create(LuaScriptInstance::get_script_instance_info(), instance);
+	return godot::internal::gdextension_interface_script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {

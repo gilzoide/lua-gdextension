@@ -34,7 +34,7 @@ class LuaScript;
 struct LuaScriptInstance {
 	LuaScriptInstance(Object *owner, Ref<LuaScript> script);
 
-	static GDExtensionScriptInstanceInfo *get_script_instance_info();
+	static GDExtensionScriptInstanceInfo3 *get_script_instance_info();
 
 	Object *owner;
 	Ref<LuaScript> script;
