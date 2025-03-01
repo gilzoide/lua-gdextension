@@ -39,7 +39,7 @@ public:
 	// int64_t _get_resource_uid(const String &p_path) const override;
 	// PackedStringArray _get_dependencies(const String &p_path, bool p_add_types) const override;
 	// Error _rename_dependencies(const String &p_path, const Dictionary &p_renames) const override;
-	// bool _exists(const String &p_path) const override;
+	bool _exists(const String &p_path) const override;
 	// PackedStringArray _get_classes_used(const String &p_path) const override;
 	Variant _load(const String &p_path, const String &p_original_path, bool p_use_sub_threads, int32_t p_cache_mode) const override;
 

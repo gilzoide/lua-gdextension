@@ -37,7 +37,7 @@ PackedStringArray LuaScriptResourceFormatLoader::_get_recognized_extensions() co
 }
 
 bool LuaScriptResourceFormatLoader::_handles_type(const StringName &p_type) const {
-	return p_type == LuaScript::get_class_static();
+	return p_type == Script::get_class_static() || p_type == LuaScript::get_class_static();
 }
 
 String LuaScriptResourceFormatLoader::_get_resource_type(const String &p_path) const {
@@ -47,6 +47,10 @@ String LuaScriptResourceFormatLoader::_get_resource_type(const String &p_path) c
 	else {
 		return "";
 	}
+}
+
+bool LuaScriptResourceFormatLoader::_exists(const String &p_path) const {
+	return FileAccess::file_exists(p_path);
 }
 
 Variant LuaScriptResourceFormatLoader::_load(const String &p_path, const String &p_original_path, bool p_use_sub_threads, int32_t p_cache_mode) const {
