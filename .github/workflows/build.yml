@@ -25,18 +25,12 @@ jobs:
             packages: [g++-mingw-w64]
           - platform: android
             arch: arm64
-            target: template_debug
-          - platform: android
-            arch: arm64
-            target: template_release
             scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
             arch: arm32
-            target: template_debug
             scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
-            arch: arm32
-            target: template_release
+            arch: x86_64
             scons-args: android_api_level=21 ANDROID_HOME=""
           - platform: android
             arch: x86_32
