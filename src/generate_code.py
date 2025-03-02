@@ -4,36 +4,35 @@ from os import path
 SRC_DIR = path.dirname(__file__)
 DEST_DIR = path.join(SRC_DIR, "generated")
 API_JSON_PATH = path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
-GODOT_CPP_DIR = path.join(SRC_DIR, "..", "lib", "godot-cpp")
-GODOT_CPP_UTILITY_FUNCTIONS = path.join(GODOT_CPP_DIR, "gen", "include", "godot_cpp", "variant", "utility_functions.hpp")
 PRIMITIVE_VARIANTS = [
     "bool",
     "int",
     "float",
 ]
+UTILITY_FUNCTION_MAP = {
+    "typeof": "type_of",
+    "is_instance_valid": None,
+}
 
 
 def generate_utility_functions(utility_functions):
     lines = [
         "#undef register_utility_functions\n#define register_utility_functions(state)"
     ]
-    with open(GODOT_CPP_UTILITY_FUNCTIONS) as f:
-        godot_cpp_utility_functions = f.read()
     for f in utility_functions:
         name = f["name"]
-        if name not in godot_cpp_utility_functions:
-            # godot-cpp does not implement "typeof", just skip anything that is
-            # not mentioned in the header
+        funcname = UTILITY_FUNCTION_MAP.get(name, name)
+        if funcname is None:
             continue
         if f.get("is_vararg", False):
-            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{name}_internal));')
+            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{funcname}_internal));')
         elif (
             f.get("return_type") not in PRIMITIVE_VARIANTS
             or any(arg["type"] not in PRIMITIVE_VARIANTS for arg in f.get("arguments", []))
         ):
-            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{name}));')
+            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{funcname}));')
         else:
-            lines.append(f'\tstate.set("{name}", &UtilityFunctions::{name});')
+            lines.append(f'\tstate.set("{name}", &UtilityFunctions::{funcname});')
     return " \\\n".join(lines) + "\n"
 
 
