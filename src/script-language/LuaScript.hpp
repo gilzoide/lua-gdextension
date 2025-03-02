@@ -37,7 +37,6 @@ class LuaScriptLanguage;
 class LuaTable;
 
 struct LuaScriptProperty {
-	StringName name;
 	Variant::Type type;
 	Variant default_value;
 	
@@ -94,6 +93,7 @@ public:
 	bool _instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const;
 	Variant _instance_call(LuaScriptInstance *instance, const StringName& p_name, const Variant **p_args, GDExtensionInt p_argument_count, GDExtensionCallError& r_error) const;
 	void _instance_notification(LuaScriptInstance *instance, int32_t what, GDExtensionBool reversed) const;
+	bool _instance_tostring(LuaScriptInstance *instance, String& str) const;
 
 protected:
 	static void _bind_methods();

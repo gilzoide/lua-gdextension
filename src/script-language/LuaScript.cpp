@@ -322,12 +322,26 @@ void LuaScript::_instance_notification(LuaScriptInstance *instance, int32_t what
 	}
 }
 
+bool LuaScript::_instance_tostring(LuaScriptInstance *instance, String& str) const {
+	if (const Ref<LuaFunction> *method = methods.getptr("__tostring")) {
+		Variant result = method->ptr()->call_method(instance);
+		if (LuaError *lua_error = Object::cast_to<LuaError>(result)) {
+			ERR_FAIL_V_MSG(false, lua_error->get_message());
+		}
+		str = result;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void LuaScript::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &LuaScript::_new);
 }
 
 String LuaScript::_to_string() const {
-	return String("[%s:%d]") % Array::make(get_class(), get_instance_id());
+	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
 }
 
 void LuaScript::process_script_result(const Variant& result) {
@@ -364,7 +378,6 @@ void LuaScript::process_script_result(const Variant& result) {
 			default:
 				// TODO: add support for property metadata
 				properties[key] = LuaScriptProperty {
-					.name = key,
 					.type = value.get_type(),
 					.default_value = value,
 				};

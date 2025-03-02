@@ -32,6 +32,7 @@ namespace luagdextension {
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	: owner(owner)
 	, script(script)
+	, properties()
 {
 	known_instances.insert(owner, this);
 }
@@ -79,7 +80,9 @@ void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensio
 	p_instance->script->_instance_notification(p_instance, p_what, p_reversed);
 }
 
-GDExtensionScriptInstanceToString to_string_func;
+void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, String *r_out) {
+	*r_is_valid = p_instance->script->_instance_tostring(p_instance, *r_out);
+}
 
 void refcount_incremented_func(LuaScriptInstance *) {
 }
