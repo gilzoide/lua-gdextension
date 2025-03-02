@@ -85,8 +85,6 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 		return true;
 	}
 	else {
-		Array arg = iter;
-		arg.clear();
 		return false;
 	}
 }
