@@ -39,6 +39,8 @@ public:
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
+	Callable to_callable() const;
+
 	const sol::protected_function& get_function() const;
 
 protected:

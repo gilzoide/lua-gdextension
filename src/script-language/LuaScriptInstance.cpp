@@ -26,6 +26,7 @@
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "../LuaState.hpp"
+#include "../LuaTable.hpp"
 
 namespace luagdextension {
 
@@ -40,8 +41,14 @@ LuaScriptInstance::~LuaScriptInstance() {
 	known_instances.erase(owner);
 }
 
-GDExtensionScriptInstanceSet set_func;
-GDExtensionScriptInstanceGet get_func;
+GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
+	return p_instance->script->_instance_set(p_instance, *p_name, p_value);
+}
+
+GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
+	return p_instance->script->_instance_get(p_instance, *p_name, *p_value);
+}
+
 GDExtensionScriptInstanceGetPropertyList get_property_list_func;
 GDExtensionScriptInstanceFreePropertyList2 free_property_list_func;
 GDExtensionScriptInstanceGetClassCategory get_class_category_func;

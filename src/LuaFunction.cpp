@@ -64,6 +64,10 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 	return to_variant(lua_object.call(lua_args));
 }
 
+Callable LuaFunction::to_callable() const {
+	return Callable((Object *) this, "invoke");
+}
+
 const sol::protected_function& LuaFunction::get_function() const {
 	return lua_object;
 }

@@ -24,6 +24,7 @@
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "../LuaError.hpp"
+#include "../LuaFunction.hpp"
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
 
@@ -44,7 +45,7 @@ void LuaScript::_placeholder_erased(void *p_placeholder) {
 }
 
 bool LuaScript::_can_instantiate() const {
-	return Object::cast_to<LuaTable>(script_return_value)
+	return metatable.is_valid()
 		&& ClassDB::can_instantiate(_get_instance_base_type());
 }
 
@@ -53,8 +54,8 @@ Ref<Script> LuaScript::_get_base_script() const {
 }
 
 StringName LuaScript::_get_global_name() const {
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		return table->get_value("class_name");
+	if (metatable.is_valid()) {
+		return metatable->get_value("class_name");
 	}
 	else {
 		return {};
@@ -66,8 +67,8 @@ bool LuaScript::_inherits_script(const Ref<Script> &script) const {
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		return table->get_value("extends", RefCounted::get_class_static());
+	if (metatable.is_valid()) {
+		return metatable->get_value("extends", RefCounted::get_class_static());
 	}
 	else {
 		return RefCounted::get_class_static();
@@ -119,7 +120,7 @@ Error LuaScript::_reload(bool keep_state) {
 				return ERR_SCRIPT_FAILED;
 		}
 	}
-	script_return_value = result;
+	process_script_result(result);
 	return OK;
 }
 
@@ -129,23 +130,16 @@ TypedArray<Dictionary> LuaScript::_get_documentation() const {
 }
 
 String LuaScript::_get_class_icon_path() const {
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		return table->get_value("icon");
+	if (metatable.is_valid()) {
+		return metatable->get_value("icon");
 	}
 	else {
 		return {};
 	}
 }
 
-bool LuaScript::_has_method(const StringName &method) const {
-	Variant value;
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		value = table->get(method);
-	}
-	else {
-		value = LuaScriptLanguage::get_singleton()->get_lua_state()->get_globals()->get(method);
-	}
-	return value.get_type() == Variant::CALLABLE;
+bool LuaScript::_has_method(const StringName &p_method) const {
+	return methods.has(p_method);
 }
 
 bool LuaScript::_has_static_method(const StringName &p_method) const {
@@ -165,8 +159,8 @@ Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
 }
 
 bool LuaScript::_is_tool() const {
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		return table->get_value("tool");
+	if (metatable.is_valid()) {
+		return metatable->get_value("tool");
 	}
 	else {
 		return false;
@@ -186,13 +180,7 @@ ScriptLanguage *LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName &p_signal) const {
-	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
-		Variant value = table->get(p_signal);
-		return value.get_type() == godot::Variant::SIGNAL;
-	}
-	else {
-		return false;
-	}
+	return signals.has(p_signal);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -262,12 +250,105 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	return new_instance;
 }
 
+bool LuaScript::_instance_set(LuaScriptInstance *instance, const StringName& p_name, const Variant& p_value) const {
+	if (const Callable *_set = methods.getptr("_set");
+		_set && _set->call(instance, p_name, p_value)
+	) {
+		return true;
+	}
+
+	if (const LuaScriptProperty *lua_prop = properties.getptr(p_name)) {
+		if (lua_prop->setter.is_valid()) {
+			lua_prop->setter.call(instance, p_value);
+		}
+		else {
+			instance->properties[p_name] = p_value;
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool LuaScript::_instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const {
+	if (const Callable *_get = methods.getptr("_get");
+		_get && (p_value = _get->call(instance, p_name)) != Variant()
+	) {
+		return true;
+	}
+
+	if (const LuaScriptProperty *lua_prop = properties.getptr(p_name)) {
+		if (lua_prop->getter.is_valid()) {
+			p_value = lua_prop->getter.call(instance);
+		}
+		else {
+			p_value = instance->properties.get(p_name, lua_prop->default_value);
+		}
+		return true;
+	}
+	else if (instance->properties.has(p_name)) {
+		p_value = instance->properties[p_name];
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void LuaScript::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &LuaScript::_new);
 }
 
 String LuaScript::_to_string() const {
 	return String("[%s:%d]") % Array::make(get_class(), get_instance_id());
+}
+
+void LuaScript::process_script_result(const Variant& result) {
+	metatable.reference_ptr(Object::cast_to<LuaTable>(result));
+	methods.clear();
+	properties.clear();
+	signals.clear();
+	if (!metatable.is_valid()) {
+		return;
+	}
+
+	for (Variant key : *metatable.ptr()) {
+		// skip special keys, they are not considered properties
+		if (key.in(Array::make("class_name", "extends", "icon", "tool"))) {
+			continue;
+		}
+
+		// methods, signals and properties must have string key
+		if (key.get_type() != Variant::STRING && key.get_type() != Variant::STRING_NAME) {
+			continue;
+		}
+
+		Variant value = metatable->get_value(key);
+		switch (value.get_type()) {
+			case Variant::CALLABLE:
+				methods[key] = value;
+				break;
+			
+			case Variant::SIGNAL:
+				signals[key] = value;
+				break;
+
+			case Variant::OBJECT:
+				if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
+					methods[key] = method->to_callable();
+				}
+				// fallthrough
+			default:
+				// TODO: add support for property metadata
+				properties[key] = LuaScriptProperty {
+					.name = key,
+					.type = value.get_type(),
+					.default_value = value,
+				};
+				break;
+		}
+	}
 }
 
 }

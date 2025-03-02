@@ -23,12 +23,25 @@
 #define __LUA_SCRIPT_EXTENSION_HPP__
 
 #include <godot_cpp/classes/script_extension.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
+class LuaFunction;
+class LuaScriptInstance;
 class LuaScriptLanguage;
+class LuaTable;
+
+struct LuaScriptProperty {
+	StringName name;
+	Variant::Type type;
+	Variant default_value;
+	
+	Callable getter;  // Variant getter(self)
+	Callable setter;  // void setter(self, Variant value)
+};
 
 class LuaScript : public ScriptExtension {
 	GDCLASS(LuaScript, ScriptExtension);
@@ -71,14 +84,25 @@ public:
 	bool _is_placeholder_fallback_enabled() const override;
 	Variant _get_rpc_config() const override;
 
+	// Script methods
 	Variant _new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+
+	// Methods called by ScriptInstance
+	bool _instance_set(LuaScriptInstance *instance, const StringName& p_name, const Variant& p_value) const;
+	bool _instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const;
 
 protected:
 	static void _bind_methods();
 	virtual String _to_string() const;
 
 	String source_code;
-	Variant script_return_value;
+	Ref<LuaTable> metatable;
+	HashMap<StringName, Callable> methods;
+	HashMap<StringName, LuaScriptProperty> properties;
+	HashMap<StringName, Signal> signals;
+
+private:
+	void process_script_result(const Variant& result);
 };
 
 }
