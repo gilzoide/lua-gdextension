@@ -21,7 +21,7 @@
  */
 #include "LuaFunction.hpp"
 
-#include "LuaState.hpp"
+#include "script-language/LuaScriptInstance.hpp"
 #include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -52,6 +52,7 @@ Variant LuaFunction::invokev(const Array& args) {
 }
 
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	error.error = GDEXTENSION_CALL_OK;
 	if (arg_count == 0) {
 		return to_variant(lua_object.call());
 	}
@@ -61,6 +62,22 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 		std::ignore = to_lua(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
+	return to_variant(lua_object.call(lua_args));
+}
+
+Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	if (!self) {
+		error.error = GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
+		return {};
+	}
+	error.error = GDEXTENSION_CALL_OK;
+
+	lua_State *L = lua_object.lua_state();
+	sol::stack::push(L, self);
+	for (int i = 0; i < arg_count; i++) {
+		std::ignore = to_lua(L, *args[i]);
+	}
+	sol::variadic_args lua_args(L, -(1 + arg_count));
 	return to_variant(lua_object.call(lua_args));
 }
 

@@ -22,11 +22,15 @@
 #ifndef __LUA_FUNCTION_HPP__
 #define __LUA_FUNCTION_HPP__
 
+#include <array>
+
 #include "LuaObject.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
+
+class LuaScriptInstance;
 
 class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
 	GDCLASS(LuaFunction, LuaObject);
@@ -38,6 +42,29 @@ public:
 
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+	Variant invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+
+	template<typename... Args>
+	Variant call(Args&&... args) {
+		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
+		std::array<const Variant *, sizeof...(Args)> var_ptrs;
+		for (int i = 0; i < vars.size(); i++) {
+			var_ptrs[i] = &vars[i];
+		}
+		GDExtensionCallError err;
+		return invoke((const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+	}
+	
+	template<typename... Args>
+	Variant call_method(LuaScriptInstance *self, Args&&... args) {
+		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
+		std::array<const Variant *, sizeof...(Args)> var_ptrs;
+		for (int i = 0; i < vars.size(); i++) {
+			var_ptrs[i] = &vars[i];
+		}
+		GDExtensionCallError err;
+		return invoke_method(self, (const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+	}
 
 	Callable to_callable() const;
 

@@ -25,6 +25,8 @@
 #include <godot_cpp/classes/script_extension.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "../LuaFunction.hpp"
+
 using namespace godot;
 
 namespace luagdextension {
@@ -39,8 +41,8 @@ struct LuaScriptProperty {
 	Variant::Type type;
 	Variant default_value;
 	
-	Callable getter;  // Variant getter(self)
-	Callable setter;  // void setter(self, Variant value)
+	Ref<LuaFunction> getter = {};  // Variant getter(self)
+	Ref<LuaFunction> setter = {};  // void setter(self, Variant value)
 };
 
 class LuaScript : public ScriptExtension {
@@ -90,6 +92,8 @@ public:
 	// Methods called by ScriptInstance
 	bool _instance_set(LuaScriptInstance *instance, const StringName& p_name, const Variant& p_value) const;
 	bool _instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const;
+	Variant _instance_call(LuaScriptInstance *instance, const StringName& p_name, const Variant **p_args, GDExtensionInt p_argument_count, GDExtensionCallError& r_error) const;
+	void _instance_notification(LuaScriptInstance *instance, int32_t what, GDExtensionBool reversed) const;
 
 protected:
 	static void _bind_methods();
@@ -97,7 +101,7 @@ protected:
 
 	String source_code;
 	Ref<LuaTable> metatable;
-	HashMap<StringName, Callable> methods;
+	HashMap<StringName, Ref<LuaFunction>> methods;
 	HashMap<StringName, LuaScriptProperty> properties;
 	HashMap<StringName, Signal> signals;
 

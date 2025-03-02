@@ -41,7 +41,7 @@ struct LuaScriptInstance {
 
 	Object *owner;
 	Ref<LuaScript> script;
-	Dictionary properties;
+	Dictionary properties = {};
 
 private:
 	static HashMap<Object *, LuaScriptInstance *> known_instances;

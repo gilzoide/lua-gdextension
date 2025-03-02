@@ -25,7 +25,6 @@
 
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
-#include "../LuaState.hpp"
 #include "../LuaTable.hpp"
 
 namespace luagdextension {
@@ -56,8 +55,8 @@ GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 GDExtensionScriptInstancePropertyCanRevert property_can_revert_func;
 GDExtensionScriptInstancePropertyGetRevert property_get_revert_func;
 
-void *get_owner_func(LuaScriptInstance *instance) {
-	return instance->owner;
+void *get_owner_func(LuaScriptInstance *p_instance) {
+	return p_instance->owner;
 }
 
 GDExtensionScriptInstanceGetPropertyState get_property_state_func;
@@ -67,19 +66,30 @@ GDExtensionScriptInstanceFreeMethodList2 free_method_list_func;
 GDExtensionScriptInstanceGetPropertyType get_property_type_func;
 GDExtensionScriptInstanceValidateProperty validate_property_func;
 
-GDExtensionScriptInstanceHasMethod has_method_func;
+GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName *p_name) {
+	return p_instance->script->_has_method(*p_name);
+}
 GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
-GDExtensionScriptInstanceCall call_func;
-GDExtensionScriptInstanceNotification2 notification_func;
+void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
+	*r_return = p_instance->script->_instance_call(p_instance, *p_method, p_args, p_argument_count, *r_error);
+}
+
+void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
+	p_instance->script->_instance_notification(p_instance, p_what, p_reversed);
+}
 
 GDExtensionScriptInstanceToString to_string_func;
 
-GDExtensionScriptInstanceRefCountIncremented refcount_incremented_func;
-GDExtensionScriptInstanceRefCountDecremented refcount_decremented_func;
+void refcount_incremented_func(LuaScriptInstance *) {
+}
 
-void *get_script_func(LuaScriptInstance *instance) {
-	return (void *) instance->script.ptr();
+GDExtensionBool refcount_decremented_func(LuaScriptInstance *) {
+	return false;
+}
+
+Object *get_script_func(LuaScriptInstance *instance) {
+	return instance->script.ptr();
 }
 
 GDExtensionBool is_placeholder_func(LuaScriptInstance *instance) {

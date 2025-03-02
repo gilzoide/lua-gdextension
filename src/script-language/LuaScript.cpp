@@ -28,6 +28,7 @@
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
 
+#include "gdextension_interface.h"
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/classes/engine.hpp"
@@ -251,15 +252,17 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 }
 
 bool LuaScript::_instance_set(LuaScriptInstance *instance, const StringName& p_name, const Variant& p_value) const {
-	if (const Callable *_set = methods.getptr("_set");
-		_set && _set->call(instance, p_name, p_value)
-	) {
+	if (const Ref<LuaFunction> *_set = methods.getptr("_set"); _set && _set->is_valid()) {
+		Variant result = _set->ptr()->call_method(instance, p_name, p_value);
+		if (LuaError *lua_error = Object::cast_to<LuaError>(result)) {
+			ERR_FAIL_V_MSG(false, lua_error->get_message());
+		}
 		return true;
 	}
 
 	if (const LuaScriptProperty *lua_prop = properties.getptr(p_name)) {
 		if (lua_prop->setter.is_valid()) {
-			lua_prop->setter.call(instance, p_value);
+			lua_prop->setter->call_method(instance, p_value);
 		}
 		else {
 			instance->properties[p_name] = p_value;
@@ -272,15 +275,19 @@ bool LuaScript::_instance_set(LuaScriptInstance *instance, const StringName& p_n
 }
 
 bool LuaScript::_instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const {
-	if (const Callable *_get = methods.getptr("_get");
-		_get && (p_value = _get->call(instance, p_name)) != Variant()
-	) {
-		return true;
+	if (const Ref<LuaFunction> *_get = methods.getptr("_get"); _get && _get->is_valid()) {
+		p_value = _get->ptr()->call_method(instance, p_name);
+		if (LuaError *lua_error = Object::cast_to<LuaError>(p_value)) {
+			ERR_FAIL_V_MSG(false, lua_error->get_message());
+		}
+		if (p_value != Variant()) {
+			return true;
+		}
 	}
 
 	if (const LuaScriptProperty *lua_prop = properties.getptr(p_name)) {
 		if (lua_prop->getter.is_valid()) {
-			p_value = lua_prop->getter.call(instance);
+			p_value = lua_prop->getter->call_method(instance);
 		}
 		else {
 			p_value = instance->properties.get(p_name, lua_prop->default_value);
@@ -293,6 +300,25 @@ bool LuaScript::_instance_get(LuaScriptInstance *instance, const StringName& p_n
 	}
 	else {
 		return false;
+	}
+}
+
+Variant LuaScript::_instance_call(LuaScriptInstance *instance, const StringName& p_name, const Variant **p_args, GDExtensionInt p_argument_count, GDExtensionCallError& r_error) const {
+	if (const Ref<LuaFunction> *method = methods.getptr(p_name)) {
+		return method->ptr()->invoke_method(instance, p_args, p_argument_count, r_error);
+	}
+	else {
+		r_error.error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
+	}
+	return {};
+}
+
+void LuaScript::_instance_notification(LuaScriptInstance *instance, int32_t what, GDExtensionBool reversed) const {
+	if (const Ref<LuaFunction> *method = methods.getptr("_notification")) {
+		Variant result = method->ptr()->call_method(instance, what, reversed);
+		if (LuaError *lua_error = Object::cast_to<LuaError>(result)) {
+			ERR_FAIL_MSG(lua_error->get_message());
+		}
 	}
 }
 
@@ -326,17 +352,13 @@ void LuaScript::process_script_result(const Variant& result) {
 
 		Variant value = metatable->get_value(key);
 		switch (value.get_type()) {
-			case Variant::CALLABLE:
-				methods[key] = value;
-				break;
-			
 			case Variant::SIGNAL:
 				signals[key] = value;
 				break;
 
 			case Variant::OBJECT:
 				if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
-					methods[key] = method->to_callable();
+					methods[key].reference_ptr(method);
 				}
 				// fallthrough
 			default:
