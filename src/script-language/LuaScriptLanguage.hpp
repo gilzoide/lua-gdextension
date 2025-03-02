@@ -32,6 +32,7 @@ class LuaState;
 
 class LuaScriptLanguage : public ScriptLanguageExtension {
 	GDCLASS(LuaScriptLanguage, ScriptLanguageExtension);
+
 public:
 	String _get_name() const override;
 	void _init() override;

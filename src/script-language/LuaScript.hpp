@@ -32,6 +32,7 @@ class LuaScriptLanguage;
 
 class LuaScript : public ScriptExtension {
 	GDCLASS(LuaScript, ScriptExtension);
+
 public:
 	bool _editor_can_reload_from_file() override;
 	void _placeholder_erased(void *p_placeholder) override;
@@ -70,8 +71,11 @@ public:
 	bool _is_placeholder_fallback_enabled() const override;
 	Variant _get_rpc_config() const override;
 
+	Variant _new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+
 protected:
 	static void _bind_methods();
+	virtual String _to_string() const;
 
 	String source_code;
 	Variant script_return_value;

@@ -24,6 +24,7 @@
 
 #include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/classes/ref.hpp>
+#include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
 
@@ -33,12 +34,17 @@ class LuaScript;
 
 struct LuaScriptInstance {
 	LuaScriptInstance(Object *owner, Ref<LuaScript> script);
+	~LuaScriptInstance();
 
 	static GDExtensionScriptInstanceInfo3 *get_script_instance_info();
+	static LuaScriptInstance *attached_to_object(Object *owner);
 
 	Object *owner;
 	Ref<LuaScript> script;
 	Dictionary properties;
+
+private:
+	static HashMap<Object *, LuaScriptInstance *> known_instances;
 };
 
 }

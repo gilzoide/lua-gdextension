@@ -55,6 +55,7 @@ bool LuaScriptResourceFormatLoader::_exists(const String &p_path) const {
 
 Variant LuaScriptResourceFormatLoader::_load(const String &p_path, const String &p_original_path, bool p_use_sub_threads, int32_t p_cache_mode) const {
 	Ref<LuaScript> script(LuaScriptLanguage::get_singleton()->_create_script());
+	script->set_path(p_original_path);
 	script->set_source_code(FileAccess::get_file_as_string(p_path));
 	Error status = script->reload();
 	if (status == OK) {

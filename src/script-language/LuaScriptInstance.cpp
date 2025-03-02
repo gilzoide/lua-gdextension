@@ -29,7 +29,16 @@
 
 namespace luagdextension {
 
-LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script) : owner(owner), script(script) {}
+LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
+	: owner(owner)
+	, script(script)
+{
+	known_instances.insert(owner, this);
+}
+
+LuaScriptInstance::~LuaScriptInstance() {
+	known_instances.erase(owner);
+}
 
 GDExtensionScriptInstanceSet set_func;
 GDExtensionScriptInstanceGet get_func;
@@ -112,5 +121,16 @@ GDExtensionScriptInstanceInfo3 script_instance_info = {
 GDExtensionScriptInstanceInfo3 *LuaScriptInstance::get_script_instance_info() {
 	return &script_instance_info;
 }
+
+LuaScriptInstance *LuaScriptInstance::attached_to_object(Object *owner) {
+	if (LuaScriptInstance **ptr = known_instances.getptr(owner)) {
+		return *ptr;
+	}
+	else {
+		return nullptr;
+	}
+}
+
+HashMap<Object *, LuaScriptInstance *> LuaScriptInstance::known_instances;
 
 }

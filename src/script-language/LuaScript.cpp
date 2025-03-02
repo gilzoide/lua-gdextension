@@ -27,6 +27,7 @@
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
 
+#include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/classes/engine.hpp"
 #include "godot_cpp/classes/global_constants.hpp"
@@ -43,7 +44,8 @@ void LuaScript::_placeholder_erased(void *p_placeholder) {
 }
 
 bool LuaScript::_can_instantiate() const {
-	return Object::cast_to<LuaTable>(script_return_value);
+	return Object::cast_to<LuaTable>(script_return_value)
+		&& ClassDB::can_instantiate(_get_instance_base_type());
 }
 
 Ref<Script> LuaScript::_get_base_script() const {
@@ -82,8 +84,7 @@ void *LuaScript::_placeholder_instance_create(Object *for_object) const {
 }
 
 bool LuaScript::_instance_has(Object *p_object) const {
-	// TODO
-	return false;
+	return LuaScriptInstance::attached_to_object(p_object);
 }
 
 bool LuaScript::_has_source_code() const {
@@ -128,8 +129,12 @@ TypedArray<Dictionary> LuaScript::_get_documentation() const {
 }
 
 String LuaScript::_get_class_icon_path() const {
-	// TODO
-	return {};
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		return table->get_value("icon");
+	}
+	else {
+		return {};
+	}
 }
 
 bool LuaScript::_has_method(const StringName &method) const {
@@ -181,8 +186,13 @@ ScriptLanguage *LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName &p_signal) const {
-	// TODO
-	return {};
+	if (LuaTable *table = Object::cast_to<LuaTable>(script_return_value)) {
+		Variant value = table->get(p_signal);
+		return value.get_type() == godot::Variant::SIGNAL;
+	}
+	else {
+		return false;
+	}
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -239,7 +249,25 @@ Variant LuaScript::_get_rpc_config() const {
 	return {};
 }
 
+Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	if (!_can_instantiate()) {
+		error.error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
+		return {};
+	}
+
+	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
+	if (Object *obj = new_instance) {
+		obj->set_script(this);
+	}
+	return new_instance;
+}
+
 void LuaScript::_bind_methods() {
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &LuaScript::_new);
+}
+
+String LuaScript::_to_string() const {
+	return String("[%s:%d]") % Array::make(get_class(), get_instance_id());
 }
 
 }
