@@ -33,6 +33,9 @@ if ARGUMENTS.get("debugging_symbols") == 'true':
     remove_options(env["LINKFLAGS"], "-Wl,-S", "-Wl,-x", "-Wl,-dead_strip")
     env.Append(CCFLAGS=["-g", "-O0"])
 
+# Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
+remove_options(env["LINKFLAGS"], "-s")
+
 # Lua defines
 env.Append(CPPDEFINES="MAKE_LIB")
 if env["platform"] == "windows":
