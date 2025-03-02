@@ -51,6 +51,24 @@ public:
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
 
+	struct Iterator {
+		Iterator() = default;
+		Iterator(Ref<LuaTable> table);
+
+		Variant operator*() const;
+		Iterator& operator++();
+		Iterator operator++(int);
+		bool operator==(const Iterator& other);
+		bool operator!=(const Iterator& other);
+		
+	private:
+		Ref<LuaTable> table;
+		Array iter;
+	};
+
+	Iterator begin();
+	Iterator end();
+
 protected:
 	static void _bind_methods();
 	

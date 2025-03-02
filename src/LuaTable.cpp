@@ -79,11 +79,14 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 	lua_pushnil(L);
 	if (lua_next(L, -2)) {
 		Array arg = iter;
+		arg.resize(1);
 		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
 	}
 	else {
+		Array arg = iter;
+		arg.clear();
 		return false;
 	}
 }
@@ -105,6 +108,14 @@ bool LuaTable::_iter_next(const Variant& iter) const {
 
 Variant LuaTable::_iter_get(const Variant& iter) const {
 	return iter;
+}
+
+LuaTable::Iterator LuaTable::begin() {
+	return Iterator(this);
+}
+
+LuaTable::Iterator LuaTable::end() {
+	return Iterator();
 }
 
 void LuaTable::_bind_methods() {
@@ -144,6 +155,44 @@ String LuaTable::_to_string() const {
 	else {
 		return LuaObjectSubclass::_to_string();
 	}
+}
+
+// LuaTable::Iterator
+LuaTable::Iterator::Iterator(Ref<LuaTable> table)
+	: table(table)
+	, iter()
+{
+	if (!table.is_valid()) {
+		return;
+	}
+	if (!table->_iter_init(iter)) {
+		iter.clear();
+	}
+}
+
+Variant LuaTable::Iterator::operator*() const {
+	return iter.is_empty() ? Variant() : iter[0];
+}
+
+LuaTable::Iterator& LuaTable::Iterator::operator++() {
+	if (!table->_iter_next(iter)) {
+		iter.clear();
+	}
+	return *this;
+}
+
+LuaTable::Iterator LuaTable::Iterator::operator++(int) {
+	Iterator copy(*this);
+	operator++();
+	return copy;
+}
+
+bool LuaTable::Iterator::operator==(const LuaTable::Iterator& other) {
+	return iter == other.iter;
+}
+
+bool LuaTable::Iterator::operator!=(const LuaTable::Iterator& other) {
+	return iter != other.iter;
 }
 
 }
