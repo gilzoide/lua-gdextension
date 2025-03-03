@@ -2,7 +2,7 @@ add_library(libs INTERFACE)
 
 # godot-cpp
 add_subdirectory(godot-cpp)
-target_link_libraries(libs INTERFACE godot::cpp)
+target_link_libraries(libs INTERFACE godot-cpp)
 
 # Lua
 add_library(lua STATIC "lua.cpp")

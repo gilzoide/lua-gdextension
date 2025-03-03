@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.13)
 
 project(luagdextension LANGUAGES CXX)
 
+# Set symbol visibility as "hidden" by default
+# Only "luagdextension_entrypoint" will be exported
+set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+
 add_subdirectory(lib)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
