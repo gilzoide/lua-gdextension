@@ -273,6 +273,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	state.set("PackedVector2Array", VariantType(Variant::PACKED_VECTOR2_ARRAY));
 	state.set("PackedVector3Array", VariantType(Variant::PACKED_VECTOR3_ARRAY));
 	state.set("PackedColorArray", VariantType(Variant::PACKED_COLOR_ARRAY));
+	state.set("PackedVector4Array", VariantType(Variant::PACKED_VECTOR4_ARRAY));
 
 	return 0;
 }

@@ -26,7 +26,10 @@
 namespace luagdextension {
 
 IndexedIterator::IndexedIterator(const Variant& variant)
-		: variant(variant), index(-1) {}
+	: variant(variant)
+	, index(-1)
+{
+}
 
 std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_state state) {
 	index++;
@@ -42,18 +45,19 @@ std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_st
 
 bool IndexedIterator::supports_indexed_pairs(const Variant& variant) {
 	switch (variant.get_type()) {
-		case godot::Variant::ARRAY:
-		case godot::Variant::PACKED_BYTE_ARRAY:
-		case godot::Variant::PACKED_INT32_ARRAY:
-		case godot::Variant::PACKED_INT64_ARRAY:
-		case godot::Variant::PACKED_FLOAT32_ARRAY:
-		case godot::Variant::PACKED_FLOAT64_ARRAY:
-		case godot::Variant::PACKED_STRING_ARRAY:
-		case godot::Variant::PACKED_VECTOR2_ARRAY:
-		case godot::Variant::PACKED_VECTOR3_ARRAY:
-		case godot::Variant::PACKED_COLOR_ARRAY:
-		case godot::Variant::VARIANT_MAX:
+		case Variant::ARRAY:
+		case Variant::PACKED_BYTE_ARRAY:
+		case Variant::PACKED_INT32_ARRAY:
+		case Variant::PACKED_INT64_ARRAY:
+		case Variant::PACKED_FLOAT32_ARRAY:
+		case Variant::PACKED_FLOAT64_ARRAY:
+		case Variant::PACKED_STRING_ARRAY:
+		case Variant::PACKED_VECTOR2_ARRAY:
+		case Variant::PACKED_VECTOR3_ARRAY:
+		case Variant::PACKED_COLOR_ARRAY:
+		case Variant::PACKED_VECTOR4_ARRAY:
 			return true;
+
 		default:
 			break;
 	}
