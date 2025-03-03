@@ -6,7 +6,7 @@ defaults:
 
 jobs:
   build_linux:
-    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    name: ${{ matrix.platform }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja ${{ join(matrix.packages, ' ') }}
+          sudo apt-get install ninja-build ${{ join(matrix.packages, ' ') }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
@@ -36,7 +36,7 @@ jobs:
             addons/lua-gdextension/build/**/libluagdextension.*
 
   build_macos:
-    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    name: ${{ matrix.platform }}
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -49,18 +49,9 @@ jobs:
       - name: Install dependencies
         run: |
           brew install ninja
-      - name: Cache SCons files
-        uses: actions/cache@v4
-        with:
-          path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
-          restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
-        env:
-          PYTHON_BIN: python3
+          make ${{ matrix.platform }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
