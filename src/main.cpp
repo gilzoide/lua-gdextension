@@ -78,8 +78,10 @@ static void deinitialize(ModuleInitializationLevel level) {
 	LuaScriptLanguage::delete_singleton();
 }
 
+extern "C" {
+
 __attribute__((visibility("default")))
-extern "C" GDExtensionBool luagdextension_entrypoint(
+GDExtensionBool luagdextension_entrypoint(
 	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
 	GDExtensionClassLibraryPtr p_library,
 	GDExtensionInitialization *r_initialization
@@ -91,4 +93,6 @@ extern "C" GDExtensionBool luagdextension_entrypoint(
 	init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
 
 	return init_obj.init();
+}
+
 }
