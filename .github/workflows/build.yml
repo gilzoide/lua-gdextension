@@ -25,6 +25,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install ninja-build ${{ join(matrix.packages, ' ') }}
+      - name: Cache build files
+        uses: actions/cache@v4
+        with:
+          path: build/
+          key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
@@ -49,6 +54,11 @@ jobs:
       - name: Install dependencies
         run: |
           brew install ninja
+      - name: Cache build files
+        uses: actions/cache@v4
+        with:
+          path: build/
+          key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
