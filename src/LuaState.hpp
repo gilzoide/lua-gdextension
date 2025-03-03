@@ -92,10 +92,10 @@ public:
 	void open_libraries(BitField<Library> libraries = LUA_ALL_LIBS | GODOT_ALL_LIBS);
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});
-	Variant load_string(const String& chunk, const String& chunkname = "");
-	Variant load_file(const String& filename, int buffer_size = 1024);
-	Variant do_string(const String& chunk, const String& chunkname = "");
-	Variant do_file(const String& filename, int buffer_size = 1024);
+	Variant load_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
+	Variant load_file(const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
+	Variant do_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
+	Variant do_file(const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
 
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;

@@ -30,6 +30,8 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaTable;
+
 Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
 Variant to_variant(const sol::stack_proxy_base& object);
@@ -49,10 +51,10 @@ sol::stack_object variant_call(sol::this_state state, Variant& variant, const ch
 std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
 std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
-Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "");
-Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024);
+Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
+Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
+Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
+Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
 
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message);
 
