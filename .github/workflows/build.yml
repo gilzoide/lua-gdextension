@@ -28,13 +28,13 @@ jobs:
       - name: CCache
         uses: actions/cache@v4
         with:
-          path: $HOME/.ccache
+          path: $GITHUB_WORKSPACE/.ccache
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
         env:
-          CCACHE_DIR: .ccache
+          CCACHE_DIR: $GITHUB_WORKSPACE/.ccache
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -60,13 +60,13 @@ jobs:
       - name: CCache
         uses: actions/cache@v4
         with:
-          path: $HOME/Library/Caches/ccache
+          path: $GITHUB_WORKSPACE/.ccache
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
         env:
-          CCACHE_DIR: .ccache
+          CCACHE_DIR: $GITHUB_WORKSPACE/.ccache
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
       - name: Upload artifact
         uses: actions/upload-artifact@v4
