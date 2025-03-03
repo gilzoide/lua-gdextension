@@ -24,15 +24,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install ninja-build ${{ join(matrix.packages, ' ') }}
-      - name: Cache build files
+          sudo apt-get install ccache ninja-build ${{ join(matrix.packages, ' ') }}
+      - name: CCache
         uses: actions/cache@v4
         with:
-          path: build/
+          path: .ccache/
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
+        env:
+          CCACHE_DIR: .ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,15 +56,18 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: |
-          brew install ninja
-      - name: Cache build files
+          brew install ccache ninja
+      - name: CCache
         uses: actions/cache@v4
         with:
-          path: build/
+          path: .ccache/
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
           make ${{ matrix.platform }}
+        env:
+          CCACHE_DIR: .ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
