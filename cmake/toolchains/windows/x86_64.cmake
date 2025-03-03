@@ -1,0 +1,11 @@
+set(CMAKE_SYSTEM_NAME "Windows")
+set(CMAKE_SYSTEM_PROCESSOR "x86_64")
+
+set(CMAKE_C_COMPILER x86_64-w64-mingw32-gcc)
+set(CMAKE_C_FLAGS_RELEASE "-s")
+set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
+set(CMAKE_CXX_FLAGS_RELEASE "-s")
+set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+set(CMAKE_SHARED_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+set(CMAKE_C_FLAGS_INIT "-DLUA_USE_WINDOWS")
+set(CMAKE_CXX_FLAGS_INIT "-DLUA_USE_WINDOWS")

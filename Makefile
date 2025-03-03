@@ -1,3 +1,7 @@
+CMAKE ?= cmake
+ifneq (, $(shell which ninja))
+CMAKE_ARGS += -GNinja
+endif
 # Zip distribution
 ADDONS_DIR = addons/lua-gdextension
 ADDONS_SRC = $(shell find $(ADDONS_DIR) -type f)
@@ -26,11 +30,61 @@ define UPDATE_README_VERSION_SED_SCRIPT
 endef
 
 $(ADDONS_DIR)/%: %
+	mkdir -p $(@D)
 	cp $< $@
 
 build:
 	mkdir -p $@
 
+# Build libraries using CMake
+build/%/debug/libluagdextension.dll: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Debug
+	$(CMAKE) --build $(@D)
+build/%/release/libluagdextension.dll: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Release
+	$(CMAKE) --build $(@D)
+
+build/%/debug/libluagdextension.so: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Debug
+	$(CMAKE) --build $(@D)
+build/%/release/libluagdextension.so: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Release
+	$(CMAKE) --build $(@D)
+
+build/%/debug/libluagdextension.dylib: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Debug
+	$(CMAKE) --build $(@D)
+build/%/release/libluagdextension.dylib: cmake/toolchains/%.cmake
+	$(CMAKE) . -B $(@D) --toolchain $(abspath $<) $(CMAKE_ARGS) -DCMAKE_BUILD_TYPE=Release
+	$(CMAKE) --build $(@D)
+
+windows: \
+	addons/lua-gdextension/build/windows/x86_64/debug/libluagdextension.dll \
+	addons/lua-gdextension/build/windows/x86_64/release/libluagdextension.dll \
+	addons/lua-gdextension/build/windows/x86_32/debug/libluagdextension.dll \
+	addons/lua-gdextension/build/windows/x86_32/release/libluagdextension.dll
+linux: \
+	addons/lua-gdextension/build/linux/x86_64/debug/libluagdextension.so \
+	addons/lua-gdextension/build/linux/x86_64/release/libluagdextension.so \
+	addons/lua-gdextension/build/linux/x86_32/debug/libluagdextension.so \
+	addons/lua-gdextension/build/linux/x86_32/release/libluagdextension.so
+macos: \
+	addons/lua-gdextension/build/macos/debug/libluagdextension.dylib \
+	addons/lua-gdextension/build/macos/release/libluagdextension.dylib
+android: \
+	addons/lua-gdextension/build/android/x86_64/debug/libluagdextension.so \
+	addons/lua-gdextension/build/android/x86_64/release/libluagdextension.so \
+	addons/lua-gdextension/build/android/x86_32/debug/libluagdextension.so \
+	addons/lua-gdextension/build/android/x86_32/release/libluagdextension.so \
+	addons/lua-gdextension/build/android/arm32/debug/libluagdextension.so \
+	addons/lua-gdextension/build/android/arm32/release/libluagdextension.so \
+	addons/lua-gdextension/build/android/arm64/debug/libluagdextension.so \
+	addons/lua-gdextension/build/android/arm64/release/libluagdextension.so
+ios: \
+	addons/lua-gdextension/build/ios/debug/libluagdextension.dylib \
+	addons/lua-gdextension/build/ios/release/libluagdextension.dylib
+
+# Miscelaneous
 build/lua-gdextension.zip: $(ADDONS_SRC) $(addprefix $(ADDONS_DIR)/,$(COPIED_FILES)) | build
 	zip $@ $^
 
