@@ -1,9 +1,9 @@
 import json
-from os import path
+import os
 
-SRC_DIR = path.dirname(__file__)
-DEST_DIR = path.join(SRC_DIR, "generated")
-API_JSON_PATH = path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
+SRC_DIR = os.path.dirname(__file__)
+DEST_DIR = os.path.join(SRC_DIR, "generated")
+API_JSON_PATH = os.path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
 PRIMITIVE_VARIANTS = [
     "bool",
     "int",
@@ -50,12 +50,13 @@ def generate_enums(global_enums):
 def main():
     with open(API_JSON_PATH) as f:
         api = json.load(f)
-
-    with open(path.join(DEST_DIR, "utility_functions.hpp"), "w") as f:
+    
+    os.makedirs(DEST_DIR, exist_ok=True)
+    with open(os.path.join(DEST_DIR, "utility_functions.hpp"), "w") as f:
         code = generate_utility_functions(api["utility_functions"])
         f.write(code)
 
-    with open(path.join(DEST_DIR, "global_enums.hpp"), "w") as f:
+    with open(os.path.join(DEST_DIR, "global_enums.hpp"), "w") as f:
         code = generate_enums(api["global_enums"])
         f.write(code)
 
