@@ -4,9 +4,6 @@ defaults:
   run:
     shell: bash
 
-env:
-  SCONS_CACHE: ${{ github.workspace }}/.scons-cache
-
 jobs:
   build_linux:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
@@ -14,27 +11,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [template_debug, template_release]
-        arch: [x86_64, x86_32, arm64, arm32]
         platform: [linux, windows, android]
         include:
           - platform: linux
-            arch: x86_32
             packages: [g++-multilib]
           - platform: windows
             packages: [g++-mingw-w64]
-          - platform: android
-            scons-args: android_api_level=21 ANDROID_HOME=""
-        exclude:
-          - platform: linux
-            arch: arm64
-          - platform: linux
-            arch: arm32
-          # TODO: add support for Windows ARM using llvm-mingw
-          - platform: windows
-            arch: arm64
-          - platform: windows
-            arch: arm32
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,23 +24,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
-      - name: Cache SCons files
-        uses: actions/cache@v4
-        with:
-          path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
-          restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
+          sudo apt-get install ninja ${{ join(matrix.packages, ' ') }}
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.scons-args }}
+          make ${{ matrix.platform }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          name: ${{ matrix.platform }}
           path: |
-            addons/lua-gdextension/build/libluagdextension.*
+            addons/lua-gdextension/build/**/libluagdextension.*
 
   build_macos:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
@@ -66,8 +41,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [template_debug, template_release]
-        arch: [universal]
         platform: [macos, ios]
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +48,7 @@ jobs:
           submodules: true
       - name: Install dependencies
         run: |
-          brew install scons
+          brew install ninja
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
@@ -91,9 +64,9 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          name: ${{ matrix.platform }}
           path: |
-            addons/lua-gdextension/build/libluagdextension.*
+            addons/lua-gdextension/build/**/libluagdextension.*
 
   test_distribution:
     name: Test ${{ matrix.name }}
@@ -157,5 +130,5 @@ jobs:
             LICENSE
             addons/lua-gdextension/LICENSE
             addons/lua-gdextension/*.gdextension
-            addons/lua-gdextension/build/libluagdextension*
+            addons/lua-gdextension/build/**/libluagdextension*
 
