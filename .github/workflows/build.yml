@@ -28,7 +28,7 @@ jobs:
       - name: CCache
         uses: actions/cache@v4
         with:
-          path: .ccache/
+          path: $HOME/.ccache
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
@@ -60,7 +60,7 @@ jobs:
       - name: CCache
         uses: actions/cache@v4
         with:
-          path: .ccache/
+          path: $HOME/Library/Caches/ccache
           key: ${{ matrix.platform }}
       - name: Build artifact
         run: |
