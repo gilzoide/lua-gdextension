@@ -51,3 +51,16 @@ func test_set_value() -> bool:
 	table.set(4, 4)
 	assert(table.length() == 4)
 	return true
+
+
+func test_clear() -> bool:
+	var table = lua_state.create_table()
+	table.set(1, 1)
+	table.set(2, 2)
+	table.set(3, 3)
+	table.set(4, 4)
+	table.clear()
+	assert(table.length() == 0)
+	for k in table:
+		assert(false, "Cleared table should have no key/value pair")
+	return true

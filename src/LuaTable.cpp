@@ -61,6 +61,12 @@ void LuaTable::set_value(const Variant& key, const Variant& value) {
 	lua_pop(L, 1);
 }
 
+void LuaTable::clear() {
+	for (auto [key, _] : lua_object) {
+		lua_object[key] = sol::nil;
+	}
+}
+
 int64_t LuaTable::length() const {
 	return lua_object.size();
 }
@@ -121,6 +127,7 @@ void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
 	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set_value);
+	ClassDB::bind_method(D_METHOD("clear"), &LuaTable::clear);
 	ClassDB::bind_method(D_METHOD("length"), &LuaTable::length);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
