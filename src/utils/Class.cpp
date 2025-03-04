@@ -29,7 +29,10 @@
 
 namespace luagdextension {
 
-Class::Class(const StringName& class_name) : class_name(class_name) {}
+Class::Class(const StringName& class_name)
+	: class_name(class_name)
+{
+}
 
 const StringName& Class::get_name() const {
 	return class_name;

@@ -27,6 +27,7 @@
 #include "../LuaLightUserdata.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
+#include "Class.hpp"
 #include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
@@ -64,6 +65,10 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			if (object.template is<Variant>()) {
 				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
 				return Variant(variant_ptr);
+			}
+			else if (object.template is<Class>()) {
+				Class& cls = object.template as<Class&>();
+				return cls.get_name();
 			}
 			else {
 				return memnew(LuaUserdata(object.template as<sol::userdata>()));
