@@ -99,6 +99,7 @@ String LuaScript::_get_source_code() const {
 
 void LuaScript::_set_source_code(const String &code) {
 	source_code = code;
+	_reload(true);
 }
 
 Error LuaScript::_reload(bool keep_state) {
