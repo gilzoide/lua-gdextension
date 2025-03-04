@@ -102,26 +102,15 @@ void LuaScript::_set_source_code(const String &code) {
 }
 
 Error LuaScript::_reload(bool keep_state) {
+	metatable.unref();
+
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
 		ERR_PRINT(error->get_message());
-		switch (error->get_status()) {
-			case LuaError::MEMORY:
-			case LuaError::GC:
-				return ERR_OUT_OF_MEMORY;
-
-			case LuaError::SYNTAX:
-				// Let editor load the script, so we can edit it
-				if (Engine::get_singleton()->is_editor_hint()) {
-					break;
-				}
-				return ERR_PARSE_ERROR;
-
-			default:
-				return ERR_SCRIPT_FAILED;
-		}
 	}
-	process_script_result(result);
+	else {
+		process_script_result(result);
+	}
 	return OK;
 }
 
@@ -169,7 +158,7 @@ bool LuaScript::_is_tool() const {
 }
 
 bool LuaScript::_is_valid() const {
-	return true;
+	return metatable.is_valid();
 }
 
 bool LuaScript::_is_abstract() const {
@@ -345,7 +334,12 @@ String LuaScript::_to_string() const {
 }
 
 void LuaScript::process_script_result(const Variant& result) {
-	metatable.reference_ptr(Object::cast_to<LuaTable>(result));
+	LuaTable *table = Object::cast_to<LuaTable>(result);
+	if (!table) {
+		return;
+	}
+
+	metatable.reference_ptr(table);
 	methods.clear();
 	properties.clear();
 	signals.clear();
@@ -353,9 +347,19 @@ void LuaScript::process_script_result(const Variant& result) {
 		return;
 	}
 
-	for (Variant key : *metatable.ptr()) {
+	for (Variant key : *table) {
+		if (key == "extends") {
+			StringName class_name = table->get_value(key);
+			if (!ClassDB::class_exists(class_name)) {
+				WARN_PRINT(String("Specified base class '%s' does not exist. Unsetting 'extends'") % Array::make(class_name));
+				table->set_value(key, Variant());
+			}
+			// skip, not considered property
+			continue;
+		}
+
 		// skip special keys, they are not considered properties
-		if (key.in(Array::make("class_name", "extends", "icon", "tool"))) {
+		if (key.in(Array::make("class_name", "icon", "tool"))) {
 			continue;
 		}
 
@@ -364,7 +368,7 @@ void LuaScript::process_script_result(const Variant& result) {
 			continue;
 		}
 
-		Variant value = metatable->get_value(key);
+		Variant value = table->get_value(key);
 		switch (value.get_type()) {
 			case Variant::SIGNAL:
 				signals[key] = value;
