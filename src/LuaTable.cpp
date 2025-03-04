@@ -36,20 +36,18 @@ LuaTable::LuaTable() : LuaObjectSubclass() {}
 LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
-Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
-	lua_State *L = get_lua_state();
-	sol::stack::push(L, lua_object);
-	std::ignore = to_lua(L, key);
-	lua_gettable(L, -2);
-	Variant value;
-	if (lua_isnoneornil(L, -1)) {
-		value = default_value;
+sol::optional<Variant> LuaTable::try_get_value(const Variant& key) const {
+	auto lua_key = to_lua(get_lua_state(), key);
+	if (auto lua_value = lua_object.get<sol::optional<sol::object>>(lua_key)) {
+		return to_variant(*lua_value);
 	}
 	else {
-		value = to_variant(L, -1);
+		return {};
 	}
-	lua_pop(L, 2);
-	return value;
+}
+
+Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
+	return try_get_value(key).value_or(default_value);
 }
 
 void LuaTable::set_value(const Variant& key, const Variant& value) {

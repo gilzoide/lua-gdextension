@@ -40,6 +40,7 @@ public:
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
 
+	sol::optional<Variant> try_get_value(const Variant& key) const;
 	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
 	void set_value(const Variant& key, const Variant& value);
 	void clear();
