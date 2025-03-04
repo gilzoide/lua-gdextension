@@ -37,7 +37,9 @@ LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
 sol::optional<Variant> LuaTable::try_get_value(const Variant& key) const {
-	auto lua_key = to_lua(lua_object.lua_state(), key);
+	lua_State *L = lua_object.lua_state();
+	auto lua_key = to_lua(L, key);
+	sol::stack::pop_n(L, 1);
 	if (auto lua_value = lua_object.get<sol::optional<sol::object>>(lua_key)) {
 		return to_variant(*lua_value);
 	}
