@@ -37,7 +37,7 @@ LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
 sol::optional<Variant> LuaTable::try_get_value(const Variant& key) const {
-	auto lua_key = to_lua(get_lua_state(), key);
+	auto lua_key = to_lua(lua_object.lua_state(), key);
 	if (auto lua_value = lua_object.get<sol::optional<sol::object>>(lua_key)) {
 		return to_variant(*lua_value);
 	}
@@ -51,12 +51,11 @@ Variant LuaTable::get_value(const Variant& key, const Variant& default_value) co
 }
 
 void LuaTable::set_value(const Variant& key, const Variant& value) {
-	lua_State *L = get_lua_state();
-	sol::stack::push(L, lua_object);
+	lua_State *L = lua_object.lua_state();
+	auto table_popper = sol::stack::push_pop(L, lua_object);
 	std::ignore = to_lua(L, key);
 	std::ignore = to_lua(L, value);
 	lua_settable(L, -3);
-	lua_pop(L, 1);
 }
 
 void LuaTable::clear() {
@@ -78,7 +77,7 @@ Array LuaTable::to_array() const {
 }
 
 bool LuaTable::_iter_init(const Variant& iter) const {
-	lua_State *L = get_lua_state();
+	lua_State *L = lua_object.lua_state();
 	auto table_popper = sol::stack::push_pop(lua_object);
 	lua_pushnil(L);
 	if (lua_next(L, -2)) {
@@ -94,7 +93,7 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 }
 
 bool LuaTable::_iter_next(const Variant& iter) const {
-	lua_State *L = get_lua_state();
+	lua_State *L = lua_object.lua_state();
 	Array arg = iter;
 	auto table_popper = sol::stack::push_pop(lua_object);
 	auto key = to_lua(L, arg[0]);
@@ -137,16 +136,12 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
-	PackedByteArray bytes = property_name.to_utf8_buffer();
-	r_value = to_variant(lua_object[to_string_view(bytes)].get<sol::object>());
-
+	r_value = to_variant(lua_object[property_name].get<sol::object>());
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
-	PackedByteArray bytes = property_name.to_utf8_buffer();
-	lua_object[to_string_view(bytes)] = to_lua(get_lua_state(), value);
-
+	lua_object[property_name] = to_lua(lua_object.lua_state(), value);
 	return true;
 }
 

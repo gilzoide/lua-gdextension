@@ -27,8 +27,8 @@ const sol::reference& LuaObject::get_lua_object() const {
 	throw "LuaObject subclass must override get_lua_object!";
 }
 
-lua_State *LuaObject::get_lua_state() const {
-	return get_lua_object().lua_state();
+LuaState *LuaObject::get_lua_state() const {
+	return LuaState::find_lua_state(get_lua_object().lua_state());
 }
 
 uint64_t LuaObject::get_pointer_value() const {
@@ -36,6 +36,7 @@ uint64_t LuaObject::get_pointer_value() const {
 }
 
 void LuaObject::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_lua_state"), &LuaObject::get_lua_state);
 	ClassDB::bind_method(D_METHOD("get_pointer_value"), &LuaObject::get_pointer_value);
 }
 

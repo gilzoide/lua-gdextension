@@ -153,6 +153,7 @@ LuaTable *LuaState::get_registry() const {
 }
 
 LuaState *LuaState::find_lua_state(lua_State *L) {
+	L = sol::main_thread(L);
 	if (LuaState **ptr = valid_states.getptr(L)) {
 		return *ptr;
 	}

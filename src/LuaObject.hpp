@@ -36,7 +36,7 @@ class LuaObject : public RefCounted {
 
 public:
 	virtual const sol::reference& get_lua_object() const;
-	lua_State *get_lua_state() const;
+	LuaState *get_lua_state() const;
 
 	uint64_t get_pointer_value() const;
 
@@ -57,7 +57,7 @@ public:
 		if (!lua_object.valid()) {
 			throw "FIXME: invalid reference to Lua object";
 		}
-		if (LuaState *state = LuaState::find_lua_state(get_lua_state())) {
+		if (LuaState *state = get_lua_state()) {
 			lua_state = Ref(state);
 		}
 	}
@@ -65,7 +65,7 @@ public:
 		if (!lua_object.valid()) {
 			throw "FIXME: invalid reference to Lua object";
 		}
-		if (LuaState *state = LuaState::find_lua_state(get_lua_state())) {
+		if (LuaState *state = get_lua_state()) {
 			lua_state = Ref(state);
 		}
 	}
