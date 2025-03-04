@@ -105,12 +105,29 @@ Ref<Script> LuaScriptLanguage::_make_template(const String &_template, const Str
 }
 
 TypedArray<Dictionary> LuaScriptLanguage::_get_built_in_templates(const StringName &p_object) const {
-	// TODO
+#ifdef DEBUG_ENABLED
+	Dictionary base_template;
+	base_template["inherit"] = "Node";
+	base_template["id"] = 0;
+	base_template["name"] = "default";
+	base_template["description"] = "Default template";
+	base_template["origin"] = 0;
+	base_template["content"] =
+R"(local _CLASS_ = {
+	extends = _BASE_,
+}
+
+return _CLASS_
+)";
+
+	return Array::make(base_template);
+#else
 	return {};
+#endif
 }
 
 bool LuaScriptLanguage::_is_using_templates() {
-	return false;
+	return true;
 }
 
 Dictionary LuaScriptLanguage::_validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const {
@@ -168,8 +185,7 @@ bool LuaScriptLanguage::_can_make_function() const {
 }
 
 Error LuaScriptLanguage::_open_in_external_editor(const Ref<Script> &p_script, int32_t p_line, int32_t p_column) {
-	// TODO
-	return FAILED;
+	return OK;
 }
 
 bool LuaScriptLanguage::_overrides_external_editor() {
@@ -177,8 +193,7 @@ bool LuaScriptLanguage::_overrides_external_editor() {
 }
 
 ScriptLanguage::ScriptNameCasing LuaScriptLanguage::_preferred_file_name_casing() const {
-	// TODO
-	return {};
+	return SCRIPT_NAME_CASING_AUTO;
 }
 
 Dictionary LuaScriptLanguage::_complete_code(const String &p_code, const String &p_path, Object *p_owner) const {
@@ -193,7 +208,7 @@ Dictionary LuaScriptLanguage::_lookup_code(const String &p_code, const String &p
 
 String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from_line, int32_t p_to_line) const {
 	// TODO
-	return {};
+	return p_code;
 }
 
 void LuaScriptLanguage::_add_global_constant(const StringName &p_name, const Variant &p_value) {
@@ -325,7 +340,7 @@ void LuaScriptLanguage::_frame() {
 }
 
 bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
-	return lua_state->get_globals()->get_value(type);
+	return false;
 }
 
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
