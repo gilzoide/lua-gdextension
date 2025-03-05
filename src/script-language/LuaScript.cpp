@@ -187,8 +187,11 @@ TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
-	// TODO
-	return {};
+	TypedArray<Dictionary> list;
+	for (auto [name, prop] : metadata.properties) {
+		list.append(prop.to_dictionary());
+	}
+	return list;
 }
 
 int32_t LuaScript::_get_member_line(const StringName &p_member) const {

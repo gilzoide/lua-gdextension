@@ -19,28 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_SCRIPT_PROPERTY_HPP__
-#define __LUA_SCRIPT_PROPERTY_HPP__
 
-#include <godot_cpp/variant/variant.hpp>
-
-#include "../utils/custom_sol.hpp"
-
-using namespace godot;
+#include "LuaScriptProperty.hpp"
 
 namespace luagdextension {
 
-struct LuaScriptProperty {
-	StringName name;
-	Variant::Type type;
-	Variant default_value;
-
-	sol::optional<sol::protected_function> getter;  // Variant getter(self)
-	sol::optional<sol::protected_function> setter;  // void setter(self, Variant value)
-
-	Dictionary to_dictionary() const;
-};
-
+Dictionary LuaScriptProperty::to_dictionary() const {
+	Dictionary d;
+	d["name"] = name;
+	// d["class_name"]
+	d["type"] = int(type);
+	// d["hint"]
+	// d["hint_string"]
+	// d["usage"]
+	return d;
 }
 
-#endif  // __LUA_SCRIPT_PROPERTY_HPP__
+}

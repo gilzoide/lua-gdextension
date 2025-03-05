@@ -75,6 +75,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 		else {
 			Variant var = to_variant(value);
 			properties.insert(name, LuaScriptProperty {
+				.name = name,
 				.type = var.get_type(),
 				.default_value = var,
 				.getter = sol::nullopt,
