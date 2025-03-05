@@ -39,12 +39,12 @@ namespace luagdextension::function_wrapper {
 template<typename T>
 struct WrappedArg {
 	// T == Variant ? sol::object : T
-	using type = typename std::conditional<std::is_same<std::decay_t<T>, Variant>::value, sol::object, T>::type;
+	using type = typename std::conditional<std::is_same<std::decay_t<T>, Variant>::value, sol::stack_object, T>::type;
 };
 
 /// Wrap an argument from Lua to Variant.
 template<typename T> decltype(auto) wrap_argument(T value) { return value; }
-template<> inline decltype(auto) wrap_argument(sol::object value) { return to_variant(value); }
+template<> inline decltype(auto) wrap_argument(sol::stack_object value) { return to_variant(value); }
 
 /// Unwrap Variant values to Lua objects.
 template<typename T> decltype(auto) unwrap_return(T value, sol::this_state state) { return value; }
@@ -61,12 +61,14 @@ namespace luagdextension {
 template<typename RetType, typename... VariantArgs>
 decltype(auto) wrap_function(RetType(*f)(VariantArgs... args)) {
 	return [f](typename function_wrapper::WrappedArg<VariantArgs>::type... lua_args, sol::this_state state) {
-		if constexpr (std::is_same<RetType, void>::value) {
-			f(function_wrapper::wrap_argument(lua_args)...);
-		}
-		else {
-			return function_wrapper::unwrap_return(f(function_wrapper::wrap_argument(lua_args)...), state);
-		}
+		RetType result = f(function_wrapper::wrap_argument(lua_args)...);
+		return function_wrapper::unwrap_return(result, state);
+	};
+}
+template<typename... VariantArgs>
+inline decltype(auto) wrap_function(void(*f)(VariantArgs... args)) {
+	return [f](typename function_wrapper::WrappedArg<VariantArgs>::type... lua_args, sol::this_state state) {
+		f(function_wrapper::wrap_argument(lua_args)...);
 	};
 }
 
@@ -75,15 +77,18 @@ decltype(auto) wrap_function(RetType(*f)(VariantArgs... args)) {
  * Variant arguments are converted nicely, so the runtime won't crash.
  */
 template<typename RetType>
-decltype(auto) wrap_function(RetType(*f)(const Variant **, GDExtensionInt)) {
+decltype(auto) wrap_variadic_function(RetType(*f)(const Variant **, GDExtensionInt)) {
 	return [f](sol::variadic_args args, sol::this_state state) {
 		VariantArguments var_args = args;
-		if constexpr (std::is_same<RetType, void>::value) {
-			f(var_args.argv(), var_args.argc());
-		}
-		else {
-			return function_wrapper::unwrap_return(f(var_args.argv(), var_args.argc()), state);
-		}
+		RetType result = f(var_args.argv(), var_args.argc());
+		return function_wrapper::unwrap_return(result, state);
+	};
+}
+template<>
+inline decltype(auto) wrap_variadic_function(void(*f)(const Variant **, GDExtensionInt)) {
+	return [f](sol::variadic_args args, sol::this_state state) {
+		VariantArguments var_args = args;
+		f(var_args.argv(), var_args.argc());
 	};
 }
 

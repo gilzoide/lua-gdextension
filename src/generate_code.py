@@ -25,7 +25,7 @@ def generate_utility_functions(utility_functions):
         if funcname is None:
             continue
         if f.get("is_vararg", False):
-            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{funcname}_internal));')
+            lines.append(f'\tstate.set("{name}", wrap_variadic_function(&UtilityFunctions::{funcname}_internal));')
         elif (
             f.get("return_type") not in PRIMITIVE_VARIANTS
             or any(arg["type"] not in PRIMITIVE_VARIANTS for arg in f.get("arguments", []))
