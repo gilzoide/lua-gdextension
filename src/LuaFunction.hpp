@@ -24,6 +24,7 @@
 
 #include <array>
 
+#include "LuaError.hpp"
 #include "LuaObject.hpp"
 
 using namespace godot;
@@ -46,25 +47,39 @@ public:
 	Variant invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	template<typename... Args>
-	Variant call(Args&&... args) {
+	Variant try_call(Args&&... args) {
 		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
 		std::array<const Variant *, sizeof...(Args)> var_ptrs;
 		for (int i = 0; i < vars.size(); i++) {
 			var_ptrs[i] = &vars[i];
 		}
 		GDExtensionCallError err;
-		return invoke((const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+		Variant result = invoke((const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+		if (LuaError *error = Object::cast_to<LuaError>(result)) {
+			ERR_PRINT(error->get_message());
+			return Variant();
+		}
+		else {
+			return result;
+		}
 	}
 	
 	template<typename... Args>
-	Variant call_method(LuaScriptInstance *self, Args&&... args) {
+	Variant try_call_method(LuaScriptInstance *self, Args&&... args) {
 		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
 		std::array<const Variant *, sizeof...(Args)> var_ptrs;
 		for (int i = 0; i < vars.size(); i++) {
 			var_ptrs[i] = &vars[i];
 		}
 		GDExtensionCallError err;
-		return invoke_method(self, (const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+		Variant result = invoke_method(self, (const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
+		if (LuaError *error = Object::cast_to<LuaError>(result)) {
+			ERR_PRINT(error->get_message());
+			return Variant();
+		}
+		else {
+			return result;
+		}
 	}
 
 	Callable to_callable() const;

@@ -134,14 +134,14 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
 	Variant value = p_instance->script->get_metatable()->get("_notification");
 	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
-		method->call_method(p_instance, p_what, p_reversed);
+		method->try_call_method(p_instance, p_what, p_reversed);
 	}
 }
 
 void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, String *r_out) {
 	Variant value = p_instance->script->get_metatable()->get("_to_string");
 	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
-		*r_out = method->call_method(p_instance);
+		*r_out = method->try_call_method(p_instance);
 		*r_is_valid = true;
 	}
 	else {
