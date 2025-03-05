@@ -75,6 +75,7 @@ public:
 	Iterator begin();
 	Iterator end();
 
+	sol::table& get_table();
 	const sol::table& get_table() const;
 
 protected:

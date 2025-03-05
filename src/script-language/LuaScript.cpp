@@ -48,7 +48,7 @@ void LuaScript::_placeholder_erased(void *p_placeholder) {
 }
 
 bool LuaScript::_can_instantiate() const {
-	return metatable.is_valid()
+	return metadata.is_valid
 		&& ClassDB::can_instantiate(_get_instance_base_type());
 }
 
@@ -57,12 +57,7 @@ Ref<Script> LuaScript::_get_base_script() const {
 }
 
 StringName LuaScript::_get_global_name() const {
-	if (metatable.is_valid()) {
-		return metatable->get("class_name");
-	}
-	else {
-		return {};
-	}
+	return metadata.class_name;
 }
 
 bool LuaScript::_inherits_script(const Ref<Script> &script) const {
@@ -70,17 +65,12 @@ bool LuaScript::_inherits_script(const Ref<Script> &script) const {
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	if (metatable.is_valid()) {
-		return metatable->get("extends", RefCounted::get_class_static());
-	}
-	else {
-		return RefCounted::get_class_static();
-	}
+	return metadata.base_class;
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
 	LuaScriptInstance *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
-	for (auto [name, signal] : signals) {
+	for (auto [name, signal] : metadata.signals) {
 		instance->data->set(name, Signal(instance->owner, name));
 	}
 	return godot::internal::gdextension_interface_script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
@@ -108,15 +98,14 @@ void LuaScript::_set_source_code(const String &code) {
 }
 
 Error LuaScript::_reload(bool keep_state) {
-	metatable.unref();
-	signals.clear();
+	metadata.clear();
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
 		ERR_PRINT(error->get_message());
 	}
-	else {
-		process_script_result(result);
+	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
+		metadata.setup(table->get_table());
 	}
 	return OK;
 }
@@ -127,26 +116,14 @@ TypedArray<Dictionary> LuaScript::_get_documentation() const {
 }
 
 String LuaScript::_get_class_icon_path() const {
-	if (metatable.is_valid()) {
-		return metatable->get("icon");
-	}
-	else {
-		return {};
-	}
+	return metadata.icon_path;
 }
 
 bool LuaScript::_has_method(const StringName &p_method) const {
-	if (metatable.is_valid()) {
-		if (p_method == StringName("rawget") || p_method == StringName("rawset")) {
-			return true;
-		}
-		Variant value = metatable->get(p_method);
-		LuaFunction *method = Object::cast_to<LuaFunction>(value);
-		return method != nullptr;
+	if (p_method == StringName("rawget") || p_method == StringName("rawset")) {
+		return true;
 	}
-	else {
-		return false;
-	}
+	return metadata.methods.has(p_method);
 }
 
 bool LuaScript::_has_static_method(const StringName &p_method) const {
@@ -166,16 +143,11 @@ Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
 }
 
 bool LuaScript::_is_tool() const {
-	if (metatable.is_valid()) {
-		return metatable->get("tool");
-	}
-	else {
-		return false;
-	}
+	return metadata.is_tool;
 }
 
 bool LuaScript::_is_valid() const {
-	return metatable.is_valid();
+	return metadata.is_valid;
 }
 
 bool LuaScript::_is_abstract() const {
@@ -187,7 +159,7 @@ ScriptLanguage *LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName &p_signal) const {
-	return signals.has(p_signal);
+	return metadata.signals.has(p_signal);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -251,9 +223,8 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	}
 
 	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
-	Variant _init = metatable->get("_init");
-	if (LuaFunction *init_method = Object::cast_to<LuaFunction>(_init)) {
-		init_method->invoke_method(new_instance, args, arg_count, error);
+	if (const sol::protected_function *_init = metadata.methods.getptr("_init")) {
+		LuaFunction::invoke_method_lua(*_init, new_instance, args, arg_count, false);
 	}
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
@@ -261,8 +232,8 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	return new_instance;
 }
 
-Ref<LuaTable> LuaScript::get_metatable() {
-	return metatable;
+const LuaScriptMetadata& LuaScript::get_metadata() const {
+	return metadata;
 }
 
 void LuaScript::_bind_methods() {
@@ -271,36 +242,6 @@ void LuaScript::_bind_methods() {
 
 String LuaScript::_to_string() const {
 	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
-}
-
-void LuaScript::process_script_result(const Variant& result) {
-	LuaTable *table = Object::cast_to<LuaTable>(result);
-	if (!table) {
-		return;
-	}
-
-	metatable.reference_ptr(table);
-
-	for (auto [key, value] : table->get_table()) {
-		if (key.get_type() != sol::type::string) {
-			continue;
-		}
-
-		String name = key.as<String>();
-		if (name == "extends") {
-			StringName base_class = to_variant(value);
-			if (value && !ClassDB::class_exists(base_class)) {
-				WARN_PRINT(String("Specified base class '%s' does not exist. Unsetting 'extends'") % Array::make(base_class));
-				table->set("extends", Variant());
-			}
-		}
-
-		if (value.is<LuaScriptSignal>()) {
-			signals.insert(name, value.as<LuaScriptSignal>());
-		}
-
-		// TODO: handle methods and properties
-	}
 }
 
 }

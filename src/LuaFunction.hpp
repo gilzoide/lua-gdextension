@@ -46,41 +46,9 @@ public:
 	Variant invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 	Variant invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
-	template<typename... Args>
-	Variant try_call(Args&&... args) {
-		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
-		std::array<const Variant *, sizeof...(Args)> var_ptrs;
-		for (int i = 0; i < vars.size(); i++) {
-			var_ptrs[i] = &vars[i];
-		}
-		GDExtensionCallError err;
-		Variant result = invoke((const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
-		if (LuaError *error = Object::cast_to<LuaError>(result)) {
-			ERR_PRINT(error->get_message());
-			return Variant();
-		}
-		else {
-			return result;
-		}
-	}
-	
-	template<typename... Args>
-	Variant try_call_method(LuaScriptInstance *self, Args&&... args) {
-		std::array<Variant, sizeof...(Args)> vars { Variant(std::forward<Args>(args))... };
-		std::array<const Variant *, sizeof...(Args)> var_ptrs;
-		for (int i = 0; i < vars.size(); i++) {
-			var_ptrs[i] = &vars[i];
-		}
-		GDExtensionCallError err;
-		Variant result = invoke_method(self, (const Variant **) var_ptrs.data(), (GDExtensionInt) vars.size(), err);
-		if (LuaError *error = Object::cast_to<LuaError>(result)) {
-			ERR_PRINT(error->get_message());
-			return Variant();
-		}
-		else {
-			return result;
-		}
-	}
+	static Variant invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
+	static Variant invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
+	static Variant invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error);
 
 	Callable to_callable() const;
 

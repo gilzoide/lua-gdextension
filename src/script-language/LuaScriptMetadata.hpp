@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -19,59 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#ifndef __LUA_SCRIPT_METADATA_HPP__
+#define __LUA_SCRIPT_METADATA_HPP__
 
-#include "utils/custom_sol.hpp"
+#include <godot_cpp/templates/hash_map.hpp>
 
-#include <godot_cpp/classes/ref_counted.hpp>
+#include "LuaScriptProperty.hpp"
+#include "LuaScriptSignal.hpp"
+#include "../utils/custom_sol.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+struct LuaScriptMetadata {
+	bool is_valid;
+	bool is_tool;
+	StringName base_class;
+	StringName class_name;
+	String icon_path;
+	HashMap<StringName, LuaScriptProperty> properties;
+	HashMap<StringName, LuaScriptSignal> signals;
+	HashMap<StringName, sol::protected_function> methods;
 
-public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
-
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::load_result& load_result);
-	LuaError(const sol::protected_function_result& function_result);
-
-	String get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-	operator String() const;
-
-	static String extract_message(const sol::load_result& load_result);
-	static String extract_message(const sol::protected_function_result& function_result);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
+	void setup(const sol::table& t);
+	void clear();
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __LUA_SCRIPT_METADATA_HPP__

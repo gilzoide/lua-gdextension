@@ -25,8 +25,7 @@
 #include <godot_cpp/classes/script_extension.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 
-#include "../LuaFunction.hpp"
-#include "LuaScriptSignal.hpp"
+#include "LuaScriptMetadata.hpp"
 
 using namespace godot;
 
@@ -36,14 +35,6 @@ class LuaFunction;
 class LuaScriptInstance;
 class LuaScriptLanguage;
 class LuaTable;
-
-struct LuaScriptProperty {
-	Variant::Type type;
-	Variant default_value;
-	
-	Ref<LuaFunction> getter = {};  // Variant getter(self)
-	Ref<LuaFunction> setter = {};  // void setter(self, Variant value)
-};
 
 class LuaScript : public ScriptExtension {
 	GDCLASS(LuaScript, ScriptExtension);
@@ -88,18 +79,14 @@ public:
 
 	// Script methods
 	Variant _new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-	Ref<LuaTable> get_metatable();
+	const LuaScriptMetadata& get_metadata() const;
 
 protected:
 	static void _bind_methods();
 	virtual String _to_string() const;
 
 	String source_code;
-	Ref<LuaTable> metatable;
-	HashMap<StringName, LuaScriptSignal> signals;
-
-private:
-	void process_script_result(const Variant& result);
+	LuaScriptMetadata metadata;
 };
 
 }

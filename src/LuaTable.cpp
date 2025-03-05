@@ -153,6 +153,10 @@ LuaTable::Iterator LuaTable::end() {
 	return Iterator();
 }
 
+sol::table& LuaTable::get_table() {
+	return lua_object;
+}
+
 const sol::table& LuaTable::get_table() const {
 	return lua_object;
 }

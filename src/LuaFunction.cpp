@@ -38,31 +38,12 @@ void LuaFunction::_bind_methods() {
 }
 
 Variant LuaFunction::invokev(const Array& args) {
-	int arg_count = args.size();
-	if (arg_count == 0) {
-		return to_variant(lua_object.call());
-	}
-
-	lua_State *L = lua_object.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(lua_object.call(lua_args));
+	return invokev_lua(lua_object, args, true);
 }
 
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
 	error.error = GDEXTENSION_CALL_OK;
-	if (arg_count == 0) {
-		return to_variant(lua_object.call());
-	}
-
-	lua_State *L = lua_object.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, *args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(lua_object.call(lua_args));
+	return invoke_lua(lua_object, args, arg_count, true);
 }
 
 Variant LuaFunction::invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
@@ -72,17 +53,61 @@ Variant LuaFunction::invoke_method(const Variant& self, const Variant **args, GD
 	}
 	error.error = GDEXTENSION_CALL_OK;
 
-	lua_State *L = lua_object.lua_state();
+	return invoke_method_lua(lua_object, self, args, arg_count, false);
+}
+
+Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	return invoke_method(self->owner, args, arg_count, error);
+}
+
+Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
+	lua_State *L = f.lua_state();
+	for (int i = 0; i < arg_count; i++) {
+		lua_push(L, *args[i]);
+	}
+	sol::variadic_args lua_args(L, -arg_count);
+	sol::protected_function_result result = f.call(lua_args);
+	if (!return_lua_error && !result.valid()) {
+		ERR_PRINT(LuaError::extract_message(result));
+		return Variant();
+	}
+	else {
+		return to_variant(result);
+	}
+}
+
+Variant LuaFunction::invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
+	lua_State *L = f.lua_state();
 	lua_push(L, self);
 	for (int i = 0; i < arg_count; i++) {
 		lua_push(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -(1 + arg_count));
-	return to_variant(lua_object.call(lua_args));
+	sol::protected_function_result result = f.call(lua_args);
+	if (!return_lua_error && !result.valid()) {
+		ERR_PRINT(LuaError::extract_message(result));
+		return Variant();
+	}
+	else {
+		return to_variant(result);
+	}
 }
 
-Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
-	return invoke_method(self->owner, args, arg_count, error);
+Variant LuaFunction::invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error) {
+	GDExtensionInt arg_count = args.size();
+	lua_State *L = f.lua_state();
+	for (int i = 0; i < arg_count; i++) {
+		lua_push(L, args[i]);
+	}
+	sol::variadic_args lua_args(L, -arg_count);
+	sol::protected_function_result result = f.call(lua_args);
+	if (!return_lua_error && !result.valid()) {
+		ERR_PRINT(LuaError::extract_message(result));
+		return Variant();
+	}
+	else {
+		return to_variant(result);
+	}
 }
 
 Callable LuaFunction::to_callable() const {
