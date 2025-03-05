@@ -42,6 +42,15 @@ LuaScriptInstance::~LuaScriptInstance() {
 }
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
+	// try `_set`
+	Variant _set = p_instance->script->get_metatable()->get("_set");
+	if (LuaFunction *method = Object::cast_to<LuaFunction>(_set)) {
+		Variant value_was_set = method->try_call_method(p_instance, *p_name, *p_value);
+		if (value_was_set) {
+			return true;
+		}
+	}
+
 	if (ClassDB::class_set_property(p_instance->owner, *p_name, *p_value) == OK) {
 		return true;
 	}
@@ -51,6 +60,16 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
+	// call `_get`
+	Variant _get = p_instance->script->get_metatable()->get("_get");
+	if (LuaFunction *method = Object::cast_to<LuaFunction>(_get)) {
+		Variant value = method->try_call_method(p_instance, *p_name);
+		if (value != Variant()) {
+			*p_value = value;
+			return true;
+		}
+	}
+
 	// access own data
 	if (auto data_value = p_instance->data->try_get(*p_name)) {
 		*p_value = *data_value;
