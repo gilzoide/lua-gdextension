@@ -145,14 +145,12 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
-	StackTopChecker topcheck(lua_object.lua_state());
-	r_value = to_variant(lua_object[property_name].get<sol::object>());
+	r_value = get_value(property_name);
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
-	StackTopChecker topcheck(lua_object.lua_state());
-	lua_object[property_name] = to_lua(lua_object.lua_state(), value);
+	set_value(property_name, value);
 	return true;
 }
 

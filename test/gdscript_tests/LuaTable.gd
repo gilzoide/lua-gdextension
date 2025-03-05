@@ -53,6 +53,13 @@ func test_set_value() -> bool:
 	return true
 
 
+func test_property() -> bool:
+	var table = lua_state.create_table()
+	table.value = "value"
+	assert(table.value == "value")
+	return true
+
+
 func test_clear() -> bool:
 	var table = lua_state.create_table()
 	table.set(1, 1)
