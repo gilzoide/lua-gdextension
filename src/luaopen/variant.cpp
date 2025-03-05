@@ -41,7 +41,7 @@ using namespace godot;
 namespace luagdextension {
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
+sol::object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -58,11 +58,11 @@ sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::sta
 			b_str.get_data()
 		);
 	}
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
+sol::object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -76,24 +76,23 @@ sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stac
 			a_str.get_data()
 		);
 	}
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
 
-sol::stack_object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
+sol::object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
 	bool is_valid;
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
 		if (Variant::has_member(variant.get_type(), string_name)) {
-			return lua_push(state, variant.get_named(string_name, is_valid));
+			return to_lua(state, variant.get_named(string_name, is_valid));
 		}
 		else if (variant.has_method(string_name)) {
-			sol::stack::push(state, MethodBindByName(string_name));
-			return sol::stack_object(state, -1);
+			return sol::make_object(state, MethodBindByName(string_name));
 		}
 	}
 
 	Variant result = variant.get(to_variant(key), &is_valid);
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
 
 void variant__newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
@@ -113,7 +112,7 @@ void variant__newindex(sol::this_state state, Variant& variant, const sol::stack
 	}
 }
 
-sol::stack_object variant__length(sol::this_state state, Variant& variant) {
+sol::object variant__length(sol::this_state state, Variant& variant) {
 	return variant_call_string_name(state, variant, "size", sol::variadic_args(state, 0));
 }
 
@@ -167,7 +166,7 @@ sol::object variant__call(sol::this_state state, const Variant& variant, sol::va
 	Callable callable = variant;
 	VariantArguments var_args = args;
 	Variant result = callable.callv(var_args.get_array());
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
 
 }

@@ -42,7 +42,7 @@ Variant ObjectIterator::iter_next() {
 sol::object ObjectIterator::iter_next_lua(sol::this_state state) {
 	bool is_valid;
 	if (variant.iter_next(iterator, is_valid)) {
-		return lua_push(state, variant.iter_get(iterator, is_valid));
+		return to_lua(state, variant.iter_get(iterator, is_valid));
 	}
 	else {
 		return sol::nil;

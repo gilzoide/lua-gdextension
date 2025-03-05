@@ -48,7 +48,7 @@ template<> inline decltype(auto) wrap_argument(sol::stack_object value) { return
 
 /// Unwrap Variant values to Lua objects.
 template<typename T> decltype(auto) unwrap_return(T value, sol::this_state state) { return value; }
-template<> inline decltype(auto) unwrap_return(Variant value, sol::this_state state) { return lua_push(state, value); }
+template<> inline decltype(auto) unwrap_return(Variant value, sol::this_state state) { return to_lua(state, value); }
 
 }
 

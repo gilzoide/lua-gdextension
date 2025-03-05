@@ -44,7 +44,7 @@ std::tuple<sol::object, sol::object> DictionaryIterator::iter_next_lua(sol::this
 	if (kvp.has_value()) {
 		Variant key, value;
 		std::tie(key, value) = kvp.value();
-		return std::make_tuple(lua_push(state, key), lua_push(state, value));
+		return std::make_tuple(to_lua(state, key), to_lua(state, value));
 	}
 	else {
 		return std::make_tuple(sol::nil, sol::nil);

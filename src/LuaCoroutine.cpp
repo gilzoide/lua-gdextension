@@ -53,7 +53,7 @@ Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDE
 	lua_State *L = lua_object.thread_state();
 	if (arg_count > 0) {
 		for (int i = 0; i < arg_count; i++) {
-			std::ignore = lua_push(L, *args[i]);
+			lua_push(L, *args[i]);
 		}
 	}
 
@@ -69,7 +69,7 @@ Variant LuaCoroutine::resumev(const Array& args) {
 	lua_State *L = lua_object.thread_state();
 	int arg_count = args.size();
 	for (int i = 0; i < arg_count; i++) {
-		std::ignore = lua_push(L, args[i]);
+		lua_push(L, args[i]);
 	}
 
 	int nresults;

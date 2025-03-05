@@ -40,7 +40,7 @@ sol::optional<Variant> LuaTable::try_get(const Variant& key, bool raw) const {
 	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
 	sol::stack::push(L, lua_object);
-	std::ignore = lua_push(L, key);
+	lua_push(L, key);
 	if (raw) {
 		lua_rawget(L, -2);
 	}
@@ -62,8 +62,8 @@ bool LuaTable::try_set(const Variant& key, const Variant& value, bool raw) {
 	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
 	auto table_popper = sol::stack::push_pop(L, lua_object);
-	std::ignore = lua_push(L, key);
-	std::ignore = lua_push(L, value);
+	lua_push(L, key);
+	lua_push(L, value);
 	if (raw) {
 		lua_rawset(L, -3);
 	}
@@ -130,7 +130,7 @@ bool LuaTable::_iter_next(const Variant& iter) const {
 	lua_State *L = lua_object.lua_state();
 	Array arg = iter;
 	auto table_popper = sol::stack::push_pop(lua_object);
-	auto key = lua_push(L, arg[0]);
+	lua_push(L, arg[0]);
 	if (lua_next(L, -2)) {
 		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);

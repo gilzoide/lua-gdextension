@@ -45,7 +45,7 @@ sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_obje
 		auto class_name = key.as<StringName>();
 		if (engine->has_singleton(class_name)) {
 			Variant singleton = engine->get_singleton(class_name);
-			return _G[key] = lua_push(state, singleton);
+			return _G[key] = to_lua(state, singleton);
 		}
 	}
 	if (registry.get_or(module_names::classes, false)) {

@@ -179,6 +179,12 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 	return sol::stack_object(lua_state, -1);
 }
 
+sol::object to_lua(lua_State *lua_state, const Variant& value) {
+	sol::object result = lua_push(lua_state, value);
+	lua_pop(lua_state, 1);
+	return result;
+}
+
 Array to_array(const sol::variadic_args& args) {
 	Array arr;
 	for (auto it : args) {
@@ -210,13 +216,13 @@ sol::table to_table(sol::state_view& state, const Dictionary& dictionary) {
 		while (auto kvp = iterator.iter_next()) {
 			Variant key, value;
 			std::tie(key, value) = kvp.value();
-			table[lua_push(state, key)] = lua_push(state, value);
+			table[to_lua(state, key)] = to_lua(state, value);
 		}
 	}
 	return table;
 }
 
-sol::stack_object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
+sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -226,9 +232,9 @@ sol::stack_object variant_static_call_string_name(sol::this_state state, Variant
 		String message = String("Invalid static call to method '{0}' in type {1}").format(Array::make(method, Variant::get_type_name(type)));
 		lua_error(state, error, message);
 	}
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
-sol::stack_object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
+sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -238,9 +244,9 @@ sol::stack_object variant_call_string_name(sol::this_state state, Variant& varia
 		String message = String("Invalid call to method '{0}' in object of type {1}").format(Array::make(method, get_type_name(variant)));
 		lua_error(state, error, message);
 	}
-	return lua_push(state, result);
+	return to_lua(state, result);
 }
-sol::stack_object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
 	return variant_call_string_name(state, variant, method, args);
 }
 
@@ -251,10 +257,10 @@ std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, V
 	GDExtensionCallError error;
 	variant.callp(method, variant_args.argv(), variant_args.argc(), result, error);
 	if (error.error == GDEXTENSION_CALL_OK) {
-		return std::make_tuple(true, lua_push(state, result));
+		return std::make_tuple(true, to_lua(state, result));
 	}
 	else {
-		return std::make_tuple(false, lua_push(state, to_string(error)));
+		return std::make_tuple(false, to_lua(state, to_string(error)));
 	}
 }
 std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
