@@ -23,8 +23,8 @@
 #include "LuaTable.hpp"
 
 #include "utils/convert_godot_lua.hpp"
-#include "utils/convert_godot_std.hpp"
 #include "utils/metatable.hpp"
+#include "utils/stack_top_checker.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 
@@ -37,14 +37,17 @@ LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
 sol::optional<Variant> LuaTable::try_get_value(const Variant& key) const {
+	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
-	auto lua_key = to_lua(L, key);
-	sol::stack::pop_n(L, 1);
-	if (auto lua_value = lua_object.get<sol::optional<sol::object>>(lua_key)) {
-		return to_variant(*lua_value);
+	sol::stack::push(L, lua_object);
+	std::ignore = to_lua(L, key);
+	lua_gettable(L, -2);
+	auto _ = sol::stack::pop_n(L, 2);
+	if (lua_isnoneornil(L, -1)) {
+		return std::nullopt;
 	}
 	else {
-		return {};
+		return to_variant(L, -1);
 	}
 }
 
@@ -53,6 +56,7 @@ Variant LuaTable::get_value(const Variant& key, const Variant& default_value) co
 }
 
 void LuaTable::set_value(const Variant& key, const Variant& value) {
+	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
 	auto table_popper = sol::stack::push_pop(L, lua_object);
 	std::ignore = to_lua(L, key);
@@ -61,6 +65,7 @@ void LuaTable::set_value(const Variant& key, const Variant& value) {
 }
 
 void LuaTable::clear() {
+	StackTopChecker topcheck(lua_object.lua_state());
 	for (auto [key, _] : lua_object) {
 		lua_object[key] = sol::nil;
 	}
@@ -79,6 +84,7 @@ Array LuaTable::to_array() const {
 }
 
 bool LuaTable::_iter_init(const Variant& iter) const {
+	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
 	auto table_popper = sol::stack::push_pop(lua_object);
 	lua_pushnil(L);
@@ -95,6 +101,7 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 }
 
 bool LuaTable::_iter_next(const Variant& iter) const {
+	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
 	Array arg = iter;
 	auto table_popper = sol::stack::push_pop(lua_object);
@@ -138,11 +145,13 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
+	StackTopChecker topcheck(lua_object.lua_state());
 	r_value = to_variant(lua_object[property_name].get<sol::object>());
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
+	StackTopChecker topcheck(lua_object.lua_state());
 	lua_object[property_name] = to_lua(lua_object.lua_state(), value);
 	return true;
 }
