@@ -67,6 +67,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			signals.insert(name, *signal);
 		}
 		else if (auto property = value.as<sol::optional<LuaScriptProperty>>()) {
+			property->name = name;
 			properties.insert(name, *property);
 		}
 		else if (auto method = value.as<sol::optional<sol::protected_function>>()) {

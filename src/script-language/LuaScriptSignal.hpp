@@ -22,8 +22,9 @@
 #ifndef __LUA_SCRIPT_SIGNAL_HPP__
 #define __LUA_SCRIPT_SIGNAL_HPP__
 
-#include "godot_cpp/variant/string.hpp"
-#include "godot_cpp/variant/packed_string_array.hpp"
+#include <godot_cpp/variant/variant.hpp>
+
+#include "../utils/custom_sol.hpp"
 
 using namespace godot;
 
@@ -31,6 +32,8 @@ namespace luagdextension {
 
 struct LuaScriptSignal {
 	PackedStringArray arguments;
+
+	static LuaScriptSignal from_lua(sol::variadic_args arguments);
 };
 
 }

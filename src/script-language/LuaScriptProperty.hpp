@@ -39,6 +39,8 @@ struct LuaScriptProperty {
 	sol::optional<sol::protected_function> setter;  // void setter(self, Variant value)
 
 	Dictionary to_dictionary() const;
+
+	static LuaScriptProperty from_lua(sol::stack_object value);
 };
 
 }

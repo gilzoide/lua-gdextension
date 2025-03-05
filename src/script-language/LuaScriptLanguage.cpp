@@ -22,6 +22,7 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
@@ -47,13 +48,13 @@ void LuaScriptLanguage::_init() {
 		"LuaScriptSignal",
 		sol::no_construction()
 	);
-	state.set("signal", [](sol::variadic_args args) {
-		LuaScriptSignal signal;
-		for (auto it : args) {
-			signal.arguments.push_back(it.as<String>());
-		}
-		return signal;
-	});
+	state.set("signal", &LuaScriptSignal::from_lua);
+
+	state.new_usertype<LuaScriptProperty>(
+		"LuaScriptProperty",
+		sol::no_construction()
+	);
+	state.set("property", &LuaScriptProperty::from_lua);
 }
 
 String LuaScriptLanguage::_get_type() const {

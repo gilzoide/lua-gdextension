@@ -20,48 +20,17 @@
  * SOFTWARE.
  */
 
-#include "LuaScriptProperty.hpp"
+#include "LuaScriptSignal.hpp"
 
-#include "../utils/VariantType.hpp"
-#include "../utils/convert_godot_lua.hpp"
+#include "../utils/VariantArguments.hpp"
 
 namespace luagdextension {
 
-LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
-	LuaScriptProperty property;
-	if (auto table = value.as<sol::optional<sol::stack_table>>()) {
-		if (auto default_value = table->get<sol::optional<sol::object>>("default")) {
-			property.default_value = to_variant(*default_value);
-		}
-		else if (auto default_value = table->get<sol::optional<sol::object>>(1)) {
-			property.default_value = to_variant(*default_value);
-		}
-		
-		if (auto type = table->get<sol::optional<VariantType>>("type")) {
-			property.type = type->get_type();
-		}
-		else if (auto type = table->get<sol::optional<VariantType>>(2)) {
-			property.type = type->get_type();
-		}
-	}
-	else {
-		property.default_value = to_variant(value);
-	}
-	if (property.type == 0) {
-		property.type = property.default_value.get_type();
-	}
-	return property;
-}
-
-Dictionary LuaScriptProperty::to_dictionary() const {
-	Dictionary d;
-	d["name"] = name;
-	// d["class_name"]
-	d["type"] = int(type);
-	// d["hint"]
-	// d["hint_string"]
-	// d["usage"]
-	return d;
+LuaScriptSignal LuaScriptSignal::from_lua(sol::variadic_args arguments) {
+	LuaScriptSignal signal = {
+		.arguments = VariantArguments(arguments).get_array(),
+	};
+	return signal;
 }
 
 }
