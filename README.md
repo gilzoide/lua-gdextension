@@ -4,7 +4,7 @@
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
 
-Extension for using the Lua programming language in Godot 4.1.2+
+Extension for using the Lua programming language in Godot 4.3
 
 This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
 

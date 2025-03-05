@@ -7,6 +7,8 @@ func _initialize():
 	var all_success = true
 	
 	for lua_script in DirAccess.get_files_at(LUA_TEST_DIR):
+		if lua_script.ends_with(".uid"):
+			continue
 		var lua_state = LuaState.new()
 		lua_state.open_libraries()
 		
@@ -19,6 +21,8 @@ func _initialize():
 			print("✓ ", lua_script)
 
 	for gdscript in DirAccess.get_files_at(GDSCRIPT_TEST_DIR):
+		if gdscript.ends_with(".uid"):
+			continue
 		print("> ", gdscript, ":")
 		var file_name = str(GDSCRIPT_TEST_DIR, "/", gdscript)
 		var obj = load(file_name).new()
