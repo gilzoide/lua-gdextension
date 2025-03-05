@@ -64,3 +64,21 @@ func test_clear() -> bool:
 	for k in table:
 		assert(false, "Cleared table should have no key/value pair")
 	return true
+
+
+func test_unpack_same_state() -> bool:
+	var table = lua_state.create_table()
+	lua_state.globals.set("t", table)
+	var t_type = lua_state.do_string("return type(t)")
+	assert(t_type == "table", "Table should be unpacked from Variant when passed to its LuaState")
+	return true
+
+
+func test_dont_unpack_other_state() -> bool:
+	var table = lua_state.create_table()
+	var other_state = LuaState.new()
+	other_state.open_libraries()
+	other_state.globals.set("t", table)
+	var t_type = other_state.do_string("return type(t)")
+	assert(t_type == "userdata", "Table should remain as Variant when passed to another LuaState")
+	return true
