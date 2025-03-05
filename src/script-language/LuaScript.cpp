@@ -223,11 +223,11 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	}
 
 	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
-	if (const sol::protected_function *_init = metadata.methods.getptr("_init")) {
-		LuaFunction::invoke_method_lua(*_init, new_instance, args, arg_count, false);
-	}
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
+	}
+	if (const sol::protected_function *_init = metadata.methods.getptr("_init")) {
+		LuaFunction::invoke_method_lua(*_init, new_instance, args, arg_count, false);
 	}
 	return new_instance;
 }
