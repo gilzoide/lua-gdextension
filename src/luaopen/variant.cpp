@@ -230,6 +230,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	MethodBindByName::register_usertype(state);
 	VariantType::register_usertype(state);
 
+	state.set("typeof", &variant_get_type);
+
 	// atomic types
 	state.set("bool", VariantType(Variant::BOOL));
 	state.set("int", VariantType(Variant::INT));

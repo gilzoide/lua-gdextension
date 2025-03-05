@@ -51,6 +51,7 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 		}
 	}
 
+	// try setting Object property
 	if (ClassDB::class_set_property(p_instance->owner, *p_name, *p_value) == OK) {
 		return true;
 	}

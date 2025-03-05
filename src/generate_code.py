@@ -10,7 +10,7 @@ PRIMITIVE_VARIANTS = [
     "float",
 ]
 UTILITY_FUNCTION_MAP = {
-    "typeof": "type_of",
+    "typeof": None,
     "is_instance_valid": None,
 }
 
