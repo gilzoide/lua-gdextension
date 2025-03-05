@@ -81,6 +81,7 @@ int sol_lua_push(lua_State* L, const PackedStringArray &v) { lua_push(L, Variant
 int sol_lua_push(lua_State* L, const PackedVector2Array &v) { lua_push(L, Variant(v)); return 1; }
 int sol_lua_push(lua_State* L, const PackedVector3Array &v) { lua_push(L, Variant(v)); return 1; }
 int sol_lua_push(lua_State* L, const PackedColorArray &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedVector4Array &v) { lua_push(L, Variant(v)); return 1; }
 
 #if LUA_VERSION_NUM < 504
 int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults) {
