@@ -89,6 +89,8 @@ public:
 	LuaState();
 	~LuaState();
 
+	sol::state_view get_lua_state() const;
+
 	void open_libraries(BitField<Library> libraries = LUA_ALL_LIBS | GODOT_ALL_LIBS);
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});

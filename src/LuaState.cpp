@@ -56,6 +56,10 @@ LuaState::~LuaState() {
 	valid_states.erase(lua_state);
 }
 
+sol::state_view LuaState::get_lua_state() const {
+	return lua_state;
+}
+
 void LuaState::open_libraries(BitField<Library> libraries) {
 	if ((libraries & LUA_ALL_LIBS) == LUA_ALL_LIBS) {
 		lua_state.open_libraries();
