@@ -56,7 +56,7 @@ Ref<Script> LuaScript::_get_base_script() const {
 
 StringName LuaScript::_get_global_name() const {
 	if (metatable.is_valid()) {
-		return metatable->get_value("class_name");
+		return metatable->get("class_name");
 	}
 	else {
 		return {};
@@ -69,7 +69,7 @@ bool LuaScript::_inherits_script(const Ref<Script> &script) const {
 
 StringName LuaScript::_get_instance_base_type() const {
 	if (metatable.is_valid()) {
-		return metatable->get_value("extends", RefCounted::get_class_static());
+		return metatable->get("extends", RefCounted::get_class_static());
 	}
 	else {
 		return RefCounted::get_class_static();
@@ -122,7 +122,7 @@ TypedArray<Dictionary> LuaScript::_get_documentation() const {
 
 String LuaScript::_get_class_icon_path() const {
 	if (metatable.is_valid()) {
-		return metatable->get_value("icon");
+		return metatable->get("icon");
 	}
 	else {
 		return {};
@@ -131,7 +131,7 @@ String LuaScript::_get_class_icon_path() const {
 
 bool LuaScript::_has_method(const StringName &p_method) const {
 	if (metatable.is_valid()) {
-		Variant value = metatable->get_value(p_method);
+		Variant value = metatable->get(p_method);
 		LuaFunction *method = Object::cast_to<LuaFunction>(value);
 		return method != nullptr;
 	}
@@ -158,7 +158,7 @@ Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
 
 bool LuaScript::_is_tool() const {
 	if (metatable.is_valid()) {
-		return metatable->get_value("tool");
+		return metatable->get("tool");
 	}
 	else {
 		return false;
@@ -179,7 +179,7 @@ ScriptLanguage *LuaScript::_get_language() const {
 
 bool LuaScript::_has_script_signal(const StringName &p_signal) const {
 	if (metatable.is_valid()) {
-		Variant value = metatable->get_value(p_signal);
+		Variant value = metatable->get(p_signal);
 		return value.get_type() == Variant::Type::SIGNAL;
 	}
 	else {
@@ -248,7 +248,7 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	}
 
 	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
-	Variant _init = metatable->get_value("_init");
+	Variant _init = metatable->get("_init");
 	if (LuaFunction *init_method = Object::cast_to<LuaFunction>(_init)) {
 		init_method->invoke_method(new_instance, args, arg_count, error);
 	}
@@ -279,10 +279,10 @@ void LuaScript::process_script_result(const Variant& result) {
 	metatable.reference_ptr(table);
 
 	// Remove "extends" field if it's invalid
-	Variant base_class = table->get_value("extends");
+	Variant base_class = table->get("extends");
 	if (base_class && !ClassDB::class_exists(base_class)) {
 		WARN_PRINT(String("Specified base class '%s' does not exist. Unsetting 'extends'") % Array::make(base_class));
-		table->set_value("extends", Variant());
+		table->set("extends", Variant());
 	}
 }
 

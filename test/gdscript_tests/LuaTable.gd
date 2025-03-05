@@ -43,6 +43,28 @@ func test_get_value() -> bool:
 	return true
 
 
+func test_rawget() -> bool:
+	var table = lua_state.do_string("""
+		local t = { value = 'value' }
+		return setmetatable({}, { __index = t })
+	""")
+	assert(table.get("value") == "value")
+	assert(table.rawget("value") == null)
+	return true
+
+
+func test_rawset() -> bool:
+	var table = lua_state.do_string("""
+		local t = {}
+		return setmetatable({}, { __newindex = t })
+	""")
+	table.set("value", "value")
+	assert(table.get("value") == null)
+	table.rawset("value", "value")
+	assert(table.get("value") == "value")
+	return true
+
+
 func test_set_value() -> bool:
 	var table = lua_state.create_table()
 	table.set(1, 1)

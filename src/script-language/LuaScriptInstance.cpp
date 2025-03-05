@@ -46,19 +46,19 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
-	p_instance->data->set_value(*p_name, *p_value);
+	p_instance->data->set(*p_name, *p_value);
 	return true;
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
 	// access own data
-	if (auto data_value = p_instance->data->try_get_value(*p_name)) {
+	if (auto data_value = p_instance->data->try_get(*p_name)) {
 		*p_value = *data_value;
 		return true;
 	}
 
 	// fallback to value in script
-	if (auto script_value = p_instance->script->get_metatable()->try_get_value(*p_name)) {
+	if (auto script_value = p_instance->script->get_metatable()->try_get(*p_name)) {
 		*p_value = *script_value;
 		return true;
 	}
@@ -90,7 +90,39 @@ GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName 
 GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	Variant value = p_instance->script->get_metatable()->get_value(*p_method);
+	if (*p_method == StringName("rawget")) {
+		if (p_argument_count == 1) {
+			r_error->error = GDEXTENSION_CALL_OK;
+			*r_return = p_instance->data->get(*p_args[0]);
+		}
+		else if (p_argument_count < 1) {
+			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
+			r_error->expected = 1;
+		}
+		else {
+			r_error->error = GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS;
+			r_error->expected = 1;
+		}
+		return;
+	}
+	if (*p_method == StringName("rawset")) {
+		if (p_argument_count == 2) {
+			r_error->error = GDEXTENSION_CALL_OK;
+			*r_return = Variant();
+			p_instance->data->set(*p_args[0], *p_args[1]);
+		}
+		else if (p_argument_count < 2) {
+			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
+			r_error->expected = 2;
+		}
+		else {
+			r_error->error = GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS;
+			r_error->expected = 2;
+		}
+		return;
+	}
+
+	Variant value = p_instance->script->get_metatable()->get(*p_method);
 	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
 		*r_return = method->invoke_method(p_instance, p_args, p_argument_count, *r_error);
 	}
@@ -100,14 +132,14 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 }
 
 void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
-	Variant value = p_instance->script->get_metatable()->get_value("_notification");
+	Variant value = p_instance->script->get_metatable()->get("_notification");
 	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
 		method->call_method(p_instance, p_what, p_reversed);
 	}
 }
 
 void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, String *r_out) {
-	Variant value = p_instance->script->get_metatable()->get_value("_to_string");
+	Variant value = p_instance->script->get_metatable()->get("_to_string");
 	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
 		*r_out = method->call_method(p_instance);
 		*r_is_valid = true;
