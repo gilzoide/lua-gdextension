@@ -25,6 +25,7 @@
 
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
+#include "LuaScriptMetadata.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
 
@@ -36,6 +37,16 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	, data(LuaScriptLanguage::get_singleton()->get_lua_state()->create_table())
 {
 	known_instances.insert(owner, this);
+
+	const LuaScriptMetadata& metadata = script->get_metadata();
+	for (auto [name, signal] : metadata.signals) {
+		data->set(name, Signal(owner, name));
+	}
+	for (auto [name, property] : metadata.properties) {
+		if (!property.getter) {
+			data->set(name, property.default_value.duplicate());
+		}
+	}
 }
 
 LuaScriptInstance::~LuaScriptInstance() {

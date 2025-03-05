@@ -23,7 +23,7 @@
 
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
-#include "LuaScriptSignal.hpp"
+#include "LuaScriptProperty.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaState.hpp"
@@ -70,9 +70,6 @@ StringName LuaScript::_get_instance_base_type() const {
 
 void *LuaScript::_instance_create(Object *for_object) const {
 	LuaScriptInstance *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
-	for (auto [name, signal] : metadata.signals) {
-		instance->data->set(name, Signal(instance->owner, name));
-	}
 	return godot::internal::gdextension_interface_script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
 }
 
@@ -168,13 +165,16 @@ TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
 }
 
 bool LuaScript::_has_property_default_value(const StringName &p_property) const {
-	// TODO
-	return {};
+	return metadata.properties.has(p_property);
 }
 
 Variant LuaScript::_get_property_default_value(const StringName &p_property) const {
-	// TODO
-	return {};
+	if (const LuaScriptProperty *property = metadata.properties.getptr(p_property)) {
+		return property->default_value;
+	}
+	else {
+		return {};
+	}
 }
 
 void LuaScript::_update_exports() {
