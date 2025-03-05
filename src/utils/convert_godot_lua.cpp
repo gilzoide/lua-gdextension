@@ -179,10 +179,6 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 	return sol::stack_object(lua_state, -1);
 }
 
-sol::stack_object to_lua(lua_State *lua_state, LuaScriptInstance *value) {
-	return to_lua(lua_state, value->data);
-}
-
 Array to_array(const sol::variadic_args& args) {
 	Array arr;
 	for (auto it : args) {

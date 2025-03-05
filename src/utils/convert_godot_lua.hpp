@@ -31,7 +31,6 @@ using namespace godot;
 namespace luagdextension {
 
 class LuaTable;
-class LuaScriptInstance;
 
 Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
@@ -40,7 +39,6 @@ Variant to_variant(const sol::protected_function_result& function_result);
 Variant to_variant(const sol::load_result& load_result);
 Variant to_variant(lua_State *L, int index);
 sol::stack_object to_lua(lua_State *lua_state, const Variant& value);
-sol::stack_object to_lua(lua_State *lua_state, LuaScriptInstance *value);
 
 Array to_array(const sol::variadic_args& args);
 Array to_array(const sol::table& table);

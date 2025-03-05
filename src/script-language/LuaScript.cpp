@@ -248,6 +248,10 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	}
 
 	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
+	Variant _init = metatable->get_value("_init");
+	if (LuaFunction *init_method = Object::cast_to<LuaFunction>(_init)) {
+		init_method->invoke_method(new_instance, args, arg_count, error);
+	}
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
 	}

@@ -42,6 +42,7 @@ public:
 
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
+	Variant invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 	Variant invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	template<typename... Args>

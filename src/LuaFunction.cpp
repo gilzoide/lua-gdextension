@@ -65,7 +65,7 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 	return to_variant(lua_object.call(lua_args));
 }
 
-Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+Variant LuaFunction::invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
 	if (!self) {
 		error.error = GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
 		return {};
@@ -79,6 +79,10 @@ Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args
 	}
 	sol::variadic_args lua_args(L, -(1 + arg_count));
 	return to_variant(lua_object.call(lua_args));
+}
+
+Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
+	return invoke_method(self->owner, args, arg_count, error);
 }
 
 Callable LuaFunction::to_callable() const {
