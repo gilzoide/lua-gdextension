@@ -173,11 +173,11 @@ void refcount_incremented_func(LuaScriptInstance *) {
 }
 
 GDExtensionBool refcount_decremented_func(LuaScriptInstance *) {
-	return false;
+	return true;
 }
 
-Object *get_script_func(LuaScriptInstance *instance) {
-	return instance->script.ptr();
+void *get_script_func(LuaScriptInstance *instance) {
+	return instance->script.ptr()->_owner;
 }
 
 GDExtensionBool is_placeholder_func(LuaScriptInstance *instance) {
