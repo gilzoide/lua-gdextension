@@ -75,6 +75,8 @@ public:
 	Iterator begin();
 	Iterator end();
 
+	const sol::table& get_table() const;
+
 protected:
 	static void _bind_methods();
 	

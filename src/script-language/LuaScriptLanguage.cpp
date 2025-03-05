@@ -22,6 +22,7 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
@@ -39,6 +40,20 @@ String LuaScriptLanguage::_get_name() const {
 void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
+
+	// Register scripting specific usertypes
+	sol::state_view state = lua_state->get_lua_state();
+	state.new_usertype<LuaScriptSignal>(
+		"LuaScriptSignal",
+		sol::no_construction()
+	);
+	state.set("signal", [](sol::variadic_args args) {
+		LuaScriptSignal signal;
+		for (auto it : args) {
+			signal.arguments.push_back(it.as<String>());
+		}
+		return signal;
+	});
 }
 
 String LuaScriptLanguage::_get_type() const {

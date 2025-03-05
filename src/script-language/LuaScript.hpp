@@ -26,6 +26,7 @@
 #include <godot_cpp/templates/hash_map.hpp>
 
 #include "../LuaFunction.hpp"
+#include "LuaScriptSignal.hpp"
 
 using namespace godot;
 
@@ -95,6 +96,7 @@ protected:
 
 	String source_code;
 	Ref<LuaTable> metatable;
+	HashMap<StringName, LuaScriptSignal> signals;
 
 private:
 	void process_script_result(const Variant& result);

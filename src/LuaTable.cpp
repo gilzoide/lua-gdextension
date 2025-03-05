@@ -153,6 +153,10 @@ LuaTable::Iterator LuaTable::end() {
 	return Iterator();
 }
 
+const sol::table& LuaTable::get_table() const {
+	return lua_object;
+}
+
 void LuaTable::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set);

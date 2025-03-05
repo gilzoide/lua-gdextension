@@ -23,10 +23,12 @@
 
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
+#include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
+#include "../utils/convert_godot_lua.hpp"
 
 #include "gdextension_interface.h"
 #include "godot_cpp/core/class_db.hpp"
@@ -77,7 +79,10 @@ StringName LuaScript::_get_instance_base_type() const {
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
-	void *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
+	LuaScriptInstance *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
+	for (auto [name, signal] : signals) {
+		instance->data->set(name, Signal(instance->owner, name));
+	}
 	return godot::internal::gdextension_interface_script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
 }
 
@@ -104,6 +109,7 @@ void LuaScript::_set_source_code(const String &code) {
 
 Error LuaScript::_reload(bool keep_state) {
 	metatable.unref();
+	signals.clear();
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
@@ -181,13 +187,7 @@ ScriptLanguage *LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName &p_signal) const {
-	if (metatable.is_valid()) {
-		Variant value = metatable->get(p_signal);
-		return value.get_type() == Variant::Type::SIGNAL;
-	}
-	else {
-		return false;
-	}
+	return signals.has(p_signal);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -281,11 +281,25 @@ void LuaScript::process_script_result(const Variant& result) {
 
 	metatable.reference_ptr(table);
 
-	// Remove "extends" field if it's invalid
-	Variant base_class = table->get("extends");
-	if (base_class && !ClassDB::class_exists(base_class)) {
-		WARN_PRINT(String("Specified base class '%s' does not exist. Unsetting 'extends'") % Array::make(base_class));
-		table->set("extends", Variant());
+	for (auto [key, value] : table->get_table()) {
+		if (key.get_type() != sol::type::string) {
+			continue;
+		}
+
+		String name = key.as<String>();
+		if (name == "extends") {
+			StringName base_class = to_variant(value);
+			if (value && !ClassDB::class_exists(base_class)) {
+				WARN_PRINT(String("Specified base class '%s' does not exist. Unsetting 'extends'") % Array::make(base_class));
+				table->set("extends", Variant());
+			}
+		}
+
+		if (value.is<LuaScriptSignal>()) {
+			signals.insert(name, value.as<LuaScriptSignal>());
+		}
+
+		// TODO: handle methods and properties
 	}
 }
 
