@@ -87,13 +87,7 @@ public:
 
 	// Script methods
 	Variant _new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-
-	// Methods called by ScriptInstance
-	bool _instance_set(LuaScriptInstance *instance, const StringName& p_name, const Variant& p_value) const;
-	bool _instance_get(LuaScriptInstance *instance, const StringName& p_name, Variant& p_value) const;
-	Variant _instance_call(LuaScriptInstance *instance, const StringName& p_name, const Variant **p_args, GDExtensionInt p_argument_count, GDExtensionCallError& r_error) const;
-	void _instance_notification(LuaScriptInstance *instance, int32_t what, GDExtensionBool reversed) const;
-	bool _instance_tostring(LuaScriptInstance *instance, String& str) const;
+	Ref<LuaTable> get_metatable();
 
 protected:
 	static void _bind_methods();
@@ -101,9 +95,6 @@ protected:
 
 	String source_code;
 	Ref<LuaTable> metatable;
-	HashMap<StringName, Ref<LuaFunction>> methods;
-	HashMap<StringName, LuaScriptProperty> properties;
-	HashMap<StringName, Signal> signals;
 
 private:
 	void process_script_result(const Variant& result);

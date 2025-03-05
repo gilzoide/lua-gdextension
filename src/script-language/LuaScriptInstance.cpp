@@ -32,7 +32,7 @@ namespace luagdextension {
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	: owner(owner)
 	, script(script)
-	, properties()
+	, data(LuaScriptLanguage::get_singleton()->get_lua_state()->create_table())
 {
 	known_instances.insert(owner, this);
 }
@@ -42,11 +42,28 @@ LuaScriptInstance::~LuaScriptInstance() {
 }
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
-	return p_instance->script->_instance_set(p_instance, *p_name, p_value);
+	if (ClassDB::class_set_property(p_instance->owner, *p_name, *p_value) == OK) {
+		return true;
+	}
+
+	p_instance->data->set_value(*p_name, *p_value);
+	return true;
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
-	return p_instance->script->_instance_get(p_instance, *p_name, *p_value);
+	// access own data
+	if (auto data_value = p_instance->data->try_get_value(*p_name)) {
+		*p_value = *data_value;
+		return true;
+	}
+
+	// fallback to value in script
+	if (auto script_value = p_instance->script->get_metatable()->try_get_value(*p_name)) {
+		*p_value = *script_value;
+		return true;
+	}
+
+	return false;
 }
 
 GDExtensionScriptInstanceGetPropertyList get_property_list_func;
@@ -56,7 +73,7 @@ GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 GDExtensionScriptInstancePropertyCanRevert property_can_revert_func;
 GDExtensionScriptInstancePropertyGetRevert property_get_revert_func;
 
-void *get_owner_func(LuaScriptInstance *p_instance) {
+Object *get_owner_func(LuaScriptInstance *p_instance) {
 	return p_instance->owner;
 }
 
@@ -73,15 +90,31 @@ GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName 
 GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	*r_return = p_instance->script->_instance_call(p_instance, *p_method, p_args, p_argument_count, *r_error);
+	Variant value = p_instance->script->get_metatable()->get_value(*p_method);
+	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
+		*r_return = method->invoke_method(p_instance, p_args, p_argument_count, *r_error);
+	}
+	else {
+		r_error->error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
+	}
 }
 
 void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
-	p_instance->script->_instance_notification(p_instance, p_what, p_reversed);
+	Variant value = p_instance->script->get_metatable()->get_value("_notification");
+	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
+		method->call_method(p_instance, p_what, p_reversed);
+	}
 }
 
 void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, String *r_out) {
-	*r_is_valid = p_instance->script->_instance_tostring(p_instance, *r_out);
+	Variant value = p_instance->script->get_metatable()->get_value("_to_string");
+	if (LuaFunction *method = Object::cast_to<LuaFunction>(value)) {
+		*r_out = method->call_method(p_instance);
+		*r_is_valid = true;
+	}
+	else {
+		*r_is_valid = false;
+	}
 }
 
 void refcount_incremented_func(LuaScriptInstance *) {

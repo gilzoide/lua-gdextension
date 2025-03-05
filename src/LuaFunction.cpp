@@ -73,7 +73,7 @@ Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args
 	error.error = GDEXTENSION_CALL_OK;
 
 	lua_State *L = lua_object.lua_state();
-	sol::stack::push(L, self);
+	std::ignore = to_lua(L, self);
 	for (int i = 0; i < arg_count; i++) {
 		std::ignore = to_lua(L, *args[i]);
 	}

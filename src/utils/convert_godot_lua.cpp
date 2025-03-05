@@ -27,6 +27,7 @@
 #include "../LuaLightUserdata.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
+#include "../script-language/LuaScriptInstance.hpp"
 #include "Class.hpp"
 #include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
@@ -174,6 +175,10 @@ sol::stack_object to_lua(lua_State *lua_state, const Variant& value) {
 			break;
 	}
 	return sol::stack_object(lua_state, -1);
+}
+
+sol::stack_object to_lua(lua_State *lua_state, LuaScriptInstance *value) {
+	return to_lua(lua_state, value->data);
 }
 
 Array to_array(const sol::variadic_args& args) {
