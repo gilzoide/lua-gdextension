@@ -25,13 +25,22 @@
 
 #include "LuaScriptMetadata.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "../utils/stack_top_checker.hpp"
 
 namespace luagdextension {
 
 void LuaScriptMetadata::setup(const sol::table& t) {
 	is_valid = true;
-	for (auto [key, value] : t) {
+
+	sol::state_view L = t.lua_state();
+	StackTopChecker topcheck(L);
+	auto tablepop = sol::stack::push_pop(L, t);
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
+		sol::stack_object key(L, -2);
+		sol::stack_object value(L, -1);
 		if (key.get_type() != sol::type::string) {
+			lua_pop(L, 1);
 			continue;
 		}
 
@@ -72,6 +81,8 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 				.setter = sol::nullopt,
 			});
 		}
+
+		lua_pop(L, 1);
 	}
 }
 
