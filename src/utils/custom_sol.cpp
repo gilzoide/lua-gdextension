@@ -23,6 +23,7 @@
 
 #include "convert_godot_lua.hpp"
 #include "convert_godot_std.hpp"
+#include "VariantArguments.hpp"
 
 #include <godot_cpp/variant/packed_byte_array.hpp>
 
@@ -82,6 +83,14 @@ int sol_lua_push(lua_State* L, const PackedVector2Array &v) { lua_push(L, Varian
 int sol_lua_push(lua_State* L, const PackedVector3Array &v) { lua_push(L, Variant(v)); return 1; }
 int sol_lua_push(lua_State* L, const PackedColorArray &v) { lua_push(L, Variant(v)); return 1; }
 int sol_lua_push(lua_State* L, const PackedVector4Array &v) { lua_push(L, Variant(v)); return 1; }
+
+int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v) {
+	const Array& args = v.get_array();
+	for (int64_t i = 0; i < args.size(); i++) {
+		lua_push(L, args[i]);
+	}
+	return args.size();
+}
 
 #if LUA_VERSION_NUM < 504
 int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults) {

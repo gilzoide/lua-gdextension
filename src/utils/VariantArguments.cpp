@@ -25,13 +25,27 @@
 
 namespace luagdextension {
 
-VariantArguments::VariantArguments(const sol::variadic_args& args) {
-	for (auto it : args) {
-		variants.append(to_variant(it));
+VariantArguments::VariantArguments(const Array& args)
+	: variants(args)
+{
+}
+
+VariantArguments::VariantArguments(const Variant **argv, GDExtensionInt argc) {
+	for (GDExtensionInt i = 0; i < argc; i++) {
+		variants.append(*argv[i]);
 	}
-	for (int i = 0; i < variants.size(); i++) {
-		variant_pointers.append(&variants[i]);
+}
+
+VariantArguments::VariantArguments(const Variant& self, const Variant **argv, GDExtensionInt argc) {
+	variants.append(self);
+	for (GDExtensionInt i = 0; i < argc; i++) {
+		variants.append(*argv[i]);
 	}
+}
+
+VariantArguments::VariantArguments(const sol::variadic_args& args)
+	: VariantArguments(to_array(args))
+{
 }
 
 int VariantArguments::argc() const {
@@ -39,10 +53,10 @@ int VariantArguments::argc() const {
 }
 
 const Variant **VariantArguments::argv() {
+	for (int64_t i = variant_pointers.size(); i < variants.size(); i++) {
+		variant_pointers.append(&variants[i]);
+	}
 	return variant_pointers.ptrw();
-}
-const Variant *const *VariantArguments::argv() const {
-	return variant_pointers.ptr();
 }
 
 const Array& VariantArguments::get_array() const {

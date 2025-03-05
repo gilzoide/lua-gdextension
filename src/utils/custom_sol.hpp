@@ -31,6 +31,10 @@
 #include <godot_cpp/variant/variant.hpp>
 #include <sol/sol.hpp>
 
+namespace luagdextension {
+	class VariantArguments;
+}
+
 using namespace godot;
 
 /// Custom String <-> Lua string conversions
@@ -88,6 +92,9 @@ int sol_lua_push(lua_State* L, const PackedVector2Array &v);
 int sol_lua_push(lua_State* L, const PackedVector3Array &v);
 int sol_lua_push(lua_State* L, const PackedColorArray &v);
 int sol_lua_push(lua_State* L, const PackedVector4Array &v);
+
+// Custom push variadic argumens
+int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v);
 
 // Polyfill for Lua 5.4's lua_resume
 #if LUA_VERSION_NUM < 504

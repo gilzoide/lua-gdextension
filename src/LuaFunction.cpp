@@ -22,6 +22,7 @@
 #include "LuaFunction.hpp"
 
 #include "script-language/LuaScriptInstance.hpp"
+#include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -62,11 +63,7 @@ Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args
 
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
 	lua_State *L = f.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, *args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	sol::protected_function_result result = f.call(lua_args);
+	sol::protected_function_result result = f.call(VariantArguments(args, arg_count));
 	if (!return_lua_error && !result.valid()) {
 		ERR_PRINT(LuaError::extract_message(result));
 		return Variant();
@@ -78,12 +75,7 @@ Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant 
 
 Variant LuaFunction::invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
 	lua_State *L = f.lua_state();
-	lua_push(L, self);
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, *args[i]);
-	}
-	sol::variadic_args lua_args(L, -(1 + arg_count));
-	sol::protected_function_result result = f.call(lua_args);
+	sol::protected_function_result result = f.call(VariantArguments(self, args, arg_count));
 	if (!return_lua_error && !result.valid()) {
 		ERR_PRINT(LuaError::extract_message(result));
 		return Variant();
@@ -94,13 +86,8 @@ Variant LuaFunction::invoke_method_lua(const sol::protected_function& f, const V
 }
 
 Variant LuaFunction::invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error) {
-	GDExtensionInt arg_count = args.size();
 	lua_State *L = f.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	sol::protected_function_result result = f.call(lua_args);
+	sol::protected_function_result result = f.call(VariantArguments(args));
 	if (!return_lua_error && !result.valid()) {
 		ERR_PRINT(LuaError::extract_message(result));
 		return Variant();
