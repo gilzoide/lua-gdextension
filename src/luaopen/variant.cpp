@@ -58,7 +58,7 @@ sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::sta
 			b_str.get_data()
 		);
 	}
-	return to_lua(state, result);
+	return lua_push(state, result);
 }
 
 template<Variant::Operator VarOperator>
@@ -76,7 +76,7 @@ sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stac
 			a_str.get_data()
 		);
 	}
-	return to_lua(state, result);
+	return lua_push(state, result);
 }
 
 sol::stack_object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
@@ -84,7 +84,7 @@ sol::stack_object variant__index(sol::this_state state, const Variant& variant, 
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
 		if (Variant::has_member(variant.get_type(), string_name)) {
-			return to_lua(state, variant.get_named(string_name, is_valid));
+			return lua_push(state, variant.get_named(string_name, is_valid));
 		}
 		else if (variant.has_method(string_name)) {
 			sol::stack::push(state, MethodBindByName(string_name));
@@ -93,7 +93,7 @@ sol::stack_object variant__index(sol::this_state state, const Variant& variant, 
 	}
 
 	Variant result = variant.get(to_variant(key), &is_valid);
-	return to_lua(state, result);
+	return lua_push(state, result);
 }
 
 void variant__newindex(sol::this_state state, Variant& variant, const sol::stack_object& key, const sol::stack_object& value) {
@@ -160,14 +160,14 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 	return false;
 }
 
-sol::stack_object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
+sol::object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
 	if (variant.get_type() != Variant::CALLABLE) {
 		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
 	}
 	Callable callable = variant;
 	VariantArguments var_args = args;
 	Variant result = callable.callv(var_args.get_array());
-	return to_lua(state, result);
+	return lua_push(state, result);
 }
 
 }

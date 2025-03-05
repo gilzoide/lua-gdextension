@@ -45,7 +45,7 @@ Variant LuaFunction::invokev(const Array& args) {
 
 	lua_State *L = lua_object.lua_state();
 	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, args[i]);
+		std::ignore = lua_push(L, args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
 	return to_variant(lua_object.call(lua_args));
@@ -59,7 +59,7 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 
 	lua_State *L = lua_object.lua_state();
 	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, *args[i]);
+		std::ignore = lua_push(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -arg_count);
 	return to_variant(lua_object.call(lua_args));
@@ -73,9 +73,9 @@ Variant LuaFunction::invoke_method(const Variant& self, const Variant **args, GD
 	error.error = GDEXTENSION_CALL_OK;
 
 	lua_State *L = lua_object.lua_state();
-	std::ignore = to_lua(L, self);
+	std::ignore = lua_push(L, self);
 	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, *args[i]);
+		std::ignore = lua_push(L, *args[i]);
 	}
 	sol::variadic_args lua_args(L, -(1 + arg_count));
 	return to_variant(lua_object.call(lua_args));

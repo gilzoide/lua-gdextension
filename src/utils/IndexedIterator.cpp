@@ -36,7 +36,7 @@ std::tuple<sol::object, sol::object> IndexedIterator::iter_next_lua(sol::this_st
 	bool is_valid, is_out_of_bounds;
 	Variant result = variant.get_indexed(index, is_valid, is_out_of_bounds);
 	if (is_valid && !is_out_of_bounds) {
-		return std::make_tuple(sol::make_object(state, index), to_lua(state, result));
+		return std::make_tuple(sol::make_object(state, index), lua_push(state, result));
 	}
 	else {
 		return std::make_tuple(sol::nil, sol::nil);
