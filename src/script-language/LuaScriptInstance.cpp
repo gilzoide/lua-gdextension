@@ -93,7 +93,7 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 	if (*p_method == StringName("rawget")) {
 		if (p_argument_count == 1) {
 			r_error->error = GDEXTENSION_CALL_OK;
-			*r_return = p_instance->data->get(*p_args[0]);
+			*r_return = p_instance->data->rawget(*p_args[0]);
 		}
 		else if (p_argument_count < 1) {
 			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
@@ -109,7 +109,7 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 		if (p_argument_count == 2) {
 			r_error->error = GDEXTENSION_CALL_OK;
 			*r_return = Variant();
-			p_instance->data->set(*p_args[0], *p_args[1]);
+			p_instance->data->rawset(*p_args[0], *p_args[1]);
 		}
 		else if (p_argument_count < 2) {
 			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;

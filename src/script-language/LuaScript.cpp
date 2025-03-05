@@ -131,6 +131,9 @@ String LuaScript::_get_class_icon_path() const {
 
 bool LuaScript::_has_method(const StringName &p_method) const {
 	if (metatable.is_valid()) {
+		if (p_method == StringName("rawget") || p_method == StringName("rawset")) {
+			return true;
+		}
 		Variant value = metatable->get(p_method);
 		LuaFunction *method = Object::cast_to<LuaFunction>(value);
 		return method != nullptr;
