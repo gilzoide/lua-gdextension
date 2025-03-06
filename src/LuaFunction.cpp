@@ -29,6 +29,16 @@
 
 namespace luagdextension {
 
+static Variant result_value(const sol::protected_function_result& result, bool return_lua_error) {
+	if (!return_lua_error && !result.valid()) {
+		ERR_PRINT(LuaError::extract_message(result));
+		return Variant();
+	}
+	else {
+		return to_variant(result);
+	}
+}
+
 LuaFunction::LuaFunction() : LuaObjectSubclass() {}
 LuaFunction::LuaFunction(sol::protected_function&& function) : LuaObjectSubclass(function) {}
 LuaFunction::LuaFunction(const sol::protected_function& function) : LuaObjectSubclass(function) {}
@@ -64,37 +74,19 @@ Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
 	lua_State *L = f.lua_state();
 	sol::protected_function_result result = f.call(VariantArguments(args, arg_count));
-	if (!return_lua_error && !result.valid()) {
-		ERR_PRINT(LuaError::extract_message(result));
-		return Variant();
-	}
-	else {
-		return to_variant(result);
-	}
+	return result_value(result, return_lua_error);
 }
 
 Variant LuaFunction::invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
 	lua_State *L = f.lua_state();
 	sol::protected_function_result result = f.call(VariantArguments(self, args, arg_count));
-	if (!return_lua_error && !result.valid()) {
-		ERR_PRINT(LuaError::extract_message(result));
-		return Variant();
-	}
-	else {
-		return to_variant(result);
-	}
+	return result_value(result, return_lua_error);
 }
 
 Variant LuaFunction::invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error) {
 	lua_State *L = f.lua_state();
 	sol::protected_function_result result = f.call(VariantArguments(args));
-	if (!return_lua_error && !result.valid()) {
-		ERR_PRINT(LuaError::extract_message(result));
-		return Variant();
-	}
-	else {
-		return to_variant(result);
-	}
+	return result_value(result, return_lua_error);
 }
 
 Callable LuaFunction::to_callable() const {

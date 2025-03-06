@@ -39,6 +39,7 @@ class VariantArguments {
 	Vector<const Variant *> variant_pointers;
 
 public:
+	VariantArguments() = default;
 	VariantArguments(const Array& args);
 	VariantArguments(const Variant **argv, GDExtensionInt argc);
 	VariantArguments(const Variant& self, const Variant **argv, GDExtensionInt argc);
