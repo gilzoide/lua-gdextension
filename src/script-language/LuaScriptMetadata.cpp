@@ -70,8 +70,8 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			property->name = name;
 			properties.insert(name, *property);
 		}
-		else if (auto method = value.as<sol::optional<sol::protected_function>>()) {
-			methods.insert(name, *method);
+		else if (value.get_type() == sol::type::function) {
+			methods.insert(name, value);
 		}
 		else {
 			Variant var = to_variant(value);
