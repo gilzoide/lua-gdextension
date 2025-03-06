@@ -44,7 +44,7 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	}
 	for (auto [name, property] : metadata.properties) {
 		if (!property.getter) {
-			data->set(name, property.default_value.duplicate());
+			data->set(name, property.instantiate_value());
 		}
 	}
 }
@@ -89,7 +89,7 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 
 	// fallback to value in script
 	if (const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name)) {
-		*p_value = property->default_value;
+		*p_value = property->instantiate_value();
 		return true;
 	}
 

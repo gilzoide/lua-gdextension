@@ -24,8 +24,26 @@
 
 #include "../utils/VariantType.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "godot_cpp/core/property_info.hpp"
 
 namespace luagdextension {
+
+Variant LuaScriptProperty::instantiate_value() const {
+	if (default_value.get_type() == type) {
+		return default_value.duplicate();
+	}
+	else {
+		return VariantType(type).construct_default();
+	}
+}
+
+PropertyInfo LuaScriptProperty::to_property_info() const {
+	return PropertyInfo(type, name);
+}
+
+Dictionary LuaScriptProperty::to_dictionary() const {
+	return to_property_info();
+}
 
 LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
 	LuaScriptProperty property;
@@ -44,6 +62,9 @@ LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
 			property.type = type->get_type();
 		}
 	}
+	else if (auto type = value.as<sol::optional<VariantType>>()) {
+		property.type = type->get_type();
+	}
 	else {
 		property.default_value = to_variant(value);
 	}
@@ -51,17 +72,6 @@ LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
 		property.type = property.default_value.get_type();
 	}
 	return property;
-}
-
-Dictionary LuaScriptProperty::to_dictionary() const {
-	Dictionary d;
-	d["name"] = name;
-	// d["class_name"]
-	d["type"] = int(type);
-	// d["hint"]
-	// d["hint_string"]
-	// d["usage"]
-	return d;
 }
 
 }

@@ -1,7 +1,8 @@
 local TestClass = {}
 
-TestClass.init_values = Array()
 TestClass.some_signal = signal("arg1", "arg2")
+TestClass.empty_array = property { type = Array }
+TestClass.preinitialized_array = Array { 1, 2, 3 }
 
 function TestClass:_init(...)
 	self.init_values = Array{ ... }

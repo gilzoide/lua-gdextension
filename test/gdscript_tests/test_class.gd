@@ -12,7 +12,7 @@ func test_init() -> bool:
 	var obj = test_class.new(1, 2, 3)
 	assert(obj is RefCounted, "Object is not RefCounted")
 	assert(obj.get_script() is LuaScript, "Object should have LuaScript attached")
-	assert(obj.init_values != null)
+	assert(obj.init_values == [1, 2, 3])
 	return true
 
 
@@ -25,7 +25,10 @@ func test_signal() -> bool:
 	return true;
 
 
-func test_property_duplicate() -> bool:
+func test_array_properties() -> bool:
 	var obj = test_class.new()
-	assert(!is_same(obj.init_values, obj.get_script().get_property_default_value("init_values")), "Properties should be duplicated on instantiation")
+	assert(obj.empty_array == [])
+	assert(!is_same(obj.empty_array, test_class.get_property_default_value("empty_array")), "Properties should be duplicated on instantiation")
+	assert(obj.preinitialized_array == [1, 2, 3])
+	assert(!is_same(obj.preinitialized_array, test_class.get_property_default_value("preinitialized_array")), "Properties should be duplicated on instantiation")
 	return true
