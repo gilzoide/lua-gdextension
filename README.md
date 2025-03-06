@@ -137,8 +137,11 @@ lua.do_string("""
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
 - [ ] Add support for `res://` relative paths in `require`
+- [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
-- [ ] Lua ScriptLanguageExtension
+- [X] Lua ScriptLanguageExtension
+  + [ ] Add support for property hints / usage flags (including export)
+  + [ ] Add support for property getter / setter
 - [ ] Support for building with LuaJIT
 - [X] Automated unit tests
 - [X] Automated build and distribution
