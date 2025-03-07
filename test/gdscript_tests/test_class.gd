@@ -20,6 +20,7 @@ func test_signal() -> bool:
 	var obj = test_class.new()
 	assert(obj.some_signal is Signal, "Object should have signal defined in script")
 	obj.some_signal.connect(_handle_signal)
+	assert(not _signal_handled)
 	obj.send_signal()
 	assert(_signal_handled, "Signal was not handled")
 	return true;
@@ -34,6 +35,12 @@ func test_array_properties() -> bool:
 	assert(obj.preinitialized_array == [1, 2, 3])
 	assert(!is_same(obj.preinitialized_array, test_class.get_property_default_value("preinitialized_array")), "Properties should be duplicated on instantiation")
 	return true
+
+
+func test_non_existent_property() -> bool:
+	var obj = test_class.new()
+	assert("some crazy non-existent property name" not in obj)
+	return true;
 
 
 func test_property_getter_function() -> bool:
