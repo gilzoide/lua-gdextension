@@ -9,7 +9,7 @@
 	<members>
 		<member name="message" type="String" setter="set_message" getter="get_message" default="&quot;&quot;">
 		</member>
-		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="862412112">
+		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="818921600">
 		</member>
 	</members>
 	<constants>

@@ -68,11 +68,6 @@ env.Append(CPPPATH="lib/sol2/include")
 def remove_prefix(s, prefix):
     return s[len(prefix):] if s.startswith(prefix) else s
 
-# Documentation
-if env["target"] in ["editor", "template_debug"]:
-    doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
-    sources.append(doc_data)
-
 build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
 VariantDir(build_dir, 'src', duplicate=False)
 
@@ -82,6 +77,15 @@ sources = [
     Glob("{}/{}/*.cpp".format(build_dir, directory))
     for directory in source_directories
 ]
+
+# Documentation
+if env["target"] in ["editor", "template_debug"]:
+    try:
+        doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
+        sources.append(doc_data)
+    except AttributeError:
+        print("Not including class reference as we're targeting a pre-4.4 baseline.")
+
 library = env.SharedLibrary(
     "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
     source=sources,

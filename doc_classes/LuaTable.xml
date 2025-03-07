@@ -10,8 +10,8 @@
 		<method name="clear">
 			<return type="void" />
 			<description>
-        Clear all data in the table.
-      </description>
+				Clear all data in the table.
+			</description>
 		</method>
 		<method name="get" qualifiers="const">
 			<return type="Variant" />
@@ -49,14 +49,14 @@
 		<method name="to_array" qualifiers="const">
 			<return type="Array" />
 			<description>
-        Serialize the table into a array.
-      </description>
+				Serialize the table into a array.
+			</description>
 		</method>
 		<method name="to_dictionary" qualifiers="const">
 			<return type="Dictionary" />
 			<description>
-        Serialize the table into a dictionary.
-      </description>
+				Serialize the table into a dictionary.
+			</description>
 		</method>
 	</methods>
 </class>
