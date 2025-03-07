@@ -27,7 +27,9 @@ func test_signal() -> bool:
 
 func test_array_properties() -> bool:
 	var obj = test_class.new()
+	var empty_array = obj.empty_array
 	assert(obj.empty_array == [])
+	assert(is_same(empty_array, obj.empty_array))
 	assert(!is_same(obj.empty_array, test_class.get_property_default_value("empty_array")), "Properties should be duplicated on instantiation")
 	assert(obj.preinitialized_array == [1, 2, 3])
 	assert(!is_same(obj.preinitialized_array, test_class.get_property_default_value("preinitialized_array")), "Properties should be duplicated on instantiation")

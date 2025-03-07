@@ -97,7 +97,9 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 
 	// d) fallback to default property value, if there is one
 	if (property) {
-		*p_value = property->instantiate_default_value();
+		Variant value = property->instantiate_default_value();
+		p_instance->data->rawset(*p_name, value);
+		*p_value = value;
 		return true;
 	}
 
