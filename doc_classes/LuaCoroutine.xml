@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaCoroutine" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="create" qualifiers="static">
+			<return type="LuaCoroutine" />
+			<param index="0" name="function" type="LuaFunction" />
+			<description>
+			</description>
+		</method>
+		<method name="resume" qualifiers="const vararg">
+			<return type="Variant" />
+			<description>
+			</description>
+		</method>
+		<method name="resumev">
+			<return type="Variant" />
+			<param index="0" name="arguments" type="Array" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="status" type="int" setter="" getter="get_status" enum="LuaCoroutine.LuaCoroutineStatus">
+		</member>
+	</members>
+	<constants>
+		<constant name="STATUS_OK" value="0" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_YIELD" value="1" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_ERRRUN" value="2" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_ERRSYNTAX" value="3" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_ERRMEM" value="4" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_ERRERR" value="5" enum="LuaCoroutineStatus">
+		</constant>
+		<constant name="STATUS_DEAD" value="-1" enum="LuaCoroutineStatus">
+		</constant>
+	</constants>
+</class>
