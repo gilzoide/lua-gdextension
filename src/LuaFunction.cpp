@@ -21,6 +21,7 @@
  */
 #include "LuaFunction.hpp"
 
+#include "LuaError.hpp"
 #include "script-language/LuaScriptInstance.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"

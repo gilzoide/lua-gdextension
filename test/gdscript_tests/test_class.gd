@@ -32,3 +32,35 @@ func test_array_properties() -> bool:
 	assert(obj.preinitialized_array == [1, 2, 3])
 	assert(!is_same(obj.preinitialized_array, test_class.get_property_default_value("preinitialized_array")), "Properties should be duplicated on instantiation")
 	return true
+
+
+func test_property_getter_function() -> bool:
+	var obj = test_class.new()
+	assert(obj.getter_counter == 1)
+	assert(obj.getter_counter == 2)
+	assert(obj.getter_counter == 3)
+	return true;
+
+
+func test_property_getter_name() -> bool:
+	var obj = test_class.new()
+	assert(obj.getter_name == "a")
+	obj.a = "value"
+	assert(obj.getter_name == "value")
+	return true;
+
+
+func test_property_setter_function() -> bool:
+	var obj = test_class.new()
+	obj.setter_increment = 5
+	assert(obj.setter_increment == 6)
+	return true
+
+
+func test_property_setter_name() -> bool:
+	var obj = test_class.new()
+	assert("a" not in obj)
+	obj.setter_name = "value"
+	assert(obj.setter_name == null)
+	assert(obj.a == "value")
+	return true

@@ -31,19 +31,34 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaScriptInstance;
+
 struct LuaScriptProperty {
+	Variant::Type type = Variant::NIL;
 	StringName name;
-	Variant::Type type;
+	StringName class_name;
+	uint32_t hint = PROPERTY_HINT_NONE;
+	String hint_string;
+	uint32_t usage = PROPERTY_USAGE_SCRIPT_VARIABLE;
+
+	LuaScriptProperty() = default;
+	LuaScriptProperty(const Variant& value, const StringName& name);
+
 	Variant default_value;
 
+	StringName getter_name;
+	StringName setter_name;
 	sol::optional<sol::protected_function> getter;  // Variant getter(self)
 	sol::optional<sol::protected_function> setter;  // void setter(self, Variant value)
 
-	Variant instantiate_value() const;
+	bool get_value(LuaScriptInstance *self, Variant& r_value) const;
+	bool set_value(LuaScriptInstance *self, const Variant& value) const;
+	Variant instantiate_default_value() const;
+
 	PropertyInfo to_property_info() const;
 	Dictionary to_dictionary() const;
 
-	static LuaScriptProperty from_lua(sol::stack_object value);
+	static void register_lua(lua_State *L);
 };
 
 }

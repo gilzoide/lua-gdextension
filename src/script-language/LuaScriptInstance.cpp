@@ -42,11 +42,6 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	for (auto [name, signal] : metadata.signals) {
 		data->set(name, Signal(owner, name));
 	}
-	for (auto [name, property] : metadata.properties) {
-		if (!property.getter) {
-			data->set(name, property.instantiate_value());
-		}
-	}
 }
 
 LuaScriptInstance::~LuaScriptInstance() {
@@ -54,7 +49,7 @@ LuaScriptInstance::~LuaScriptInstance() {
 }
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
-	// try `_set`
+	// 1) try calling `_set`
 	if (const sol::protected_function *_set = p_instance->script->get_metadata().methods.getptr("_set")) {
 		Variant value_was_set = LuaFunction::invokev_lua(*_set, Array::make(p_instance->owner, *p_name, *p_value), false);
 		if (value_was_set) {
@@ -62,17 +57,24 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 		}
 	}
 
-	// try setting Object property
+	// b) try setter function from script property
+	const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name);
+	if (property && property->set_value(p_instance, *p_value)) {
+		return true;
+	}
+
+	// c) try setting owner Object property
 	if (ClassDB::class_set_property(p_instance->owner, *p_name, *p_value) == OK) {
 		return true;
 	}
 
-	p_instance->data->set(*p_name, *p_value);
+	// d) set raw data
+	p_instance->data->rawset(*p_name, *p_value);
 	return true;
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
-	// call `_get`
+	// a) try calling `_get`
 	if (const sol::protected_function *_get = p_instance->script->get_metadata().methods.getptr("_get")) {
 		Variant value = LuaFunction::invokev_lua(*_get, Array::make(p_instance->owner, *p_name), false);
 		if (value != Variant()) {
@@ -81,15 +83,21 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 		}
 	}
 
-	// access own data
+	// b) try getter function from script property
+	const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name);
+	if (property && property->get_value(p_instance, *p_value)) {
+		return true;
+	}
+
+	// c) access raw data
 	if (auto data_value = p_instance->data->try_get(*p_name)) {
 		*p_value = *data_value;
 		return true;
 	}
 
-	// fallback to value in script
-	if (const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name)) {
-		*p_value = property->instantiate_value();
+	// d) fallback to default property value, if there is one
+	if (property) {
+		*p_value = property->instantiate_default_value();
 		return true;
 	}
 

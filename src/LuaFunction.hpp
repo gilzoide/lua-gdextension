@@ -22,9 +22,6 @@
 #ifndef __LUA_FUNCTION_HPP__
 #define __LUA_FUNCTION_HPP__
 
-#include <array>
-
-#include "LuaError.hpp"
 #include "LuaObject.hpp"
 
 using namespace godot;

@@ -21,45 +21,59 @@
  */
 
 #include "LuaScriptProperty.hpp"
+#include "LuaScriptInstance.hpp"
 
+#include "../LuaFunction.hpp"
 #include "../utils/VariantType.hpp"
 #include "../utils/convert_godot_lua.hpp"
-#include "godot_cpp/core/property_info.hpp"
 
 namespace luagdextension {
 
-Variant LuaScriptProperty::instantiate_value() const {
-	if (default_value.get_type() == type) {
-		return default_value.duplicate();
-	}
-	else {
-		return VariantType(type).construct_default();
-	}
-}
-
-PropertyInfo LuaScriptProperty::to_property_info() const {
-	return PropertyInfo(type, name);
-}
-
-Dictionary LuaScriptProperty::to_dictionary() const {
-	return to_property_info();
-}
-
-LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
+static LuaScriptProperty lua_property(sol::stack_object value) {
 	LuaScriptProperty property;
+	property.usage = PROPERTY_USAGE_NONE;
+
 	if (auto table = value.as<sol::optional<sol::stack_table>>()) {
-		if (auto default_value = table->get<sol::optional<sol::object>>("default")) {
-			property.default_value = to_variant(*default_value);
+		// 1: either a Variant type or the default value
+		if (auto type = table->get<sol::optional<VariantType>>(1)) {
+			property.type = type->get_type();
 		}
 		else if (auto default_value = table->get<sol::optional<sol::object>>(1)) {
 			property.default_value = to_variant(*default_value);
 		}
-		
+
+		// PropertyInfo fields
 		if (auto type = table->get<sol::optional<VariantType>>("type")) {
 			property.type = type->get_type();
 		}
-		else if (auto type = table->get<sol::optional<VariantType>>(2)) {
-			property.type = type->get_type();
+		if (auto hint = table->get<sol::optional<uint32_t>>("hint")) {
+			property.hint = *hint;
+		}
+		if (auto hint_string = table->get<sol::optional<String>>("hint_string")) {
+			property.hint_string = *hint_string;
+		}
+		if (auto usage = table->get<sol::optional<uint32_t>>("usage")) {
+			property.usage = *usage;
+		}
+		if (auto class_name = table->get<sol::optional<StringName>>("class_name")) {
+			property.class_name = *class_name;
+		}
+
+		// Extra LuaScriptProperty fields
+		if (auto default_value = table->get<sol::optional<sol::object>>("default")) {
+			property.default_value = to_variant(*default_value);
+		}
+		if (auto getter_name = table->get<sol::optional<StringName>>("get")) {
+			property.getter_name = *getter_name;
+		}
+		else if (auto getter = table->get<sol::optional<sol::protected_function>>("get")) {
+			property.getter = getter;
+		}
+		if (auto setter_name = table->get<sol::optional<StringName>>("set")) {
+			property.setter_name = *setter_name;
+		}
+		else if (auto setter = table->get<sol::optional<sol::protected_function>>("set")) {
+			property.setter = setter;
 		}
 	}
 	else if (auto type = value.as<sol::optional<VariantType>>()) {
@@ -71,7 +85,70 @@ LuaScriptProperty LuaScriptProperty::from_lua(sol::stack_object value) {
 	if (property.type == 0) {
 		property.type = property.default_value.get_type();
 	}
+	property.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
 	return property;
+}
+
+LuaScriptProperty::LuaScriptProperty(const Variant& value, const StringName& name)
+	: type(value.get_type())
+	, name(name)
+	, default_value(value)
+{
+}
+
+bool LuaScriptProperty::get_value(LuaScriptInstance *self, Variant& r_value) const {
+	if (getter) {
+		r_value = LuaFunction::invoke_method_lua(*getter, self->owner, nullptr, 0, false);
+		return true;
+	}
+	if (!getter_name.is_empty()) {
+		r_value = self->owner->call(getter_name);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+Variant LuaScriptProperty::instantiate_default_value() const {
+	if (default_value.get_type() == type) {
+		return default_value.duplicate();
+	}
+	else {
+		return VariantType(type).construct_default();
+	}
+}
+
+bool LuaScriptProperty::set_value(LuaScriptInstance *self, const Variant& value) const {
+	if (setter) {
+		LuaFunction::invokev_lua(*setter, Array::make(self->owner, value), false);
+		return true;
+	}
+	else if (!setter_name.is_empty()) {
+		self->owner->call(setter_name, value);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+PropertyInfo LuaScriptProperty::to_property_info() const {
+	return PropertyInfo(type, name, (PropertyHint) hint, hint_string, (PropertyUsageFlags) usage, class_name);
+}
+
+Dictionary LuaScriptProperty::to_dictionary() const {
+	return to_property_info();
+}
+
+void LuaScriptProperty::register_lua(lua_State *L) {
+	sol::state_view state(L);
+
+	state.new_usertype<LuaScriptProperty>(
+		"LuaScriptProperty",
+		sol::no_construction()
+	);
+	state.set("property", &lua_property);
 }
 
 }

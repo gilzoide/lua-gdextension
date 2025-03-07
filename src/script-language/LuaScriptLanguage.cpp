@@ -50,11 +50,7 @@ void LuaScriptLanguage::_init() {
 	);
 	state.set("signal", &LuaScriptSignal::from_lua);
 
-	state.new_usertype<LuaScriptProperty>(
-		"LuaScriptProperty",
-		sol::no_construction()
-	);
-	state.set("property", &LuaScriptProperty::from_lua);
+	LuaScriptProperty::register_lua(state);
 }
 
 String LuaScriptLanguage::_get_type() const {
