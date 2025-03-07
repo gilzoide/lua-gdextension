@@ -39,11 +39,14 @@ class VariantArguments {
 	Vector<const Variant *> variant_pointers;
 
 public:
+	VariantArguments() = default;
+	VariantArguments(const Array& args);
+	VariantArguments(const Variant **argv, GDExtensionInt argc);
+	VariantArguments(const Variant& self, const Variant **argv, GDExtensionInt argc);
 	VariantArguments(const sol::variadic_args& args);
 
 	int argc() const;
 	const Variant **argv();
-	const Variant *const *argv() const;
 	const Array& get_array() const;
 };
 

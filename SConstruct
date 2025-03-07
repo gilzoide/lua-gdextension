@@ -23,10 +23,18 @@ env.Command(
 )
 
 # Compile with debugging symbols
+def remove_options(lst, *options):
+    for opt in options:
+        if opt in lst:
+            lst.remove(opt)
+    
 if ARGUMENTS.get("debugging_symbols") == 'true':
-    if "-O2" in env["CCFLAGS"]:
-        env["CCFLAGS"].remove("-O2")
+    remove_options(env["CCFLAGS"], "-O2")
+    remove_options(env["LINKFLAGS"], "-Wl,-S", "-Wl,-x", "-Wl,-dead_strip")
     env.Append(CCFLAGS=["-g", "-O0"])
+
+# Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
+remove_options(env["LINKFLAGS"], "-s")
 
 # Lua defines
 env.Append(CPPDEFINES="MAKE_LIB")
@@ -46,6 +54,8 @@ else:
     env.Append(CPPDEFINES="LUA_USE_POSIX")
 
 env.Append(CPPPATH="lib/lua")
+# Lua needs exceptions enabled
+remove_options(env["CXXFLAGS"], "-fno-exceptions")
 
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0"])
@@ -62,7 +72,7 @@ build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
 VariantDir(build_dir, 'src', duplicate=False)
 
 # Build Lua GDExtension
-source_directories = [".", "luaopen", "utils"]
+source_directories = [".", "luaopen", "utils", "script-language"]
 sources = [
     Glob("{}/{}/*.cpp".format(build_dir, directory))
     for directory in source_directories

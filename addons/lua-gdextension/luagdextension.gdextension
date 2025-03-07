@@ -1,7 +1,7 @@
 [configuration]
 
 entry_symbol = "luagdextension_entrypoint"
-compatibility_minimum = "4.1.2"
+compatibility_minimum = "4.3"
 
 [libraries]
 
@@ -25,3 +25,7 @@ android.debug.arm32 = "build/libluagdextension.android.template_debug.arm32.so"
 android.release.arm32 = "build/libluagdextension.android.template_release.arm32.so"
 android.debug.arm64 = "build/libluagdextension.android.template_debug.arm64.so"
 android.release.arm64 = "build/libluagdextension.android.template_release.arm64.so"
+
+[icons]
+
+LuaScript = "LuaScript_icon.svg"

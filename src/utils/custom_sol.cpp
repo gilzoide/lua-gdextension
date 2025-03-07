@@ -23,6 +23,7 @@
 
 #include "convert_godot_lua.hpp"
 #include "convert_godot_std.hpp"
+#include "VariantArguments.hpp"
 
 #include <godot_cpp/variant/packed_byte_array.hpp>
 
@@ -48,39 +49,48 @@ int sol_lua_push(lua_State* L, const StringName& str) {
 	return sol::stack::push(L, to_string_view(bytes));
 }
 
-int sol_lua_push(lua_State* L, const Vector2 &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Vector2i &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Rect2 &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Rect2i &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Vector3 &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Vector3i &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Transform2D &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Vector4 &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Vector4i &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Plane &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Quaternion &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const AABB &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Basis &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Transform3D &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Projection &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Color &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const NodePath &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const RID &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const ObjectID &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, Object *v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Callable &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Signal &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Dictionary &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedByteArray &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedInt32Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedInt64Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedFloat32Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedFloat64Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedStringArray &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedVector2Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedVector3Array &v) { to_lua(L, Variant(v)); return 1; }
-int sol_lua_push(lua_State* L, const PackedColorArray &v) { to_lua(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector2 &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector2i &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Rect2 &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Rect2i &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector3 &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector3i &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Transform2D &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector4 &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Vector4i &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Plane &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Quaternion &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const AABB &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Basis &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Transform3D &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Projection &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Color &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const NodePath &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const RID &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const ObjectID &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, Object *v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Callable &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Signal &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Dictionary &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedByteArray &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedInt32Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedInt64Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedFloat32Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedFloat64Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedStringArray &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedVector2Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedVector3Array &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedColorArray &v) { lua_push(L, Variant(v)); return 1; }
+int sol_lua_push(lua_State* L, const PackedVector4Array &v) { lua_push(L, Variant(v)); return 1; }
+
+int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v) {
+	const Array& args = v.get_array();
+	for (int64_t i = 0; i < args.size(); i++) {
+		lua_push(L, args[i]);
+	}
+	return args.size();
+}
 
 #if LUA_VERSION_NUM < 504
 int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults) {

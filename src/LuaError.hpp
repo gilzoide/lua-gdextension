@@ -58,6 +58,9 @@ public:
 
 	operator String() const;
 
+	static String extract_message(const sol::load_result& load_result);
+	static String extract_message(const sol::protected_function_result& function_result);
+
 protected:
 	static void _bind_methods();
 

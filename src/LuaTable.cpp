@@ -23,8 +23,8 @@
 #include "LuaTable.hpp"
 
 #include "utils/convert_godot_lua.hpp"
-#include "utils/convert_godot_std.hpp"
 #include "utils/metatable.hpp"
+#include "utils/stack_top_checker.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 
@@ -36,29 +36,64 @@ LuaTable::LuaTable() : LuaObjectSubclass() {}
 LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
-Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
-	lua_State *L = get_lua_state();
+sol::optional<Variant> LuaTable::try_get(const Variant& key, bool raw) const {
+	StackTopChecker topcheck(lua_object.lua_state());
+	lua_State *L = lua_object.lua_state();
 	sol::stack::push(L, lua_object);
-	std::ignore = to_lua(L, key);
-	lua_gettable(L, -2);
-	Variant value;
-	if (lua_isnoneornil(L, -1)) {
-		value = default_value;
+	lua_push(L, key);
+	if (raw) {
+		lua_rawget(L, -2);
 	}
 	else {
-		value = to_variant(L, -1);
+		lua_gettable(L, -2);
 	}
-	lua_pop(L, 2);
-	return value;
+	auto _ = sol::stack::pop_n(L, 2);
+	if (lua_isnoneornil(L, -1)) {
+		return std::nullopt;
+	}
+	else {
+		return to_variant(L, -1);
+	}
 }
 
-void LuaTable::set_value(const Variant& key, const Variant& value) {
-	lua_State *L = get_lua_state();
-	sol::stack::push(L, lua_object);
-	std::ignore = to_lua(L, key);
-	std::ignore = to_lua(L, value);
-	lua_settable(L, -3);
-	lua_pop(L, 1);
+bool LuaTable::try_set(const Variant& key, const Variant& value, bool raw) {
+	ERR_FAIL_COND_V_MSG(key == Variant(), false, "Table key cannot be null");
+	
+	StackTopChecker topcheck(lua_object.lua_state());
+	lua_State *L = lua_object.lua_state();
+	auto table_popper = sol::stack::push_pop(L, lua_object);
+	lua_push(L, key);
+	lua_push(L, value);
+	if (raw) {
+		lua_rawset(L, -3);
+	}
+	else {
+		lua_settable(L, -3);
+	}
+	return true;
+}
+
+Variant LuaTable::get(const Variant& key, const Variant& default_value) const {
+	return try_get(key).value_or(default_value);
+}
+
+Variant LuaTable::rawget(const Variant& key, const Variant& default_value) const {
+	return try_get(key, true).value_or(default_value);
+}
+
+void LuaTable::set(const Variant& key, const Variant& value) {
+	try_set(key, value);
+}
+
+void LuaTable::rawset(const Variant& key, const Variant& value) {
+	try_set(key, value, true);
+}
+
+void LuaTable::clear() {
+	StackTopChecker topcheck(lua_object.lua_state());
+	for (auto [key, _] : lua_object) {
+		lua_object[key] = sol::nil;
+	}
 }
 
 int64_t LuaTable::length() const {
@@ -74,11 +109,13 @@ Array LuaTable::to_array() const {
 }
 
 bool LuaTable::_iter_init(const Variant& iter) const {
-	lua_State *L = get_lua_state();
+	StackTopChecker topcheck(lua_object.lua_state());
+	lua_State *L = lua_object.lua_state();
 	auto table_popper = sol::stack::push_pop(lua_object);
 	lua_pushnil(L);
 	if (lua_next(L, -2)) {
 		Array arg = iter;
+		arg.resize(1);
 		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
 		return true;
@@ -89,10 +126,11 @@ bool LuaTable::_iter_init(const Variant& iter) const {
 }
 
 bool LuaTable::_iter_next(const Variant& iter) const {
-	lua_State *L = get_lua_state();
+	StackTopChecker topcheck(lua_object.lua_state());
+	lua_State *L = lua_object.lua_state();
 	Array arg = iter;
 	auto table_popper = sol::stack::push_pop(lua_object);
-	auto key = to_lua(L, arg[0]);
+	lua_push(L, arg[0]);
 	if (lua_next(L, -2)) {
 		arg[0] = to_variant(L, -2);
 		lua_pop(L, 2);
@@ -107,11 +145,28 @@ Variant LuaTable::_iter_get(const Variant& iter) const {
 	return iter;
 }
 
+LuaTable::Iterator LuaTable::begin() {
+	return Iterator(this);
+}
+
+LuaTable::Iterator LuaTable::end() {
+	return Iterator();
+}
+
+sol::table& LuaTable::get_table() {
+	return lua_object;
+}
+
+const sol::table& LuaTable::get_table() const {
+	return lua_object;
+}
+
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get_value", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
-	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
-	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
-	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set_value);
+	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set);
+	ClassDB::bind_method(D_METHOD("rawget", "key", "default"), &LuaTable::rawget, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("rawset", "key", "value"), &LuaTable::rawset);
+	ClassDB::bind_method(D_METHOD("clear"), &LuaTable::clear);
 	ClassDB::bind_method(D_METHOD("length"), &LuaTable::length);
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
@@ -123,16 +178,12 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
-	PackedByteArray bytes = property_name.to_utf8_buffer();
-	r_value = to_variant(lua_object[to_string_view(bytes)].get<sol::object>());
-
+	r_value = get(property_name);
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
-	PackedByteArray bytes = property_name.to_utf8_buffer();
-	lua_object[to_string_view(bytes)] = to_lua(get_lua_state(), value);
-
+	set(property_name, value);
 	return true;
 }
 
@@ -144,6 +195,44 @@ String LuaTable::_to_string() const {
 	else {
 		return LuaObjectSubclass::_to_string();
 	}
+}
+
+// LuaTable::Iterator
+LuaTable::Iterator::Iterator(Ref<LuaTable> table)
+	: table(table)
+	, iter()
+{
+	if (!table.is_valid()) {
+		return;
+	}
+	if (!table->_iter_init(iter)) {
+		iter.clear();
+	}
+}
+
+Variant LuaTable::Iterator::operator*() const {
+	return iter.is_empty() ? Variant() : iter[0];
+}
+
+LuaTable::Iterator& LuaTable::Iterator::operator++() {
+	if (!table->_iter_next(iter)) {
+		iter.clear();
+	}
+	return *this;
+}
+
+LuaTable::Iterator LuaTable::Iterator::operator++(int) {
+	Iterator copy(*this);
+	operator++();
+	return copy;
+}
+
+bool LuaTable::Iterator::operator==(const LuaTable::Iterator& other) {
+	return iter == other.iter;
+}
+
+bool LuaTable::Iterator::operator!=(const LuaTable::Iterator& other) {
+	return iter != other.iter;
 }
 
 }

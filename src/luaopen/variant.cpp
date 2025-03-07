@@ -41,7 +41,7 @@ using namespace godot;
 namespace luagdextension {
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
+sol::object evaluate_binary_operator(sol::this_state state, const sol::stack_object& a, const sol::stack_object& b) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -62,7 +62,7 @@ sol::stack_object evaluate_binary_operator(sol::this_state state, const sol::sta
 }
 
 template<Variant::Operator VarOperator>
-sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
+sol::object evaluate_unary_operator(sol::this_state state, const sol::stack_object& a) {
 	bool is_valid;
 	Variant result;
 	Variant var_a = to_variant(a);
@@ -79,7 +79,7 @@ sol::stack_object evaluate_unary_operator(sol::this_state state, const sol::stac
 	return to_lua(state, result);
 }
 
-sol::stack_object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
+sol::object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
 	bool is_valid;
 	if (key.get_type() == sol::type::string) {
 		StringName string_name = key.as<StringName>();
@@ -87,8 +87,7 @@ sol::stack_object variant__index(sol::this_state state, const Variant& variant, 
 			return to_lua(state, variant.get_named(string_name, is_valid));
 		}
 		else if (variant.has_method(string_name)) {
-			sol::stack::push(state, MethodBindByName(string_name));
-			return sol::stack_object(state, -1);
+			return sol::make_object(state, MethodBindByName(string_name));
 		}
 	}
 
@@ -113,7 +112,7 @@ void variant__newindex(sol::this_state state, Variant& variant, const sol::stack
 	}
 }
 
-sol::stack_object variant__length(sol::this_state state, Variant& variant) {
+sol::object variant__length(sol::this_state state, Variant& variant) {
 	return variant_call_string_name(state, variant, "size", sol::variadic_args(state, 0));
 }
 
@@ -160,7 +159,7 @@ bool variant_is(const Variant& variant, const sol::stack_object& type) {
 	return false;
 }
 
-sol::stack_object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
+sol::object variant__call(sol::this_state state, const Variant& variant, sol::variadic_args args) {
 	if (variant.get_type() != Variant::CALLABLE) {
 		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
 	}
@@ -230,6 +229,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	MethodBindByName::register_usertype(state);
 	VariantType::register_usertype(state);
 
+	state.set("typeof", &variant_get_type);
+
 	// atomic types
 	state.set("bool", VariantType(Variant::BOOL));
 	state.set("int", VariantType(Variant::INT));
@@ -273,6 +274,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	state.set("PackedVector2Array", VariantType(Variant::PACKED_VECTOR2_ARRAY));
 	state.set("PackedVector3Array", VariantType(Variant::PACKED_VECTOR3_ARRAY));
 	state.set("PackedColorArray", VariantType(Variant::PACKED_COLOR_ARRAY));
+	state.set("PackedVector4Array", VariantType(Variant::PACKED_VECTOR4_ARRAY));
 
 	return 0;
 }

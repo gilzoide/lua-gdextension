@@ -4,7 +4,7 @@
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
 
-Extension for using the Lua programming language in Godot 4.1.2+
+Extension for using the Lua programming language in Godot 4.3+
 
 This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
 
@@ -137,8 +137,11 @@ lua.do_string("""
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
 - [ ] Add support for `res://` relative paths in `require`
+- [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
-- [ ] Lua ScriptLanguageExtension
+- [X] Lua ScriptLanguageExtension
+  + [ ] Add support for property hints / usage flags (including export)
+  + [ ] Add support for property getter / setter
 - [ ] Support for building with LuaJIT
 - [X] Automated unit tests
 - [X] Automated build and distribution

@@ -40,8 +40,14 @@ public:
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
 
-	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
-	void set_value(const Variant& key, const Variant& value);
+	sol::optional<Variant> try_get(const Variant& key, bool raw = false) const;
+	bool try_set(const Variant& key, const Variant& value, bool raw = false);
+
+	Variant get(const Variant& key, const Variant& default_value = Variant()) const;
+	Variant rawget(const Variant& key, const Variant& default_value = Variant()) const;
+	void set(const Variant& key, const Variant& value);
+	void rawset(const Variant& key, const Variant& value);
+	void clear();
 	int64_t length() const;
 
 	Dictionary to_dictionary() const;
@@ -50,6 +56,27 @@ public:
 	bool _iter_init(const Variant& iter) const;
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
+
+	struct Iterator {
+		Iterator() = default;
+		Iterator(Ref<LuaTable> table);
+
+		Variant operator*() const;
+		Iterator& operator++();
+		Iterator operator++(int);
+		bool operator==(const Iterator& other);
+		bool operator!=(const Iterator& other);
+		
+	private:
+		Ref<LuaTable> table;
+		Array iter;
+	};
+
+	Iterator begin();
+	Iterator end();
+
+	sol::table& get_table();
+	const sol::table& get_table() const;
 
 protected:
 	static void _bind_methods();

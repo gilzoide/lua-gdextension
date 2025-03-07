@@ -26,7 +26,7 @@
 #include "module_names.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
-#include <godot_cpp/classes/class_db_singleton.hpp>
+#include <godot_cpp/core/class_db.hpp>
 
 using namespace godot;
 
@@ -34,7 +34,6 @@ namespace luagdextension {
 
 sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_object key) {
 	static Engine *engine = Engine::get_singleton();
-	static ClassDBSingleton *class_db = ClassDBSingleton::get_singleton();
 
 	if (key.get_type() != sol::type::string) {
 		return sol::nil;
@@ -50,7 +49,7 @@ sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_obje
 	}
 	if (registry.get_or(module_names::classes, false)) {
 		StringName class_name = key.as<StringName>();
-		if (class_db->class_exists(class_name)) {
+		if (ClassDB::class_exists(class_name)) {
 			Class cls(class_name);
 			return _G[key] = sol::make_object(state, cls);
 		}
