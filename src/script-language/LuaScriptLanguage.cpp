@@ -54,7 +54,7 @@ void LuaScriptLanguage::_init() {
 }
 
 String LuaScriptLanguage::_get_type() const {
-	return "Lua";
+	return "LuaScript";
 }
 
 String LuaScriptLanguage::_get_extension() const {
@@ -144,7 +144,7 @@ bool LuaScriptLanguage::_is_using_templates() {
 
 Dictionary LuaScriptLanguage::_validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const {
 	Dictionary result;
-	Variant f = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(script, path);
+	Variant f = lua_state->load_string(script, path);
 	if (LuaError *error = Object::cast_to<LuaError>(f)) {
 		Dictionary error_dict;
 		error_dict["path"] = path;
@@ -215,7 +215,10 @@ Dictionary LuaScriptLanguage::_complete_code(const String &p_code, const String 
 
 Dictionary LuaScriptLanguage::_lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner) const {
 	// TODO
-	return {};
+	Dictionary result;
+	result["result"] = ERR_UNAVAILABLE;
+	result["type"] = Variant::Type::NIL;
+	return result;
 }
 
 String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from_line, int32_t p_to_line) const {
@@ -352,7 +355,7 @@ void LuaScriptLanguage::_frame() {
 }
 
 bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
-	return false;
+	return type == _get_type();
 }
 
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {

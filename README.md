@@ -140,8 +140,8 @@ lua.do_string("""
 - [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
 - [X] Lua ScriptLanguageExtension
-  + [ ] Add support for property hints / usage flags (including export)
-  + [ ] Add support for property getter / setter
+  + [X] Add support for property hints / usage flags (including export)
+  + [X] Add support for property getter / setter
 - [ ] Support for building with LuaJIT
 - [X] Automated unit tests
 - [X] Automated build and distribution
