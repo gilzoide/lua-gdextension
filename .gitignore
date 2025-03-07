@@ -22,3 +22,6 @@ src/generated/
 # Test project files
 .godot/
 test/godot
+
+# Some IDE generated configuration files
+.vs/
