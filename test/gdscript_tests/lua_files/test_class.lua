@@ -51,4 +51,8 @@ function TestClass:send_signal(arg1, arg2)
 	self.some_signal:emit(arg1 or 1, arg2 or 2)
 end
 
+function TestClass:echo(value)
+	return value
+end
+
 return TestClass

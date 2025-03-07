@@ -81,3 +81,14 @@ func test_property__set() -> bool:
 	obj._set_some_property = "_set_some_property"
 	assert(obj.rawget("_set_some_property") == "_set_some_property")
 	return true
+
+
+func test_property_method() -> bool:
+	var obj = test_class.new()
+	assert(obj.echo() == null)
+	assert(obj.echo(1) == 1)
+	assert(obj.echo("hello!") == "hello!")
+	assert(obj.echo([3]) == [3])
+	var arr = [3]
+	assert(is_same(obj.echo(arr), arr))
+	return true
