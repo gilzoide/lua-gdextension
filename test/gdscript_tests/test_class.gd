@@ -50,6 +50,13 @@ func test_property_getter_name() -> bool:
 	return true;
 
 
+func test_property__get() -> bool:
+	var obj = test_class.new()
+	assert(obj.rawget("_get_some_property") == null)
+	assert(obj._get_some_property == "_get_some_property")
+	return true
+
+
 func test_property_setter_function() -> bool:
 	var obj = test_class.new()
 	obj.setter_increment = 5
@@ -63,4 +70,12 @@ func test_property_setter_name() -> bool:
 	obj.setter_name = "value"
 	assert(obj.setter_name == null)
 	assert(obj.a == "value")
+	return true
+
+
+func test_property__set() -> bool:
+	var obj = test_class.new()
+	assert(obj.rawget("_set_some_property") == null)
+	obj._set_some_property = "_set_some_property"
+	assert(obj.rawget("_set_some_property") == "_set_some_property")
 	return true
