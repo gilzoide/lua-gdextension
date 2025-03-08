@@ -223,7 +223,11 @@ TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
 }
 
 int32_t LuaScript::_get_member_line(const StringName &p_member) const {
-	// TODO
+#ifdef DEBUG_ENABLED
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_member)) {
+		return method->get_line_defined();
+	}
+#endif
 	return {};
 }
 

@@ -35,6 +35,17 @@ bool LuaScriptMethod::is_valid() const {
 	return method.valid();
 }
 
+int LuaScriptMethod::get_line_defined() const {
+#ifdef DEBUG_ENABLED
+	lua_Debug lua_info;
+	method.push();
+	lua_getinfo(method.lua_state(), ">S", &lua_info);
+	return lua_info.linedefined;
+#else
+	return -1;
+#endif
+}
+
 Variant LuaScriptMethod::get_argument_count() const {
 #ifdef DEBUG_ENABLED
 	lua_Debug lua_info;

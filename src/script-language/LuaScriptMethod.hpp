@@ -39,6 +39,7 @@ struct LuaScriptMethod {
 	LuaScriptMethod(const StringName& name, sol::protected_function method);
 
 	bool is_valid() const;
+	int get_line_defined() const;
 	Variant get_argument_count() const;
 
 	MethodInfo to_method_info() const;
