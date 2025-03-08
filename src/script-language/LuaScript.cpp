@@ -44,7 +44,6 @@ bool LuaScript::_editor_can_reload_from_file() {
 }
 
 void LuaScript::_placeholder_erased(void *p_placeholder) {
-	// TODO
 }
 
 bool LuaScript::_can_instantiate() const {
@@ -74,7 +73,7 @@ void *LuaScript::_instance_create(Object *for_object) const {
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
-	return godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton(), (Object *) this, for_object);
+	return godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
 }
 
 bool LuaScript::_instance_has(Object *p_object) const {
@@ -210,8 +209,7 @@ TypedArray<StringName> LuaScript::_get_members() const {
 }
 
 bool LuaScript::_is_placeholder_fallback_enabled() const {
-	// TODO
-	return {};
+	return true;
 }
 
 Variant LuaScript::_get_rpc_config() const {
