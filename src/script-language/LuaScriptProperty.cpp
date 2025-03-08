@@ -31,7 +31,7 @@ namespace luagdextension {
 
 static LuaScriptProperty lua_property(sol::stack_object value) {
 	LuaScriptProperty property;
-	property.usage = PROPERTY_USAGE_NONE;
+	property.usage = PROPERTY_USAGE_STORAGE;
 
 	if (auto table = value.as<sol::optional<sol::stack_table>>()) {
 		// 1: either a Variant type or the default value
@@ -86,6 +86,12 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 		property.type = property.default_value.get_type();
 	}
 	property.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
+	return property;
+}
+
+static LuaScriptProperty lua_export(sol::stack_object value) {
+	LuaScriptProperty property = lua_property(value);
+	property.usage |= PROPERTY_USAGE_DEFAULT;
 	return property;
 }
 
@@ -149,6 +155,7 @@ void LuaScriptProperty::register_lua(lua_State *L) {
 		sol::no_construction()
 	);
 	state.set("property", &lua_property);
+	state.set("export", &lua_export);
 }
 
 }
