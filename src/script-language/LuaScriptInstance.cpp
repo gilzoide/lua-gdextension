@@ -26,6 +26,7 @@
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMetadata.hpp"
+#include "LuaScriptProperty.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
@@ -158,8 +159,29 @@ void get_property_state_func(LuaScriptInstance *p_instance, GDExtensionScriptIns
 
 GDExtensionScriptInstanceGetMethodList get_method_list_func;
 GDExtensionScriptInstanceFreeMethodList2 free_method_list_func;
-GDExtensionScriptInstanceGetPropertyType get_property_type_func;
-GDExtensionScriptInstanceValidateProperty validate_property_func;
+
+GDExtensionVariantType get_property_type_func(LuaScriptInstance *p_instance, const StringName *p_name, GDExtensionBool *r_is_valid) {
+	if (const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name)) {
+		*r_is_valid = true;
+		return (GDExtensionVariantType) property->type;
+	}
+	else {
+		*r_is_valid = false;
+		return GDEXTENSION_VARIANT_TYPE_NIL;
+	}
+}
+
+GDExtensionBool validate_property_func(LuaScriptInstance *p_instance, GDExtensionPropertyInfo *p_property) {
+	if (const LuaScriptMethod *_validate_property = p_instance->script->get_metadata().methods.getptr("_validate_property")) {
+		PropertyInfo property_info(p_property);
+		Dictionary property_info_dict = property_info;
+		LuaFunction::invokev_lua(_validate_property->method, Array::make(p_instance->owner, property_info_dict), false);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 
 GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName *p_name) {
 	return p_instance->script->_has_method(*p_name);
