@@ -237,8 +237,17 @@ Dictionary LuaScript::_get_constants() const {
 }
 
 TypedArray<StringName> LuaScript::_get_members() const {
-	// TODO
-	return {};
+	TypedArray<StringName> members;
+	for (auto [name, _] : metadata.methods) {
+		members.append(name);
+	}
+	for (auto [name, _] : metadata.properties) {
+		members.append(name);
+	}
+	for (auto [name, _] : metadata.signals) {
+		members.append(name);
+	}
+	return members;
 }
 
 bool LuaScript::_is_placeholder_fallback_enabled() const {
