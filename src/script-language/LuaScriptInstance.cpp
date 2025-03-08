@@ -26,6 +26,7 @@
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMetadata.hpp"
+#include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
 
@@ -116,8 +117,31 @@ GDExtensionScriptInstanceGetPropertyList get_property_list_func;
 GDExtensionScriptInstanceFreePropertyList2 free_property_list_func;
 GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 
-GDExtensionScriptInstancePropertyCanRevert property_can_revert_func;
-GDExtensionScriptInstancePropertyGetRevert property_get_revert_func;
+GDExtensionBool property_can_revert_func(LuaScriptInstance *p_instance, const StringName *p_name) {
+	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_property_can_revert")) {
+		Variant result = LuaFunction::invokev_lua(*method, Array::make(p_instance->owner, *p_name), false);
+		if (result) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+GDExtensionBool property_get_revert_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *r_ret) {
+	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_property_get_revert")) {
+		Variant result = LuaFunction::invokev_lua(*method, Array::make(p_instance->owner, *p_name), true);
+		if (LuaError *error = Object::cast_to<LuaError>(result)) {
+			ERR_PRINT(error->get_message());
+		}
+		else {
+			*r_ret = result;
+			return true;
+		}
+	}
+
+	return false;
+}
 
 Object *get_owner_func(LuaScriptInstance *p_instance) {
 	return p_instance->owner;
