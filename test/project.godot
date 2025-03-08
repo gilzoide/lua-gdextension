@@ -11,8 +11,9 @@ config_version=5
 [application]
 
 config/name="Lua GDExtension Test"
+run/main_scene="uid://d3pmpkdvfqjca"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://addons/lua-gdextension/icon.png"
+config/icon="uid://cih6ia8rwpfa3"
 
 [rendering]
 
