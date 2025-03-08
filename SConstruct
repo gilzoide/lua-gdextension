@@ -78,7 +78,7 @@ sources = [
     for directory in source_directories
 ]
 
-# Documentation
+# Generate document
 if env["target"] in ["editor", "template_debug"]:
     try:
         doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
