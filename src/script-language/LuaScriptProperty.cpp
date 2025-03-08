@@ -34,7 +34,7 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 	property.usage = PROPERTY_USAGE_STORAGE;
 
 	if (auto table = value.as<sol::optional<sol::stack_table>>()) {
-		// 1: either a Variant type or the default value
+		// index 1: either a Variant type or the default value
 		if (auto type = table->get<sol::optional<VariantType>>(1)) {
 			property.type = type->get_type();
 		}
@@ -65,9 +65,11 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 		}
 		if (auto getter_name = table->get<sol::optional<StringName>>("get")) {
 			property.getter_name = *getter_name;
+			property.usage &= ~PROPERTY_USAGE_STORAGE;
 		}
 		else if (auto getter = table->get<sol::optional<sol::protected_function>>("get")) {
 			property.getter = getter;
+			property.usage &= ~PROPERTY_USAGE_STORAGE;
 		}
 		if (auto setter_name = table->get<sol::optional<StringName>>("set")) {
 			property.setter_name = *setter_name;
@@ -82,6 +84,7 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 	else {
 		property.default_value = to_variant(value);
 	}
+	
 	if (property.type == 0) {
 		property.type = property.default_value.get_type();
 	}
