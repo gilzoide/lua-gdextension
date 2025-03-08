@@ -53,13 +53,8 @@ void LuaScriptLanguage::_init() {
 	state.registry()["LuaScriptInstance::rawset"] = wrap_function(&LuaScriptInstance::rawset);
 
 	// Register scripting specific usertypes
-	state.new_usertype<LuaScriptSignal>(
-		"LuaScriptSignal",
-		sol::no_construction()
-	);
-	state.set("signal", &LuaScriptSignal::from_lua);
-
 	LuaScriptProperty::register_lua(state);
+	LuaScriptSignal::register_lua(state);
 }
 
 String LuaScriptLanguage::_get_type() const {

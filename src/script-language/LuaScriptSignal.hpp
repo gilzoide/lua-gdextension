@@ -24,7 +24,7 @@
 
 #include <godot_cpp/variant/variant.hpp>
 
-#include "../utils/custom_sol.hpp"
+typedef struct lua_State lua_State;
 
 using namespace godot;
 
@@ -33,7 +33,7 @@ namespace luagdextension {
 struct LuaScriptSignal {
 	PackedStringArray arguments;
 
-	static LuaScriptSignal from_lua(sol::variadic_args arguments);
+	static void register_lua(lua_State *L);
 };
 
 }
