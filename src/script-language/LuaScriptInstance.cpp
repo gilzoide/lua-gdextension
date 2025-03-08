@@ -218,7 +218,7 @@ GDExtensionScriptInstanceSet set_fallback_func;
 GDExtensionScriptInstanceGet get_fallback_func;
 
 void *get_language_func(LuaScriptInstance *instance) {
-	return LuaScriptLanguage::get_singleton();
+	return LuaScriptLanguage::get_singleton()->_owner;
 }
 
 void free_func(LuaScriptInstance *instance) {
