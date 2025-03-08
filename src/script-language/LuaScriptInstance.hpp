@@ -43,6 +43,9 @@ struct LuaScriptInstance {
 	Ref<LuaScript> script;
 	Ref<LuaTable> data;
 
+	static Variant rawget(const Variant& self, const Variant& index);
+	static void rawset(const Variant& self, const Variant& index, const Variant& value);
+
 private:
 	static HashMap<Object *, LuaScriptInstance *> known_instances;
 };

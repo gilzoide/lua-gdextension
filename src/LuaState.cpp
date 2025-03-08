@@ -21,7 +21,6 @@
  */
 #include "LuaState.hpp"
 
-#include "LuaError.hpp"
 #include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
@@ -35,7 +34,7 @@ namespace luagdextension {
 
 /// Lua memory allocation callback.
 /// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	if (nsize == 0) {
 		if (ptr != nullptr) {
 			memfree(ptr);

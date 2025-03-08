@@ -22,11 +22,13 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "LuaScriptInstance.hpp"
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
+#include "../utils/function_wrapper.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/reg_ex.hpp>
@@ -45,8 +47,12 @@ void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
 
+	// Global script methods LuaScriptInstance::rawget and LuaScriptInstance::rawset
+	sol::state_view state = lua_state->get_lua_state();	
+	state.registry()["LuaScriptInstance::rawget"] = wrap_function(&LuaScriptInstance::rawget);
+	state.registry()["LuaScriptInstance::rawset"] = wrap_function(&LuaScriptInstance::rawset);
+
 	// Register scripting specific usertypes
-	sol::state_view state = lua_state->get_lua_state();
 	state.new_usertype<LuaScriptSignal>(
 		"LuaScriptSignal",
 		sol::no_construction()

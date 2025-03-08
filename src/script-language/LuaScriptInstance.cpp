@@ -29,6 +29,7 @@
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
+#include "../utils/convert_godot_lua.hpp"
 
 namespace luagdextension {
 
@@ -166,38 +167,6 @@ GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName 
 GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	if (*p_method == StringName("rawget")) {
-		if (p_argument_count == 1) {
-			r_error->error = GDEXTENSION_CALL_OK;
-			*r_return = p_instance->data->rawget(*p_args[0]);
-		}
-		else if (p_argument_count < 1) {
-			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
-			r_error->expected = 1;
-		}
-		else {
-			r_error->error = GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS;
-			r_error->expected = 1;
-		}
-		return;
-	}
-	if (*p_method == StringName("rawset")) {
-		if (p_argument_count == 2) {
-			r_error->error = GDEXTENSION_CALL_OK;
-			*r_return = Variant();
-			p_instance->data->rawset(*p_args[0], *p_args[1]);
-		}
-		else if (p_argument_count < 2) {
-			r_error->error = GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
-			r_error->expected = 2;
-		}
-		else {
-			r_error->error = GDEXTENSION_CALL_ERROR_TOO_MANY_ARGUMENTS;
-			r_error->expected = 2;
-		}
-		return;
-	}
-
 	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
 		r_error->error = GDEXTENSION_CALL_OK;
 		*r_return = LuaFunction::invoke_method_lua(*method, p_instance->owner, p_args, p_argument_count, false);
@@ -293,6 +262,21 @@ LuaScriptInstance *LuaScriptInstance::attached_to_object(Object *owner) {
 	}
 	else {
 		return nullptr;
+	}
+}
+
+Variant LuaScriptInstance::rawget(const Variant& self, const Variant& index) {
+	if (LuaScriptInstance *instance = attached_to_object(self)) {
+		return instance->data->rawget(index);
+	}
+	else {
+		return {};
+	}
+}
+
+void LuaScriptInstance::rawset(const Variant& self, const Variant& index, const Variant& value) {
+	if (LuaScriptInstance *instance = attached_to_object(self)) {
+		instance->data->rawset(index, value);
 	}
 }
 

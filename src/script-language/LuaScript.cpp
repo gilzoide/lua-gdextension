@@ -129,9 +129,6 @@ String LuaScript::_get_class_icon_path() const {
 }
 
 bool LuaScript::_has_method(const StringName &p_method) const {
-	if (p_method == StringName("rawget") || p_method == StringName("rawset")) {
-		return true;
-	}
 	return metadata.methods.has(p_method);
 }
 

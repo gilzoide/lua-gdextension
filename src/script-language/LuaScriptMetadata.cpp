@@ -34,6 +34,11 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 
 	sol::state_view L = t.lua_state();
 	StackTopChecker topcheck(L);
+
+	// Global methods
+	methods["rawget"] = L.registry()["LuaScriptInstance::rawget"];
+	methods["rawset"] = L.registry()["LuaScriptInstance::rawset"];
+
 	auto tablepop = sol::stack::push_pop(L, t);
 	lua_pushnil(L);
 	while (lua_next(L, -2) != 0) {
