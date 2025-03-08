@@ -47,8 +47,7 @@ void LuaScript::_placeholder_erased(void *p_placeholder) {
 }
 
 bool LuaScript::_can_instantiate() const {
-	return metadata.is_valid
-		&& ClassDB::can_instantiate(_get_instance_base_type());
+	return _is_valid() && (_is_tool() || !Engine::get_singleton()->is_editor_hint());
 }
 
 Ref<Script> LuaScript::_get_base_script() const {
