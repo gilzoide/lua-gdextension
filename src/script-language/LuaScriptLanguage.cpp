@@ -150,15 +150,17 @@ Dictionary LuaScriptLanguage::_validate(const String &script, const String &path
 	Dictionary result;
 	Variant f = lua_state->load_string(script, path);
 	if (LuaError *error = Object::cast_to<LuaError>(f)) {
-		auto line_re = RegEx::create_from_string(R":(\d+):");
-		auto match = line_re->search(error->get_message());
-		Dictionary error_dict;
-		error_dict["path"] = path;
-		error_dict["line"] = match->get_string().to_int();
-		error_dict["column"] = 1;
-		error_dict["message"] = error->get_message();
+		if (validate_errors) {
+			auto line_re = RegEx::create_from_string(R":(\d+):");
+			auto match = line_re->search(error->get_message());
+			Dictionary error_dict;
+			error_dict["path"] = path;
+			error_dict["line"] = match->get_string().to_int();
+			error_dict["column"] = 1;
+			error_dict["message"] = error->get_message();
+			result["errors"] = Array::make(error_dict);
+		}
 		result["valid"] = false;
-		result["errors"] = Array::make(error_dict);
 	}
 	else {
 		result["valid"] = true;

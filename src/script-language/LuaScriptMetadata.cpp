@@ -69,6 +69,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			is_tool = to_variant(value).booleanize();
 		}
 		else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
+			signal->name = name;
 			signals.insert(name, *signal);
 		}
 		else if (auto property = value.as<sol::optional<LuaScriptProperty>>()) {

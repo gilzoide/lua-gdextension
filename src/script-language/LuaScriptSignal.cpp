@@ -27,6 +27,19 @@
 
 namespace luagdextension {
 
+MethodInfo LuaScriptSignal::to_method_info() const {
+	MethodInfo mi;
+	mi.name = name;
+	for (int i = 0; i < arguments.size(); i++) {
+		mi.arguments.push_back(PropertyInfo(Variant::Type::NIL, arguments[i]));
+	}
+	return mi;
+}
+
+Dictionary LuaScriptSignal::to_dictionary() const {
+	return to_method_info();
+}
+
 static LuaScriptSignal lua_signal(sol::variadic_args arguments) {
 	LuaScriptSignal signal = {
 		.arguments = VariantArguments(arguments).get_array(),

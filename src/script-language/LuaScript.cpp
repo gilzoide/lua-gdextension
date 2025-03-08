@@ -169,8 +169,11 @@ bool LuaScript::_has_script_signal(const StringName &p_signal) const {
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
-	// TODO
-	return {};
+	TypedArray<Dictionary> signals;
+	for (auto [name, signal] : metadata.signals) {
+		signals.append(signal.to_dictionary());
+	}
+	return signals;
 }
 
 bool LuaScript::_has_property_default_value(const StringName &p_property) const {
