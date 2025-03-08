@@ -61,7 +61,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			icon_path = to_variant(value);
 		}
 		else if (name == "tool") {
-			is_tool = true;
+			is_tool = to_variant(value).booleanize();
 		}
 		else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
 			signals.insert(name, *signal);
