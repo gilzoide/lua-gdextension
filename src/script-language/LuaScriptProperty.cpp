@@ -94,7 +94,7 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 
 static LuaScriptProperty lua_export(sol::stack_object value) {
 	LuaScriptProperty property = lua_property(value);
-	property.usage |= PROPERTY_USAGE_DEFAULT;
+	property.usage |= PROPERTY_USAGE_EDITOR;
 	return property;
 }
 
