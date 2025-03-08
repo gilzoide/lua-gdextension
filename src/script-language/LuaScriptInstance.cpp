@@ -52,8 +52,8 @@ LuaScriptInstance::~LuaScriptInstance() {
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
 	// 1) try calling `_set`
-	if (const sol::protected_function *_set = p_instance->script->get_metadata().methods.getptr("_set")) {
-		Variant value_was_set = LuaFunction::invokev_lua(*_set, Array::make(p_instance->owner, *p_name, *p_value), false);
+	if (const LuaScriptMethod *_set = p_instance->script->get_metadata().methods.getptr("_set")) {
+		Variant value_was_set = LuaFunction::invokev_lua(_set->method, Array::make(p_instance->owner, *p_name, *p_value), false);
 		if (value_was_set) {
 			return true;
 		}
@@ -77,8 +77,8 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
 	// a) try calling `_get`
-	if (const sol::protected_function *_get = p_instance->script->get_metadata().methods.getptr("_get")) {
-		Variant value = LuaFunction::invokev_lua(*_get, Array::make(p_instance->owner, *p_name), false);
+	if (const LuaScriptMethod *_get = p_instance->script->get_metadata().methods.getptr("_get")) {
+		Variant value = LuaFunction::invokev_lua(_get->method, Array::make(p_instance->owner, *p_name), false);
 		if (value != Variant()) {
 			*p_value = value;
 			return true;
@@ -119,8 +119,8 @@ GDExtensionScriptInstanceFreePropertyList2 free_property_list_func;
 GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 
 GDExtensionBool property_can_revert_func(LuaScriptInstance *p_instance, const StringName *p_name) {
-	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_property_can_revert")) {
-		Variant result = LuaFunction::invokev_lua(*method, Array::make(p_instance->owner, *p_name), false);
+	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr("_property_can_revert")) {
+		Variant result = LuaFunction::invokev_lua(method->method, Array::make(p_instance->owner, *p_name), false);
 		if (result) {
 			return true;
 		}
@@ -130,8 +130,8 @@ GDExtensionBool property_can_revert_func(LuaScriptInstance *p_instance, const St
 }
 
 GDExtensionBool property_get_revert_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *r_ret) {
-	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_property_get_revert")) {
-		Variant result = LuaFunction::invokev_lua(*method, Array::make(p_instance->owner, *p_name), true);
+	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr("_property_get_revert")) {
+		Variant result = LuaFunction::invokev_lua(method->method, Array::make(p_instance->owner, *p_name), true);
 		if (LuaError *error = Object::cast_to<LuaError>(result)) {
 			ERR_PRINT(error->get_message());
 		}
@@ -167,9 +167,9 @@ GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName 
 GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
+	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
 		r_error->error = GDEXTENSION_CALL_OK;
-		*r_return = LuaFunction::invoke_method_lua(*method, p_instance->owner, p_args, p_argument_count, false);
+		*r_return = LuaFunction::invoke_method_lua(method->method, p_instance->owner, p_args, p_argument_count, false);
 	}
 	else {
 		r_error->error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
@@ -177,14 +177,14 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 }
 
 void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
-	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_notification")) {
-		LuaFunction::invokev_lua(*method, Array::make(p_instance->owner, p_what, p_reversed), false);
+	if (const LuaScriptMethod *_notification = p_instance->script->get_metadata().methods.getptr("_notification")) {
+		LuaFunction::invokev_lua(_notification->method, Array::make(p_instance->owner, p_what, p_reversed), false);
 	}
 }
 
 void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, String *r_out) {
-	if (const sol::protected_function *method = p_instance->script->get_metadata().methods.getptr("_to_string")) {
-		Variant result = LuaFunction::invokev_lua(*method, Array::make(p_instance->owner), false);
+	if (const LuaScriptMethod *_to_string = p_instance->script->get_metadata().methods.getptr("_to_string")) {
+		Variant result = LuaFunction::invokev_lua(_to_string->method, Array::make(p_instance->owner), false);
 		if (result) {
 			*r_out = result;
 			*r_is_valid = true;

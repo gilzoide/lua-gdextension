@@ -19,33 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_SCRIPT_METADATA_HPP__
-#define __LUA_SCRIPT_METADATA_HPP__
+#ifndef __LUA_SCRIPT_METHOD_HPP__
+#define __LUA_SCRIPT_METHOD_HPP__
 
-#include <godot_cpp/templates/hash_map.hpp>
+#include <sol/sol.hpp>
+#include <godot_cpp/core/object.hpp>
 
-#include "LuaScriptMethod.hpp"
-#include "LuaScriptProperty.hpp"
-#include "LuaScriptSignal.hpp"
+typedef struct lua_State lua_State;
 
 using namespace godot;
 
 namespace luagdextension {
 
-struct LuaScriptMetadata {
-	bool is_valid;
-	bool is_tool;
-	StringName base_class;
-	StringName class_name;
-	String icon_path;
-	HashMap<StringName, LuaScriptMethod> methods;
-	HashMap<StringName, LuaScriptProperty> properties;
-	HashMap<StringName, LuaScriptSignal> signals;
+struct LuaScriptMethod {
+	StringName name;
+	sol::protected_function method;
+	
+	LuaScriptMethod() = default;
+	LuaScriptMethod(const StringName& name, sol::protected_function method);
 
-	void setup(const sol::table& t);
-	void clear();
+	bool is_valid() const;
+
+	MethodInfo to_method_info() const;
+	Dictionary to_dictionary() const;
+
+	static void register_lua(lua_State *L);
 };
 
 }
 
-#endif  // __LUA_SCRIPT_METADATA_HPP__
+#endif  // __LUA_SCRIPT_METHOD_HPP__

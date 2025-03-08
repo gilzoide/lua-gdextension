@@ -36,8 +36,8 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 	StackTopChecker topcheck(L);
 
 	// Global methods
-	methods["rawget"] = L.registry()["LuaScriptInstance::rawget"];
-	methods["rawset"] = L.registry()["LuaScriptInstance::rawset"];
+	methods["rawget"] = LuaScriptMethod("rawget", L.registry()["LuaScriptInstance::rawget"]);
+	methods["rawset"] = LuaScriptMethod("rawset", L.registry()["LuaScriptInstance::rawset"]);
 
 	auto tablepop = sol::stack::push_pop(L, t);
 	lua_pushnil(L);
@@ -77,7 +77,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			properties.insert(name, *property);
 		}
 		else if (value.get_type() == sol::type::function) {
-			methods.insert(name, value);
+			methods.insert(name, LuaScriptMethod(name, value));
 		}
 		else {
 			Variant var = to_variant(value);

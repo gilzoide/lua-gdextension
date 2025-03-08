@@ -23,6 +23,7 @@
 
 #include "LuaScript.hpp"
 #include "LuaScriptInstance.hpp"
+#include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
@@ -53,6 +54,7 @@ void LuaScriptLanguage::_init() {
 	state.registry()["LuaScriptInstance::rawset"] = wrap_function(&LuaScriptInstance::rawset);
 
 	// Register scripting specific usertypes
+	LuaScriptMethod::register_lua(state);
 	LuaScriptProperty::register_lua(state);
 	LuaScriptSignal::register_lua(state);
 }

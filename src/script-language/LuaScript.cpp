@@ -242,8 +242,8 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
 	}
-	if (const sol::protected_function *_init = metadata.methods.getptr("_init")) {
-		LuaFunction::invoke_method_lua(*_init, new_instance, args, arg_count, false);
+	if (const LuaScriptMethod *_init = metadata.methods.getptr("_init")) {
+		LuaFunction::invoke_method_lua(_init->method, new_instance, args, arg_count, false);
 	}
 	return new_instance;
 }
