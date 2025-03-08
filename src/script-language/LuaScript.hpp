@@ -24,6 +24,7 @@
 
 #include <godot_cpp/classes/script_extension.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/templates/hash_set.hpp>
 
 #include "LuaScriptMetadata.hpp"
 
@@ -40,6 +41,9 @@ class LuaScript : public ScriptExtension {
 	GDCLASS(LuaScript, ScriptExtension);
 
 public:
+	LuaScript();
+	~LuaScript();
+
 	bool _editor_can_reload_from_file() override;
 	void _placeholder_erased(void *p_placeholder) override;
 	bool _can_instantiate() const override;
@@ -85,8 +89,13 @@ protected:
 	static void _bind_methods();
 	virtual String _to_string() const;
 
+	void _update_placeholder_exports(void *placeholder) const;
+
 	String source_code;
 	LuaScriptMetadata metadata;
+
+	// TODO: use instance member instead of static map if "_placeholder_instance_create" is changed to be non-const
+	static HashMap<const LuaScript *, HashSet<void *>> placeholders;
 };
 
 }

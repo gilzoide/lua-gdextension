@@ -39,11 +39,22 @@
 
 namespace luagdextension {
 
+LuaScript::LuaScript()
+	: ScriptExtension()
+{
+	placeholders.insert(this, {});
+}
+
+LuaScript::~LuaScript() {
+	placeholders.erase(this);
+}
+
 bool LuaScript::_editor_can_reload_from_file() {
 	return true;
 }
 
 void LuaScript::_placeholder_erased(void *p_placeholder) {
+	placeholders.get(this).erase(p_placeholder);
 }
 
 bool LuaScript::_can_instantiate() const {
@@ -72,7 +83,10 @@ void *LuaScript::_instance_create(Object *for_object) const {
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
-	return godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
+	void *placeholder = godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
+	placeholders.get(this).insert(placeholder);
+	_update_placeholder_exports(placeholder);
+	return placeholder;
 }
 
 bool LuaScript::_instance_has(Object *p_object) const {
@@ -176,7 +190,9 @@ Variant LuaScript::_get_property_default_value(const StringName &p_property) con
 }
 
 void LuaScript::_update_exports() {
-	// TODO
+	for (void *placeholder : placeholders.get(this)) {
+		_update_placeholder_exports(placeholder);
+	}
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
@@ -243,6 +259,18 @@ void LuaScript::_bind_methods() {
 String LuaScript::_to_string() const {
 	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
 }
+
+void LuaScript::_update_placeholder_exports(void *placeholder) const {
+	Array properties;
+	Dictionary default_values;
+	for (auto [name, property] : metadata.properties) {
+		properties.append(property.to_dictionary());
+		default_values[name] = property.instantiate_default_value();
+	}
+	godot::internal::gdextension_interface_placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
+}
+
+HashMap<const LuaScript *, HashSet<void *>> LuaScript::placeholders;
 
 }
 
