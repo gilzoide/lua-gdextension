@@ -93,6 +93,7 @@ protected:
 
 	String source_code;
 	LuaScriptMetadata metadata;
+	bool placeholder_fallback_enabled;
 
 	// TODO: use instance member instead of static map if "_placeholder_instance_create" is changed to be non-const
 	static HashMap<const LuaScript *, HashSet<void *>> placeholders;

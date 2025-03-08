@@ -108,6 +108,7 @@ void LuaScript::_set_source_code(const String &code) {
 }
 
 Error LuaScript::_reload(bool keep_state) {
+	placeholder_fallback_enabled = true;
 	metadata.clear();
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
@@ -115,6 +116,7 @@ Error LuaScript::_reload(bool keep_state) {
 		return ERR_PARSE_ERROR;
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
+		placeholder_fallback_enabled = false;
 		metadata.setup(table->get_table());
 	}
 	return OK;
@@ -236,7 +238,7 @@ TypedArray<StringName> LuaScript::_get_members() const {
 }
 
 bool LuaScript::_is_placeholder_fallback_enabled() const {
-	return true;
+	return placeholder_fallback_enabled;
 }
 
 Variant LuaScript::_get_rpc_config() const {
