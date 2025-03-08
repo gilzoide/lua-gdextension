@@ -31,6 +31,7 @@
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/reg_ex.hpp>
 #include <godot_cpp/classes/reg_ex_match.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 
@@ -367,8 +368,17 @@ bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
 }
 
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
-	// TODO
-	return Dictionary();
+	Ref<LuaScript> script = ResourceLoader::get_singleton()->load(path);
+	
+	Dictionary result;
+	if (script.is_valid() && script->_is_valid()) {
+		result["name"] = script->_get_global_name();
+		result["base_type"] = script->_get_instance_base_type();
+		result["icon_path"] = script->_get_class_icon_path();
+		result["is_abstract"] = script->_is_abstract();
+		result["is_tool"] = script->_is_tool();
+	}
+	return result;
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {
