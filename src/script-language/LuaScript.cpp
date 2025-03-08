@@ -23,6 +23,7 @@
 
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
+#include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
@@ -144,8 +145,12 @@ Variant LuaScript::_get_script_method_argument_count(const StringName &p_method)
 }
 
 Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
-	// TODO
-	return {};
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_method)) {
+		return method->to_dictionary();
+	}
+	else {
+		return {};
+	}
 }
 
 bool LuaScript::_is_tool() const {
@@ -196,8 +201,11 @@ void LuaScript::_update_exports() {
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
-	// TODO
-	return {};
+	TypedArray<Dictionary> methods;
+	for (auto [name, method] : metadata.methods) {
+		methods.append(method.to_dictionary());
+	}
+	return methods;
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
