@@ -50,7 +50,7 @@ public:
 	LuaError(const sol::load_result& load_result);
 	LuaError(const sol::protected_function_result& function_result);
 
-	String get_message() const;
+	const String& get_message() const;
 	void set_message(const String& message);
 
 	Status get_status() const;

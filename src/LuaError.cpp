@@ -58,7 +58,7 @@ String LuaError::_to_string() const {
 	return message;
 }
 
-String LuaError::get_message() const {
+const String& LuaError::get_message() const {
 	return message;
 }
 
