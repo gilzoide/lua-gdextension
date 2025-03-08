@@ -1,21 +1,42 @@
-local bouncing_logo = {
+-- This is our script metadata table.
+--
+-- It stores metadata such as its base class, global class_name, icon,
+-- as well as any declared properties, methods and signals
+local LuaBouncingLogo = {
+	-- base class (optional, defaults to RefCounted)
 	extends = Sprite2D,
+	-- if true, allow the script to be executed by the editor (optional)
+	tool = false,
+	-- global class name (optional)
+	class_name = "LuaBouncingLogo",
 	
-	-- properties
-	velocity = Vector2(100, 0):rotated(deg_to_rad(40)),
+	-- Declare properties
+	linear_velocity = export(100),
+	initial_angle = export({
+		0,
+		hint = PROPERTY_HINT_RANGE,
+		hint_string = "0,360,degrees"
+	}),
+	-- Declare signals
+	bounced = signal(),
 }
 
-function bouncing_logo:_ready()
+-- Called when the node enters the scene tree for the first time.
+function LuaBouncingLogo:_ready()
 	self.position = self:get_viewport():get_size() / 2
+	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
 end
 
-function bouncing_logo:_process(delta)
+-- Called every frame. 'delta' is the elapsed time since the previous frame.
+function LuaBouncingLogo:_process(delta)
 	local viewport_size = self:get_viewport():get_size()
 	local viewport_rect = Rect2(Vector2(), viewport_size)
 	if not viewport_rect:encloses(self.global_transform * self:get_rect()) then
-		self.velocity = self.velocity:rotated(deg_to_rad(90))
+		self.movement = self.movement:rotated(deg_to_rad(90))
+		self.bounced:emit()
 	end
-	self.position = self.position + self.velocity * delta
+	self.position = self.position + self.movement * delta
 end
 
-return bouncing_logo
+-- Return the metadata table for the script to be usable by Godot objects
+return LuaBouncingLogo
