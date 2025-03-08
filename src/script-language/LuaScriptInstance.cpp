@@ -147,7 +147,13 @@ Object *get_owner_func(LuaScriptInstance *p_instance) {
 	return p_instance->owner;
 }
 
-GDExtensionScriptInstanceGetPropertyState get_property_state_func;
+void get_property_state_func(LuaScriptInstance *p_instance, GDExtensionScriptInstancePropertyStateAdd p_add_func, void *p_userdata) {
+	for (Variant key : *p_instance->data.ptr()) {
+		StringName name = key;
+		Variant value = p_instance->data->get(key);
+		p_add_func(&name, &value, p_userdata);
+	}
+}
 
 GDExtensionScriptInstanceGetMethodList get_method_list_func;
 GDExtensionScriptInstanceFreeMethodList2 free_method_list_func;
