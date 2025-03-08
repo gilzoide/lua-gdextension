@@ -97,7 +97,7 @@ Error LuaScript::_reload(bool keep_state) {
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
-		ERR_PRINT(error->get_message());
+		return ERR_PARSE_ERROR;
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
 		metadata.setup(table->get_table());
