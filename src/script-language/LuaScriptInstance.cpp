@@ -103,6 +103,12 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
+	// e) for methods, return a bound Callable
+	if (p_instance->script->get_metadata().methods.has(*p_name)) {
+		*p_value = Callable(p_instance->owner, *p_name);
+		return true;
+	}
+
 	return false;
 }
 
