@@ -164,7 +164,12 @@ GDExtensionScriptInstanceValidateProperty validate_property_func;
 GDExtensionBool has_method_func(LuaScriptInstance *p_instance, const StringName *p_name) {
 	return p_instance->script->_has_method(*p_name);
 }
-GDExtensionScriptInstanceGetMethodArgumentCount get_method_argument_count_func;
+
+GDExtensionInt get_method_argument_count_func(LuaScriptInstance *p_instance, const StringName *p_name, GDExtensionBool *r_is_valid) {
+	Variant result = p_instance->script->_get_script_method_argument_count(*p_name);
+	*r_is_valid = result.get_type() != Variant::Type::NIL;
+	return result;
+}
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
 	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {

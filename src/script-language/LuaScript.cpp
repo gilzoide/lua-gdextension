@@ -140,8 +140,12 @@ bool LuaScript::_has_static_method(const StringName &p_method) const {
 }
 
 Variant LuaScript::_get_script_method_argument_count(const StringName &p_method) const {
-	// TODO
-	return {};
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_method)) {
+		return method->get_argument_count();
+	}
+	else {
+		return {};
+	}
 }
 
 Dictionary LuaScript::_get_method_info(const StringName &p_method) const {

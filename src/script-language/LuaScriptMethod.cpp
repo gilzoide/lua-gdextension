@@ -21,6 +21,8 @@
  */
 #include "LuaScriptMethod.hpp"
 
+#include "../utils/stack_top_checker.hpp"
+
 namespace luagdextension {
 
 LuaScriptMethod::LuaScriptMethod(const StringName& name, sol::protected_function method)
@@ -33,9 +35,42 @@ bool LuaScriptMethod::is_valid() const {
 	return method.valid();
 }
 
+Variant LuaScriptMethod::get_argument_count() const {
+#ifdef DEBUG_ENABLED
+	lua_Debug lua_info;
+	method.push();
+	lua_getinfo(method.lua_state(), ">u", &lua_info);
+	return lua_info.nparams;
+#else
+	return {};
+#endif
+}
+
 MethodInfo LuaScriptMethod::to_method_info() const {
 	MethodInfo mi;
 	mi.name = name;
+
+#ifdef DEBUG_ENABLED
+	sol::state_view state = method.lua_state();
+	StackTopChecker topcheck(state);
+
+	lua_Debug lua_info;
+	method.push(state);
+	lua_getinfo(state, ">u", &lua_info);
+	
+	auto methodpop = sol::stack::push_pop(state, method);
+	for (int i = 0; i < lua_info.nparams; i++) {
+		String arg_name = lua_getlocal(state, nullptr, i + 1);
+		if (i == 0 && arg_name == "self") {
+			continue;
+		}
+		mi.arguments.push_back(PropertyInfo(Variant::Type::NIL, arg_name));
+	}
+	if (lua_info.isvararg) {
+		mi.flags |= GDEXTENSION_METHOD_FLAG_VARARG;
+	}
+#endif
+
 	return mi;
 }
 
