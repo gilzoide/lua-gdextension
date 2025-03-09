@@ -22,6 +22,7 @@ This plugin is available in the Asset Library as [Lua GDExtension](https://godot
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
     + (TODO) Patch Lua `package.searchers` to accept paths relative to `res://` and `user://`
 - Create Godot scripts directly in Lua
+- Editor plugin with Lua REPL for testing out Lua snippets
 
 
 ## Calling Lua from Godot
@@ -201,7 +202,7 @@ return LuaBouncingLogo
 - [ ] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
 - [X] Automated unit tests
 - [X] Automated build and distribution
-- [ ] Lua REPL editor plugin
+- [X] Lua REPL editor plugin
 
 
 ## Other projects for using Lua in Godot 4
