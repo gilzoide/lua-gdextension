@@ -16,6 +16,7 @@ build/*
 *.dylib
 *.framework
 compile_commands.json
+addons/lua-gdextension/README.md
 addons/lua-gdextension/LICENSE
 src/generated/
 
