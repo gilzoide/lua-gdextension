@@ -18,7 +18,7 @@ This plugin is available in the Asset Library as [Lua GDExtension](https://godot
     + Create and manipulate Variant values
     + Instantiate objects and access class constants
     + Access singleton objects by name
-    + Utility classes, like `print`, `lerp` and `is_same`
+    + Utility functions, like `print_rich`, `lerp` and `is_same`
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
     + (TODO) Patch Lua `package.searchers` to accept paths relative to `res://` and `user://`
 - Create Godot scripts directly in Lua
