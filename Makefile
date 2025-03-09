@@ -1,7 +1,7 @@
 # Zip distribution
 ADDONS_DIR = addons/lua-gdextension
 ADDONS_SRC = $(shell find $(ADDONS_DIR) -type f)
-COPIED_FILES = LICENSE README.md
+COPIED_FILES = LICENSE README.md CHANGELOG.md
 # Testing
 GODOT_BIN ?= godot
 # Download releases
