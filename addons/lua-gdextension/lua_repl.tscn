@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3 uid="uid://4lq5s4lnqg8c"]
+
+[ext_resource type="Script" uid="uid://bjod0yq2efea8" path="res://addons/lua-gdextension/lua_repl.gd" id="1_gf8ka"]
+
+[node name="LuaRepl" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gf8ka")
+
+[node name="Header" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Lua REPL"
+
+[node name="HistoryButton" type="MenuButton" parent="Header"]
+layout_mode = 2
+text = "History"
+flat = false
+
+[node name="ResetButton" type="Button" parent="Header"]
+layout_mode = 2
+tooltip_text = "Reset the Lua environment and REPL history"
+text = "Reset"
+
+[node name="ClearButton" type="Button" parent="Header"]
+layout_mode = 2
+tooltip_text = "Clear the output text"
+text = "Clear"
+
+[node name="Output" type="RichTextLabel" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+focus_mode = 2
+scroll_following = true
+selection_enabled = true
+
+[node name="Footer" type="HBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="Input" type="LineEdit" parent="Footer"]
+layout_mode = 2
+size_flags_horizontal = 3
+keep_editing_on_text_submit = true
+
+[node name="RunButton" type="Button" parent="Footer"]
+layout_mode = 2
+text = "Run"
+
+[connection signal="pressed" from="Header/ResetButton" to="." method="reset"]
+[connection signal="pressed" from="Header/ClearButton" to="." method="clear"]
+[connection signal="gui_input" from="Footer/Input" to="." method="_on_input_gui_input"]
+[connection signal="text_submitted" from="Footer/Input" to="." method="_on_input_text_submitted"]
+[connection signal="pressed" from="Footer/RunButton" to="." method="_on_run_button_pressed"]
