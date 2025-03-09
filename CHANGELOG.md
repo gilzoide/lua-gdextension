@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.1.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.2.0...HEAD)
+
+
+## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
 ### Added
 - Lua is now available as a scripting language for Godot objects, so that you can create your games entirely in Lua!
 - `LuaObject.get_lua_state` method for getting the `LuaState` of a Lua object
