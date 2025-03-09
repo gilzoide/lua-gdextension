@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaState" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
   <brief_description>
+    A Lua state.
   </brief_description>
   <description>
+
   </description>
   <tutorials>
   </tutorials>
@@ -12,12 +14,14 @@
       <param index="0" name="initial_values" type="Dictionary" default="{}" />
       <description>
         Creates a new LuaTable with the given initial values.
-        [code]
+        [codeblocks]
+        [gdscript]
         var table = lua_state.create_table({
-        "foo": "bar",
-        "baz": 42
+            "foo": "bar",
+            "baz": 42
         })
-        [/code]
+        [/gdscript]
+        [/codeblocks]
       </description>
     </method>
     <method name="do_file">
@@ -56,29 +60,28 @@
       <return type="void" />
       <param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" default="262143" />
       <description>
-        Opens the given libraries.[br]
-        See [enum Library] for a list of available libraries.[br]
-        Default opens all libraries.[br]
-        [br]
-        If you want to open a library other than LUA_BASE, then you should bring LUA_BASE with you when opening other libraries.[br]
-        [code]
+        Opens the given libraries.
+        See [enum Library] for a list of available libraries.
+        Default opens all libraries.
+        If you want to open a library other than LUA_BASE, then you should bring LUA_BASE with you when opening other libraries.
+        [codeblocks]
+        [gdscript]
         # Open LUA_BASE and LUA_PACKAGE
         var lua_state = LuaState.new()
         lua_state.open_libraries(LuaState.LUA_BASE ^ LuaState.LUA_PACKAGE)
-        [/code]
-        [br]
-        
-        A single open will be empty.[br]
-        [code]
+        [/gdscript]
+        [/codeblocks]
+
+        A single open will be empty.
+        [codeblocks]
+        [gdscript]
         # Open LUA_PACKAGE
         var lua_state = LuaState.new()
         lua_state.open_libraries(LuaState.LUA_PACKAGE)
         # This will be empty
-        # {
-        #
-        # }
-        print(JSON.stringify(state.globals.to_dictionary(), "\t"))
-        [/code]
+        print(state.globals.to_dictionary()) # print "{}"
+        [/gdscript]
+        [/codeblocks]
       </description>
     </method>
   </methods>
@@ -90,100 +93,65 @@
   </members>
   <constants>
     <constant name="LUA_BASE" value="1" enum="Library" is_bitfield="true">
-      <description>
-        Lua base libraries.
-      </description>
+      Lua base libraries.
     </constant>
     <constant name="LUA_PACKAGE" value="2" enum="Library" is_bitfield="true">
-      <description>
-        Lua package libraries.
-      </description>
+      Lua package libraries.
     </constant>
     <constant name="LUA_COROUTINE" value="4" enum="Library" is_bitfield="true">
-      <description>
-        Lua coroutine libraries.
-      </description>
+      Lua coroutine libraries.
     </constant>
     <constant name="LUA_STRING" value="8" enum="Library" is_bitfield="true">
-      <description>
-        Lua string libraries.
-      </description>
+      Lua string libraries.
     </constant>
     <constant name="LUA_OS" value="16" enum="Library" is_bitfield="true">
-      <description>
-        Lua os libraries.
-      </description>
+      Lua os libraries.
     </constant>
     <constant name="LUA_MATH" value="32" enum="Library" is_bitfield="true">
-      <description>
-        Lua math libraries.
-      </description>
+      Lua math libraries.
     </constant>
     <constant name="LUA_TABLE" value="64" enum="Library" is_bitfield="true">
-      <description>
-        Lua table libraries.
-      </description>
+      Lua table libraries.
     </constant>
     <constant name="LUA_DEBUG" value="128" enum="Library" is_bitfield="true">
-      <description>
-        Lua debug libraries.
-      </description>
+      Lua debug libraries.
     </constant>
     <constant name="LUA_BIT32" value="256" enum="Library" is_bitfield="true">
-      <description>
-        Lua bit32 libraries.
-      </description>
+      Lua bit32 libraries.
     </constant>
     <constant name="LUA_IO" value="512" enum="Library" is_bitfield="true">
-      <description>
-        Lua io libraries.
-      </description>
+      Lua io libraries.
     </constant>
     <constant name="LUA_FFI" value="1024" enum="Library" is_bitfield="true">
-      <description>
-        Lua ffi libraries.
-      </description>
+      Lua ffi libraries.
     </constant>
     <constant name="LUA_JIT" value="2048" enum="Library" is_bitfield="true">
-      <description>
-        Lua jit libraries.
-      </description>
+      Lua jit libraries.
     </constant>
     <constant name="LUA_UTF8" value="4096" enum="Library" is_bitfield="true">
-      <description>
-        Lua utf8 libraries.
-      </description>
+      Lua utf8 libraries.
     </constant>
     <constant name="LUA_ALL_LIBS" value="8191" enum="Library" is_bitfield="true">
-      <description>
-        Lua all libraries.
-      </description>
+      Lua all libraries.
     </constant>
     <constant name="GODOT_VARIANT" value="8192" enum="Library" is_bitfield="true">
-      <description>
-        Godot variant libraries.
-      </description>
+      Godot variant libraries.
     </constant>
     <constant name="GODOT_UTILITY_FUNCTIONS" value="16384" enum="Library" is_bitfield="true">
-      <description>
-        Godot utility functions libraries.
-        This adds to the utility functions provided by Godot and replaces overrides some of Lua methods, such as [i]print()[i].
-      </description>
+      Godot utility functions libraries.
+      This adds to the utility functions provided by Godot and replaces overrides some of Lua methods, such as [code]print[code].
     </constant>
     <constant name="GODOT_SINGLETONS" value="32768" enum="Library" is_bitfield="true">
     </constant>
     <constant name="GODOT_CLASSES" value="65536" enum="Library" is_bitfield="true">
     </constant>
     <constant name="GODOT_ENUMS" value="131072" enum="Library" is_bitfield="true">
-      <description>
-        Godot enum libraries.
-        Contain Godot @GlobalScope in all enums.
-      </description>
+      Godot enum libraries.
+      Contain Godot [@GlobalScope] in all enums.
     </constant>
     <constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
-      <description>
-        Godot all libraries.
-      </description>
+      Godot all libraries.
+      [enum Library.GODOT_VARIANT] [enum Library.GODOT_UTILITY_FUNCTIONS] [enum Library.GODOT_SINGLETONS] [enum Library.GODOT_CLASSES] [enum Library.GODOT_ENUMS]
     </constant>
   </constants>
 </class>
