@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 #include "LuaLightUserdata.hpp"
-
-#include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
 
