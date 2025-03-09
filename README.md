@@ -150,7 +150,8 @@ local LuaBouncingLogo = {
 	-- Declare properties
 	linear_velocity = export(100),
 	initial_angle = export({
-		0,
+		type = float,
+		default = 0,
 		hint = PROPERTY_HINT_RANGE,
 		hint_string = "0,360,degrees"
 	}),

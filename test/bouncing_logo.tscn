@@ -9,4 +9,4 @@
 scale = Vector2(0.6, 0.6)
 texture = ExtResource("1_i8ufr")
 script = ExtResource("2_7vm7x")
-initial_angle = 40
+initial_angle = 40.0
