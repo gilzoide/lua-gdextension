@@ -39,6 +39,14 @@ func test_invoke_args() -> bool:
 	return true
 
 
+func test_callable() -> bool:
+	var callable = function.to_callable()
+	assert(callable.call(5) == 5, "Value passed '5' was not returned")
+	assert(callable.call(1, 2) == [1, 2], "Multiple returns did not return array")
+	assert(callable.call(1, 2, []) == [1, 2, []], "Multiple returns did not return array")
+	return true
+
+
 func _test_call(f: LuaFunction, args: Array = []):
 	var result = f.invokev(args)
 	if result is LuaError:
