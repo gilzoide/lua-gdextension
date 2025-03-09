@@ -21,12 +21,24 @@
  */
 #include "LuaFunction.hpp"
 
-#include "LuaState.hpp"
+#include "LuaError.hpp"
+#include "script-language/LuaScriptInstance.hpp"
+#include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 
 namespace luagdextension {
+
+static Variant result_value(const sol::protected_function_result& result, bool return_lua_error) {
+	if (!return_lua_error && !result.valid()) {
+		ERR_PRINT(LuaError::extract_message(result));
+		return Variant();
+	}
+	else {
+		return to_variant(result);
+	}
+}
 
 LuaFunction::LuaFunction() : LuaObjectSubclass() {}
 LuaFunction::LuaFunction(sol::protected_function&& function) : LuaObjectSubclass(function) {}
@@ -35,33 +47,39 @@ LuaFunction::LuaFunction(const sol::protected_function& function) : LuaObjectSub
 void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);
+	ClassDB::bind_method(D_METHOD("to_callable"), &LuaFunction::to_callable);
+
 }
 
 Variant LuaFunction::invokev(const Array& args) {
-	int arg_count = args.size();
-	if (arg_count == 0) {
-		return to_variant(lua_object.call());
-	}
-
-	lua_State *L = lua_object.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(lua_object.call(lua_args));
+	return invokev_lua(lua_object, args, true);
 }
 
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
-	if (arg_count == 0) {
-		return to_variant(lua_object.call());
-	}
+	error.error = GDEXTENSION_CALL_OK;
+	return invoke_lua(lua_object, args, arg_count, true);
+}
 
-	lua_State *L = lua_object.lua_state();
-	for (int i = 0; i < arg_count; i++) {
-		std::ignore = to_lua(L, *args[i]);
-	}
-	sol::variadic_args lua_args(L, -arg_count);
-	return to_variant(lua_object.call(lua_args));
+Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
+	lua_State *L = f.lua_state();
+	sol::protected_function_result result = f.call(VariantArguments(args, arg_count));
+	return result_value(result, return_lua_error);
+}
+
+Variant LuaFunction::invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {
+	lua_State *L = f.lua_state();
+	sol::protected_function_result result = f.call(VariantArguments(self, args, arg_count));
+	return result_value(result, return_lua_error);
+}
+
+Variant LuaFunction::invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error) {
+	lua_State *L = f.lua_state();
+	sol::protected_function_result result = f.call(VariantArguments(args));
+	return result_value(result, return_lua_error);
+}
+
+Callable LuaFunction::to_callable() const {
+	return Callable((Object *) this, "invoke");
 }
 
 const sol::protected_function& LuaFunction::get_function() const {

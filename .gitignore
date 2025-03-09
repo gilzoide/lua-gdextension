@@ -17,7 +17,6 @@ build/*
 *.framework
 compile_commands.json
 addons/lua-gdextension/LICENSE
-addons/lua-gdextension/*.import
 src/generated/
 
 # Test project files

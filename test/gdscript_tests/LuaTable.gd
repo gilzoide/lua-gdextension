@@ -43,6 +43,28 @@ func test_get_value() -> bool:
 	return true
 
 
+func test_rawget() -> bool:
+	var table = lua_state.do_string("""
+		local t = { value = 'value' }
+		return setmetatable({}, { __index = t })
+	""")
+	assert(table.get("value") == "value")
+	assert(table.rawget("value") == null)
+	return true
+
+
+func test_rawset() -> bool:
+	var table = lua_state.do_string("""
+		local t = {}
+		return setmetatable({}, { __newindex = t })
+	""")
+	table.set("value", "value")
+	assert(table.get("value") == null)
+	table.rawset("value", "value")
+	assert(table.get("value") == "value")
+	return true
+
+
 func test_set_value() -> bool:
 	var table = lua_state.create_table()
 	table.set(1, 1)
@@ -50,4 +72,42 @@ func test_set_value() -> bool:
 	table.set(3, 3)
 	table.set(4, 4)
 	assert(table.length() == 4)
+	return true
+
+
+func test_property() -> bool:
+	var table = lua_state.create_table()
+	table.value = "value"
+	assert(table.value == "value")
+	return true
+
+
+func test_clear() -> bool:
+	var table = lua_state.create_table()
+	table.set(1, 1)
+	table.set(2, 2)
+	table.set(3, 3)
+	table.set(4, 4)
+	table.clear()
+	assert(table.length() == 0)
+	for k in table:
+		assert(false, "Cleared table should have no key/value pair")
+	return true
+
+
+func test_unpack_same_state() -> bool:
+	var table = lua_state.create_table()
+	lua_state.globals.set("t", table)
+	var t_type = lua_state.do_string("return type(t)")
+	assert(t_type == "table", "Table should be unpacked from Variant when passed to its LuaState")
+	return true
+
+
+func test_dont_unpack_other_state() -> bool:
+	var table = lua_state.create_table()
+	var other_state = LuaState.new()
+	other_state.open_libraries()
+	other_state.globals.set("t", table)
+	var t_type = other_state.do_string("return type(t)")
+	assert(t_type == "userdata", "Table should remain as Variant when passed to another LuaState")
 	return true

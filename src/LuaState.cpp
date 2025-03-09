@@ -21,7 +21,6 @@
  */
 #include "LuaState.hpp"
 
-#include "LuaError.hpp"
 #include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
@@ -35,7 +34,7 @@ namespace luagdextension {
 
 /// Lua memory allocation callback.
 /// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	if (nsize == 0) {
 		if (ptr != nullptr) {
 			memfree(ptr);
@@ -54,6 +53,10 @@ LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
 
 LuaState::~LuaState() {
 	valid_states.erase(lua_state);
+}
+
+sol::state_view LuaState::get_lua_state() const {
+	return lua_state;
 }
 
 void LuaState::open_libraries(BitField<Library> libraries) {
@@ -124,24 +127,24 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 	}
 }
 
-LuaTable *LuaState::create_table(const Dictionary& initial_values) {
+Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
 	return memnew(LuaTable(to_table(lua_state, initial_values)));
 }
 
-Variant LuaState::load_string(const String& chunk, const String& chunkname) {
-	return ::luagdextension::load_string(lua_state, chunk, chunkname);
+Variant LuaState::load_string(const String& chunk, const String& chunkname, LuaTable *env) {
+	return ::luagdextension::load_string(lua_state, chunk, chunkname, env);
 }
 
-Variant LuaState::load_file(const String& filename, int buffer_size) {
-	return ::luagdextension::load_file(lua_state, filename);
+Variant LuaState::load_file(const String& filename, int buffer_size, LuaTable *env) {
+	return ::luagdextension::load_file(lua_state, filename, buffer_size, env);
 }
 
-Variant LuaState::do_string(const String& chunk, const String& chunkname) {
-	return ::luagdextension::do_string(lua_state, chunk, chunkname);
+Variant LuaState::do_string(const String& chunk, const String& chunkname, LuaTable *env) {
+	return ::luagdextension::do_string(lua_state, chunk, chunkname, env);
 }
 
-Variant LuaState::do_file(const String& filename, int buffer_size) {
-	return ::luagdextension::do_file(lua_state, filename);
+Variant LuaState::do_file(const String& filename, int buffer_size, LuaTable *env) {
+	return ::luagdextension::do_file(lua_state, filename, buffer_size, env);
 }
 
 LuaTable *LuaState::get_globals() const {
@@ -153,6 +156,7 @@ LuaTable *LuaState::get_registry() const {
 }
 
 LuaState *LuaState::find_lua_state(lua_State *L) {
+	L = sol::main_thread(L);
 	if (LuaState **ptr = valid_states.getptr(L)) {
 		return *ptr;
 	}
@@ -188,16 +192,16 @@ void LuaState::_bind_methods() {
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA_ALL_LIBS | GODOT_ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
-	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname"), &LuaState::load_string, DEFVAL(""));
-	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size"), &LuaState::load_file, DEFVAL(1024));
-	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname"), &LuaState::do_string, DEFVAL(""));
-	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size"), &LuaState::do_file, DEFVAL(1024));
+	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size", "env"), &LuaState::load_file, DEFVAL(1024), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname", "env"), &LuaState::do_string, DEFVAL(""), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size", "env"), &LuaState::do_file, DEFVAL(1024), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 
 	// Properties
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_globals");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, "LuaTable"), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
 }
 
 LuaState::operator String() const {

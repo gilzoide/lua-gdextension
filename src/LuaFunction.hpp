@@ -39,6 +39,12 @@ public:
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
+	static Variant invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
+	static Variant invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
+	static Variant invokev_lua(const sol::protected_function& f, const Array& args, bool return_lua_error);
+
+	Callable to_callable() const;
+
 	const sol::protected_function& get_function() const;
 
 protected:

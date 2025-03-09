@@ -4,7 +4,7 @@
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
 
-Extension for using the Lua programming language in Godot 4.1.2+
+Extension for using the [Lua programming language](https://www.lua.org/) in Godot 4.3+
 
 This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
 
@@ -18,10 +18,10 @@ This plugin is available in the Asset Library as [Lua GDExtension](https://godot
     + Create and manipulate Variant values
     + Instantiate objects and access class constants
     + Access singleton objects by name
-    + Utility classes, like `print`, `lerp` and `is_same`
+    + Utility functions, like `print_rich`, `lerp` and `is_same`
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
     + (TODO) Patch Lua `package.searchers` to accept paths relative to `res://` and `user://`
-- (TODO) Create Godot scripts directly in Lua
+- Create Godot scripts directly in Lua
 
 
 ## Calling Lua from Godot
@@ -130,6 +130,57 @@ lua.do_string("""
   ```
 
 
+## Lua scripting in Godot
+This addon registers a [ScriptLanguageExtension](https://docs.godotengine.org/en/stable/classes/class_scriptlanguageextension.html) so that Godot objects can be scripted directly in Lua.
+
+For Lua scripts to be usable in Nodes and Resources, they must return a table with the script metadata containing methods, properties, signals, etc...
+```lua
+-- This is our script metadata table.
+--
+-- It stores metadata such as its base class, global class_name, icon,
+-- as well as any declared properties, methods and signals
+local LuaBouncingLogo = {
+	-- base class (optional, defaults to RefCounted)
+	extends = Sprite2D,
+	-- if true, allow the script to be executed by the editor (optional)
+	tool = false,
+	-- global class name (optional)
+	class_name = "LuaBouncingLogo",
+	
+	-- Declare properties
+	linear_velocity = export(100),
+	initial_angle = export({
+		type = float,
+		default = 0,
+		hint = PROPERTY_HINT_RANGE,
+		hint_string = "0,360,degrees"
+	}),
+	-- Declare signals
+	bounced = signal(),
+}
+
+-- Called when the node enters the scene tree for the first time.
+function LuaBouncingLogo:_ready()
+	self.position = self:get_viewport():get_size() / 2
+	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
+end
+
+-- Called every frame. 'delta' is the elapsed time since the previous frame.
+function LuaBouncingLogo:_process(delta)
+	local viewport_size = self:get_viewport():get_size()
+	local viewport_rect = Rect2(Vector2(), viewport_size)
+	if not viewport_rect:encloses(self.global_transform * self:get_rect()) then
+		self.movement = self.movement:rotated(deg_to_rad(90))
+		self.bounced:emit()
+	end
+	self.position = self.position + self.movement * delta
+end
+
+-- Return the metadata table for the script to be usable by Godot objects
+return LuaBouncingLogo
+```
+
+
 ## TODO
 - [X] Bind Variant types to Lua
 - [X] Bind utility functions to Lua
@@ -137,8 +188,11 @@ lua.do_string("""
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
 - [ ] Add support for `res://` relative paths in `require`
+- [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
-- [ ] Lua ScriptLanguageExtension
+- [X] Lua ScriptLanguageExtension
+  + [X] Add support for property hints / usage flags (including export)
+  + [X] Add support for property getter / setter
 - [ ] Support for building with LuaJIT
 - [X] Automated unit tests
 - [X] Automated build and distribution

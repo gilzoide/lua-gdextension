@@ -38,6 +38,14 @@ String VariantType::get_type_name() const {
 	return Variant::get_type_name(type);
 }
 
+Variant VariantType::construct_default() const {
+	Variant result;
+	GDExtensionCallError error;
+	internal::gdextension_interface_variant_construct((GDExtensionVariantType) type, &result, nullptr, 0, &error);
+	ERR_FAIL_COND_V_MSG(error.error != GDEXTENSION_CALL_OK, Variant(), "Error constructing " + get_type_name());
+	return result;
+}
+
 Variant VariantType::construct(const sol::variadic_args& args) const {
 	if (args.size() == 1 && args.get_type() == sol::type::table) {
 		if (type == Variant::ARRAY) {
@@ -63,7 +71,7 @@ Variant VariantType::construct(const sol::variadic_args& args) const {
 bool VariantType::has_static_method(StringName method) const {
 	Variant result;
 	GDExtensionCallError error;
-	Variant::call_static(type, method, (const Variant **) NULL, 0, result, error);
+	Variant::callp_static(type, method, (const Variant **) NULL, 0, result, error);
 	return error.error != GDEXTENSION_CALL_ERROR_INVALID_METHOD && error.error != GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
 }
 

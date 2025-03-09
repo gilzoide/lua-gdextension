@@ -27,8 +27,8 @@
 namespace luagdextension {
 
 LuaError::LuaError(Status status, const String& message) : status(status), message(message) {}
-LuaError::LuaError(const sol::load_result& load_result) : status((LuaError::Status) load_result.status()), message(((sol::error) load_result).what()) {}
-LuaError::LuaError(const sol::protected_function_result& function_result) : status((LuaError::Status) function_result.status()), message(((sol::error) function_result).what()) {}
+LuaError::LuaError(const sol::load_result& load_result) : status((LuaError::Status) load_result.status()), message(extract_message(load_result)) {}
+LuaError::LuaError(const sol::protected_function_result& function_result) : status((LuaError::Status) function_result.status()), message(extract_message(function_result)) {}
 
 void LuaError::_bind_methods() {
 	// enum Status
@@ -58,7 +58,7 @@ String LuaError::_to_string() const {
 	return message;
 }
 
-String LuaError::get_message() const {
+const String& LuaError::get_message() const {
 	return message;
 }
 
@@ -72,6 +72,14 @@ LuaError::Status LuaError::get_status() const {
 
 void LuaError::set_status(Status status) {
 	this->status = status;
+}
+
+String LuaError::extract_message(const sol::load_result& load_result) {
+	return ((sol::error) load_result).what();
+}
+
+String LuaError::extract_message(const sol::protected_function_result& function_result) {
+	return ((sol::error) function_result).what();
 }
 
 }

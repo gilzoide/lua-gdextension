@@ -43,6 +43,7 @@ public:
 	Variant::Type get_type() const;
 	String get_type_name() const;
 
+	Variant construct_default() const;
 	Variant construct(const sol::variadic_args& args) const;
 	bool has_static_method(StringName method) const;
 
