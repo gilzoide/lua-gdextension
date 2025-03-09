@@ -28,8 +28,6 @@ using namespace godot;
 
 namespace luagdextension {
 
-class LuaScriptInstance;
-
 class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
 	GDCLASS(LuaFunction, LuaObject);
 
@@ -40,8 +38,6 @@ public:
 
 	Variant invokev(const Array& args);
 	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-	Variant invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-	Variant invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 
 	static Variant invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
 	static Variant invoke_method_lua(const sol::protected_function& f, const Variant& self, const Variant **args, GDExtensionInt arg_count, bool return_lua_error);
