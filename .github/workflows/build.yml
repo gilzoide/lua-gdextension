@@ -155,7 +155,5 @@ jobs:
           name: lua-gdextension
           path: |
             LICENSE
-            addons/lua-gdextension/LICENSE
-            addons/lua-gdextension/*.gdextension
-            addons/lua-gdextension/build/libluagdextension*
+            addons/lua-gdextension/**
 
