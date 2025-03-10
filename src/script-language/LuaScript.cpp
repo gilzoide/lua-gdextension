@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -23,6 +23,7 @@
 
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
+#include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
@@ -39,17 +40,26 @@
 
 namespace luagdextension {
 
+LuaScript::LuaScript()
+	: ScriptExtension()
+{
+	placeholders.insert(this, {});
+}
+
+LuaScript::~LuaScript() {
+	placeholders.erase(this);
+}
+
 bool LuaScript::_editor_can_reload_from_file() {
 	return true;
 }
 
 void LuaScript::_placeholder_erased(void *p_placeholder) {
-	// TODO
+	placeholders.get(this).erase(p_placeholder);
 }
 
 bool LuaScript::_can_instantiate() const {
-	return metadata.is_valid
-		&& ClassDB::can_instantiate(_get_instance_base_type());
+	return _is_valid() && (_is_tool() || !Engine::get_singleton()->is_editor_hint());
 }
 
 Ref<Script> LuaScript::_get_base_script() const {
@@ -74,7 +84,10 @@ void *LuaScript::_instance_create(Object *for_object) const {
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
-	return godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton(), (Object *) this, for_object);
+	void *placeholder = godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
+	placeholders.get(this).insert(placeholder);
+	_update_placeholder_exports(placeholder);
+	return placeholder;
 }
 
 bool LuaScript::_instance_has(Object *p_object) const {
@@ -95,13 +108,15 @@ void LuaScript::_set_source_code(const String &code) {
 }
 
 Error LuaScript::_reload(bool keep_state) {
+	placeholder_fallback_enabled = true;
 	metadata.clear();
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
-		ERR_PRINT(error->get_message());
+		return ERR_PARSE_ERROR;
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
+		placeholder_fallback_enabled = false;
 		metadata.setup(table->get_table());
 	}
 	return OK;
@@ -117,9 +132,6 @@ String LuaScript::_get_class_icon_path() const {
 }
 
 bool LuaScript::_has_method(const StringName &p_method) const {
-	if (p_method == StringName("rawget") || p_method == StringName("rawset")) {
-		return true;
-	}
 	return metadata.methods.has(p_method);
 }
 
@@ -130,13 +142,21 @@ bool LuaScript::_has_static_method(const StringName &p_method) const {
 }
 
 Variant LuaScript::_get_script_method_argument_count(const StringName &p_method) const {
-	// TODO
-	return {};
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_method)) {
+		return method->get_argument_count();
+	}
+	else {
+		return {};
+	}
 }
 
 Dictionary LuaScript::_get_method_info(const StringName &p_method) const {
-	// TODO
-	return {};
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_method)) {
+		return method->to_dictionary();
+	}
+	else {
+		return {};
+	}
 }
 
 bool LuaScript::_is_tool() const {
@@ -160,8 +180,11 @@ bool LuaScript::_has_script_signal(const StringName &p_signal) const {
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
-	// TODO
-	return {};
+	TypedArray<Dictionary> signals;
+	for (auto [name, signal] : metadata.signals) {
+		signals.append(signal.to_dictionary());
+	}
+	return signals;
 }
 
 bool LuaScript::_has_property_default_value(const StringName &p_property) const {
@@ -178,12 +201,17 @@ Variant LuaScript::_get_property_default_value(const StringName &p_property) con
 }
 
 void LuaScript::_update_exports() {
-	// TODO
+	for (void *placeholder : placeholders.get(this)) {
+		_update_placeholder_exports(placeholder);
+	}
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
-	// TODO
-	return {};
+	TypedArray<Dictionary> methods;
+	for (auto [name, method] : metadata.methods) {
+		methods.append(method.to_dictionary());
+	}
+	return methods;
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
@@ -195,7 +223,11 @@ TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
 }
 
 int32_t LuaScript::_get_member_line(const StringName &p_member) const {
-	// TODO
+#ifdef DEBUG_ENABLED
+	if (const LuaScriptMethod *method = metadata.methods.getptr(p_member)) {
+		return method->get_line_defined();
+	}
+#endif
 	return {};
 }
 
@@ -205,13 +237,21 @@ Dictionary LuaScript::_get_constants() const {
 }
 
 TypedArray<StringName> LuaScript::_get_members() const {
-	// TODO
-	return {};
+	TypedArray<StringName> members;
+	for (auto [name, _] : metadata.methods) {
+		members.append(name);
+	}
+	for (auto [name, _] : metadata.properties) {
+		members.append(name);
+	}
+	for (auto [name, _] : metadata.signals) {
+		members.append(name);
+	}
+	return members;
 }
 
 bool LuaScript::_is_placeholder_fallback_enabled() const {
-	// TODO
-	return {};
+	return placeholder_fallback_enabled;
 }
 
 Variant LuaScript::_get_rpc_config() const {
@@ -229,8 +269,8 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
 	}
-	if (const sol::protected_function *_init = metadata.methods.getptr("_init")) {
-		LuaFunction::invoke_method_lua(*_init, new_instance, args, arg_count, false);
+	if (const LuaScriptMethod *_init = metadata.methods.getptr("_init")) {
+		LuaFunction::invoke_method_lua(_init->method, new_instance, args, arg_count, false);
 	}
 	return new_instance;
 }
@@ -246,6 +286,18 @@ void LuaScript::_bind_methods() {
 String LuaScript::_to_string() const {
 	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
 }
+
+void LuaScript::_update_placeholder_exports(void *placeholder) const {
+	Array properties;
+	Dictionary default_values;
+	for (auto [name, property] : metadata.properties) {
+		properties.append(property.to_dictionary());
+		default_values[name] = property.instantiate_default_value();
+	}
+	godot::internal::gdextension_interface_placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
+}
+
+HashMap<const LuaScript *, HashSet<void *>> LuaScript::placeholders;
 
 }
 

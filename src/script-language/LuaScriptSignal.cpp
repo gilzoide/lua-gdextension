@@ -23,14 +23,37 @@
 #include "LuaScriptSignal.hpp"
 
 #include "../utils/VariantArguments.hpp"
+#include "../utils/custom_sol.hpp"
 
 namespace luagdextension {
 
-LuaScriptSignal LuaScriptSignal::from_lua(sol::variadic_args arguments) {
+MethodInfo LuaScriptSignal::to_method_info() const {
+	MethodInfo mi;
+	mi.name = name;
+	for (int i = 0; i < arguments.size(); i++) {
+		mi.arguments.push_back(PropertyInfo(Variant::Type::NIL, arguments[i]));
+	}
+	return mi;
+}
+
+Dictionary LuaScriptSignal::to_dictionary() const {
+	return to_method_info();
+}
+
+static LuaScriptSignal lua_signal(sol::variadic_args arguments) {
 	LuaScriptSignal signal = {
 		.arguments = VariantArguments(arguments).get_array(),
 	};
 	return signal;
+}
+
+void LuaScriptSignal::register_lua(lua_State *L) {
+	sol::state_view state(L);
+	state.new_usertype<LuaScriptSignal>(
+		"LuaScriptSignal",
+		sol::no_construction()
+	);
+	state.set("signal", &lua_signal);
 }
 
 }

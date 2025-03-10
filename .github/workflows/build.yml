@@ -148,14 +148,14 @@ jobs:
         with:
           path: artifacts
       - name: Copy artifacts to build folder
-        run: cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+        run: |
+          make copy-files-to-addon
+          cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: lua-gdextension
           path: |
             LICENSE
-            addons/lua-gdextension/LICENSE
-            addons/lua-gdextension/*.gdextension
-            addons/lua-gdextension/build/libluagdextension*
+            addons/lua-gdextension/**
 

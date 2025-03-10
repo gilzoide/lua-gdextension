@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -50,7 +50,7 @@ public:
 	LuaError(const sol::load_result& load_result);
 	LuaError(const sol::protected_function_result& function_result);
 
-	String get_message() const;
+	const String& get_message() const;
 	void set_message(const String& message);
 
 	Status get_status() const;

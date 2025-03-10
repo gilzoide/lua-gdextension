@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -32,12 +32,6 @@ using namespace godot;
 namespace luagdextension {
 
 class LuaTable;
-
-/**
- * Lua memory allocation callback.
- * Uses Godot memory functions.
- */
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize);
 
 class LuaState : public RefCounted {
 	GDCLASS(LuaState, RefCounted);

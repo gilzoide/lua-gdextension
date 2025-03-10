@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -36,6 +36,9 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
 
 	register_utility_functions(state);
+
+	// In Lua, `print` separates passed values with "\t", so we bind it to Godot's `printt`
+	state.do_string("print = printt");
 
 	return 0;
 }

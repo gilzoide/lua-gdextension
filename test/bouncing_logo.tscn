@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://d3pmpkdvfqjca"]
+
+[ext_resource type="Texture2D" uid="uid://cih6ia8rwpfa3" path="res://addons/lua-gdextension/icon.png" id="1_i8ufr"]
+[ext_resource type="Script" uid="uid://djoh0eyqnsjyg" path="res://bouncing_logo.lua" id="2_7vm7x"]
+
+[node name="Root" type="Node"]
+
+[node name="Logo" type="Sprite2D" parent="."]
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_i8ufr")
+script = ExtResource("2_7vm7x")
+initial_angle = 40.0

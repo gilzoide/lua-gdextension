@@ -90,7 +90,7 @@ func test_property__set() -> bool:
 	return true
 
 
-func test_property_method() -> bool:
+func test_method() -> bool:
 	var obj = test_class.new()
 	assert(obj.echo() == null)
 	assert(obj.echo(1) == 1)
@@ -98,4 +98,6 @@ func test_property_method() -> bool:
 	assert(obj.echo([3]) == [3])
 	var arr = [3]
 	assert(is_same(obj.echo(arr), arr))
+	assert(obj.echo is Callable)
+	assert(obj.echo.bind("callable").call() == "callable")
 	return true

@@ -10,6 +10,7 @@ PRIMITIVE_VARIANTS = [
     "float",
 ]
 UTILITY_FUNCTION_MAP = {
+    "print": None,
     "typeof": None,
     "is_instance_valid": None,
 }
