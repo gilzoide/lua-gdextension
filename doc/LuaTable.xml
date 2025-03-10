@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaTable" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="clear">
+			<return type="void" />
+			<description>
+				Clear all data in the table.
+			</description>
+		</method>
+		<method name="get" qualifiers="const">
+			<return type="Variant" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="default" type="Variant" default="null" />
+			<description>
+			</description>
+		</method>
+		<method name="length" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="rawget" qualifiers="const">
+			<return type="Variant" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="default" type="Variant" default="null" />
+			<description>
+			</description>
+		</method>
+		<method name="rawset">
+			<return type="void" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="value" type="Variant" />
+			<description>
+			</description>
+		</method>
+		<method name="set">
+			<return type="void" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="value" type="Variant" />
+			<description>
+			</description>
+		</method>
+		<method name="to_array" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Serialize the table into a array.
+			</description>
+		</method>
+		<method name="to_dictionary" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Serialize the table into a dictionary.
+			</description>
+		</method>
+	</methods>
+</class>

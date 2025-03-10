@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaError" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<members>
+		<member name="message" type="String" setter="set_message" getter="get_message" default="&quot;&quot;">
+		</member>
+		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="818921600">
+		</member>
+	</members>
+	<constants>
+		<constant name="OK" value="0" enum="Status">
+		</constant>
+		<constant name="YIELDED" value="1" enum="Status">
+		</constant>
+		<constant name="RUNTIME" value="2" enum="Status">
+		</constant>
+		<constant name="MEMORY" value="4" enum="Status">
+		</constant>
+		<constant name="HANDLER" value="5" enum="Status">
+		</constant>
+		<constant name="GC" value="7" enum="Status">
+		</constant>
+		<constant name="SYNTAX" value="3" enum="Status">
+		</constant>
+		<constant name="FILE" value="6" enum="Status">
+		</constant>
+	</constants>
+</class>
