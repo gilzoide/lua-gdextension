@@ -34,6 +34,11 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 
 	sol::state_view L = t.lua_state();
 	StackTopChecker topcheck(L);
+
+	// Global methods
+	methods["rawget"] = LuaScriptMethod("rawget", L.registry()["LuaScriptInstance::rawget"]);
+	methods["rawset"] = LuaScriptMethod("rawset", L.registry()["LuaScriptInstance::rawset"]);
+
 	auto tablepop = sol::stack::push_pop(L, t);
 	lua_pushnil(L);
 	while (lua_next(L, -2) != 0) {
@@ -61,9 +66,10 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			icon_path = to_variant(value);
 		}
 		else if (name == "tool") {
-			is_tool = true;
+			is_tool = to_variant(value).booleanize();
 		}
 		else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
+			signal->name = name;
 			signals.insert(name, *signal);
 		}
 		else if (auto property = value.as<sol::optional<LuaScriptProperty>>()) {
@@ -71,7 +77,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			properties.insert(name, *property);
 		}
 		else if (value.get_type() == sol::type::function) {
-			methods.insert(name, value);
+			methods.insert(name, LuaScriptMethod(name, value));
 		}
 		else {
 			Variant var = to_variant(value);

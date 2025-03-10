@@ -24,9 +24,9 @@
 
 #include <godot_cpp/templates/hash_map.hpp>
 
+#include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
-#include "../utils/custom_sol.hpp"
 
 using namespace godot;
 
@@ -38,9 +38,9 @@ struct LuaScriptMetadata {
 	StringName base_class;
 	StringName class_name;
 	String icon_path;
+	HashMap<StringName, LuaScriptMethod> methods;
 	HashMap<StringName, LuaScriptProperty> properties;
 	HashMap<StringName, LuaScriptSignal> signals;
-	HashMap<StringName, sol::protected_function> methods;
 
 	void setup(const sol::table& t);
 	void clear();

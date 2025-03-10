@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -21,7 +21,6 @@
  */
 #include "LuaState.hpp"
 
-#include "LuaError.hpp"
 #include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
@@ -35,7 +34,7 @@ namespace luagdextension {
 
 /// Lua memory allocation callback.
 /// Uses Godot memory functions.
-void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
+static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	if (nsize == 0) {
 		if (ptr != nullptr) {
 			memfree(ptr);

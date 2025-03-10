@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -22,13 +22,19 @@
 #include "LuaScriptLanguage.hpp"
 
 #include "LuaScript.hpp"
+#include "LuaScriptInstance.hpp"
+#include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
+#include "../utils/function_wrapper.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/reg_ex.hpp>
+#include <godot_cpp/classes/reg_ex_match.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/packed_string_array.hpp>
 
@@ -42,19 +48,19 @@ void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
 
-	// Register scripting specific usertypes
-	sol::state_view state = lua_state->get_lua_state();
-	state.new_usertype<LuaScriptSignal>(
-		"LuaScriptSignal",
-		sol::no_construction()
-	);
-	state.set("signal", &LuaScriptSignal::from_lua);
+	// Global script methods LuaScriptInstance::rawget and LuaScriptInstance::rawset
+	sol::state_view state = lua_state->get_lua_state();	
+	state.registry()["LuaScriptInstance::rawget"] = wrap_function(&LuaScriptInstance::rawget);
+	state.registry()["LuaScriptInstance::rawset"] = wrap_function(&LuaScriptInstance::rawset);
 
+	// Register scripting specific usertypes
+	LuaScriptMethod::register_lua(state);
 	LuaScriptProperty::register_lua(state);
+	LuaScriptSignal::register_lua(state);
 }
 
 String LuaScriptLanguage::_get_type() const {
-	return "Lua";
+	return "LuaScript";
 }
 
 String LuaScriptLanguage::_get_extension() const {
@@ -144,14 +150,22 @@ bool LuaScriptLanguage::_is_using_templates() {
 
 Dictionary LuaScriptLanguage::_validate(const String &script, const String &path, bool validate_functions, bool validate_errors, bool validate_warnings, bool validate_safe_lines) const {
 	Dictionary result;
-	Variant f = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(script, path);
+	Variant f = lua_state->load_string(script, path);
 	if (LuaError *error = Object::cast_to<LuaError>(f)) {
-		Dictionary error_dict;
-		error_dict["path"] = path;
-		error_dict["line"] = 1;
-		error_dict["column"] = 1;
-		error_dict["message"] = error->get_message();
-		result["errors"] = Array::make(error_dict);
+		if (validate_errors) {
+			auto line_re = RegEx::create_from_string(R":(\d+):");
+			auto match = line_re->search(error->get_message());
+			Dictionary error_dict;
+			error_dict["path"] = path;
+			error_dict["line"] = match->get_string().to_int();
+			error_dict["column"] = 1;
+			error_dict["message"] = error->get_message();
+			result["errors"] = Array::make(error_dict);
+		}
+		result["valid"] = false;
+	}
+	else {
+		result["valid"] = true;
 	}
 	return result;
 }
@@ -215,7 +229,10 @@ Dictionary LuaScriptLanguage::_complete_code(const String &p_code, const String 
 
 Dictionary LuaScriptLanguage::_lookup_code(const String &p_code, const String &p_symbol, const String &p_path, Object *p_owner) const {
 	// TODO
-	return {};
+	Dictionary result;
+	result["result"] = ERR_UNAVAILABLE;
+	result["type"] = Variant::Type::NIL;
+	return result;
 }
 
 String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from_line, int32_t p_to_line) const {
@@ -352,12 +369,21 @@ void LuaScriptLanguage::_frame() {
 }
 
 bool LuaScriptLanguage::_handles_global_class_type(const String &type) const {
-	return false;
+	return type == _get_type();
 }
 
 Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
-	// TODO
-	return Dictionary();
+	Ref<LuaScript> script = ResourceLoader::get_singleton()->load(path);
+	
+	Dictionary result;
+	if (script.is_valid() && script->_is_valid()) {
+		result["name"] = script->_get_global_name();
+		result["base_type"] = script->_get_instance_base_type();
+		result["icon_path"] = script->_get_class_icon_path();
+		result["is_abstract"] = script->_is_abstract();
+		result["is_tool"] = script->_is_tool();
+	}
+	return result;
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {

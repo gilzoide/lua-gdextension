@@ -22,18 +22,23 @@
 #ifndef __LUA_SCRIPT_SIGNAL_HPP__
 #define __LUA_SCRIPT_SIGNAL_HPP__
 
+#include <godot_cpp/core/object.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
-#include "../utils/custom_sol.hpp"
+typedef struct lua_State lua_State;
 
 using namespace godot;
 
 namespace luagdextension {
 
 struct LuaScriptSignal {
+	StringName name;
 	PackedStringArray arguments;
 
-	static LuaScriptSignal from_lua(sol::variadic_args arguments);
+	MethodInfo to_method_info() const;
+	Dictionary to_dictionary() const;
+
+	static void register_lua(lua_State *L);
 };
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -58,7 +58,7 @@ String LuaError::_to_string() const {
 	return message;
 }
 
-String LuaError::get_message() const {
+const String& LuaError::get_message() const {
 	return message;
 }
 

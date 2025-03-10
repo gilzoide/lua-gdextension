@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2023 Gil Barbosa Reis.
+ * Copyright (C) 2025 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -47,6 +47,8 @@ LuaFunction::LuaFunction(const sol::protected_function& function) : LuaObjectSub
 void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);
+	ClassDB::bind_method(D_METHOD("to_callable"), &LuaFunction::to_callable);
+
 }
 
 Variant LuaFunction::invokev(const Array& args) {
@@ -56,20 +58,6 @@ Variant LuaFunction::invokev(const Array& args) {
 Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
 	error.error = GDEXTENSION_CALL_OK;
 	return invoke_lua(lua_object, args, arg_count, true);
-}
-
-Variant LuaFunction::invoke_method(const Variant& self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
-	if (!self) {
-		error.error = GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
-		return {};
-	}
-	error.error = GDEXTENSION_CALL_OK;
-
-	return invoke_method_lua(lua_object, self, args, arg_count, false);
-}
-
-Variant LuaFunction::invoke_method(LuaScriptInstance *self, const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {
-	return invoke_method(self->owner, args, arg_count, error);
 }
 
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const Variant **args, GDExtensionInt arg_count, bool return_lua_error) {

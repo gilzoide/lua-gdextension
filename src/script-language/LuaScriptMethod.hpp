@@ -19,37 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_SCRIPT_INSTANCE_HPP__
-#define __LUA_SCRIPT_INSTANCE_HPP__
+#ifndef __LUA_SCRIPT_METHOD_HPP__
+#define __LUA_SCRIPT_METHOD_HPP__
 
-#include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/templates/hash_map.hpp>
+#include <sol/sol.hpp>
+#include <godot_cpp/core/object.hpp>
+
+typedef struct lua_State lua_State;
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaScript;
-class LuaTable;
+struct LuaScriptMethod {
+	StringName name;
+	sol::protected_function method;
+	
+	LuaScriptMethod() = default;
+	LuaScriptMethod(const StringName& name, sol::protected_function method);
 
-struct LuaScriptInstance {
-	LuaScriptInstance(Object *owner, Ref<LuaScript> script);
-	~LuaScriptInstance();
+	bool is_valid() const;
+	int get_line_defined() const;
+	Variant get_argument_count() const;
 
-	static GDExtensionScriptInstanceInfo3 *get_script_instance_info();
-	static LuaScriptInstance *attached_to_object(Object *owner);
+	MethodInfo to_method_info() const;
+	Dictionary to_dictionary() const;
 
-	Object *owner;
-	Ref<LuaScript> script;
-	Ref<LuaTable> data;
-
-	static Variant rawget(const Variant& self, const Variant& index);
-	static void rawset(const Variant& self, const Variant& index, const Variant& value);
-
-private:
-	static HashMap<Object *, LuaScriptInstance *> known_instances;
+	static void register_lua(lua_State *L);
 };
 
 }
 
-#endif  // __LUA_SCRIPT_INSTANCE_HPP__
+#endif  // __LUA_SCRIPT_METHOD_HPP__
