@@ -45,7 +45,6 @@ public:
 
 	Variant construct_default() const;
 	Variant construct(const sol::variadic_args& args) const;
-	bool has_static_method(StringName method) const;
 
 	bool operator==(const VariantType& other) const;
 

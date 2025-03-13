@@ -6,6 +6,9 @@
 ### Changed
 - The GDExtension is now marked as reloadable
 
+### Removed
+- `VariantType::has_static_method` internal method
+
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
 ### Added
