@@ -35,4 +35,3 @@ extern "C" int luaopen_godot_classes(lua_State *L) {
 
 	return 0;
 }
-
