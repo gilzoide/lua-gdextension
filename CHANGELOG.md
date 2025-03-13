@@ -5,9 +5,13 @@
 
 ### Changed
 - The GDExtension is now marked as reloadable
+- Renamed `LuaCoroutine::LuaCoroutineStatus` to `LuaCoroutine::Status`
 
 ### Removed
 - `VariantType::has_static_method` internal method
+
+### Fixed
+- Bind `LuaCoroutine::status` property with correct enum type
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
