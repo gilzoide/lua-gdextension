@@ -3,6 +3,8 @@
 ### Added
 - Editor plugin that registers the Lua REPL tab, where you can try Lua code using an empty `LuaState`
 
+### Changed
+- The GDExtension is now marked as reloadable
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
