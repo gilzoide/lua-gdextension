@@ -153,8 +153,8 @@ Dictionary LuaScriptLanguage::_validate(const String &script, const String &path
 	Variant f = lua_state->load_string(script, path);
 	if (LuaError *error = Object::cast_to<LuaError>(f)) {
 		if (validate_errors) {
-			auto line_re = RegEx::create_from_string(R":(\d+):");
-			auto match = line_re->search(error->get_message());
+			Ref<RegEx> line_re = RegEx::create_from_string(R":(\d+):");
+			Ref<RegExMatch> match = line_re->search(error->get_message());
 			Dictionary error_dict;
 			error_dict["path"] = path;
 			error_dict["line"] = match->get_string().to_int();

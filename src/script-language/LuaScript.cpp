@@ -111,9 +111,17 @@ Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
 	metadata.clear();
 
-	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->do_string(source_code, get_path());
+	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
+		if (!Engine::get_singleton()->is_editor_hint()) {
+			ERR_PRINT(error->get_message());
+		}
 		return ERR_PARSE_ERROR;
+	}
+
+	result = Object::cast_to<LuaFunction>(result)->invokev(Array());
+	if (LuaError *error = Object::cast_to<LuaError>(result)) {
+		ERR_PRINT(result);
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
 		placeholder_fallback_enabled = false;
