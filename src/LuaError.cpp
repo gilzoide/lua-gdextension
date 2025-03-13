@@ -47,7 +47,7 @@ void LuaError::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_status", "status"), &LuaError::set_status);
 
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "message"), "set_message", "get_message");
-	ADD_PROPERTY(PropertyInfo(Variant::STRING, "status"), "set_status", "get_status");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "set_status", "get_status");
 }
 
 LuaError::operator String() const {
