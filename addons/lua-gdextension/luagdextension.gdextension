@@ -2,6 +2,7 @@
 
 entry_symbol = "luagdextension_entrypoint"
 compatibility_minimum = "4.3"
+reloadable = true
 
 [libraries]
 
