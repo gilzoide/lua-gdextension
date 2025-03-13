@@ -188,9 +188,11 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(GODOT_CLASSES);
 	BIND_BITFIELD_FLAG(GODOT_ENUMS);
 	BIND_BITFIELD_FLAG(GODOT_ALL_LIBS);
+	
+	BIND_BITFIELD_FLAG(ALL_LIBS);
 
 	// Methods
-	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA_ALL_LIBS | GODOT_ALL_LIBS)));
+	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size", "env"), &LuaState::load_file, DEFVAL(1024), DEFVAL(nullptr));

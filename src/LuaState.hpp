@@ -78,6 +78,8 @@ public:
 
 		// all of the above
 		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS,
+
+		ALL_LIBS = LUA_ALL_LIBS | GODOT_ALL_LIBS,
 	};
 
 	LuaState();
@@ -85,7 +87,7 @@ public:
 
 	sol::state_view get_lua_state() const;
 
-	void open_libraries(BitField<Library> libraries = LUA_ALL_LIBS | GODOT_ALL_LIBS);
+	void open_libraries(BitField<Library> libraries = ALL_LIBS);
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});
 	Variant load_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
