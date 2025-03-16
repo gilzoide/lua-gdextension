@@ -70,14 +70,21 @@ public:
 		LUA_ALL_LIBS = LUA_BASE | LUA_PACKAGE | LUA_COROUTINE | LUA_STRING | LUA_OS | LUA_MATH | LUA_TABLE | LUA_DEBUG | LUA_BIT32 | LUA_IO | LUA_FFI | LUA_JIT | LUA_UTF8,
 
 		// ----- Godot ----
+		// Variant types + String methods
 		GODOT_VARIANT = 1 << 13,
+		// utility functions, like "is_same" and "deg_to_rad". Also sets "print" to Godot's "printt"
 		GODOT_UTILITY_FUNCTIONS = 1 << 14,
+		// allows acessing singleton instances in _G
 		GODOT_SINGLETONS = 1 << 15,
+		// allows accessing classes by name in _G
 		GODOT_CLASSES = 1 << 16,
+		// global enums, like "KEY_A" and "PROPERTY_HINT_NONE"
 		GODOT_ENUMS = 1 << 17,
+		// add package searcher that supports "res://" and "user://" paths
+		GODOT_PACKAGE_SEARCHER = 1 << 18,
 
 		// all of the above
-		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS,
+		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS | GODOT_PACKAGE_SEARCHER,
 
 		ALL_LIBS = LUA_ALL_LIBS | GODOT_ALL_LIBS,
 	};

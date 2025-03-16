@@ -124,6 +124,9 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_ENUMS)) {
 			lua_state.require(module_names::enums, &luaopen_godot_enums, false);
 		}
+		if (libraries.has_flag(GODOT_PACKAGE_SEARCHER)) {
+			lua_state.require(module_names::package_searcher, &luaopen_godot_package_searcher, false);
+		}
 	}
 }
 
@@ -187,6 +190,7 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
 	BIND_BITFIELD_FLAG(GODOT_CLASSES);
 	BIND_BITFIELD_FLAG(GODOT_ENUMS);
+	BIND_BITFIELD_FLAG(GODOT_PACKAGE_SEARCHER);
 	BIND_BITFIELD_FLAG(GODOT_ALL_LIBS);
 	
 	BIND_BITFIELD_FLAG(ALL_LIBS);

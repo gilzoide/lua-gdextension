@@ -20,11 +20,8 @@
  * SOFTWARE.
  */
 #include "../generated/global_enums.hpp"
-#include "../utils/module_names.hpp"
 
 #include <sol/sol.hpp>
-
-using namespace luagdextension;
 
 extern "C" int luaopen_godot_enums(lua_State *L) {
 	sol::state_view state = L;
