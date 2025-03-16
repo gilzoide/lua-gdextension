@@ -102,7 +102,7 @@ static int l_dofile(lua_State *L) {
 	}
 }
 
-extern "C" int luaopen_godot_package_searcher(lua_State *L) {
+extern "C" int luaopen_godot_local_paths(lua_State *L) {
 	sol::state_view state = L;
 
 	if (auto package = state.get<sol::optional<sol::table>>("package")) {

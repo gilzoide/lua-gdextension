@@ -80,11 +80,11 @@ public:
 		GODOT_CLASSES = 1 << 16,
 		// global enums, like "KEY_A" and "PROPERTY_HINT_NONE"
 		GODOT_ENUMS = 1 << 17,
-		// add package searcher that supports "res://" and "user://" paths
-		GODOT_PACKAGE_SEARCHER = 1 << 18,
+		// add support for "res://" and "user://" paths in package searchers, "loadfile" and "dofile"
+		GODOT_LOCAL_PATHS = 1 << 18,
 
 		// all of the above
-		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS | GODOT_PACKAGE_SEARCHER,
+		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS | GODOT_LOCAL_PATHS,
 
 		ALL_LIBS = LUA_ALL_LIBS | GODOT_ALL_LIBS,
 	};
