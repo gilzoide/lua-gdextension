@@ -30,6 +30,7 @@ constexpr char utility_functions[] = "godot.utility_functions";
 constexpr char singleton_access[] = "godot.singleton_access";
 constexpr char classes[] = "godot.classes";
 constexpr char enums[] = "godot.enums";
+constexpr char local_paths[] = "godot.local_paths";
 
 }
 

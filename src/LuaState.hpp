@@ -70,16 +70,29 @@ public:
 		LUA_ALL_LIBS = LUA_BASE | LUA_PACKAGE | LUA_COROUTINE | LUA_STRING | LUA_OS | LUA_MATH | LUA_TABLE | LUA_DEBUG | LUA_BIT32 | LUA_IO | LUA_FFI | LUA_JIT | LUA_UTF8,
 
 		// ----- Godot ----
+		// Variant types + String methods
 		GODOT_VARIANT = 1 << 13,
+		// utility functions, like "is_same" and "deg_to_rad". Also sets "print" to Godot's "printt"
 		GODOT_UTILITY_FUNCTIONS = 1 << 14,
+		// allows acessing singleton instances in _G
 		GODOT_SINGLETONS = 1 << 15,
+		// allows accessing classes by name in _G
 		GODOT_CLASSES = 1 << 16,
+		// global enums, like "KEY_A" and "PROPERTY_HINT_NONE"
 		GODOT_ENUMS = 1 << 17,
+		// add support for "res://" and "user://" paths in package searchers, "loadfile" and "dofile"
+		GODOT_LOCAL_PATHS = 1 << 18,
 
 		// all of the above
-		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS,
+		GODOT_ALL_LIBS = GODOT_VARIANT | GODOT_UTILITY_FUNCTIONS | GODOT_SINGLETONS | GODOT_CLASSES | GODOT_ENUMS | GODOT_LOCAL_PATHS,
 
 		ALL_LIBS = LUA_ALL_LIBS | GODOT_ALL_LIBS,
+	};
+
+	enum LoadMode {
+		LOAD_MODE_ANY = (int) sol::load_mode::any,
+		LOAD_MODE_TEXT = (int) sol::load_mode::text,
+		LOAD_MODE_BINARY = (int) sol::load_mode::binary,
 	};
 
 	LuaState();
@@ -90,10 +103,12 @@ public:
 	void open_libraries(BitField<Library> libraries = ALL_LIBS);
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});
+	Variant load_buffer(const PackedByteArray& chunk, const String& chunkname = "", LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 	Variant load_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
-	Variant load_file(const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
+	Variant load_file(const String& filename, LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
+	Variant do_buffer(const PackedByteArray& chunk, const String& chunkname = "", LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 	Variant do_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
-	Variant do_file(const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
+	Variant do_file(const String& filename, LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;
@@ -115,5 +130,6 @@ private:
 
 }
 VARIANT_BITFIELD_CAST(luagdextension::LuaState::Library);
+VARIANT_ENUM_CAST(luagdextension::LuaState::LoadMode);
 
 #endif

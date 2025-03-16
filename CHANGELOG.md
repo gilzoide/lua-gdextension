@@ -3,10 +3,15 @@
 ### Added
 - Editor plugin that registers the Lua REPL tab, where you can try Lua code using an empty `LuaState`
 - Support for calling Godot String methods using Lua strings
+- Optional support for `res://` and `user://` relative paths in package searchers, `loadfile` and `dofile`.
+  Open the `GODOT_LOCAL_PATHS` library to activate this behavior.
+- `LuaState.LoadMode` enum for specifying the Lua load mode: text, binary or any
+- `LuaState.do_buffer` and `LuaState.load_buffer` for loading Lua code from possibly binary chunks
 
 ### Changed
 - The GDExtension is now marked as reloadable
 - Renamed `LuaCoroutine::LuaCoroutineStatus` to `LuaCoroutine::Status`
+- `LuaState.load_file` and `LuaState.do_file` now receive the load mode instead of buffer size
 
 ### Removed
 - `VariantType::has_static_method` internal method
