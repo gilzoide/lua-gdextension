@@ -27,11 +27,6 @@ def remove_options(lst, *options):
     for opt in options:
         if opt in lst:
             lst.remove(opt)
-    
-if ARGUMENTS.get("debugging_symbols") == 'true':
-    remove_options(env["CCFLAGS"], "-O2")
-    remove_options(env["LINKFLAGS"], "-Wl,-S", "-Wl,-x", "-Wl,-dead_strip")
-    env.Append(CCFLAGS=["-g", "-O0"])
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
