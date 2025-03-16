@@ -52,9 +52,9 @@ sol::object variant_call(sol::this_state state, Variant& variant, const char *me
 std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
 std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+Variant do_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
 Variant do_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
-Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+Variant load_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
 Variant load_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
 
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message);

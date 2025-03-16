@@ -268,8 +268,8 @@ std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& vari
 	return variant_pcall_string_name(state, variant, method, args);
 }
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
-	Variant load_result = load_string(lua_state, chunk, chunkname, mode, env);
+Variant do_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
+	Variant load_result = load_buffer(lua_state, chunk, chunkname, mode, env);
 	if (LuaFunction *func = Object::cast_to<LuaFunction>(load_result)) {
 		return func->invokev(Array());
 	}
@@ -288,9 +288,8 @@ Variant do_file(sol::state_view& lua_state, const String& filename, sol::load_mo
 	}
 }
 
-Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
-	PackedByteArray bytes = chunk.to_utf8_buffer();
-	sol::load_result result = lua_state.load(to_string_view(bytes), to_std_string(chunkname), sol::load_mode::text);
+Variant load_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
+	sol::load_result result = lua_state.load(to_string_view(chunk), to_std_string(chunkname), mode);
 	if (result.valid() && env) {
 		lua_push(lua_state, (const Object *) env);
 		lua_setupvalue(lua_state, result.stack_index(), 1);
