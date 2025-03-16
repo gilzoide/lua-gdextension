@@ -31,6 +31,7 @@ namespace luagdextension {
 class LuaTable;
 
 sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, String mode, LuaTable *env = nullptr);
 
 }
 

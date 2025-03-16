@@ -46,10 +46,15 @@ static const char *file_reader(lua_State *L, FileReaderData *data, size_t *size)
 }
 
 sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, sol::load_mode mode, LuaTable *env) {
+	if (filename.is_empty()) {
+		int lua_result = luaL_loadfilex(lua_state, nullptr, sol::to_string(mode).c_str());
+		return sol::load_result(lua_state, lua_absindex(lua_state, -1), 1, 1, (sol::load_status) lua_result); 
+	}
+
 	auto file = FileAccess::open(filename, godot::FileAccess::READ);
 	if (file == nullptr) {
 		lua_push(lua_state, String("Cannot open file '%s': %s") % Array::make(filename, UtilityFunctions::error_string(FileAccess::get_open_error())));
-		return sol::load_result(lua_state, -1, 1, 1, sol::load_status::file);
+		return sol::load_result(lua_state, lua_absindex(lua_state, -1), 1, 1, sol::load_status::file);
 	}
 
 	FileReaderData reader_data;
@@ -61,6 +66,22 @@ sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filen
 		lua_setupvalue(lua_state, result.stack_index(), 1);
 	}
 	return result;
+}
+
+sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, String mode_str, LuaTable *env) {
+	bool has_b = mode_str.contains("b");
+	bool has_t = mode_str.contains("t");
+	sol::load_mode mode;
+	if (has_b && !has_t) {
+		mode = sol::load_mode::binary;
+	}
+	else if (has_t && !has_b) {
+		mode = sol::load_mode::text;
+	}
+	else {
+		mode = sol::load_mode::any;
+	}
+	return load_fileaccess(lua_state, filename, mode, env);
 }
 
 }
