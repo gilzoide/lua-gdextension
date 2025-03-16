@@ -31,10 +31,19 @@
 #include <godot_cpp/classes/os.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
 
+#include "../generated/package_searcher.h"
+
 using namespace luagdextension;
 
-static int searchpath(lua_State *L, const String& name, const String& path, const String& sep, const String& rep) {
-	String template_name = sep.is_empty() ? name : name.replace(sep, rep);
+static int l_searchpath(lua_State *L) {
+	String name = luaL_checkstring(L, 1);
+	String path = luaL_checkstring(L, 2);
+	String sep = luaL_optstring(L, 3, ".");
+	String rep = luaL_optstring(L, 4, "/");
+	if (!sep.is_empty()) {
+		name = name.replace(sep, rep);
+	}
+
 	String execdir_repl = Engine::get_singleton()->is_editor_hint()
 		? ProjectSettings::get_singleton()->globalize_path("res://")
 		: OS::get_singleton()->get_executable_path().get_base_dir();
@@ -42,7 +51,7 @@ static int searchpath(lua_State *L, const String& name, const String& path, cons
 	PackedStringArray path_list = path.split(";", false);
 	PackedStringArray not_found_list;
 	for (const String& path_template : path_list) {
-		String filename = path_template.replace("?", template_name).replace("!", execdir_repl);
+		String filename = path_template.replace("?", name).replace("!", execdir_repl);
 		if (FileAccess::file_exists(filename)) {
 			sol::stack::push(L, filename);
 			return 1;
@@ -60,10 +69,6 @@ static int searchpath(lua_State *L, const String& name, const String& path, cons
 	sol::stack::push(L, sol::nil);
 	sol::stack::push(L, error_message);
 	return 2;
-}
-
-static int l_searchpath(lua_State *L) {
-	return searchpath(L, luaL_checkstring(L, 1), luaL_checkstring(L, 2), luaL_optstring(L, 3, "."), luaL_optstring(L, 4, "/"));
 }
 
 static int l_loadfile(lua_State *L) {
@@ -107,6 +112,7 @@ extern "C" int luaopen_godot_local_paths(lua_State *L) {
 
 	if (auto package = state.get<sol::optional<sol::table>>("package")) {
 		(*package)["searchpath"] = l_searchpath;
+		state.do_string(package_searcher_lua);
 	}
 
 	state["loadfile"] = l_loadfile;

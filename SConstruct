@@ -13,9 +13,11 @@ env.Command(
     [
         "src/generated/global_enums.hpp",
         "src/generated/utility_functions.hpp",
+        "src/generated/package_searcher.h",
     ],
     [
         "src/generate_code.py",
+        "src/luaopen/package_searcher.lua",
         "lib/godot-cpp/gdextension/extension_api.json",
         "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
     ],
