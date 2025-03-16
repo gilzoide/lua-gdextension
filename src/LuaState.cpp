@@ -134,20 +134,20 @@ Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
 	return memnew(LuaTable(to_table(lua_state, initial_values)));
 }
 
-Variant LuaState::load_string(const String& chunk, const String& chunkname, LuaTable *env) {
-	return ::luagdextension::load_string(lua_state, chunk, chunkname, env);
+Variant LuaState::load_string(const String& chunk, const String& chunkname, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::load_string(lua_state, chunk, chunkname, (sol::load_mode) mode, env);
 }
 
-Variant LuaState::load_file(const String& filename, int buffer_size, LuaTable *env) {
-	return ::luagdextension::load_file(lua_state, filename, buffer_size, env);
+Variant LuaState::load_file(const String& filename, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::load_file(lua_state, filename, (sol::load_mode) mode, env);
 }
 
-Variant LuaState::do_string(const String& chunk, const String& chunkname, LuaTable *env) {
-	return ::luagdextension::do_string(lua_state, chunk, chunkname, env);
+Variant LuaState::do_string(const String& chunk, const String& chunkname, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::do_string(lua_state, chunk, chunkname, (sol::load_mode) mode, env);
 }
 
-Variant LuaState::do_file(const String& filename, int buffer_size, LuaTable *env) {
-	return ::luagdextension::do_file(lua_state, filename, buffer_size, env);
+Variant LuaState::do_file(const String& filename, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::do_file(lua_state, filename, (sol::load_mode) mode, env);
 }
 
 LuaTable *LuaState::get_globals() const {
@@ -195,13 +195,18 @@ void LuaState::_bind_methods() {
 	
 	BIND_BITFIELD_FLAG(ALL_LIBS);
 
+	// LoadMode enum
+	BIND_ENUM_CONSTANT(LOAD_MODE_ANY);
+	BIND_ENUM_CONSTANT(LOAD_MODE_TEXT);
+	BIND_ENUM_CONSTANT(LOAD_MODE_BINARY);
+
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
-	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));
-	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size", "env"), &LuaState::load_file, DEFVAL(1024), DEFVAL(nullptr));
-	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname", "env"), &LuaState::do_string, DEFVAL(""), DEFVAL(nullptr));
-	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size", "env"), &LuaState::do_file, DEFVAL(1024), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "mode", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("load_file", "filename", "mode", "env"), &LuaState::load_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname", "mode", "env"), &LuaState::do_string, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 
