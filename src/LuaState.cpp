@@ -28,7 +28,10 @@
 #include "utils/module_names.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/os.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <luaconf.h>
 
 namespace luagdextension {
 
@@ -166,6 +169,58 @@ LuaTable *LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
 }
 
+String LuaState::get_package_path() const {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		return package->get<String>("path");
+	}
+	else {
+		ERR_FAIL_V_MSG("", "LUA_PACKAGE library is not opened");
+	}
+}
+
+String LuaState::get_package_cpath() const {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		return package->get<String>("cpath");
+	}
+	else {
+		ERR_FAIL_V_MSG("", "LUA_PACKAGE library is not opened");
+	}
+}
+
+void LuaState::set_package_path(const String& path) {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		package->set("path",
+			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
+		);
+	}
+	else {
+		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
+	}
+}
+
+void LuaState::set_package_cpath(const String& cpath) {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		package->set("cpath",
+			cpath.replace(";;", LUA_PATH_SEP LUA_CPATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
+		);
+	}
+	else {
+		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
+	}
+}
+
+String LuaState::get_lua_exec_dir() {
+	return Engine::get_singleton()->is_editor_hint()
+		? ProjectSettings::get_singleton()->globalize_path("res://")
+		: OS::get_singleton()->get_executable_path().get_base_dir();
+}
+
 LuaState *LuaState::find_lua_state(lua_State *L) {
 	L = sol::main_thread(L);
 	if (LuaState **ptr = valid_states.getptr(L)) {
@@ -219,10 +274,17 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+	ClassDB::bind_method(D_METHOD("get_package_path"), &LuaState::get_package_path);
+	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
+	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
+	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_exec_dir"), &LuaState::get_lua_exec_dir);
 
 	// Properties
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_path", "get_package_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_cpath", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_cpath", "get_package_cpath");
 }
 
 LuaState::operator String() const {

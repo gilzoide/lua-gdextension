@@ -113,8 +113,14 @@ public:
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;
 
+	String get_package_path() const;
+	String get_package_cpath() const;
+	void set_package_path(const String& path);
+	void set_package_cpath(const String& cpath);
+
 	operator String() const;
 
+	static String get_lua_exec_dir();
 	static LuaState *find_lua_state(lua_State *L);
 
 protected:

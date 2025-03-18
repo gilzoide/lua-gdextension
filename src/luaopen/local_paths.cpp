@@ -21,17 +21,12 @@
  */
 
 #include "../LuaTable.hpp"
+#include "../generated/package_searcher.h"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/load_fileaccess.hpp"
-#include "sol/forward.hpp"
-#include "sol/load_result.hpp"
 
-#include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/file_access.hpp>
-#include <godot_cpp/classes/os.hpp>
-#include <godot_cpp/classes/project_settings.hpp>
-
-#include "../generated/package_searcher.h"
+#include <luaconf.h>
 
 using namespace luagdextension;
 
@@ -43,15 +38,11 @@ static int l_searchpath(lua_State *L) {
 	if (!sep.is_empty()) {
 		name = name.replace(sep, rep);
 	}
-
-	String execdir_repl = Engine::get_singleton()->is_editor_hint()
-		? ProjectSettings::get_singleton()->globalize_path("res://")
-		: OS::get_singleton()->get_executable_path().get_base_dir();
 	
-	PackedStringArray path_list = path.split(";", false);
+	PackedStringArray path_list = path.split(LUA_PATH_SEP, false);
 	PackedStringArray not_found_list;
 	for (const String& path_template : path_list) {
-		String filename = path_template.replace("?", name).replace("!", execdir_repl);
+		String filename = path_template.replace(LUA_PATH_MARK, name);
 		if (FileAccess::file_exists(filename)) {
 			sol::stack::push(L, filename);
 			return 1;
