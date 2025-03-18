@@ -28,7 +28,9 @@
 #include "utils/module_names.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/os.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
 #include <luaconf.h>
 
 namespace luagdextension {
@@ -191,6 +193,7 @@ void LuaState::set_package_path(const String& path) {
 			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
 				.rstrip(LUA_PATH_SEP)
 				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
 		);
 	}
 	else {
@@ -204,11 +207,18 @@ void LuaState::set_package_cpath(const String& cpath) {
 			cpath.replace(";;", LUA_PATH_SEP LUA_CPATH_DEFAULT LUA_PATH_SEP)
 				.rstrip(LUA_PATH_SEP)
 				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
 		);
 	}
 	else {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
 	}
+}
+
+String LuaState::get_lua_exec_dir() {
+	return Engine::get_singleton()->is_editor_hint()
+		? ProjectSettings::get_singleton()->globalize_path("res://")
+		: OS::get_singleton()->get_executable_path().get_base_dir();
 }
 
 LuaState *LuaState::find_lua_state(lua_State *L) {
@@ -268,6 +278,7 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
 	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_exec_dir"), &LuaState::get_lua_exec_dir);
 
 	// Properties
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");

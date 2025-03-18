@@ -120,6 +120,7 @@ public:
 
 	operator String() const;
 
+	static String get_lua_exec_dir();
 	static LuaState *find_lua_state(lua_State *L);
 
 protected:

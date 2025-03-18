@@ -7,7 +7,6 @@ var initial_package_cpath
 
 func _init():
 	lua_state = LuaState.new()
-	lua_state.registry.LUA_NOENV = true
 	lua_state.open_libraries()
 	initial_package_path = lua_state.package_path
 	initial_package_cpath = lua_state.package_cpath
@@ -25,6 +24,7 @@ func test_package_path() -> bool:
 func test_package_cpath() -> bool:
 	var package_cpath = "!/?.so"
 	lua_state.package_cpath = package_cpath
+	package_cpath = package_cpath.replace("!", LuaState.get_lua_exec_dir())
 	assert(lua_state.package_cpath == package_cpath)
 	assert(lua_state.globals.package.path != package_cpath)
 	assert(lua_state.globals.package.cpath == package_cpath)
