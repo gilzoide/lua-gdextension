@@ -8,6 +8,7 @@
 - `LuaState.LoadMode` enum for specifying the Lua load mode: text, binary or any
 - `LuaState.do_buffer` and `LuaState.load_buffer` methods for loading Lua code from possibly binary chunks
 - `LuaState.package_path` and `LuaState.package_cpath` properties for accessing the value of Lua's [`package.path`](https://www.lua.org/manual/5.4/manual.html#pdf-package.path) and [`package.cpath`](https://www.lua.org/manual/5.4/manual.html#pdf-package.cpath)
+- Advanced project settings for setting the `LuaScriptLanguage` state's `package_path` and `package_cpath` properties
 
 ### Changed
 - The GDExtension is now marked as reloadable
