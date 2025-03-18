@@ -29,6 +29,7 @@
 
 #include <godot_cpp/core/binder_common.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <luaconf.h>
 
 namespace luagdextension {
 
@@ -186,7 +187,11 @@ String LuaState::get_package_cpath() const {
 
 void LuaState::set_package_path(const String& path) {
 	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
-		package->set("path", path);
+		package->set("path",
+			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+		);
 	}
 	else {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
@@ -195,7 +200,11 @@ void LuaState::set_package_path(const String& path) {
 
 void LuaState::set_package_cpath(const String& cpath) {
 	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
-		package->set("cpath", cpath);
+		package->set("cpath",
+			cpath.replace(";;", LUA_PATH_SEP LUA_CPATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+		);
 	}
 	else {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
