@@ -131,6 +131,13 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 			lua_state.require(module_names::local_paths, &luaopen_godot_local_paths, false);
 		}
 	}
+
+	lua_state.registry().set("_GDEXTENSION_OPEN_LIBS", lua_state.registry().get_or("_GDEXTENSION_OPEN_LIBS", 0) | libraries);
+}
+
+bool LuaState::are_libraries_opened(BitField<Library> libraries) const {
+	int64_t currently_opened_libs = lua_state.registry().get_or("_GDEXTENSION_OPEN_LIBS", 0L);
+	return (currently_opened_libs & libraries) == libraries;
 }
 
 Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
@@ -247,7 +254,6 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA_JIT);
 	BIND_BITFIELD_FLAG(LUA_UTF8);
 	BIND_BITFIELD_FLAG(LUA_ALL_LIBS);
-
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
 	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
@@ -255,7 +261,6 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(GODOT_ENUMS);
 	BIND_BITFIELD_FLAG(GODOT_LOCAL_PATHS);
 	BIND_BITFIELD_FLAG(GODOT_ALL_LIBS);
-	
 	BIND_BITFIELD_FLAG(ALL_LIBS);
 
 	// LoadMode enum
@@ -265,6 +270,7 @@ void LuaState::_bind_methods() {
 
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
+	ClassDB::bind_method(D_METHOD("are_libraries_opened", "libraries"), &LuaState::are_libraries_opened);
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("load_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::load_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));

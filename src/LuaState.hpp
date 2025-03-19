@@ -101,6 +101,7 @@ public:
 	sol::state_view get_lua_state() const;
 
 	void open_libraries(BitField<Library> libraries = ALL_LIBS);
+	bool are_libraries_opened(BitField<Library> libraries) const;
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});
 	Variant load_buffer(const PackedByteArray& chunk, const String& chunkname = "", LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
