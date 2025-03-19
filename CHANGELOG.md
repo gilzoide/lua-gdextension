@@ -12,6 +12,7 @@
   When running in the Godot editor, it returns the globalized version of `res://` path.
   Otherwise, it returns the base directory of the executable.
 - Advanced project settings for setting the `LuaScriptLanguage` state's `package_path` and `package_cpath` properties
+- `LuaState.are_libraries_opened` method for checking if a subset of libraries were already opened
 
 ### Changed
 - The GDExtension is now marked as reloadable
