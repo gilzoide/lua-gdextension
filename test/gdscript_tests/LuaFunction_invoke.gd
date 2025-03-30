@@ -47,6 +47,16 @@ func test_callable() -> bool:
 	return true
 
 
+func test_create_function() -> bool:
+	var callable = func(arg1):
+		return arg1
+	var lua_function = lua_state.create_function(callable)
+	assert(lua_function is LuaFunction)
+	assert(_test_call(lua_function, [1]) == 1)
+	assert(_test_call(lua_function, [[]]) == [])
+	return true
+
+
 func _test_call(f: LuaFunction, args: Array = []):
 	var result = f.invokev(args)
 	if result is LuaError:

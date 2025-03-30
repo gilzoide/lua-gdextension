@@ -33,6 +33,7 @@
 #include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
 #include "load_fileaccess.hpp"
+#include "stack_top_checker.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
@@ -221,6 +222,22 @@ sol::table to_table(sol::state_view& state, const Dictionary& dictionary) {
 		}
 	}
 	return table;
+}
+
+static int callable_closure(lua_State *L) {
+	Callable callable = to_variant(L, lua_upvalueindex(1));
+	sol::variadic_args args(L, 1);
+	Variant result = callable.callv(VariantArguments(args).get_array());
+	lua_push(L, result);
+	return 1;
+}
+sol::protected_function to_lua_function(sol::state_view& state, const Callable& callable) {
+	StackTopChecker topcheck(state);
+	lua_push(state, callable);
+	lua_pushcclosure(state, callable_closure, 1);
+	sol::protected_function result = sol::stack_protected_function(state, -1);
+	lua_pop(state, 1);
+	return result;
 }
 
 sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {

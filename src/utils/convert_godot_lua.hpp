@@ -46,6 +46,8 @@ Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 sol::table to_table(sol::state_view& state, const Dictionary& dictionary);
 
+sol::protected_function to_lua_function(sol::state_view& state, const Callable& callable);
+
 sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args);
 sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
 sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
