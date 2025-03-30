@@ -163,9 +163,7 @@ sol::object variant__call(sol::this_state state, const Variant& variant, sol::va
 	if (variant.get_type() != Variant::CALLABLE) {
 		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
 	}
-	Callable callable = variant;
-	VariantArguments var_args = args;
-	Variant result = callable.callv(var_args.get_array());
+	Variant result = callable_call(variant, args);
 	return to_lua(state, result);
 }
 

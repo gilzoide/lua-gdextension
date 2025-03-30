@@ -31,6 +31,7 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaFunction;
 class LuaTable;
 
 class LuaState : public RefCounted {
@@ -104,6 +105,7 @@ public:
 	bool are_libraries_opened(BitField<Library> libraries) const;
 
 	Ref<LuaTable> create_table(const Dictionary& initial_values = {});
+	Ref<LuaFunction> create_function(const Callable& callable);
 	Variant load_buffer(const PackedByteArray& chunk, const String& chunkname = "", LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 	Variant load_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
 	Variant load_file(const String& filename, LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);

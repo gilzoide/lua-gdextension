@@ -21,6 +21,7 @@
  */
 #include "LuaState.hpp"
 
+#include "LuaFunction.hpp"
 #include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
@@ -142,6 +143,11 @@ bool LuaState::are_libraries_opened(BitField<Library> libraries) const {
 
 Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
 	return memnew(LuaTable(to_table(lua_state, initial_values)));
+}
+
+Ref<LuaFunction> LuaState::create_function(const Callable& callable) {
+	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
+	return memnew(LuaFunction(to_lua_function(lua_state, callable)));
 }
 
 Variant LuaState::load_buffer(const PackedByteArray& chunk, const String& chunkname, LoadMode mode, LuaTable *env) {
@@ -272,6 +278,7 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("are_libraries_opened", "libraries"), &LuaState::are_libraries_opened);
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
+	ClassDB::bind_method(D_METHOD("create_function", "callable"), &LuaState::create_function);
 	ClassDB::bind_method(D_METHOD("load_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::load_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("load_file", "filename", "mode", "env"), &LuaState::load_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
