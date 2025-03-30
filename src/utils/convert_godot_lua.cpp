@@ -173,9 +173,22 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 					break;
 				}
 			}
-			// fallthrough
+			goto push_as_variant;
+			
+		case Variant::CALLABLE:
+			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT))
+			{
+				goto push_as_variant;
+			}
+			else {
+				// If GODOT_VARIANT library is not opened in this lua_State, push Callable wrapped in a Lua function
+				lua_push_function(lua_state, (Callable) value);
+				break;
+			}
+
+push_as_variant:
 		default:
-			sol::stack::push(lua_state, value);
+			sol::stack::push_userdata(lua_state, value);
 			break;
 	}
 	return sol::stack_object(lua_state, -1);
@@ -190,7 +203,7 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 Array to_array(const sol::variadic_args& args) {
 	Array arr;
 	for (auto it : args) {
-		arr.append(to_variant(it.get<sol::object>()));
+		arr.append(to_variant(it.get<sol::stack_object>()));
 	}
 	return arr;
 }
@@ -231,13 +244,24 @@ static int callable_closure(lua_State *L) {
 	lua_push(L, result);
 	return 1;
 }
-sol::protected_function to_lua_function(sol::state_view& state, const Callable& callable) {
-	StackTopChecker topcheck(state);
-	lua_push(state, callable);
-	lua_pushcclosure(state, callable_closure, 1);
-	sol::protected_function result = sol::stack_protected_function(state, -1);
-	lua_pop(state, 1);
+void lua_push_function(lua_State *L, const Callable& callable) {
+	ERR_FAIL_COND(!callable.is_valid());
+	StackTopChecker topcheck(L, 1);
+	sol::stack::push_userdata(L, (Variant) callable);
+	lua_pushcclosure(L, callable_closure, 1);
+}
+
+sol::protected_function to_lua_function(lua_State *L, const Callable& callable) {
+	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
+	StackTopChecker topcheck(L);
+	lua_push_function(L, callable);
+	sol::protected_function result = sol::stack_protected_function(L, -1);
+	lua_pop(L, 1);
 	return result;
+}
+
+Variant callable_call(const Callable& callable, const sol::variadic_args& args) {
+	return callable.callv(VariantArguments(args).get_array());
 }
 
 sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
