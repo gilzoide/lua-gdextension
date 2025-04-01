@@ -27,15 +27,26 @@ typedef struct lua_State lua_State;
 
 namespace luagdextension {
 
+#ifdef DEBUG_ENABLED
+
 class StackTopChecker {
 public:
-	StackTopChecker(lua_State *L);
+	StackTopChecker(lua_State *L, int expected_extra_values = 0);
 	~StackTopChecker();
 
 private:
 	lua_State *L;
+	int expected_extra_values;
 	int previous_top;
 };
+
+#else
+
+struct StackTopChecker {
+	StackTopChecker(lua_State *L, int expected_extra_values = 0) {}
+};
+
+#endif
 
 }
 

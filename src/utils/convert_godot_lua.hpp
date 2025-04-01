@@ -38,13 +38,17 @@ Variant to_variant(const sol::stack_proxy_base& object);
 Variant to_variant(const sol::protected_function_result& function_result);
 Variant to_variant(const sol::load_result& load_result);
 Variant to_variant(lua_State *L, int index);
-sol::stack_object lua_push(lua_State *lua_state, const Variant& value);
-sol::object to_lua(lua_State *lua_state, const Variant& value);
+sol::stack_object lua_push(lua_State *L, const Variant& value);
+sol::object to_lua(lua_State *L, const Variant& value);
 
 Array to_array(const sol::variadic_args& args);
 Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 sol::table to_table(sol::state_view& state, const Dictionary& dictionary);
+
+void lua_push_function(lua_State *L, const Callable& callable);
+sol::protected_function to_lua_function(lua_State *L, const Callable& callable);
+Variant callable_call(const Callable& callable, const sol::variadic_args& args);
 
 sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args);
 sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
@@ -52,13 +56,13 @@ sol::object variant_call(sol::this_state state, Variant& variant, const char *me
 std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
 std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
-Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
-Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size = 1024, LuaTable *env = nullptr);
+Variant do_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+Variant do_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+Variant load_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+Variant load_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
 
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message);
 
 }
 
-#endif  // __UTILS_CONVERT_GODOT_STD_HPP__
+#endif  // __UTILS_CONVERT_GODOT_LUA_HPP__

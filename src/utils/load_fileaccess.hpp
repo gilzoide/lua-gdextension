@@ -19,21 +19,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUAOPEN_GODOT_HPP__
-#define __LUAOPEN_GODOT_HPP__
+#ifndef __UTILS_LOAD_FILEACCESS_HPP__
+#define __UTILS_LOAD_FILEACCESS_HPP__
 
-struct lua_State;
+#include "custom_sol.hpp"
 
-extern "C" {
+using namespace godot;
 
-int luaopen_godot(lua_State *L);
-int luaopen_godot_variant(lua_State *L);
-int luaopen_godot_utility_functions(lua_State *L);
-int luaopen_godot_singleton_access(lua_State *L);
-int luaopen_godot_classes(lua_State *L);
-int luaopen_godot_enums(lua_State *L);
-int luaopen_godot_local_paths(lua_State *L);
+namespace luagdextension {
+
+class LuaTable;
+
+sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
+sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filename, String mode, LuaTable *env = nullptr);
 
 }
 
-#endif  // __LUAOPEN_GODOT_HPP__
+#endif  // __UTILS_LOAD_FILEACCESS_HPP__
+ 

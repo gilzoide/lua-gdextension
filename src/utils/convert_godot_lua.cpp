@@ -32,6 +32,8 @@
 #include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
+#include "load_fileaccess.hpp"
+#include "stack_top_checker.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/core/memory.hpp>
@@ -171,9 +173,22 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 					break;
 				}
 			}
-			// fallthrough
+			goto push_as_variant;
+			
+		case Variant::CALLABLE:
+			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT))
+			{
+				goto push_as_variant;
+			}
+			else {
+				// If GODOT_VARIANT library is not opened in this lua_State, push Callable wrapped in a Lua function
+				lua_push_function(lua_state, (Callable) value);
+				break;
+			}
+
+push_as_variant:
 		default:
-			sol::stack::push(lua_state, value);
+			sol::stack::push_userdata(lua_state, value);
 			break;
 	}
 	return sol::stack_object(lua_state, -1);
@@ -188,7 +203,7 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 Array to_array(const sol::variadic_args& args) {
 	Array arr;
 	for (auto it : args) {
-		arr.append(to_variant(it.get<sol::object>()));
+		arr.append(to_variant(it.get<sol::stack_object>()));
 	}
 	return arr;
 }
@@ -220,6 +235,33 @@ sol::table to_table(sol::state_view& state, const Dictionary& dictionary) {
 		}
 	}
 	return table;
+}
+
+static int callable_closure(lua_State *L) {
+	Callable callable = to_variant(L, lua_upvalueindex(1));
+	sol::variadic_args args(L, 1);
+	Variant result = callable.callv(VariantArguments(args).get_array());
+	lua_push(L, result);
+	return 1;
+}
+void lua_push_function(lua_State *L, const Callable& callable) {
+	ERR_FAIL_COND(!callable.is_valid());
+	StackTopChecker topcheck(L, 1);
+	sol::stack::push_userdata(L, (Variant) callable);
+	lua_pushcclosure(L, callable_closure, 1);
+}
+
+sol::protected_function to_lua_function(lua_State *L, const Callable& callable) {
+	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
+	StackTopChecker topcheck(L);
+	lua_push_function(L, callable);
+	sol::protected_function result = sol::stack_protected_function(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
+Variant callable_call(const Callable& callable, const sol::variadic_args& args) {
+	return callable.callv(VariantArguments(args).get_array());
 }
 
 sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
@@ -267,8 +309,8 @@ std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& vari
 	return variant_pcall_string_name(state, variant, method, args);
 }
 
-Variant do_string(sol::state_view& lua_state, const String& chunk, const String& chunkname, LuaTable *env) {
-	Variant load_result = load_string(lua_state, chunk, chunkname, env);
+Variant do_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
+	Variant load_result = load_buffer(lua_state, chunk, chunkname, mode, env);
 	if (LuaFunction *func = Object::cast_to<LuaFunction>(load_result)) {
 		return func->invokev(Array());
 	}
@@ -277,25 +319,8 @@ Variant do_string(sol::state_view& lua_state, const String& chunk, const String&
 	}
 }
 
-struct FileReaderData {
-	FileAccess *file;
-	size_t buffer_size;
-	PackedByteArray bytes;
-};
-static const char *file_reader(lua_State *L, FileReaderData *data, size_t *size) {
-	if (data->file->eof_reached()) {
-		*size = 0;
-		return nullptr;
-	}
-	else {
-		data->bytes = data->file->get_buffer(data->buffer_size);
-		*size = data->bytes.size();
-		return (const char *) data->bytes.ptr();
-	}
-}
-
-Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_size, LuaTable *env) {
-	Variant load_result = load_file(lua_state, filename, buffer_size, env);
+Variant do_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode, LuaTable *env) {
+	Variant load_result = load_file(lua_state, filename, mode, env);
 	if (LuaFunction *func = Object::cast_to<LuaFunction>(load_result)) {
 		return func->invokev(Array());
 	}
@@ -304,31 +329,17 @@ Variant do_file(sol::state_view& lua_state, const String& filename, int buffer_s
 	}
 }
 
-Variant load_string(sol::state_view& lua_state, const String& chunk, const String& chunkname, LuaTable *env) {
-	PackedByteArray bytes = chunk.to_utf8_buffer();
-	sol::load_result result = lua_state.load(to_string_view(bytes), to_std_string(chunkname), sol::load_mode::text);
+Variant load_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname, sol::load_mode mode, LuaTable *env) {
+	sol::load_result result = lua_state.load(to_string_view(chunk), to_std_string(chunkname), mode);
 	if (result.valid() && env) {
-		env->get_lua_object().push(lua_state);
+		lua_push(lua_state, (const Object *) env);
 		lua_setupvalue(lua_state, result.stack_index(), 1);
 	}
 	return to_variant(result);
 }
 
-Variant load_file(sol::state_view& lua_state, const String& filename, int buffer_size, LuaTable *env) {
-	auto file = FileAccess::open(filename, godot::FileAccess::READ);
-	if (file == nullptr) {
-		return memnew(LuaError(LuaError::Status::FILE, String("Cannot open file '%s': " + UtilityFunctions::error_string(FileAccess::get_open_error())) % filename));
-	}
-
-	FileReaderData reader_data;
-	reader_data.file = file.ptr();
-	reader_data.buffer_size = buffer_size;
-	sol::load_result result = lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(filename));
-	if (result.valid() && env) {
-		env->get_lua_object().push(lua_state);
-		lua_setupvalue(lua_state, result.stack_index(), 1);
-	}
-	return to_variant(result);
+Variant load_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode, LuaTable *env) {
+	return to_variant(load_fileaccess(lua_state, filename, mode, env));
 }
 
 void lua_error(lua_State *L, const GDExtensionCallError& call_error, const String& prefix_message) {

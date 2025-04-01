@@ -13,9 +13,11 @@ env.Command(
     [
         "src/generated/global_enums.hpp",
         "src/generated/utility_functions.hpp",
+        "src/generated/package_searcher.h",
     ],
     [
         "src/generate_code.py",
+        "src/luaopen/package_searcher.lua",
         "lib/godot-cpp/gdextension/extension_api.json",
         "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
     ],
@@ -27,11 +29,6 @@ def remove_options(lst, *options):
     for opt in options:
         if opt in lst:
             lst.remove(opt)
-    
-if ARGUMENTS.get("debugging_symbols") == 'true':
-    remove_options(env["CCFLAGS"], "-O2")
-    remove_options(env["LINKFLAGS"], "-Wl,-S", "-Wl,-x", "-Wl,-dead_strip")
-    env.Append(CCFLAGS=["-g", "-O0"])
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")

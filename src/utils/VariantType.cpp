@@ -68,13 +68,6 @@ Variant VariantType::construct(const sol::variadic_args& args) const {
 	return result;
 }
 
-bool VariantType::has_static_method(StringName method) const {
-	Variant result;
-	GDExtensionCallError error;
-	Variant::callp_static(type, method, (const Variant **) NULL, 0, result, error);
-	return error.error != GDEXTENSION_CALL_ERROR_INVALID_METHOD && error.error != GDEXTENSION_CALL_ERROR_INSTANCE_IS_NULL;
-}
-
 bool VariantType::operator==(const VariantType& other) const {
 	return type == other.type;
 }
@@ -82,7 +75,8 @@ bool VariantType::operator==(const VariantType& other) const {
 static sol::optional<MethodBindByName> __index(const VariantType& cls, const sol::stack_object& key) {
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
-		if (cls.has_static_method(method)) {
+		Variant empty = cls.construct_default();
+		if (empty.has_method(method)) {
 			return MethodBindByName(method);
 		}
 	}
@@ -91,7 +85,6 @@ static sol::optional<MethodBindByName> __index(const VariantType& cls, const sol
 void VariantType::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantType>(
 		"VariantClass",
-		"has_static_method", &VariantType::has_static_method,
 		sol::meta_function::index, &__index,
 		sol::meta_function::call, &VariantType::construct,
 		sol::meta_function::to_string, &VariantType::get_type_name

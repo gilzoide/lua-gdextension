@@ -36,7 +36,7 @@ class LuaCoroutine : public LuaObjectSubclass<sol::thread> {
 	GDCLASS(LuaCoroutine, LuaObject);
 
 public:
-	enum LuaCoroutineStatus {
+	enum Status {
 		STATUS_OK = LUA_OK,
 		STATUS_YIELD = LUA_YIELD,
 		STATUS_ERRRUN = LUA_ERRRUN,
@@ -53,7 +53,7 @@ public:
 	static LuaCoroutine *create(const sol::function& function);
 	static LuaCoroutine *create(LuaFunction *function);
 
-	LuaCoroutineStatus get_status() const;
+	Status get_status() const;
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
@@ -62,6 +62,6 @@ protected:
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::LuaCoroutineStatus);
+VARIANT_ENUM_CAST(luagdextension::LuaCoroutine::Status);
 
 #endif

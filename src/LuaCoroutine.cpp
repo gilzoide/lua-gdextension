@@ -43,8 +43,8 @@ LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 	return create(function->get_function());
 }
 
-LuaCoroutine::LuaCoroutineStatus LuaCoroutine::get_status() const {
-	return static_cast<LuaCoroutineStatus>(lua_object.status());
+LuaCoroutine::Status LuaCoroutine::get_status() const {
+	return static_cast<Status>(lua_object.status());
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
@@ -92,7 +92,7 @@ void LuaCoroutine::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "resume", &LuaCoroutine::resume);
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "status"), "", "get_status");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }
 
 }
