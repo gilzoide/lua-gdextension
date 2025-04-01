@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaCoroutine" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+  <brief_description>
+    A Lua coroutine object that allows cooperative multitasking in Lua scripts.
+  </brief_description>
+  <description>
+    The LuaCoroutine class represents a Lua coroutine that can be created from a Lua function and controlled from GDScript.
+    It provides methods to resume the coroutine and check its status.
+  </description>
+  <tutorials>
+  </tutorials>
+  <methods>
+    <method name="create" qualifiers="static">
+      <return type="LuaCoroutine" />
+      <param index="0" name="function" type="LuaFunction" />
+      <description>
+        Creates a new Lua coroutine from the given Lua function.
+        The coroutine will start in a suspended state and can be resumed using the resume methods.
+      </description>
+    </method>
+    <method name="resume" qualifiers="const vararg">
+      <return type="Variant" />
+      <description>
+        Resumes the coroutine with the provided arguments.
+        Returns the values yielded or returned by the coroutine.
+        If the coroutine is not in a yield state, returns an error.
+      </description>
+    </method>
+    <method name="resumev">
+      <return type="Variant" />
+      <param index="0" name="arguments" type="Array" />
+      <description>
+        Resumes the coroutine with arguments provided in an array.
+        Returns the values yielded or returned by the coroutine.
+        If the coroutine is not in a yield state, returns an error.
+      </description>
+    </method>
+  </methods>
+  <members>
+    <member name="status" type="int" setter="" getter="get_status" enum="LuaCoroutine.LuaCoroutineStatus">
+      The current status of the coroutine.
+    </member>
+  </members>
+  <constants>
+    <constant name="STATUS_OK" value="0" enum="LuaCoroutineStatus">
+      The coroutine is running normally.
+    </constant>
+    <constant name="STATUS_YIELD" value="1" enum="LuaCoroutineStatus">
+      The coroutine is suspended (yielded).
+    </constant>
+    <constant name="STATUS_ERRRUN" value="2" enum="LuaCoroutineStatus">
+      A runtime error occurred in the coroutine.
+    </constant>
+    <constant name="STATUS_ERRSYNTAX" value="3" enum="LuaCoroutineStatus">
+      A syntax error occurred in the coroutine.
+    </constant>
+    <constant name="STATUS_ERRMEM" value="4" enum="LuaCoroutineStatus">
+      A memory allocation error occurred in the coroutine.
+    </constant>
+    <constant name="STATUS_ERRERR" value="5" enum="LuaCoroutineStatus">
+      An error occurred while running the error handler.
+    </constant>
+    <constant name="STATUS_DEAD" value="-1" enum="LuaCoroutineStatus">
+      The coroutine has finished execution.
+    </constant>
+  </constants>
+</class>
