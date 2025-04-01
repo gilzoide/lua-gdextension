@@ -5,8 +5,7 @@
 		A Lua table object that allows interaction with Lua tables from GDScript.
 	</brief_description>
 	<description>
-		The LuaTable class provides methods to manipulate Lua tables, including getting/setting values, 
-		converting to Godot arrays and dictionaries, and iterating over table contents.
+		The LuaTable class provides methods to manipulate Lua tables, including getting/setting values, converting to Godot arrays and dictionaries, and iterating over table contents.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -51,7 +50,7 @@
 			<param index="0" name="key" type="Variant" />
 			<param index="1" name="default" type="Variant" default="null" />
 			<description>
-				Returns the value associated with the given key without invoking metatable's __index method.
+				Returns the value associated with the given key without invoking metatable's [code]__index[/code] method.
 			</description>
 		</method>
 		<method name="rawset">
@@ -59,7 +58,7 @@
 			<param index="0" name="key" type="Variant" />
 			<param index="1" name="value" type="Variant" />
 			<description>
-				Sets the value for the given key without invoking metatable's __newindex method.
+				Sets the value for the given key without invoking metatable's [code]__newindex[/code] method.
 			</description>
 		</method>
 		<method name="set">
@@ -88,10 +87,7 @@
 		<method name="to_array" qualifiers="const">
 			<return type="Array" />
 			<description>
-				Converts the Lua table to a Godot array.
-				Only elements with integer indices are included in the array.
-				The order of elements is preserved.
-
+				Converts the Lua table to a Godot array. Only elements with integer indices are included in the array. The order of elements is preserved.
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({

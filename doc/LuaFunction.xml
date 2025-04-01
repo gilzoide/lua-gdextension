@@ -17,7 +17,6 @@
         Arguments are passed directly to the function.
         If the function returns multiple values, they are packed into an array.
         If the function returns a single value, it is returned directly.
-
         [codeblocks]
         [gdscript]
         var add_function = lua_state.load_string("return function(a, b) return a + b end")
@@ -36,7 +35,6 @@
         Elements of [param arg_array] are passed as arguments to the function.
         If the function returns multiple values, they are packed into an array.
         If the function returns a single value, it is returned directly.
-
         [codeblocks]
         [gdscript]
         var add_function = lua_state.load_string("return function(a, b) return a + b end")

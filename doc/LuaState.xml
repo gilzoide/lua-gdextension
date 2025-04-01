@@ -5,8 +5,7 @@
     A Lua virtual machine instance.
   </brief_description>
   <description>
-    The LuaState class represents a Lua virtual machine instance. It provides methods to execute Lua
-    code, manage Lua tables, and interact with Lua's global environment.
+    The LuaState class represents a Lua virtual machine instance. It provides methods to execute Lua code, manage Lua tables, and interact with Lua's global environment.
   </description>
   <tutorials>
   </tutorials>
@@ -19,8 +18,8 @@
         [codeblocks]
         [gdscript]
         var table = lua_state.create_table({
-        "foo": "bar",
-        "baz": 42
+            "foo": "bar",
+            "baz": 42
         })
         [/gdscript]
         [/codeblocks]
@@ -81,7 +80,7 @@
       <param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true"
         default="262143" />
       <description>
-        Opens specified Lua libraries. See [enum Library] for available options.
+        Opens specified Lua libraries. See [enum Library] for available options. 
         By default, opens all libraries. LUA_BASE must be included when opening other libraries.
         [codeblocks]
         [gdscript]
@@ -112,8 +111,7 @@
   <constants>
     <constant name="LUA_BASE" value="1" enum="Library" is_bitfield="true">
       Lua base library.
-      Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua
-      functions.
+      Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua functions.
     </constant>
     <constant name="LUA_PACKAGE" value="2" enum="Library" is_bitfield="true">
       Lua package library.
