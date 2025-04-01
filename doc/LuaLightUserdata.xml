@@ -4,9 +4,6 @@
     Represents a Lua light userdata object.
   </brief_description>
   <description>
-    The LuaLightUserdata class encapsulates a Lua light userdata value.
-    Light userdata is a raw pointer value stored in Lua without any associated metatable or memory management.
-    It is typically used to store C/C++ pointers in Lua scripts.
   </description>
   <tutorials>
   </tutorials>

@@ -32,12 +32,9 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Executes Lua code from a file.
-        [param filename] Supports both absolute and relative paths. Defaults to searching in the
-        "res://" directory.
-        [param buffer_size] Determines the number of bytes read per file operation. Larger values
-        use more memory but reduce read operations.
-        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are
-        compilation errors.
+        [param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
+        [param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
+        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
       </description>
     </method>
     <method name="do_string">
@@ -47,8 +44,7 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Executes Lua code from a string.
-        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are
-        compilation errors.
+        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
       </description>
     </method>
     <method name="load_file">
@@ -58,10 +54,8 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Loads Lua code from a file and returns it as a [LuaFunction].
-        [param filename] Supports both absolute and relative paths. Defaults to searching in the
-        "res://" directory.
-        [param buffer_size] Determines the number of bytes read per file operation. Larger values
-        use more memory but reduce read operations.
+        [param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
+        [param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
         Returns a [LuaError] if there are compilation errors.
       </description>
     </method>
@@ -110,75 +104,49 @@
   </members>
   <constants>
     <constant name="LUA_BASE" value="1" enum="Library" is_bitfield="true">
-      Lua base library.
-      Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua functions.
+      Lua base library. Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua functions.
     </constant>
     <constant name="LUA_PACKAGE" value="2" enum="Library" is_bitfield="true">
-      Lua package library.
-      Adds the [code]package[/code] table to _G.
-      Includes [code]preload[/code], [code]searchpath[/code], and [code]path[/code].
+      Lua package library. Adds the [code]package[/code] table to _G. Includes [code]preload[/code], [code]searchpath[/code], and [code]path[/code].
     </constant>
     <constant name="LUA_COROUTINE" value="4" enum="Library" is_bitfield="true">
-      Lua coroutine library.
-      Adds the [code]coroutine[/code] table to _G.
-      Includes [code]yield[/code], [code]resume[/code], and [code]wrap[/code].
+      Lua coroutine library. Adds the [code]coroutine[/code] table to _G. Includes [code]yield[/code], [code]resume[/code], and [code]wrap[/code].
     </constant>
     <constant name="LUA_STRING" value="8" enum="Library" is_bitfield="true">
-      Lua string library.
-      Adds the [code]string[/code] table to _G.
-      Includes [code]byte[/code], [code]find[/code], [code]format[/code], and [code]len[/code].
+      Lua string library. Adds the [code]string[/code] table to _G. Includes [code]byte[/code], [code]find[/code], [code]format[/code], and [code]len[/code].
     </constant>
     <constant name="LUA_OS" value="16" enum="Library" is_bitfield="true">
-      Lua OS library.
-      Adds the [code]os[/code] table to _G.
-      Includes [code]clock[/code], [code]execute[/code], and [code]getenv[/code].
+      Lua OS library. Adds the [code]os[/code] table to _G. Includes [code]clock[/code], [code]execute[/code], and [code]getenv[/code].
     </constant>
     <constant name="LUA_MATH" value="32" enum="Library" is_bitfield="true">
-      Lua math library.
-      Adds the [code]math[/code] table to _G.
-      Includes [code]abs[/code], [code]pi[/code], [code]tan[/code], and [code]cos[/code].
+      Lua math library. Adds the [code]math[/code] table to _G. Includes [code]abs[/code], [code]pi[/code], [code]tan[/code], and [code]cos[/code].
     </constant>
     <constant name="LUA_TABLE" value="64" enum="Library" is_bitfield="true">
-      Lua table library.
-      Adds the [code]table[/code] table to _G.
-      Includes [code]insert[/code], [code]move[/code], and [code]remove[/code].
+      Lua table library. Adds the [code]table[/code] table to _G. Includes [code]insert[/code], [code]move[/code], and [code]remove[/code].
     </constant>
     <constant name="LUA_DEBUG" value="128" enum="Library" is_bitfield="true">
-      Lua debug library.
-      Adds the [code]debug[/code] table to _G.
-      Includes [code]traceback[/code], [code]debug[/code], and [code]upvalueid[/code].
+      Lua debug library. Adds the [code]debug[/code] table to _G. Includes [code]traceback[/code], [code]debug[/code], and [code]upvalueid[/code].
     </constant>
     <constant name="LUA_BIT32" value="256" enum="Library" is_bitfield="true">
-      Lua bit32 library.
-      Adds the [code]bit32[/code] table to _G.
-      Includes [code]band[/code] and [code]bor[/code].
-      [b]Note: Lua 5.4 has built-in bit operators and removed this library.[/b]
+      Lua bit32 library. Adds the [code]bit32[/code] table to _G. Includes [code]band[/code] and [code]bor[/code]. [b]Note: Lua 5.4 has built-in bit operators and removed this library.[/b]
     </constant>
     <constant name="LUA_IO" value="512" enum="Library" is_bitfield="true">
-      Lua IO library.
-      Adds the [code]io[/code] table to _G.
-      Includes [code]open[/code], [code]close[/code], and [code]write[/code].
+      Lua IO library. Adds the [code]io[/code] table to _G. Includes [code]open[/code], [code]close[/code], and [code]write[/code].
     </constant>
     <constant name="LUA_FFI" value="1024" enum="Library" is_bitfield="true">
-      LuaJIT FFI library.
-      [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
+      LuaJIT FFI library. [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
     </constant>
     <constant name="LUA_JIT" value="2048" enum="Library" is_bitfield="true">
-      LuaJIT library.
-      [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
+      LuaJIT library. [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
     </constant>
     <constant name="LUA_UTF8" value="4096" enum="Library" is_bitfield="true">
-      Lua UTF8 library.
-      Adds the [code]utf8[/code] table to _G.
-      Includes [code]char[/code] and [code]len[/code].
+      Lua UTF8 library. Adds the [code]utf8[/code] table to _G. Includes [code]char[/code] and [code]len[/code].
     </constant>
     <constant name="LUA_ALL_LIBS" value="8191" enum="Library" is_bitfield="true">
-      Opens all Lua libraries.
-      Equivalent to combining all Lua library flags.
+      Opens all Lua libraries. Equivalent to combining all Lua library flags.
     </constant>
     <constant name="GODOT_VARIANT" value="8192" enum="Library" is_bitfield="true">
-      Godot variant library.
-      Adds Godot Variant types like [AABB], [Vector3], and [Basis] to _G.
+      Godot variant library. Adds Godot Variant types like [AABB], [Vector3], and [Basis] to _G.
       [codeblocks]
       [gdscript]
       var lua_state = LuaState.new()
@@ -193,16 +161,14 @@
       [/codeblocks]
     </constant>
     <constant name="GODOT_UTILITY_FUNCTIONS" value="16384" enum="Library" is_bitfield="true">
-      Godot utility functions library.
-      Adds Godot utility functions like [code]print[/code] and [code]abs[/code] to _G.
+      Godot utility functions library. Adds Godot utility functions like [code]print[/code] and [code]abs[/code] to _G.
       [b]Note: This may override some Lua functions like [code]print[/code].[/b]
     </constant>
     <constant name="GODOT_SINGLETONS" value="32768" enum="Library" is_bitfield="true">
       Godot singletons library.
     </constant>
     <constant name="GODOT_CLASSES" value="65536" enum="Library" is_bitfield="true">
-      Godot classes library.
-      Adds Godot classes like [Node] to _G.
+      Godot classes library. Adds Godot classes like [Node] to _G.
       [codeblocks]
       [gdscript]
       var lua_state = LuaState.new()
@@ -218,12 +184,10 @@
       [/codeblocks]
     </constant>
     <constant name="GODOT_ENUMS" value="131072" enum="Library" is_bitfield="true">
-      Godot enums library.
-      Adds all Godot enums from [@GlobalScope] to _G.
+      Godot enums library. Adds all Godot enums from [@GlobalScope] to _G.
     </constant>
     <constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
-      Opens all Godot libraries.
-      Equivalent to combining all Godot library flags.
+      Opens all Godot libraries. Equivalent to combining all Godot library flags.
     </constant>
   </constants>
 </class>
