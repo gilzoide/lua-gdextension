@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<class name="LuaState" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="LuaState" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
   <brief_description>
     A Lua virtual machine instance.
   </brief_description>
   <description>
-    The LuaState class represents a Lua virtual machine instance. It provides methods to execute Lua code, manage Lua tables, and interact with Lua's global environment.
+    The LuaState class represents a Lua virtual machine instance. It provides methods to execute Lua
+    code, manage Lua tables, and interact with Lua's global environment.
   </description>
   <tutorials>
   </tutorials>
@@ -17,8 +19,8 @@
         [codeblocks]
         [gdscript]
         var table = lua_state.create_table({
-            "foo": "bar",
-            "baz": 42
+        "foo": "bar",
+        "baz": 42
         })
         [/gdscript]
         [/codeblocks]
@@ -31,9 +33,12 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Executes Lua code from a file.
-        [param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
-        [param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
-        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
+        [param filename] Supports both absolute and relative paths. Defaults to searching in the
+        "res://" directory.
+        [param buffer_size] Determines the number of bytes read per file operation. Larger values
+        use more memory but reduce read operations.
+        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are
+        compilation errors.
       </description>
     </method>
     <method name="do_string">
@@ -43,7 +48,8 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Executes Lua code from a string.
-        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
+        Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are
+        compilation errors.
       </description>
     </method>
     <method name="load_file">
@@ -53,8 +59,10 @@
       <param index="2" name="env" type="LuaTable" default="null" />
       <description>
         Loads Lua code from a file and returns it as a [LuaFunction].
-        [param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
-        [param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
+        [param filename] Supports both absolute and relative paths. Defaults to searching in the
+        "res://" directory.
+        [param buffer_size] Determines the number of bytes read per file operation. Larger values
+        use more memory but reduce read operations.
         Returns a [LuaError] if there are compilation errors.
       </description>
     </method>
@@ -70,7 +78,8 @@
     </method>
     <method name="open_libraries">
       <return type="void" />
-      <param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" default="262143" />
+      <param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true"
+        default="262143" />
       <description>
         Opens specified Lua libraries. See [enum Library] for available options.
         By default, opens all libraries. LUA_BASE must be included when opening other libraries.
@@ -103,7 +112,8 @@
   <constants>
     <constant name="LUA_BASE" value="1" enum="Library" is_bitfield="true">
       Lua base library.
-      Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua functions.
+      Includes [code]_G[/code], [code]print[/code], [code]load[/code], and other basic Lua
+      functions.
     </constant>
     <constant name="LUA_PACKAGE" value="2" enum="Library" is_bitfield="true">
       Lua package library.
@@ -172,8 +182,16 @@
       Godot variant library.
       Adds Godot Variant types like [AABB], [Vector3], and [Basis] to _G.
       [codeblocks]
+      [gdscript]
+      var lua_state = LuaState.new()
+      lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_VARIANT)
+      var vec3 = lua_state.do_string("""
       -- Create a Vector3 in Lua
-      local vec3 = Vector3.new()
+      local vec3 = Vector3(1, 2, 3)
+      return vec3
+      """)
+      print(vec3) # Prints "Vector3(1.0, 2.0, 3.0)"
+      [/gdscript]
       [/codeblocks]
     </constant>
     <constant name="GODOT_UTILITY_FUNCTIONS" value="16384" enum="Library" is_bitfield="true">
@@ -188,8 +206,17 @@
       Godot classes library.
       Adds Godot classes like [Node] to _G.
       [codeblocks]
+      [gdscript]
+      var lua_state = LuaState.new()
+      lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_CLASSES)
+      var vec3 = lua_state.do_string("""
       -- Create a Node in Lua
-      local node = Node.new()
+      local node = Node:new()
+      return node
+      """)
+      if node is Node:
+      print("Node created successfully")
+      [/gdscript]
       [/codeblocks]
     </constant>
     <constant name="GODOT_ENUMS" value="131072" enum="Library" is_bitfield="true">
