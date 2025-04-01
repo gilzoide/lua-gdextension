@@ -186,10 +186,10 @@
       var lua_state = LuaState.new()
       lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_VARIANT)
       var vec3 = lua_state.do_string("""
-      -- Create a Vector3 in Lua
-      local vec3 = Vector3(1, 2, 3)
-      return vec3
-      """)
+          -- Create a Vector3 in Lua
+          local vec3 = Vector3(1, 2, 3)
+          return vec3
+          """)
       print(vec3) # Prints "Vector3(1.0, 2.0, 3.0)"
       [/gdscript]
       [/codeblocks]
@@ -210,12 +210,12 @@
       var lua_state = LuaState.new()
       lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_CLASSES)
       var vec3 = lua_state.do_string("""
-      -- Create a Node in Lua
-      local node = Node:new()
-      return node
-      """)
+          -- Create a Node in Lua
+          local node = Node:new()
+          return node
+          """)
       if node is Node:
-      print("Node created successfully")
+          print("Node created successfully")
       [/gdscript]
       [/codeblocks]
     </constant>
