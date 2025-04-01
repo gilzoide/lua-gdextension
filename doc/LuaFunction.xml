@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaFunction" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
   <brief_description>
+    A Lua function object that can be called from GDScript.
   </brief_description>
   <description>
+    The LuaFunction class represents a Lua function that can be invoked from GDScript. 
+    It provides methods to call the function with arguments and handle return values.
   </description>
   <tutorials>
   </tutorials>
@@ -10,12 +13,38 @@
     <method name="invoke" qualifiers="const vararg">
       <return type="Variant" />
       <description>
+        Calls the Lua function with the provided arguments.
+        Arguments are passed directly to the function.
+        If the function returns multiple values, they are packed into an array.
+        If the function returns a single value, it is returned directly.
+
+        [codeblocks]
+        [gdscript]
+        var add_function = lua_state.load_string("return function(a, b) return a + b end")
+        # Call function using invoke
+        var result = add_function.invoke(1, 2)
+        print(result) # Prints 3
+        [/gdscript]
+        [/codeblocks]
       </description>
     </method>
     <method name="invokev">
       <return type="Variant" />
       <param index="0" name="arg_array" type="Array" />
       <description>
+        Calls the Lua function with arguments provided in an array.
+        Elements of [param arg_array] are passed as arguments to the function.
+        If the function returns multiple values, they are packed into an array.
+        If the function returns a single value, it is returned directly.
+
+        [codeblocks]
+        [gdscript]
+        var add_function = lua_state.load_string("return function(a, b) return a + b end")
+        # Call function using invokev
+        var result = add_function.invokev([1, 2])
+        print(result) # Prints 3
+        [/gdscript]
+        [/codeblocks]
       </description>
     </method>
   </methods>

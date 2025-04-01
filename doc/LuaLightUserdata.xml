@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaLightUserdata" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
-	<brief_description>
-	</brief_description>
-	<description>
-	</description>
-	<tutorials>
-	</tutorials>
+  <brief_description>
+    Represents a Lua light userdata object.
+  </brief_description>
+  <description>
+    The LuaLightUserdata class encapsulates a Lua light userdata value.
+    Light userdata is a raw pointer value stored in Lua without any associated metatable or memory management.
+    It is typically used to store C/C++ pointers in Lua scripts.
+  </description>
+  <tutorials>
+  </tutorials>
 </class>
