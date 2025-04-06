@@ -24,7 +24,7 @@ jobs:
           - platform: windows
             packages: [g++-mingw-w64]
           - platform: android
-            scons-args: android_api_level=21 ANDROID_HOME=""
+            scons-args: android_api_level=21
         exclude:
           - platform: linux
             arch: arm64
@@ -43,6 +43,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install scons ${{ join(matrix.packages, ' ') }}
+      - name: Install Android NDK
+        uses: nttld/setup-ndk@v1
+        if: ${{ matrix.platform == 'android' }}
+        with:
+          ndk-version: r23c
+          link-to-sdk: true
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
