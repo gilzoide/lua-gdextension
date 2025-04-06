@@ -128,5 +128,7 @@ func _on_input_gui_input(event: InputEvent):
 	
 	if key_event.keycode == KEY_UP:
 		set_history(_current_history - 1)
+		get_viewport().set_input_as_handled()
 	elif key_event.keycode == KEY_DOWN:
 		set_history(_current_history + 1)
+		get_viewport().set_input_as_handled()

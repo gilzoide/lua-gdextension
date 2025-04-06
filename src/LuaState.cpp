@@ -21,6 +21,7 @@
  */
 #include "LuaState.hpp"
 
+#include "LuaFunction.hpp"
 #include "LuaTable.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
@@ -28,7 +29,10 @@
 #include "utils/module_names.hpp"
 
 #include <godot_cpp/core/binder_common.hpp>
-#include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/os.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <luaconf.h>
 
 namespace luagdextension {
 
@@ -124,27 +128,50 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_ENUMS)) {
 			lua_state.require(module_names::enums, &luaopen_godot_enums, false);
 		}
+		if (libraries.has_flag(GODOT_LOCAL_PATHS)) {
+			lua_state.require(module_names::local_paths, &luaopen_godot_local_paths, false);
+		}
 	}
+
+	lua_state.registry().set("_GDEXTENSION_OPEN_LIBS", lua_state.registry().get_or("_GDEXTENSION_OPEN_LIBS", 0) | libraries);
+}
+
+bool LuaState::are_libraries_opened(BitField<Library> libraries) const {
+	int64_t currently_opened_libs = lua_state.registry().get_or("_GDEXTENSION_OPEN_LIBS", 0L);
+	return (currently_opened_libs & libraries) == libraries;
 }
 
 Ref<LuaTable> LuaState::create_table(const Dictionary& initial_values) {
 	return memnew(LuaTable(to_table(lua_state, initial_values)));
 }
 
-Variant LuaState::load_string(const String& chunk, const String& chunkname, LuaTable *env) {
-	return ::luagdextension::load_string(lua_state, chunk, chunkname, env);
+Ref<LuaFunction> LuaState::create_function(const Callable& callable) {
+	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
+	return memnew(LuaFunction(to_lua_function(lua_state, callable)));
 }
 
-Variant LuaState::load_file(const String& filename, int buffer_size, LuaTable *env) {
-	return ::luagdextension::load_file(lua_state, filename, buffer_size, env);
+Variant LuaState::load_buffer(const PackedByteArray& chunk, const String& chunkname, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::load_buffer(lua_state, chunk, chunkname, (sol::load_mode) mode, env);
+}
+
+Variant LuaState::load_string(const String& chunk, const String& chunkname, LuaTable *env) {
+	return ::luagdextension::load_buffer(lua_state, chunk.to_utf8_buffer(), chunkname, sol::load_mode::text, env);
+}
+
+Variant LuaState::load_file(const String& filename, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::load_file(lua_state, filename, (sol::load_mode) mode, env);
+}
+
+Variant LuaState::do_buffer(const PackedByteArray& chunk, const String& chunkname, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::do_buffer(lua_state, chunk, chunkname, (sol::load_mode) mode, env);
 }
 
 Variant LuaState::do_string(const String& chunk, const String& chunkname, LuaTable *env) {
-	return ::luagdextension::do_string(lua_state, chunk, chunkname, env);
+	return ::luagdextension::do_buffer(lua_state, chunk.to_utf8_buffer(), chunkname, sol::load_mode::text, env);
 }
 
-Variant LuaState::do_file(const String& filename, int buffer_size, LuaTable *env) {
-	return ::luagdextension::do_file(lua_state, filename, buffer_size, env);
+Variant LuaState::do_file(const String& filename, LoadMode mode, LuaTable *env) {
+	return ::luagdextension::do_file(lua_state, filename, (sol::load_mode) mode, env);
 }
 
 LuaTable *LuaState::get_globals() const {
@@ -153,6 +180,58 @@ LuaTable *LuaState::get_globals() const {
 
 LuaTable *LuaState::get_registry() const {
 	return memnew(LuaTable(lua_state.registry()));
+}
+
+String LuaState::get_package_path() const {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		return package->get<String>("path");
+	}
+	else {
+		ERR_FAIL_V_MSG("", "LUA_PACKAGE library is not opened");
+	}
+}
+
+String LuaState::get_package_cpath() const {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		return package->get<String>("cpath");
+	}
+	else {
+		ERR_FAIL_V_MSG("", "LUA_PACKAGE library is not opened");
+	}
+}
+
+void LuaState::set_package_path(const String& path) {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		package->set("path",
+			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
+		);
+	}
+	else {
+		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
+	}
+}
+
+void LuaState::set_package_cpath(const String& cpath) {
+	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
+		package->set("cpath",
+			cpath.replace(";;", LUA_PATH_SEP LUA_CPATH_DEFAULT LUA_PATH_SEP)
+				.rstrip(LUA_PATH_SEP)
+				.lstrip(LUA_PATH_SEP)
+				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
+		);
+	}
+	else {
+		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
+	}
+}
+
+String LuaState::get_lua_exec_dir() {
+	return Engine::get_singleton()->is_editor_hint()
+		? ProjectSettings::get_singleton()->globalize_path("res://")
+		: OS::get_singleton()->get_executable_path().get_base_dir();
 }
 
 LuaState *LuaState::find_lua_state(lua_State *L) {
@@ -181,27 +260,44 @@ void LuaState::_bind_methods() {
 	BIND_BITFIELD_FLAG(LUA_JIT);
 	BIND_BITFIELD_FLAG(LUA_UTF8);
 	BIND_BITFIELD_FLAG(LUA_ALL_LIBS);
-
 	BIND_BITFIELD_FLAG(GODOT_VARIANT);
 	BIND_BITFIELD_FLAG(GODOT_UTILITY_FUNCTIONS);
 	BIND_BITFIELD_FLAG(GODOT_SINGLETONS);
 	BIND_BITFIELD_FLAG(GODOT_CLASSES);
 	BIND_BITFIELD_FLAG(GODOT_ENUMS);
+	BIND_BITFIELD_FLAG(GODOT_LOCAL_PATHS);
 	BIND_BITFIELD_FLAG(GODOT_ALL_LIBS);
+	BIND_BITFIELD_FLAG(ALL_LIBS);
+
+	// LoadMode enum
+	BIND_ENUM_CONSTANT(LOAD_MODE_ANY);
+	BIND_ENUM_CONSTANT(LOAD_MODE_TEXT);
+	BIND_ENUM_CONSTANT(LOAD_MODE_BINARY);
 
 	// Methods
-	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(LUA_ALL_LIBS | GODOT_ALL_LIBS)));
+	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
+	ClassDB::bind_method(D_METHOD("are_libraries_opened", "libraries"), &LuaState::are_libraries_opened);
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
+	ClassDB::bind_method(D_METHOD("create_function", "callable"), &LuaState::create_function);
+	ClassDB::bind_method(D_METHOD("load_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::load_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("load_string", "chunk", "chunkname", "env"), &LuaState::load_string, DEFVAL(""), DEFVAL(nullptr));
-	ClassDB::bind_method(D_METHOD("load_file", "filename", "buffer_size", "env"), &LuaState::load_file, DEFVAL(1024), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("load_file", "filename", "mode", "env"), &LuaState::load_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::do_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname", "env"), &LuaState::do_string, DEFVAL(""), DEFVAL(nullptr));
-	ClassDB::bind_method(D_METHOD("do_file", "filename", "buffer_size", "env"), &LuaState::do_file, DEFVAL(1024), DEFVAL(nullptr));
+	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+	ClassDB::bind_method(D_METHOD("get_package_path"), &LuaState::get_package_path);
+	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
+	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
+	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_exec_dir"), &LuaState::get_lua_exec_dir);
 
 	// Properties
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_path", "get_package_path");
+	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_cpath", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_cpath", "get_package_cpath");
 }
 
 LuaState::operator String() const {

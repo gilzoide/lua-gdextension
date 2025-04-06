@@ -1,5 +1,32 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.2.0...HEAD)
+### Added
+- Editor plugin that registers the Lua REPL tab, where you can try Lua code using an empty `LuaState`
+- Support for calling Godot String methods using Lua strings
+- Optional support for `res://` and `user://` relative paths in package searchers, `loadfile` and `dofile`.
+  Open the `GODOT_LOCAL_PATHS` library to activate this behavior.
+- `LuaState.LoadMode` enum for specifying the Lua load mode: text, binary or any
+- `LuaState.do_buffer` and `LuaState.load_buffer` methods for loading Lua code from possibly binary chunks
+- `LuaState.package_path` and `LuaState.package_cpath` properties for accessing the value of Lua's [`package.path`](https://www.lua.org/manual/5.4/manual.html#pdf-package.path) and [`package.cpath`](https://www.lua.org/manual/5.4/manual.html#pdf-package.cpath)
+- `LuaState.get_lua_exec_dir` static method to get the executable directory used to replace "!" when setting `package_path` and `package_cpath` properties.
+  When running in the Godot editor, it returns the globalized version of `res://` path.
+  Otherwise, it returns the base directory of the executable.
+- Advanced project settings for setting the `LuaScriptLanguage` state's `package_path` and `package_cpath` properties
+- `LuaState.are_libraries_opened` method for checking if a subset of libraries were already opened
+- `LuaState.create_function` method for creating a `LuaFunction` from a `Callable`
+
+### Changed
+- The GDExtension is now marked as reloadable
+- Renamed `LuaCoroutine::LuaCoroutineStatus` to `LuaCoroutine::Status`
+- `LuaState.load_file` and `LuaState.do_file` now receive the load mode instead of buffer size
+- `Callable` values when passed to Lua are wrapped as Lua functions when `GODOT_VARIANT` library is not opened, making it possible to call them in sandboxed environments
+
+### Removed
+- `VariantType::has_static_method` internal method
+
+### Fixed
+- Bind `LuaCoroutine::status` property with correct enum type
+- Bind `LuaError::status` property as int with correct enum type
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)

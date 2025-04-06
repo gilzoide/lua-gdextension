@@ -163,9 +163,7 @@ sol::object variant__call(sol::this_state state, const Variant& variant, sol::va
 	if (variant.get_type() != Variant::CALLABLE) {
 		luaL_error(state, "attempt to call a %s value", get_type_name(variant).ascii().get_data());
 	}
-	Callable callable = variant;
-	VariantArguments var_args = args;
-	Variant result = callable.callv(var_args.get_array());
+	Variant result = callable_call(variant, args);
 	return to_lua(state, result);
 }
 
@@ -223,7 +221,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::length, &variant__length,
 		sol::meta_function::concatenation, &variant__concat,
 		sol::meta_function::pairs, &variant__pairs,
-		sol::meta_function::to_string, &Variant::operator String
+		sol::meta_function::to_string, &Variant::stringify
 	);
 
 	MethodBindByName::register_usertype(state);
@@ -236,6 +234,8 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 	state.set("int", VariantType(Variant::INT));
 	state.set("float", VariantType(Variant::FLOAT));
 	state.set("String", VariantType(Variant::STRING));
+	// Add String methods as a fallback for Lua strings
+	state.do_string("if string then setmetatable(string, { __index = String }) end");
 
 	// math types
 	state.set("Vector2", VariantType(Variant::VECTOR2));

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#ifdef DEBUG_ENABLED
+
 #include <godot_cpp/core/error_macros.hpp>
 
 #include "custom_sol.hpp"
@@ -27,19 +29,20 @@
 
 namespace luagdextension {
 
-StackTopChecker::StackTopChecker(lua_State *L)
+StackTopChecker::StackTopChecker(lua_State *L, int expected_extra_values)
 	: L(L)
+	, expected_extra_values(expected_extra_values)
 	, previous_top(lua_gettop(L))
 {
 }
 
 StackTopChecker::~StackTopChecker() {
-#ifdef DEBUG_ENABLED
 	int top = lua_gettop(L);
-	if (top != previous_top) {
-		ERR_PRINT(String("Invalid stack top, expected %d, found %d") % Array::make(previous_top, top));
+	if (top != previous_top + expected_extra_values) {
+		ERR_PRINT(String("Invalid stack top, expected %d, found %d") % Array::make(previous_top + expected_extra_values, top));
 	}
-#endif
 }
 
 }
+
+#endif
