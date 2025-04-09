@@ -9,10 +9,11 @@
 	<tutorials>
 	</tutorials>
 	<methods>
-		<method name="are_libraries_opened" qualifiers="const vararg">
+		<method name="are_libraries_opened" qualifiers="const">
 			<return type="bool" />
 			<param index="0" enum="LuaState.Library" is_bitfield="true" default="null" />
 			<description>
+        TODO
 			</description>
 		</method>
 		<method name="create_table">
