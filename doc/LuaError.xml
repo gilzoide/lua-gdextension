@@ -1,46 +1,46 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <class name="LuaError" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
-  <brief_description>
-    Represents an error that occurred during Lua execution.
-  </brief_description>
-  <description>
-    The LuaError class encapsulates information about errors that occur during Lua script execution.
-    It provides details about the error type and a descriptive message.
-  </description>
-  <tutorials>
-  </tutorials>
-  <members>
-    <member name="message" type="String" setter="set_message" getter="get_message" default="&quot;&quot;">
-      The error message describing what went wrong.
-    </member>
-    <member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="818921600">
-      The error status code indicating the type of error.
-    </member>
-  </members>
-  <constants>
-    <constant name="OK" value="0" enum="Status">
-      No error occurred.
-    </constant>
-    <constant name="YIELDED" value="1" enum="Status">
-      The operation yielded (normal state for coroutines).
-    </constant>
-    <constant name="RUNTIME" value="2" enum="Status">
-      A runtime error occurred.
-    </constant>
-    <constant name="MEMORY" value="4" enum="Status">
-      A memory allocation error occurred.
-    </constant>
-    <constant name="HANDLER" value="5" enum="Status">
-      An error occurred while running the error handler.
-    </constant>
-    <constant name="GC" value="7" enum="Status">
-      An error occurred during garbage collection.
-    </constant>
-    <constant name="SYNTAX" value="3" enum="Status">
-      A syntax error occurred during compilation.
-    </constant>
-    <constant name="FILE" value="6" enum="Status">
-      An error occurred while handling a file operation.
-    </constant>
-  </constants>
+	<brief_description>
+		Represents an error that occurred during Lua execution.
+	</brief_description>
+	<description>
+		The LuaError class encapsulates information about errors that occur during Lua script execution.
+		It provides details about the error type and a descriptive message.
+	</description>
+	<tutorials>
+	</tutorials>
+	<members>
+		<member name="message" type="String" setter="set_message" getter="get_message" default="&quot;&quot;">
+			The error message describing what went wrong.
+		</member>
+		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="818921600">
+			The error status code indicating the type of error.
+		</member>
+	</members>
+	<constants>
+		<constant name="OK" value="0" enum="Status">
+			No error occurred.
+		</constant>
+		<constant name="YIELDED" value="1" enum="Status">
+			The operation yielded (normal state for coroutines).
+		</constant>
+		<constant name="RUNTIME" value="2" enum="Status">
+			A runtime error occurred.
+		</constant>
+		<constant name="MEMORY" value="4" enum="Status">
+			A memory allocation error occurred.
+		</constant>
+		<constant name="HANDLER" value="5" enum="Status">
+			An error occurred while running the error handler.
+		</constant>
+		<constant name="GC" value="7" enum="Status">
+			An error occurred during garbage collection.
+		</constant>
+		<constant name="SYNTAX" value="3" enum="Status">
+			A syntax error occurred during compilation.
+		</constant>
+		<constant name="FILE" value="6" enum="Status">
+			An error occurred while handling a file operation.
+		</constant>
+	</constants>
 </class>
