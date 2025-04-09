@@ -11,9 +11,14 @@
 	<methods>
 		<method name="are_libraries_opened" qualifiers="const">
 			<return type="bool" />
-			<param index="0" enum="LuaState.Library" is_bitfield="true" default="null" />
+			<param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" />
 			<description>
-        TODO
+			</description>
+		</method>
+		<method name="create_function">
+			<return type="LuaFunction" />
+			<param index="0" name="callable" type="Callable" />
+			<description>
 			</description>
 		</method>
 		<method name="create_table">
@@ -24,34 +29,26 @@
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
-				"foo": "bar",
-				"baz": 42
+				    "foo": "bar",
+				    "baz": 42
 				})
 				[/gdscript]
 				[/codeblocks]
 			</description>
 		</method>
-		<method name="create_function">
-			<return type="LuaFunction" />
-			<param index="0" name="callable" type="Callable" />
-			<description>
-				TODO
-			</description>
-		</method>
 		<method name="do_buffer">
 			<return type="Variant" />
 			<param index="0" name="chunk" type="PackedByteArray" />
-			<param index="1" name="chunkname" type="int" default="" />
-			<param index="2" name="mode" type="LuaState.LoadMode" default="LuaState.LOAD_MODE_ANY" />
+			<param index="1" name="chunkname" type="String" default="&quot;&quot;" />
+			<param index="2" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="3" name="env" type="LuaTable" default="null" />
 			<description>
-				TODO
 			</description>
 		</method>
 		<method name="do_file">
 			<return type="Variant" />
 			<param index="0" name="filename" type="String" />
-			<param index="1" name="buffer_size" type="int" default="1024" />
+			<param index="1" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="2" name="env" type="LuaTable" default="null" />
 			<description>
 				Executes Lua code from a file.
@@ -73,23 +70,21 @@
 		<method name="get_lua_exec_dir" qualifiers="static">
 			<return type="String" />
 			<description>
-				TODO
 			</description>
 		</method>
 		<method name="load_buffer">
 			<return type="Variant" />
 			<param index="0" name="chunk" type="PackedByteArray" />
-			<param index="1" name="chunkname" type="String" default="" />
-			<param index="2" name="mode" type="LuaState.LoadMode" default="LuaState.LOAD_MODE_ANY" />
+			<param index="1" name="chunkname" type="String" default="&quot;&quot;" />
+			<param index="2" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="3" name="env" type="LuaTable" default="null" />
 			<description>
-				TODO
 			</description>
 		</method>
 		<method name="load_file">
 			<return type="Variant" />
 			<param index="0" name="filename" type="String" />
-			<param index="1" name="buffer_size" type="int" default="1024" />
+			<param index="1" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="2" name="env" type="LuaTable" default="null" />
 			<description>
 				Loads Lua code from a file and returns it as a [LuaFunction].
@@ -110,7 +105,7 @@
 		</method>
 		<method name="open_libraries">
 			<return type="void" />
-			<param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" default="262143" />
+			<param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" default="524287" />
 			<description>
 				Opens specified Lua libraries. See [enum Library] for available options.
 				By default, opens all libraries. LUA_BASE must be included when opening other libraries.
@@ -134,16 +129,14 @@
 			Returns the _G table of the LuaState.
 			The _G table is the global table accessible to Lua scripts.
 		</member>
+		<member name="package_cpath" type="String" setter="set_package_cpath" getter="get_package_cpath">
+		</member>
+		<member name="package_path" type="String" setter="set_package_path" getter="get_package_path">
+		</member>
 		<member name="registry" type="LuaTable" setter="" getter="get_registry">
 			Returns the registry table of the LuaState.
 			The registry table is private and not accessible to Lua scripts.
 			Can be used in GDScript.
-		</member>
-		<member name="package_path" type="String" setter="set_package_path" getter="get_package_path">
-			TODO
-		</member>
-		<member name="package_cpath" type="String" setter="set_package_cpath" getter="get_package_cpath">
-			TODO
 		</member>
 	</members>
 	<constants>
@@ -233,14 +226,11 @@
 		<constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
 			Opens all Godot libraries. Equivalent to combining all Godot library flags.
 		</constant>
-		<constant name="LOAD_MODE_ANY" value="0" enum="LuaState.LoadMode">
-			TODO
+		<constant name="LOAD_MODE_ANY" value="0" enum="LoadMode">
 		</constant>
-		<constant name="LOAD_MODE_TEXT" value="1" enum="LuaState.LoadMode">
-			TODO
+		<constant name="LOAD_MODE_TEXT" value="1" enum="LoadMode">
 		</constant>
-		<constant name="LOAD_MODE_BINARY" value="2" enum="LuaState.LoadMode">
-			TODO
+		<constant name="LOAD_MODE_BINARY" value="2" enum="LoadMode">
 		</constant>
 	</constants>
 </class>

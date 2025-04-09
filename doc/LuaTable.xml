@@ -24,8 +24,8 @@
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
-				"foo": "bar",
-				"baz": 42
+				    "foo": "bar",
+				    "baz": 42
 				})
 				# Using get method
 				var value = table.get("foo")
@@ -70,7 +70,7 @@
 				[gdscript]
 				var table = lua_state.create_table({
 				"foo": "bar",
-				"baz": 42
+				    "baz": 42
 				})
 				# Using set method
 				table.set("foo", "baz")
@@ -90,7 +90,7 @@
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
-				1, 2, 3, 4, 5, ["6"]="six", "end"
+				    1, 2, 3, 4, 5, ["6"]="six", "end"
 				})
 				var array = table.to_array()
 				print(array) # Prints [1, 2, 3, 4, 5, "end"]
@@ -105,8 +105,8 @@
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
-				"foo": "bar",
-				"baz": 42
+				    "foo": "bar",
+				    "baz": 42
 				})
 				var dict = table.to_dictionary()
 				print(dict) # Prints {"foo": "bar", "baz": 42}
