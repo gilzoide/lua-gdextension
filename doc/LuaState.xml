@@ -128,8 +128,9 @@
 				[gdscript]
 				# Assuming hello.lua contains: print("Hello!")
 				# .luac files are typically generated from .lua files using:
-				# luac -o <target_file>.luac <source_file>.lua
+				# luac -o target_file.luac source_file.lua
 				# Note: The Lua version used to generate .luac should match the library's version.
+				var buffer := FileAccess.get_file_as_bytes("res://hello.luac")
 				state.do_buffer(buffer, "", LuaState.LOAD_MODE_BINARY) # Prints Hello!
 				[/gdscript]
 				[/codeblocks]
