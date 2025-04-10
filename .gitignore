@@ -27,3 +27,4 @@ test/godot
 
 # Some IDE generated configuration files
 .vs/
+.vscode/
