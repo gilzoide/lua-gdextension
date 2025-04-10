@@ -275,7 +275,7 @@
 			    return node
 			""")
 			if node is Node:
-			print("Node created successfully")
+			    print("Node created successfully")
 			[/gdscript]
 			[/codeblocks]
 		</constant>
