@@ -282,6 +282,22 @@
 		<constant name="GODOT_ENUMS" value="131072" enum="Library" is_bitfield="true">
 			Godot enums library. Adds all Godot enums from [@GlobalScope] to _G.
 		</constant>
+		<constant name="GODOT_LOCAL_PATHS" value="262144" enum="Library" is_bitfield="true">
+			Adds support for Godot-specific local paths like [code]res://[/code] and [code]user://[/code] in Lua's package searchers, [code]loadfile[/code], and [code]dofile[/code].
+			When this library is opened, Lua scripts can use Godot's local paths to load files, making it easier to integrate with Godot's file system.
+			[codeblocks]
+			[gdscript]
+			var state = LuaState.new()
+			state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_LOCAL_PATHS)
+			var say = state.do_string("""
+			    -- Load a Lua file from the "res://" directory
+			    local module = dofile("res://scripts/welcome.lua")
+			    return module.say_hello()
+			""")
+			print(say)
+			[/gdscript]
+			[/codeblocks]
+		</constant>
 		<constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
 			Opens all Godot libraries. Equivalent to combining all Godot library flags.
 		</constant>
