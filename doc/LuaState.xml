@@ -4,7 +4,7 @@
 		A Lua virtual machine instance.
 	</brief_description>
 	<description>
-		The LuaState class represents a Lua virtual machine instance. It provides methods to execute Lua code, manage Lua tables, and interact with Lua's global environment.
+		The LuaState class is a Lua virtual machine instance. It provides methods to execute Lua code, manage Lua tables, and interact with Lua's global environment.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -13,12 +13,23 @@
 			<return type="bool" />
 			<param index="0" name="libraries" type="int" enum="LuaState.Library" is_bitfield="true" />
 			<description>
+				Checks if the specified [param libraries] are opened.
 			</description>
 		</method>
 		<method name="create_function">
 			<return type="LuaFunction" />
 			<param index="0" name="callable" type="Callable" />
 			<description>
+				Creates and returns a new [LuaFunction] from the given [Callable]. This method does not require any [enum Library] to be opened.
+				[codeblocks]
+				[gdscript]
+				var state := LuaState.new()
+				state.globals["say"] = state.create_function(func():
+				    print("hello!")
+				)
+				state.do_string("say()") # Prints "hello!"
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 		<method name="create_table">
@@ -43,6 +54,34 @@
 			<param index="2" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="3" name="env" type="LuaTable" default="null" />
 			<description>
+				Executes Lua code from a byte array.
+				[param chunk] is the Lua code in byte array format.
+				[param chunkname] is the name of the chunk, used in error messages and debug information.
+				[param mode] specifies the loading mode, which can be [constant LOAD_MODE_ANY], [constant LOAD_MODE_TEXT], or [constant LOAD_MODE_BINARY].
+				Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
+				[codeblocks]
+				[gdscript]
+				var str := """
+			        local data = {
+				        attack_point = 1,
+				        life_point = 10
+				    }
+				    return data
+				"""
+				var buffer := str.to_utf8_buffer() # Let's do a simulation here
+				var data = state.do_buffer(buffer, "", LuaState.LoadMode.LOAD_MODE_TEXT)
+				print(data.to_dictionary()) # Prints { "attack_point": 1, "life_point": 10 }
+				[/gdscript]
+				[/codeblocks]
+				[codeblocks]
+				[gdscript]
+				# Assuming hello.lua contains: print("Hello!")
+				# .luac files are typically generated from .lua files using:
+				# luac -o <target_file>.luac <source_file>.lua
+				# Note: The Lua version used to generate .luac should match the library's version.
+				state.do_file("hello.luac", LuaState.LOAD_MODE_BINARY) # Prints Hello!
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 		<method name="do_file">
@@ -70,6 +109,7 @@
 		<method name="get_lua_exec_dir" qualifiers="static">
 			<return type="String" />
 			<description>
+				Returns the directory where the Lua executable is located.
 			</description>
 		</method>
 		<method name="load_buffer">
@@ -79,6 +119,19 @@
 			<param index="2" name="mode" type="int" enum="LuaState.LoadMode" default="0" />
 			<param index="3" name="env" type="LuaTable" default="null" />
 			<description>
+				Loads Lua code from a byte array and returns it as a [LuaFunction].
+				[param chunk] is the Lua code in byte array format.
+				[param chunkname] is the name of the chunk, used in error messages and debug information.
+				[param mode] specifies the loading mode, which can be [constant LOAD_MODE_ANY], [constant LOAD_MODE_TEXT], or [constant LOAD_MODE_BINARY].
+				[codeblocks]
+				[gdscript]
+				# Assuming hello.lua contains: print("Hello!")
+				# .luac files are typically generated from .lua files using:
+				# luac -o <target_file>.luac <source_file>.lua
+				# Note: The Lua version used to generate .luac should match the library's version.
+				state.do_buffer(buffer, "", LuaState.LOAD_MODE_BINARY) # Prints Hello!
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 		<method name="load_file">
@@ -130,13 +183,16 @@
 			The _G table is the global table accessible to Lua scripts.
 		</member>
 		<member name="package_cpath" type="String" setter="set_package_cpath" getter="get_package_cpath">
+			The search path for Lua C extension modules. Equivalent to Lua's [code]package.cpath[/code] variable.
+			When you use the [code]require[/code] function to load a C extension module, Lua searches the paths defined in [code]package.cpath[/code].
 		</member>
 		<member name="package_path" type="String" setter="set_package_path" getter="get_package_path">
+			The search path for Lua modules. Equivalent to Lua's [code]package.path[/code] variable.
+			When you use the [code]require[/code] function to load a Lua module, Lua searches the paths defined in [code]package.path[/code].
 		</member>
 		<member name="registry" type="LuaTable" setter="" getter="get_registry">
 			Returns the registry table of the LuaState.
 			The registry table is private and not accessible to Lua scripts.
-			Can be used in GDScript.
 		</member>
 	</members>
 	<constants>
@@ -189,9 +245,9 @@
 			var lua_state = LuaState.new()
 			lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_VARIANT)
 			var vec3 = lua_state.do_string("""
-			-- Create a Vector3 in Lua
-			local vec3 = Vector3(1, 2, 3)
-			return vec3
+			    -- Create a Vector3 in Lua
+			    local vec3 = Vector3(1, 2, 3)
+			    return vec3
 			""")
 			print(vec3) # Prints "Vector3(1.0, 2.0, 3.0)"
 			[/gdscript]
@@ -211,9 +267,9 @@
 			var lua_state = LuaState.new()
 			lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_CLASSES)
 			var vec3 = lua_state.do_string("""
-			-- Create a Node in Lua
-			local node = Node:new()
-			return node
+			    -- Create a Node in Lua
+			    local node = Node:new()
+			    return node
 			""")
 			if node is Node:
 			print("Node created successfully")
@@ -227,10 +283,15 @@
 			Opens all Godot libraries. Equivalent to combining all Godot library flags.
 		</constant>
 		<constant name="LOAD_MODE_ANY" value="0" enum="LoadMode">
+			The loading mode automatically selects the appropriate mode based on the content.
 		</constant>
 		<constant name="LOAD_MODE_TEXT" value="1" enum="LoadMode">
+			This mode is used to load Lua source code.
 		</constant>
 		<constant name="LOAD_MODE_BINARY" value="2" enum="LoadMode">
+			This mode is used to load compiled Lua bytecode.
+			.luac files are typically generated from .lua files using: [code]luac -o <target_file>.luac <source_file>.lua[/code] .luac files contain the instruction set that the Lua virtual machine can execute directly, making them faster to load than source code files.
+			[b]Note: .luac files are typically generated for a specific Lua version and may require the same version to run.[/b]
 		</constant>
 	</constants>
 </class>
