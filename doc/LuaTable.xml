@@ -30,7 +30,7 @@
 				# Using get method
 				var value = table.get("foo")
 				print(value) # Prints "bar"
-				
+        
 				# Using [] operator
 				var value = table["foo"]
 				print(value) # Prints "bar"
@@ -69,7 +69,7 @@
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
-				"foo": "bar",
+				    "foo": "bar",
 				    "baz": 42
 				})
 				# Using set method
