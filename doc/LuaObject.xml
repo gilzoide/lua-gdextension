@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <class name="LuaObject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		Base class for all Lua objects in GDScript, except LuaState.
@@ -10,7 +10,6 @@
 		- Retrieve the pointer value of the Lua object
 	</description>
 	<tutorials>
-		<link title="Lua Integration Basics">https://example.com/lua-integration</link>
 	</tutorials>
 	<methods>
 		<method name="get_lua_state" qualifiers="const">
@@ -25,5 +24,5 @@
 				Returns the pointer value of the Lua object as an integer.
 			</description>
 		</method>
-	</methods>
+  </methods>
 </class>
