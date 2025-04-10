@@ -294,7 +294,7 @@
 			    local module = dofile("res://scripts/welcome.lua")
 			    return module.say_hello()
 			""")
-			print(say)
+			print(say) # Prints "Hello!"
 			[/gdscript]
 			[/codeblocks]
 		</constant>
