@@ -193,6 +193,7 @@
 		<member name="registry" type="LuaTable" setter="" getter="get_registry">
 			Returns the registry table of the LuaState.
 			The registry table is private and not accessible to Lua scripts.
+			Can be used in GDScript.
 		</member>
 	</members>
 	<constants>
