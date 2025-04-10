@@ -293,7 +293,7 @@
 		</constant>
 		<constant name="LOAD_MODE_BINARY" value="2" enum="LoadMode">
 			This mode is used to load compiled Lua bytecode.
-			.luac files are typically generated from .lua files using: [code]luac -o <target_file>.luac <source_file>.lua[/code] .luac files contain the instruction set that the Lua virtual machine can execute directly, making them faster to load than source code files.
+			.luac files are typically generated from .lua files using: [code]luac -o target_file.luac source_file.lua[/code] .luac files contain the instruction set that the Lua virtual machine can execute directly, making them faster to load than source code files.
 			[b]Note: .luac files are typically generated for a specific Lua version and may require the same version to run.[/b]
 		</constant>
 	</constants>
