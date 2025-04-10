@@ -62,7 +62,7 @@
 				[codeblocks]
 				[gdscript]
 				var str := """
-			        local data = {
+				    local data = {
 				        attack_point = 1,
 				        life_point = 10
 				    }
@@ -73,6 +73,7 @@
 				print(data.to_dictionary()) # Prints { "attack_point": 1, "life_point": 10 }
 				[/gdscript]
 				[/codeblocks]
+				Example using [constant LOAD_MODE_BINARY]
 				[codeblocks]
 				[gdscript]
 				# Assuming hello.lua contains: print("Hello!")
