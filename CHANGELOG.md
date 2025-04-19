@@ -20,6 +20,7 @@
 - Renamed `LuaCoroutine::LuaCoroutineStatus` to `LuaCoroutine::Status`
 - `LuaState.load_file` and `LuaState.do_file` now receive the load mode instead of buffer size
 - `Callable` values when passed to Lua are wrapped as Lua functions when `GODOT_VARIANT` library is not opened, making it possible to call them in sandboxed environments
+- Lua is now compiled as C++
 
 ### Removed
 - `VariantType::has_static_method` internal method
