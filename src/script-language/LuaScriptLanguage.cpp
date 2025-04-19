@@ -64,8 +64,8 @@ void LuaScriptLanguage::_init() {
 
 	// Global script methods LuaScriptInstance::rawget and LuaScriptInstance::rawset
 	sol::state_view state = lua_state->get_lua_state();	
-	state.registry()["LuaScriptInstance::rawget"] = wrap_function(&LuaScriptInstance::rawget);
-	state.registry()["LuaScriptInstance::rawset"] = wrap_function(&LuaScriptInstance::rawset);
+	state.registry()["LuaScriptInstance::rawget"] = wrap_function(state, &LuaScriptInstance::rawget);
+	state.registry()["LuaScriptInstance::rawset"] = wrap_function(state, &LuaScriptInstance::rawset);
 
 	// Register scripting specific usertypes
 	LuaScriptMethod::register_lua(state);
@@ -157,7 +157,7 @@ TypedArray<Dictionary> LuaScriptLanguage::_get_built_in_templates(const StringNa
 	base_template["origin"] = 0;
 	base_template["content"] =
 R"(local _CLASS_ = {
-	extends = _BASE_,
+_TS_extends = _BASE_,
 }
 
 return _CLASS_

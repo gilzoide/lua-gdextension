@@ -28,6 +28,7 @@
 ### Fixed
 - Bind `LuaCoroutine::status` property with correct enum type
 - Bind `LuaError::status` property as int with correct enum type
+- Crash when calling utility functions from Lua
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
