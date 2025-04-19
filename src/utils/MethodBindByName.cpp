@@ -35,6 +35,10 @@ const StringName& MethodBindByName::get_method_name() const {
 }
 
 sol::object MethodBindByName::call(sol::this_state state, const sol::stack_object& self, const sol::variadic_args& args) const {
+	if (self.get_type() == sol::type::none) {
+		luaL_error(state, "To call methods, use ':' instead of '.': `obj:%s(...)`", String(method_name).ascii().get_data());
+	}
+
 	if (self.is<VariantType>()) {
 		VariantType var_type = self.as<VariantType>();
 		return variant_static_call_string_name(state, var_type.get_type(), method_name, args);
@@ -48,10 +52,7 @@ sol::object MethodBindByName::call(sol::this_state state, const sol::stack_objec
 void MethodBindByName::register_usertype(sol::state_view& state) {
 	state.new_usertype<MethodBindByName>(
 		"MethodBindByName",
-		sol::call_constructor, sol::constructors<
-			MethodBindByName(const StringName&)
-		>(),
-		"call", &MethodBindByName::call,
+		sol::no_constructor,
 		sol::meta_function::call, &MethodBindByName::call,
 		sol::meta_function::to_string, &MethodBindByName::get_method_name
 	);
