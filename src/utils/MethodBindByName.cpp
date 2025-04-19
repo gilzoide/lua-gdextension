@@ -52,9 +52,7 @@ sol::object MethodBindByName::call(sol::this_state state, const sol::stack_objec
 void MethodBindByName::register_usertype(sol::state_view& state) {
 	state.new_usertype<MethodBindByName>(
 		"MethodBindByName",
-		sol::call_constructor, sol::constructors<
-			MethodBindByName(const StringName&)
-		>(),
+		sol::no_constructor,
 		sol::meta_function::call, &MethodBindByName::call,
 		sol::meta_function::to_string, &MethodBindByName::get_method_name
 	);
