@@ -20,8 +20,6 @@
  * SOFTWARE.
  */
 
-extern "C" {
-
 #ifdef LUA_USE_ANDROID
 	#define LUA_USE_LINUX
 #endif
@@ -34,5 +32,3 @@ extern "C" {
 #endif
 
 #include <onelua.c>
-
-}
