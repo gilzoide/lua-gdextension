@@ -52,7 +52,7 @@
 				        [2] = "B",
 				        name = "Table",
 				        [3] = "C",
-						[5] = "E",
+				        [5] = "E",
 				        lv = 12
 				    }
 				    return table
