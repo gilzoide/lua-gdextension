@@ -101,4 +101,18 @@ int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v);
 int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults);
 #endif
 
+template<typename... Args>
+void lua_push_closure(lua_State *L, lua_CFunction f, Args&&... args) {
+	sol::stack::push(L, std::forward<Args>(args)...);
+	lua_pushcclosure(L, f, sizeof...(Args));
+}
+
+template<typename... Args>
+sol::protected_function to_lua_closure(lua_State *L, lua_CFunction f, Args&&... args) {
+	lua_push_closure(L, f, std::forward<Args>(args)...);
+	sol::protected_function result(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
 #endif

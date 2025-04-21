@@ -41,7 +41,25 @@
 		<method name="length" qualifiers="const">
 			<return type="int" />
 			<description>
-				Returns the number of elements in the table.
+				Returns the length of the array part of the table. 
+				This matches Lua's # operator behavior and calls the [code]__len[/code] metamethod if present.
+				[codeblocks]
+				[gdscript]
+				var lua = LuaState.new()
+				var table: LuaTable = lua.do_string("""
+				    local table = {
+				        [1] = "A",
+				        [2] = "B",
+				        name = "Table",
+				        [3] = "C",
+				        [5] = "E",
+				        lv = 12
+				    }
+				    return table
+				""")
+				print(table.length()) # Prints 3
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 		<method name="rawget" qualifiers="const">

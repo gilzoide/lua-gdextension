@@ -33,7 +33,7 @@ def generate_utility_functions(utility_functions):
             f.get("return_type") not in PRIMITIVE_VARIANTS
             or any(arg["type"] not in PRIMITIVE_VARIANTS for arg in f.get("arguments", []))
         ):
-            lines.append(f'\tstate.set("{name}", wrap_function(&UtilityFunctions::{funcname}));')
+            lines.append(f'\tstate.set("{name}", wrap_function(state, &UtilityFunctions::{funcname}));')
         else:
             lines.append(f'\tstate.set("{name}", &UtilityFunctions::{funcname});')
     return " \\\n".join(lines) + "\n"

@@ -20,7 +20,7 @@
 			<return type="LuaFunction" />
 			<param index="0" name="callable" type="Callable" />
 			<description>
-				Creates and returns a new [LuaFunction] from the given [Callable]. This method does not require any [enum Library] to be opened.
+				Creates and returns a new [LuaFunction] from the given [Callable].
 				[codeblocks]
 				[gdscript]
 				var state := LuaState.new()
@@ -93,8 +93,8 @@
 			<description>
 				Executes Lua code from a file.
 				[param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
-				[param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
-				Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
+				[param mode] specifies the loading mode, which can be [constant LOAD_MODE_ANY], [constant LOAD_MODE_TEXT], or [constant LOAD_MODE_BINARY].
+				Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation or runtime errors.
 			</description>
 		</method>
 		<method name="do_string">
@@ -104,13 +104,13 @@
 			<param index="2" name="env" type="LuaTable" default="null" />
 			<description>
 				Executes Lua code from a string.
-				Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation errors.
+				Returns a [Variant] if the execution produces a result. Returns a [LuaError] if there are compilation or runtime errors.
 			</description>
 		</method>
 		<method name="get_lua_exec_dir" qualifiers="static">
 			<return type="String" />
 			<description>
-				Returns the directory where the Lua executable is located.
+				static method to get the executable directory used to replace "!" when setting package_path and package_cpath properties. When running in the Godot editor, it returns the globalized version of res:// path. Otherwise, it returns the base directory of the executable.
 			</description>
 		</method>
 		<method name="load_buffer">
@@ -144,7 +144,7 @@
 			<description>
 				Loads Lua code from a file and returns it as a [LuaFunction].
 				[param filename] Supports both absolute and relative paths. Defaults to searching in the "res://" directory.
-				[param buffer_size] Determines the number of bytes read per file operation. Larger values use more memory but reduce read operations.
+				[param mode] specifies the loading mode, which can be [constant LOAD_MODE_ANY], [constant LOAD_MODE_TEXT], or [constant LOAD_MODE_BINARY].
 				Returns a [LuaError] if there are compilation errors.
 			</description>
 		</method>
@@ -275,7 +275,7 @@
 			    return node
 			""")
 			if node is Node:
-			print("Node created successfully")
+			    print("Node created successfully")
 			[/gdscript]
 			[/codeblocks]
 		</constant>
@@ -300,6 +300,9 @@
 		</constant>
 		<constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
 			Opens all Godot libraries. Equivalent to combining all Godot library flags.
+		</constant>
+		<constant name="ALL_LIBS" value="524287" enum="Library" is_bitfield="true">
+			Opens all libraries.
 		</constant>
 		<constant name="LOAD_MODE_ANY" value="0" enum="LoadMode">
 			The loading mode automatically selects the appropriate mode based on the content.
