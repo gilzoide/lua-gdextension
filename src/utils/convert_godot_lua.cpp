@@ -247,17 +247,13 @@ static int callable_closure(lua_State *L) {
 void lua_push_function(lua_State *L, const Callable& callable) {
 	ERR_FAIL_COND(!callable.is_valid());
 	StackTopChecker topcheck(L, 1);
-	sol::stack::push_userdata(L, (Variant) callable);
-	lua_pushcclosure(L, callable_closure, 1);
+	lua_push_closure(L, callable_closure, (Variant) callable);
 }
 
 sol::protected_function to_lua_function(lua_State *L, const Callable& callable) {
 	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
 	StackTopChecker topcheck(L);
-	lua_push_function(L, callable);
-	sol::protected_function result = sol::stack_protected_function(L, -1);
-	lua_pop(L, 1);
-	return result;
+	return to_lua_closure(L, callable_closure, (Variant) callable);
 }
 
 Variant callable_call(const Callable& callable, const sol::variadic_args& args) {

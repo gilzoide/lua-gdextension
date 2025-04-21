@@ -188,7 +188,7 @@ return LuaBouncingLogo
 - [X] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
-- [ ] Add support for `res://` relative paths in `require`
+- [X] Add support for `res://` relative paths in `require`
 - [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
 - [X] Lua ScriptLanguageExtension
