@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class name="LuaObject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
-		Base class for all Lua objects in GDScript, except LuaState.
+		The base classes of many Lua objects.
 	</brief_description>
 	<description>
-		The LuaObject class provides methods to access the associated Lua state and retrieve object pointers.
-		This class serves as the foundation for interacting with Lua objects from GDScript. It allows you to:
-		- Get the Lua state associated with the object
-		- Retrieve the pointer value of the Lua object
+		The LuaObject class provides methods to access the associated Lua state.
 	</description>
 	<tutorials>
 	</tutorials>
@@ -15,7 +12,17 @@
 		<method name="get_lua_state" qualifiers="const">
 			<return type="LuaState" />
 			<description>
-				Returns the LuaState associated with this Lua object.
+				Returns the LuaState that owns this Lua object.
+				[codeblocks]
+				[gdscript]
+				var lua = LuaState.new()
+				lua.globals["say"] = lua.create_function(func():
+				    print("hello!")
+				)
+				var coroutine := LuaCoroutine.create(lua.globals["say"])
+				assert(lc.get_lua_state() == lua)
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 		<method name="get_pointer_value" qualifiers="const">
