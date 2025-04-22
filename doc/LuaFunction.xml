@@ -50,7 +50,7 @@
 		<method name="to_callable">
 			<return type="Callable" />
 			<description>
-				Converts the Lua function to a [class Callable] object.
+				Converts the Lua function to a [Callable] object.
 				[codeblocks]
 				[gdscript]
 				var lua_state = LuaState.new()
