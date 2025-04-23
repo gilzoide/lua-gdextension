@@ -75,11 +75,11 @@ void LuaError::set_status(Status status) {
 }
 
 String LuaError::extract_message(const sol::load_result& load_result) {
-	return ((sol::error) load_result).what();
+	return load_result.get<sol::error>().what();
 }
 
 String LuaError::extract_message(const sol::protected_function_result& function_result) {
-	return ((sol::error) function_result).what();
+	return function_result.get<sol::error>().what();
 }
 
 }
