@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <class name="LuaObject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
-		The base classes of many Lua objects.
+    Base class for objects that exist in a Lua virtual machine.
 	</brief_description>
 	<description>
 		The LuaObject class provides methods to access the associated Lua state.
