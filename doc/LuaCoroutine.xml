@@ -6,6 +6,29 @@
 	<description>
 		The LuaCoroutine class represents a Lua coroutine that can be created from a Lua function and controlled from GDScript.
 		It provides methods to resume the coroutine and check its status.
+		[codeblock]
+		[gdscript]
+		var lua = LuaState.new()
+		lua.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.LUA_COROUTINE)
+		lua.do_string("""
+		    function countNumbers(size)
+		        local count = 0
+		        for i = 1, size do
+		            count = i + count
+		            count = coroutine.yield(count)
+		    end
+		end
+		""")
+		var coroutine := LuaCoroutine.create(lua.globals["countNumbers"])
+		# The first time will be used as the parameter of the calling method
+		var yield_value = coroutine.resume(3)
+		while coroutine.status == LuaCoroutine.STATUS_YIELD:
+		    print(yield_value)
+		    # Obtain the parameters from coroutine.yield
+		    # Pass the value back to the coroutine
+		    yield_value = coroutine.resume(yield_value + 1)
+		[/gdscript]
+		[/codeblock]
 	</description>
 	<tutorials>
 	</tutorials>
