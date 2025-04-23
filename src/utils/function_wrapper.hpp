@@ -24,7 +24,6 @@
 
 #include <type_traits>
 
-#include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
 
 using namespace godot;
@@ -90,26 +89,6 @@ decltype(auto) wrap_function(lua_State *L, RetType(*f)(VariantArgs... args)) {
 template<typename... VariantArgs>
 inline decltype(auto) wrap_function(lua_State *L, void(*f)(VariantArgs... args)) {
 	return to_lua_closure(L, function_wrapper::lua_call_wrapped_void_function<VariantArgs...>, (void *) f);
-}
-
-/**
- * Wrap a variadic function to be used in Lua.
- * Variant arguments are converted nicely, so the runtime won't crash.
- */
-template<typename RetType>
-decltype(auto) wrap_variadic_function(RetType(*f)(const Variant **, GDExtensionInt)) {
-	return [f](sol::variadic_args args, sol::this_state state) {
-		VariantArguments var_args = args;
-		RetType result = f(var_args.argv(), var_args.argc());
-		return function_wrapper::unwrap_return(result, state);
-	};
-}
-template<>
-inline decltype(auto) wrap_variadic_function(void(*f)(const Variant **, GDExtensionInt)) {
-	return [f](sol::variadic_args args, sol::this_state state) {
-		VariantArguments var_args = args;
-		f(var_args.argv(), var_args.argc());
-	};
 }
 
 }
