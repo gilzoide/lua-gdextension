@@ -19,6 +19,7 @@
 				If the function returns a single value, it is returned directly.
 				[codeblocks]
 				[gdscript]
+				var lua_state = LuaState.new()
 				var add_function = lua_state.load_string("return function(a, b) return a + b end")
 				# Call function using invoke
 				var result = add_function.invoke(1, 2)
@@ -37,9 +38,27 @@
 				If the function returns a single value, it is returned directly.
 				[codeblocks]
 				[gdscript]
+				var lua_state = LuaState.new()
 				var add_function = lua_state.load_string("return function(a, b) return a + b end")
 				# Call function using invokev
 				var result = add_function.invokev([1, 2])
+				print(result) # Prints 3
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="to_callable">
+			<return type="Callable" />
+			<description>
+				Converts the Lua function to a [Callable] object.
+				[codeblocks]
+				[gdscript]
+				var lua_state = LuaState.new()
+				var add_function = lua_state.do_string("return function(a, b) return a + b end")
+				# Convert to Callable
+				var callable = add_function.to_callable()
+				# Use in GDScript
+				var result = callable.call(1, 2)
 				print(result) # Prints 3
 				[/gdscript]
 				[/codeblocks]
