@@ -77,7 +77,7 @@ sources = [
 
 # Generate document
 if env["target"] in ["editor", "template_debug"]:
-    doc_data = env.GodotCPPDocData("src/gen/doc_data.gen.cpp", source=Glob("doc/*.xml"))
+    doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc/*.xml"))
     sources.append(doc_data)
 
 library = env.SharedLibrary(

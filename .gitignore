@@ -20,7 +20,7 @@ addons/lua-gdextension/CHANGELOG.md
 addons/lua-gdextension/README.md
 addons/lua-gdextension/LICENSE
 src/generated/
-src/gen/
+src/generated-document/
 
 # Test project files
 .godot/
