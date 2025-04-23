@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class name="LuaTable" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A Lua table object that allows interaction with Lua tables from GDScript.
+	</brief_description>
+	<description>
+		The LuaTable class provides methods to manipulate Lua tables, including getting/setting values, converting to Godot arrays and dictionaries, and iterating over table contents.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="clear">
+			<return type="void" />
+			<description>
+				Removes all elements from the table.
+			</description>
+		</method>
+		<method name="get" qualifiers="const">
+			<return type="Variant" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="default" type="Variant" default="null" />
+			<description>
+				Returns the value associated with the given key. If the key doesn't exist, returns the default value.
+				[codeblocks]
+				[gdscript]
+				var table = lua_state.create_table({
+				    "foo": "bar",
+				    "baz": 42
+				})
+				# Using get method
+				var value = table.get("foo")
+				print(value) # Prints "bar"
+        
+				# Using [] operator
+				var value = table["foo"]
+				print(value) # Prints "bar"
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="length" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the length of the array part of the table. 
+				This matches Lua's # operator behavior and calls the [code]__len[/code] metamethod if present.
+				[codeblocks]
+				[gdscript]
+				var lua = LuaState.new()
+				var table: LuaTable = lua.do_string("""
+				    local table = {
+				        [1] = "A",
+				        [2] = "B",
+				        name = "Table",
+				        [3] = "C",
+				        [5] = "E",
+				        lv = 12
+				    }
+				    return table
+				""")
+				print(table.length()) # Prints 3
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="rawget" qualifiers="const">
+			<return type="Variant" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="default" type="Variant" default="null" />
+			<description>
+				Returns the value associated with the given key without invoking metatable's [code]__index[/code] method.
+			</description>
+		</method>
+		<method name="rawset">
+			<return type="void" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="value" type="Variant" />
+			<description>
+				Sets the value for the given key without invoking metatable's [code]__newindex[/code] method.
+			</description>
+		</method>
+		<method name="set">
+			<return type="void" />
+			<param index="0" name="key" type="Variant" />
+			<param index="1" name="value" type="Variant" />
+			<description>
+				Sets the value for the given key.
+				[codeblocks]
+				[gdscript]
+				var table = lua_state.create_table({
+				    "foo": "bar",
+				    "baz": 42
+				})
+				# Using set method
+				table.set("foo", "baz")
+				print(table.get("foo")) # Prints "baz"
+				
+				# Using [] operator
+				table["foo"] = "new_value"
+				print(table.get("foo")) # Prints "new_value"
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="to_array" qualifiers="const">
+			<return type="Array" />
+			<description>
+				Converts the Lua table to a Godot array. Only elements with integer indices are included in the array. The order of elements is preserved.
+				[codeblocks]
+				[gdscript]
+				var table = lua_state.create_table({
+				    1, 2, 3, 4, 5, ["6"]="six", "end"
+				})
+				var array = table.to_array()
+				print(array) # Prints [1, 2, 3, 4, 5, "end"]
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="to_dictionary" qualifiers="const">
+			<return type="Dictionary" />
+			<description>
+				Converts the Lua table to a Godot dictionary.
+				[codeblocks]
+				[gdscript]
+				var table = lua_state.create_table({
+				    "foo": "bar",
+				    "baz": 42
+				})
+				var dict = table.to_dictionary()
+				print(dict) # Prints {"foo": "bar", "baz": 42}
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+	</methods>
+</class>

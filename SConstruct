@@ -74,6 +74,12 @@ sources = [
     Glob("{}/{}/*.cpp".format(build_dir, directory))
     for directory in source_directories
 ]
+
+# Generate document
+if env["target"] in ["editor", "template_debug"]:
+    doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc/*.xml"))
+    sources.append(doc_data)
+
 library = env.SharedLibrary(
     "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
     source=sources,
