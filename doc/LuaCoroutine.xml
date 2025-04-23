@@ -6,7 +6,7 @@
 	<description>
 		The LuaCoroutine class represents a Lua coroutine that can be created from a Lua function and controlled from GDScript.
 		It provides methods to resume the coroutine and check its status.
-		[codeblock]
+		[codeblocks]
 		[gdscript]
 		var lua = LuaState.new()
 		lua.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.LUA_COROUTINE)
@@ -28,7 +28,7 @@
 		    # Pass the value back to the coroutine
 		    yield_value = coroutine.resume(yield_value + 1)
 		[/gdscript]
-		[/codeblock]
+		[/codeblocks]
 	</description>
 	<tutorials>
 	</tutorials>
