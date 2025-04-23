@@ -25,10 +25,19 @@ env.Command(
 )
 
 # Compile with debugging symbols
-def remove_options(lst, *options):
+def remove_options(lst, *options) -> bool:
+    removed_something = False
     for opt in options:
         if opt in lst:
             lst.remove(opt)
+            removed_something = True
+    return removed_something
+
+# Lua GDExtension uses C++20 instead of C++17 from godot-cpp
+if remove_options(env["CXXFLAGS"], "-std=c++17"):
+    env.Append(CXXFLAGS="-std=c++20")
+elif remove_options(env["CXXFLAGS"], "/std=c++17"):
+    env.Append(CXXFLAGS="/std=c++20")
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
