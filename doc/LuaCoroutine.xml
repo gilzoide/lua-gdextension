@@ -16,8 +16,8 @@
 		        for i = 1, size do
 		            count = i + count
 		            count = coroutine.yield(count)
+		        end
 		    end
-		end
 		""")
 		var coroutine := LuaCoroutine.create(lua.globals["countNumbers"])
 		# The first time will be used as the parameter of the calling method
