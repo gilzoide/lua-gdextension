@@ -37,7 +37,7 @@ def remove_options(lst, *options) -> bool:
 if remove_options(env["CXXFLAGS"], "-std=c++17"):
     env.Append(CXXFLAGS="-std=c++20")
 elif remove_options(env["CXXFLAGS"], "/std=c++17"):
-    env.Append(CXXFLAGS="/std=c++20")
+    env.Append(CXXFLAGS="/std:c++20")
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
