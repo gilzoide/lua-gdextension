@@ -80,8 +80,7 @@ static void deinitialize(ModuleInitializationLevel level) {
 
 extern "C" {
 
-__attribute__((visibility("default")))
-GDExtensionBool luagdextension_entrypoint(
+GDExtensionBool GDE_EXPORT luagdextension_entrypoint(
 	const GDExtensionInterfaceGetProcAddress p_getprocaccess,
 	GDExtensionClassLibraryPtr p_library,
 	GDExtensionInitialization *r_initialization
