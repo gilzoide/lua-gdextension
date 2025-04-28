@@ -14,6 +14,7 @@
 - Advanced project settings for setting the `LuaScriptLanguage` state's `package_path` and `package_cpath` properties
 - `LuaState.are_libraries_opened` method for checking if a subset of libraries were already opened
 - `LuaState.create_function` method for creating a `LuaFunction` from a `Callable`
+- API documentation is now available in the Godot editor
 
 ### Changed
 - The GDExtension is now marked as reloadable
@@ -29,6 +30,7 @@
 - Bind `LuaCoroutine::status` property with correct enum type
 - Bind `LuaError::status` property as int with correct enum type
 - Crash when calling utility functions from Lua
+- Compilation for Windows using MSVC
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)
