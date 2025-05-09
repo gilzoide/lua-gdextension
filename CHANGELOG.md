@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.2.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+
+
+## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
 ### Added
 - Editor plugin that registers the Lua REPL tab, where you can try Lua code using an empty `LuaState`
 - Support for calling Godot String methods using Lua strings
