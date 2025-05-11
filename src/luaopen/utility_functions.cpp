@@ -23,6 +23,8 @@
 #include "../utils/VariantArguments.hpp"
 #include "../utils/function_wrapper.hpp"
 #include "../utils/string_literal.hpp"
+#include "../LuaCoroutine.hpp"
+#include "../LuaObject.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/classes/object.hpp>
@@ -47,7 +49,10 @@ template<typename RetType, StringLiteral func_name, size_t func_hash> sol::objec
 }
 
 struct ResumeLuaCoroutineCallable : public CallableCustom {
-	ResumeLuaCoroutineCallable(sol::thread coroutine) : coroutine(coroutine) {}
+	ResumeLuaCoroutineCallable(lua_State *L)
+		: coroutine(LuaObject::wrap_object<LuaCoroutine>(sol::thread(L, L)))
+	{
+	}
 
 	uint32_t hash() const override {
 		return get_as_text().hash();
@@ -66,8 +71,8 @@ struct ResumeLuaCoroutineCallable : public CallableCustom {
 	}
 
 	bool is_valid() const override {
-		return coroutine.valid()
-			&& (coroutine.status() == sol::thread_status::ok || coroutine.status() == sol::thread_status::yielded);
+		return coroutine.is_valid()
+			&& (coroutine->get_status() == LuaCoroutine::STATUS_OK || coroutine->get_status() == LuaCoroutine::STATUS_YIELD);
 	}
 	
 	ObjectID get_object() const override {
@@ -75,19 +80,10 @@ struct ResumeLuaCoroutineCallable : public CallableCustom {
 	}
 
 	void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const override {
-		ERR_FAIL_COND_MSG(coroutine.status() != sol::thread_status::yielded, "Cannot resume a coroutine that is not yielded.");
-
-		lua_State *L = coroutine.thread_state();
-		VariantArguments args(p_arguments, p_argcount);
-		sol::stack::push(L, args);
-		int nresults;
-		int status = lua_resume(L, nullptr, p_argcount, &nresults);
-		sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-		r_return_value = to_variant(function_result);
-		r_call_error.error = GDEXTENSION_CALL_OK;
+		r_return_value = coroutine->resume(p_arguments, p_argcount, r_call_error);
 	}
 
-	sol::thread coroutine;
+	Ref<LuaCoroutine> coroutine;
 };
 
 static void lua_await(sol::this_state L, sol::stack_object signal_or_coroutine) {
@@ -112,7 +108,7 @@ static void lua_await(sol::this_state L, sol::stack_object signal_or_coroutine) 
 	
 	ERR_FAIL_COND_MSG(signal.is_null(), "Expected signal in await");
 	
-	Callable callback(memnew(ResumeLuaCoroutineCallable(sol::thread(sol::main_thread(L), L))));
+	Callable callback(memnew(ResumeLuaCoroutineCallable(L)));
 	signal.connect(callback, Object::CONNECT_ONE_SHOT);
 	lua_yield(L, 0);
 }

@@ -51,6 +51,7 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
 	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+	error.error = GDEXTENSION_CALL_OK;
 	return _resume(VariantArguments(args, arg_count));
 }
 

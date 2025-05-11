@@ -175,8 +175,7 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 			goto push_as_variant;
 			
 		case Variant::CALLABLE:
-			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT))
-			{
+			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT)) {
 				goto push_as_variant;
 			}
 			else {
