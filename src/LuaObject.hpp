@@ -40,10 +40,22 @@ public:
 
 	uint64_t get_pointer_value() const;
 
+	template<typename Subclass, typename ref_t>
+	static Subclass *wrap_object(const sol::basic_object<ref_t>& lua_obj) {
+		if (LuaObject **known_obj = known_objects.getptr(lua_obj.pointer())) {
+			return (Subclass *) *known_obj;
+		}
+		else {
+			return memnew(Subclass(lua_obj));
+		}
+	}
+
 protected:
 	static void _bind_methods();
 
 	virtual String _to_string() const;
+
+	static HashMap<const void *, LuaObject *> known_objects;
 };
 
 
@@ -51,23 +63,29 @@ template<class TReference>
 class LuaObjectSubclass : public LuaObject {
 public:
 	LuaObjectSubclass() {
-		throw "FIXME: LuaObjectSubclass should never be instanced with default constructor";
+		ERR_FAIL_MSG("FIXME: LuaObjectSubclass should never be instanced with default constructor");
 	}
 	LuaObjectSubclass(TReference&& lua_object) : lua_object(lua_object) {
 		if (!lua_object.valid()) {
-			throw "FIXME: invalid reference to Lua object";
+			ERR_FAIL_MSG("FIXME: invalid reference to Lua object");
 		}
+		known_objects.insert(lua_object.pointer(), this);
 		if (LuaState *state = get_lua_state()) {
 			lua_state = Ref(state);
 		}
 	}
 	LuaObjectSubclass(const TReference& lua_object) : lua_object(lua_object) {
 		if (!lua_object.valid()) {
-			throw "FIXME: invalid reference to Lua object";
+			ERR_FAIL_MSG("FIXME: invalid reference to Lua object");
 		}
+		known_objects.insert(lua_object.pointer(), this);
 		if (LuaState *state = get_lua_state()) {
 			lua_state = Ref(state);
 		}
+	}
+
+	virtual ~LuaObjectSubclass() {
+		known_objects.erase(lua_object.pointer());
 	}
 
 	const sol::reference& get_lua_object() const override {

@@ -1,5 +1,7 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+### Changed
+- `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
 
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
