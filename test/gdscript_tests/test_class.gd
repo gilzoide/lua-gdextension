@@ -4,6 +4,10 @@ var test_class = load("res://gdscript_tests/lua_files/test_class.lua")
 var _signal_handled = false
 
 
+func _setup():
+	_signal_handled = false
+
+
 func _handle_signal(arg1, arg2):
 	_signal_handled = true
 

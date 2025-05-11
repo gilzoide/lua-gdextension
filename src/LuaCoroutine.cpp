@@ -21,6 +21,7 @@
  */
 #include "LuaCoroutine.hpp"
 
+#include "LuaError.hpp"
 #include "LuaFunction.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
@@ -28,15 +29,6 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
-
-static Variant _resume(lua_State *L, const VariantArguments& args) {
-	sol::stack::push(L, args);
-
-	int nresults;
-	int status = lua_resume(L, nullptr, args.argc(), &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	return to_variant(function_result);
-}
 
 LuaCoroutine::LuaCoroutine() : LuaObjectSubclass() {}
 LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaObjectSubclass(thread) {}
@@ -59,12 +51,29 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
 	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-	return _resume(lua_object.thread_state(), VariantArguments(args, arg_count));
+	return _resume(VariantArguments(args, arg_count));
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
 	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-	return _resume(lua_object.thread_state(), VariantArguments(args));
+	return _resume(VariantArguments(args));
+}
+
+Variant LuaCoroutine::_resume(const VariantArguments& args) {
+	lua_State *L = lua_object.thread_state();
+	sol::stack::push(L, args);
+
+	int nresults;
+	int status = lua_resume(L, nullptr, args.argc(), &nresults);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
+	Variant ret = to_variant(function_result);
+	if (status == LUA_OK) {
+		emit_signal("completed", ret);
+	}
+	else if (status != LUA_YIELD) {
+		emit_signal("failed", ret);
+	}
+	return ret;
 }
 
 void LuaCoroutine::_bind_methods() {
@@ -82,6 +91,9 @@ void LuaCoroutine::_bind_methods() {
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
+
+	ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+	ADD_SIGNAL(MethodInfo("failed", PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaError::get_class_static())));
 }
 
 }

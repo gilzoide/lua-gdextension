@@ -29,6 +29,10 @@ func _initialize():
 		for method in obj.get_method_list():
 			var method_name = method.name
 			if method_name.begins_with("test"):
+				# optional per-test setup
+				if obj.has_method("_setup"):
+					obj._setup()
+				# actual test
 				if not obj.call(method_name):
 					all_success = false
 					printerr("  🗴 ", method_name)
