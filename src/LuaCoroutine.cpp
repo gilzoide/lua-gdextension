@@ -22,11 +22,21 @@
 #include "LuaCoroutine.hpp"
 
 #include "LuaFunction.hpp"
+#include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
+
+static Variant _resume(lua_State *L, const VariantArguments& args) {
+	sol::stack::push(L, args);
+
+	int nresults;
+	int status = lua_resume(L, nullptr, args.argc(), &nresults);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
+	return to_variant(function_result);
+}
 
 LuaCoroutine::LuaCoroutine() : LuaObjectSubclass() {}
 LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaObjectSubclass(thread) {}
@@ -49,33 +59,12 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
 	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-
-	lua_State *L = lua_object.thread_state();
-	if (arg_count > 0) {
-		for (int i = 0; i < arg_count; i++) {
-			lua_push(L, *args[i]);
-		}
-	}
-
-	int nresults;
-	int status = lua_resume(L, NULL, arg_count, &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	return to_variant(function_result);
+	return _resume(lua_object.thread_state(), VariantArguments(args, arg_count));
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
 	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-
-	lua_State *L = lua_object.thread_state();
-	int arg_count = args.size();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, args[i]);
-	}
-
-	int nresults;
-	int status = lua_resume(L, NULL, arg_count, &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	return to_variant(function_result);
+	return _resume(lua_object.thread_state(), VariantArguments(args));
 }
 
 void LuaCoroutine::_bind_methods() {
