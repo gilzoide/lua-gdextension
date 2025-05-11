@@ -44,4 +44,6 @@ String LuaObject::_to_string() const {
 	return String("[%s:0x%x]") % Array::make(get_class(), get_pointer_value());
 }
 
+HashMap<const void *, LuaObject *> LuaObject::known_objects;
+
 }

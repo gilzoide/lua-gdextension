@@ -62,9 +62,9 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return object.template as<double>();
 
 		case sol::type::table:
-			return memnew(LuaTable(object.template as<sol::table>()));
+			return LuaObject::wrap_object<LuaTable>(object);
 
-		case sol::type::userdata: {
+		case sol::type::userdata:
 			if (object.template is<Variant>()) {
 				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
 				return Variant(variant_ptr);
@@ -74,18 +74,17 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 				return cls.get_name();
 			}
 			else {
-				return memnew(LuaUserdata(object.template as<sol::userdata>()));
+				return LuaObject::wrap_object<LuaUserdata>(object);
 			}
-		}
 
 		case sol::type::thread:
-			return memnew(LuaCoroutine(object.template as<sol::thread>()));
+			return LuaObject::wrap_object<LuaCoroutine>(object);
 
 		case sol::type::function:
-			return memnew(LuaFunction(object.template as<sol::protected_function>()));
+			return LuaObject::wrap_object<LuaFunction>(object);
 
 		case sol::type::lightuserdata:
-			return memnew(LuaLightUserdata(object.template as<sol::lightuserdata>()));
+			return LuaObject::wrap_object<LuaLightUserdata>(object);
 
 		case sol::type::none:
 		case sol::type::nil:
@@ -132,7 +131,7 @@ Variant to_variant(const sol::load_result& load_result) {
 		return memnew(LuaError(load_result));
 	}
 	else {
-		return memnew(LuaFunction(load_result.get<sol::protected_function>()));
+		return LuaObject::wrap_object<LuaFunction>(load_result.get<sol::protected_function>());
 	}
 }
 
