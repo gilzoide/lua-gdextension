@@ -25,6 +25,7 @@
 #include "../utils/string_literal.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
+#include <godot_cpp/classes/object.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
@@ -45,6 +46,77 @@ template<typename RetType, StringLiteral func_name, size_t func_hash> sol::objec
 	}
 }
 
+struct ResumeLuaCoroutineCallable : public CallableCustom {
+	ResumeLuaCoroutineCallable(sol::thread coroutine) : coroutine(coroutine) {}
+
+	uint32_t hash() const override {
+		return get_as_text().hash();
+	}
+
+	String get_as_text() const override {
+		return "<ResumeLuaCoroutineCallable>";
+	}
+
+	CompareEqualFunc get_compare_equal_func() const override {
+		return nullptr;
+	}
+
+	CompareLessFunc get_compare_less_func() const override {
+		return nullptr;
+	}
+
+	bool is_valid() const override {
+		return coroutine.valid()
+			&& (coroutine.status() == sol::thread_status::ok || coroutine.status() == sol::thread_status::yielded);
+	}
+	
+	ObjectID get_object() const override {
+		return {};
+	}
+
+	void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const override {
+		ERR_FAIL_COND_MSG(coroutine.status() != sol::thread_status::yielded, "Cannot resume a coroutine that is not yielded.");
+
+		lua_State *L = coroutine.thread_state();
+		VariantArguments args(p_arguments, p_argcount);
+		sol::stack::push(L, args);
+		int nresults;
+		int status = lua_resume(L, nullptr, p_argcount, &nresults);
+		sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
+		r_return_value = to_variant(function_result);
+		r_call_error.error = GDEXTENSION_CALL_OK;
+	}
+
+	sol::thread coroutine;
+};
+
+static void lua_await(sol::this_state L, sol::stack_object signal_or_coroutine) {
+	ERR_FAIL_COND_MSG(!lua_isyieldable(L), "Current thread is not yieldable");
+	
+	Signal signal;
+	Variant var = to_variant(signal_or_coroutine);
+	switch (var.get_type()) {
+		case Variant::Type::SIGNAL:
+			signal = var;
+			break;
+
+		case Variant::Type::OBJECT:
+			if (Object *obj = var; obj->has_signal("completed")) {
+				signal = Signal(obj, "completed");
+			}
+			break;
+		
+		default:
+			break;
+	}
+	
+	ERR_FAIL_COND_MSG(signal.is_null(), "Expected signal in await");
+	
+	Callable callback(memnew(ResumeLuaCoroutineCallable(sol::thread(sol::main_thread(L), L))));
+	signal.connect(callback, Object::CONNECT_ONE_SHOT);
+	lua_yield(L, 0);
+}
+
 extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
 
@@ -52,6 +124,9 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 
 	// In Lua, `print` separates passed values with "\t", so we bind it to Godot's `printt`
 	state.do_string("print = printt");
+
+	// Use `await` to await for signals.
+	state.set("await", lua_await);
 
 	return 0;
 }
