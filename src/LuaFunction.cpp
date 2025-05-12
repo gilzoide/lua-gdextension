@@ -21,7 +21,6 @@
  */
 #include "LuaFunction.hpp"
 
-#include "LuaError.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
@@ -37,7 +36,6 @@ void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);
 	ClassDB::bind_method(D_METHOD("to_callable"), &LuaFunction::to_callable);
-
 }
 
 Variant LuaFunction::invokev(const Array& args) {

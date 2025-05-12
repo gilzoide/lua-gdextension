@@ -23,6 +23,7 @@
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptInstance.hpp"
 
+#include "../LuaCoroutine.hpp"
 #include "../LuaFunction.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
@@ -131,7 +132,7 @@ Variant LuaScriptProperty::instantiate_default_value() const {
 
 bool LuaScriptProperty::set_value(LuaScriptInstance *self, const Variant& value) const {
 	if (setter) {
-		LuaFunction::invoke_lua(*setter, Array::make(self->owner, value), false);
+		LuaCoroutine::invoke_lua(*setter, Array::make(self->owner, value), false);
 		return true;
 	}
 	else if (!setter_name.is_empty()) {

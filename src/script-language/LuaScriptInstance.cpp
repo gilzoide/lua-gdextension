@@ -27,6 +27,7 @@
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMetadata.hpp"
 #include "LuaScriptProperty.hpp"
+#include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
@@ -55,7 +56,7 @@ LuaScriptInstance::~LuaScriptInstance() {
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
 	// 1) try calling `_set`
 	if (const LuaScriptMethod *_set = p_instance->script->get_metadata().methods.getptr("_set")) {
-		Variant value_was_set = LuaFunction::invoke_lua(_set->method, Array::make(p_instance->owner, *p_name, *p_value), false);
+		Variant value_was_set = LuaCoroutine::invoke_lua(_set->method, Array::make(p_instance->owner, *p_name, *p_value), false);
 		if (value_was_set) {
 			return true;
 		}
@@ -197,7 +198,7 @@ GDExtensionInt get_method_argument_count_func(LuaScriptInstance *p_instance, con
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
 	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
 		r_error->error = GDEXTENSION_CALL_OK;
-		*r_return = LuaFunction::invoke_lua(method->method, VariantArguments(p_instance->owner, p_args, p_argument_count), false);
+		*r_return = LuaCoroutine::invoke_lua(method->method, VariantArguments(p_instance->owner, p_args, p_argument_count), false);
 	}
 	else {
 		r_error->error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
@@ -206,7 +207,7 @@ void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const 
 
 void notification_func(LuaScriptInstance *p_instance, int32_t p_what, GDExtensionBool p_reversed) {
 	if (const LuaScriptMethod *_notification = p_instance->script->get_metadata().methods.getptr("_notification")) {
-		LuaFunction::invoke_lua(_notification->method, Array::make(p_instance->owner, p_what, p_reversed), false);
+		LuaCoroutine::invoke_lua(_notification->method, Array::make(p_instance->owner, p_what, p_reversed), false);
 	}
 }
 

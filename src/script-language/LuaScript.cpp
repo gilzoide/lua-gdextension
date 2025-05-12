@@ -25,6 +25,7 @@
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
+#include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaState.hpp"
@@ -279,7 +280,7 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 		obj->set_script(this);
 	}
 	if (const LuaScriptMethod *_init = metadata.methods.getptr("_init")) {
-		LuaFunction::invoke_lua(_init->method, VariantArguments(new_instance, args, arg_count), false);
+		LuaCoroutine::invoke_lua(_init->method, VariantArguments(new_instance, args, arg_count), false);
 	}
 	return new_instance;
 }

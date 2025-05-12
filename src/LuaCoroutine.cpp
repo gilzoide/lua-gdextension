@@ -80,6 +80,17 @@ Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_erro
 	return ret;
 }
 
+Variant LuaCoroutine::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
+	Ref<LuaCoroutine> coroutine = LuaCoroutine::create(f);
+	Variant result = coroutine->_resume(args, return_lua_error);
+	if (coroutine->get_status() == LuaCoroutine::STATUS_YIELD) {
+		return coroutine;
+	}
+	else {
+		return result;
+	}
+}
+
 void LuaCoroutine::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
