@@ -50,29 +50,32 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
 	error.error = GDEXTENSION_CALL_OK;
-	return _resume(VariantArguments(args, arg_count));
+	return _resume(VariantArguments(args, arg_count), true);
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-	return _resume(VariantArguments(args));
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
+	return _resume(VariantArguments(args), true);
 }
 
-Variant LuaCoroutine::_resume(const VariantArguments& args) {
+Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_error) {
 	lua_State *L = lua_object.thread_state();
 	sol::stack::push(L, args);
 
 	int nresults;
 	int status = lua_resume(L, nullptr, args.argc(), &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	Variant ret = to_variant(function_result);
+	Variant ret = to_variant(function_result, true);
 	if (status == LUA_OK) {
 		emit_signal("completed", ret);
 	}
 	else if (status != LUA_YIELD) {
 		emit_signal("failed", ret);
+		if (!return_lua_error) {
+			return Variant();
+		}
 	}
 	return ret;
 }

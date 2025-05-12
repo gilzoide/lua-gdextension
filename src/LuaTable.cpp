@@ -190,7 +190,7 @@ bool LuaTable::_set(const StringName& property_name, const Variant& value) {
 String LuaTable::_to_string() const {
 	auto tostring_result = call_metamethod(lua_object, sol::meta_function::to_string);
 	if (tostring_result.has_value()) {
-		return to_variant(tostring_result.value());
+		return to_variant(tostring_result.value(), false);
 	}
 	else {
 		return LuaObjectSubclass::_to_string();

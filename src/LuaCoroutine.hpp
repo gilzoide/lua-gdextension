@@ -56,12 +56,10 @@ public:
 	Status get_status() const;
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
+	Variant _resume(const VariantArguments& args, bool return_lua_error);
 
 protected:
 	static void _bind_methods();
-
-private:
-	Variant _resume(const VariantArguments& args);
 };
 
 }

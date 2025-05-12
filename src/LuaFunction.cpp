@@ -29,16 +29,6 @@
 
 namespace luagdextension {
 
-static Variant result_value(const sol::protected_function_result& result, bool return_lua_error) {
-	if (!return_lua_error && !result.valid()) {
-		ERR_PRINT(LuaError::extract_message(result));
-		return Variant();
-	}
-	else {
-		return to_variant(result);
-	}
-}
-
 LuaFunction::LuaFunction() : LuaObjectSubclass() {}
 LuaFunction::LuaFunction(sol::protected_function&& function) : LuaObjectSubclass(function) {}
 LuaFunction::LuaFunction(const sol::protected_function& function) : LuaObjectSubclass(function) {}
@@ -61,7 +51,7 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
 	sol::protected_function_result result = f.call(args);
-	return result_value(result, return_lua_error);
+	return to_variant(result, return_lua_error);
 }
 
 Callable LuaFunction::to_callable() const {
