@@ -41,7 +41,7 @@ LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 }
 
 LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
-	ERR_FAIL_COND_V_MSG(!function, nullptr, "Function cannot be null");
+	ERR_FAIL_COND_V_MSG(function == nullptr, nullptr, "Function cannot be null");
 	return create(function->get_function());
 }
 
