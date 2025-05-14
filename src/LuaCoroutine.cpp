@@ -51,17 +51,16 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
 	error.error = GDEXTENSION_CALL_OK;
 	return _resume(VariantArguments(args, arg_count), true);
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
 	return _resume(VariantArguments(args), true);
 }
 
 Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_error) {
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
 	sol::protected_function_result function_result = _resume(lua_object.thread_state(), args);
 	Variant ret = to_variant(function_result, true);
 	if (function_result.status() == sol::call_status::ok) {
