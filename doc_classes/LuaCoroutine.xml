@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaCoroutine" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		A Lua coroutine object that allows cooperative multitasking in Lua scripts.
@@ -60,30 +60,46 @@
 		</method>
 	</methods>
 	<members>
-		<member name="status" type="int" setter="" getter="get_status" enum="LuaCoroutine.LuaCoroutineStatus">
+		<member name="status" type="int" setter="" getter="get_status" enum="LuaCoroutine.Status">
 			The current status of the coroutine.
 		</member>
 	</members>
+	<signals>
+		<signal name="completed">
+			<param index="0" name="result" type="Variant" />
+			<description>
+        Emitted when the coroutine completes execution with success and is in the STATUS_DEAD status.
+        Coroutines that complete cannot be resumed anymore.
+			</description>
+		</signal>
+		<signal name="failed">
+			<param index="0" name="error" type="LuaError" />
+			<description>
+        Emitted when the coroutine completes execution with error and is in one of the error statuses.
+        Coroutines that fail cannot be resumed anymore.
+			</description>
+		</signal>
+	</signals>
 	<constants>
-		<constant name="STATUS_OK" value="0" enum="LuaCoroutineStatus">
+		<constant name="STATUS_OK" value="0" enum="Status">
 			The coroutine is running normally.
 		</constant>
-		<constant name="STATUS_YIELD" value="1" enum="LuaCoroutineStatus">
+		<constant name="STATUS_YIELD" value="1" enum="Status">
 			The coroutine is suspended (yielded).
 		</constant>
-		<constant name="STATUS_ERRRUN" value="2" enum="LuaCoroutineStatus">
+		<constant name="STATUS_ERRRUN" value="2" enum="Status">
 			A runtime error occurred in the coroutine.
 		</constant>
-		<constant name="STATUS_ERRSYNTAX" value="3" enum="LuaCoroutineStatus">
+		<constant name="STATUS_ERRSYNTAX" value="3" enum="Status">
 			A syntax error occurred in the coroutine.
 		</constant>
-		<constant name="STATUS_ERRMEM" value="4" enum="LuaCoroutineStatus">
+		<constant name="STATUS_ERRMEM" value="4" enum="Status">
 			A memory allocation error occurred in the coroutine.
 		</constant>
-		<constant name="STATUS_ERRERR" value="5" enum="LuaCoroutineStatus">
+		<constant name="STATUS_ERRERR" value="5" enum="Status">
 			An error occurred while running the error handler.
 		</constant>
-		<constant name="STATUS_DEAD" value="-1" enum="LuaCoroutineStatus">
+		<constant name="STATUS_DEAD" value="-1" enum="Status">
 			The coroutine has finished execution.
 		</constant>
 	</constants>

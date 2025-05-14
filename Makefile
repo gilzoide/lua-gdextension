@@ -48,7 +48,7 @@ build/update_readme_version.sed:
 test/.godot:
 	$(GODOT_BIN) --headless --quit --path test --editor || true
 
-.PHONY: zip test download-latest-build bump-version
+.PHONY: zip test download-latest-build bump-version generate-docs
 zip: build/lua-gdextension.zip
 
 test: test/.godot
@@ -63,3 +63,6 @@ download-latest-build:
 bump-version: build/update_changelog_version.sed build/update_readme_version.sed
 	sed -i CHANGELOG.md -f build/update_changelog_version.sed
 	sed -i README.md -f build/update_readme_version.sed
+
+generate-docs:
+	$(GODOT_BIN) --path test --doctool .. --gdextension-docs

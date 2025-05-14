@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaError" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		Represents an error that occurred during Lua execution.
@@ -13,7 +13,7 @@
 		<member name="message" type="String" setter="set_message" getter="get_message" default="&quot;&quot;">
 			The error message describing what went wrong.
 		</member>
-		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status" default="818921600">
+		<member name="status" type="int" setter="set_status" getter="get_status" enum="LuaError.Status">
 			The error status code indicating the type of error.
 		</member>
 	</members>

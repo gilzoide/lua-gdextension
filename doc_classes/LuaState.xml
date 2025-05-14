@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaState" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		A Lua virtual machine instance.
@@ -169,7 +169,7 @@
 				# Open LUA_BASE and LUA_PACKAGE
 				var lua_state = LuaState.new()
 				lua_state.open_libraries(LuaState.LUA_BASE | LuaState.LUA_PACKAGE)
-				
+
 				# Without LUA_BASE will fail
 				var lua_state = LuaState.new()
 				lua_state.open_libraries(LuaState.LUA_PACKAGE)
@@ -298,7 +298,7 @@
 			[/gdscript]
 			[/codeblocks]
 		</constant>
-		<constant name="GODOT_ALL_LIBS" value="253952" enum="Library" is_bitfield="true">
+		<constant name="GODOT_ALL_LIBS" value="516096" enum="Library" is_bitfield="true">
 			Opens all Godot libraries. Equivalent to combining all Godot library flags.
 		</constant>
 		<constant name="ALL_LIBS" value="524287" enum="Library" is_bitfield="true">

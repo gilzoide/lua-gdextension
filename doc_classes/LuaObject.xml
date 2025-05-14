@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaObject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		Base class for objects that exist in a Lua virtual machine.
@@ -31,5 +31,5 @@
 				Returns the pointer value of the Lua object as an integer.
 			</description>
 		</method>
-  </methods>
+	</methods>
 </class>

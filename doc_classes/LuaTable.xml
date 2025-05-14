@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaTable" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		A Lua table object that allows interaction with Lua tables from GDScript.
@@ -30,7 +30,7 @@
 				# Using get method
 				var value = table.get("foo")
 				print(value) # Prints "bar"
-        
+
 				# Using [] operator
 				var value = table["foo"]
 				print(value) # Prints "bar"
@@ -93,7 +93,7 @@
 				# Using set method
 				table.set("foo", "baz")
 				print(table.get("foo")) # Prints "baz"
-				
+
 				# Using [] operator
 				table["foo"] = "new_value"
 				print(table.get("foo")) # Prints "new_value"

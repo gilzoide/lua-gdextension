@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaFunction" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
 		A Lua function object that can be called from GDScript.
@@ -47,7 +47,7 @@
 				[/codeblocks]
 			</description>
 		</method>
-		<method name="to_callable">
+		<method name="to_callable" qualifiers="const">
 			<return type="Callable" />
 			<description>
 				Converts the Lua function to a [Callable] object.
