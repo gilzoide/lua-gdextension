@@ -6,7 +6,7 @@
 
 Extension for using the [Lua programming language](https://www.lua.org/) in Godot 4.3+
 
-With this addon, you can create scripts directly in Lua, using it as an alternative to GDScript or C#.
+With this addon, you can program your game or application directly in Lua.
 You can also create sandboxed Lua states for external modding/scripting support, as many as necessary.
 
 This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
