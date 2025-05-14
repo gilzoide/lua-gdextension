@@ -1,3 +1,5 @@
+if Engine:is_editor_hint() then return end
+
 local resource = Resource:new()
 
 local co = coroutine.create(function()
