@@ -64,6 +64,7 @@ protected:
 	
 private:
 	Variant _resume(const VariantArguments& args, bool return_lua_error);
+	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
 };
 
 }

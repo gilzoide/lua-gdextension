@@ -23,6 +23,7 @@
 
 #include "LuaError.hpp"
 #include "LuaFunction.hpp"
+#include "utils/LuaCoroutinePool.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
@@ -61,17 +62,12 @@ Variant LuaCoroutine::resumev(const Array& args) {
 }
 
 Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_error) {
-	lua_State *L = lua_object.thread_state();
-	sol::stack::push(L, args);
-
-	int nresults;
-	int status = lua_resume(L, nullptr, args.argc(), &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
+	sol::protected_function_result function_result = _resume(lua_object.thread_state(), args);
 	Variant ret = to_variant(function_result, true);
-	if (status == LUA_OK) {
+	if (function_result.status() == sol::call_status::ok) {
 		emit_signal("completed", ret);
 	}
-	else if (status != LUA_YIELD) {
+	else if (function_result.status() != sol::call_status::yielded) {
 		emit_signal("failed", ret);
 		if (!return_lua_error) {
 			return Variant();
@@ -80,14 +76,25 @@ Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_erro
 	return ret;
 }
 
+sol::protected_function_result LuaCoroutine::_resume(lua_State *L, const VariantArguments& args) {
+	sol::stack::push(L, args);
+
+	int nresults;
+	int status = lua_resume(L, nullptr, args.argc(), &nresults);
+	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
+	return function_result;
+}
+
 Variant LuaCoroutine::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
-	Ref<LuaCoroutine> coroutine = LuaCoroutine::create(f);
-	Variant result = coroutine->_resume(args, return_lua_error);
-	if (coroutine->get_status() == LuaCoroutine::STATUS_YIELD) {
-		return coroutine;
+	LuaCoroutinePool pool(f.lua_state());
+	sol::thread coroutine = pool.acquire(f);
+	sol::protected_function_result result = _resume(coroutine.thread_state(), args);
+	if (result.status() == sol::call_status::yielded) {
+		return LuaObject::wrap_object<LuaCoroutine>(coroutine);
 	}
 	else {
-		return result;
+		pool.release(coroutine);
+		return to_variant(result, return_lua_error);
 	}
 }
 
