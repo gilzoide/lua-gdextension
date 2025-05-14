@@ -4,6 +4,7 @@ TestClass.some_signal = signal("arg1", "arg2")
 
 TestClass.empty_array = property { type = Array }
 TestClass.preinitialized_array = Array { 1, 2, 3 }
+TestClass.signal_awaited = false
 
 -- Getter methods
 TestClass.getter_counter = property {
@@ -54,6 +55,11 @@ end
 
 function TestClass:echo(value)
 	return value
+end
+
+function TestClass:await_signal(sig)
+	await(sig)
+	self.signal_awaited = true
 end
 
 return TestClass

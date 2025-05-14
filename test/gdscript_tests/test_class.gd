@@ -1,7 +1,13 @@
 extends RefCounted
 
+signal some_signal()
+
 var test_class = load("res://gdscript_tests/lua_files/test_class.lua")
 var _signal_handled = false
+
+
+func _setup():
+	_signal_handled = false
 
 
 func _handle_signal(arg1, arg2):
@@ -100,4 +106,13 @@ func test_method() -> bool:
 	assert(is_same(obj.echo(arr), arr))
 	assert(obj.echo is Callable)
 	assert(obj.echo.bind("callable").call() == "callable")
+	return true
+
+
+func test_await_signal() -> bool:
+	var obj = test_class.new()
+	obj.await_signal(some_signal)
+	assert(not obj.signal_awaited)
+	some_signal.emit()
+	assert(obj.signal_awaited)
 	return true

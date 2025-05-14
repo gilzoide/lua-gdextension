@@ -57,8 +57,14 @@ public:
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
+	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
+
 protected:
 	static void _bind_methods();
+	
+private:
+	Variant _resume(const VariantArguments& args, bool return_lua_error);
+	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
 };
 
 }

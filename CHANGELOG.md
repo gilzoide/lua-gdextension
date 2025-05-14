@@ -1,7 +1,12 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+### Added
+- `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
+- `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
+
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
+- The following methods of LuaScripts run in pooled coroutines, so that `await` can be used in them: regular method calls, setter functions, `_init`, `_notification`
 
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)

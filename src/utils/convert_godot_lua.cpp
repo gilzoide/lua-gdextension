@@ -105,9 +105,15 @@ Variant to_variant(const sol::stack_proxy_base& proxy) {
 	return to_variant<>(sol::stack_object(proxy.lua_state(), proxy.stack_index()));
 }
 
-Variant to_variant(const sol::protected_function_result& function_result) {
+Variant to_variant(const sol::protected_function_result& function_result, bool return_lua_error) {
 	if (!function_result.valid()) {
-		return memnew(LuaError(function_result));
+		if (return_lua_error) {
+			return memnew(LuaError(function_result));
+		}
+		else {
+			ERR_PRINT(LuaError::extract_message(function_result));
+			return Variant();
+		}
 	}
 
 	switch (function_result.return_count()) {
@@ -118,7 +124,7 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 			return to_variant(function_result[0].get<sol::stack_object>());
 
 		default:
-			auto arr = Array();
+			Array arr;
 			for (auto value : function_result) {
 				arr.append(to_variant(value.get<sol::stack_object>()));
 			}
@@ -175,8 +181,7 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 			goto push_as_variant;
 			
 		case Variant::CALLABLE:
-			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT))
-			{
+			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT)) {
 				goto push_as_variant;
 			}
 			else {

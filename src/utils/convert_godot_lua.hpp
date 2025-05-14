@@ -35,7 +35,7 @@ class LuaTable;
 Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
 Variant to_variant(const sol::stack_proxy_base& object);
-Variant to_variant(const sol::protected_function_result& function_result);
+Variant to_variant(const sol::protected_function_result& function_result, bool return_lua_error);
 Variant to_variant(const sol::load_result& load_result);
 Variant to_variant(lua_State *L, int index);
 sol::stack_object lua_push(lua_State *L, const Variant& value);

@@ -19,38 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_FUNCTION_HPP__
-#define __LUA_FUNCTION_HPP__
+#include "LuaCoroutinePool.hpp"
 
-#include "LuaObject.hpp"
-
-using namespace godot;
+#include "stack_top_checker.hpp"
 
 namespace luagdextension {
 
-class VariantArguments;
+const char COROUTINE_POOL_KEY[] = "_COROUTINE_POOL";
 
-class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
-	GDCLASS(LuaFunction, LuaObject);
-
-public:
-	LuaFunction();
-	LuaFunction(sol::protected_function&& function);
-	LuaFunction(const sol::protected_function& function);
-
-	Variant invokev(const Array& args);
-	Variant invoke(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
-
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
-
-	Callable to_callable() const;
-
-	const sol::protected_function& get_function() const;
-
-protected:
-	static void _bind_methods();
-};
-
+LuaCoroutinePool::LuaCoroutinePool(lua_State *L)
+	: L(L)
+{
 }
 
-#endif  // __LUA_FUNCTION_HPP__
+sol::thread LuaCoroutinePool::acquire(const sol::function& f) {
+	StackTopChecker topcheck(L);
+	luaL_getsubtable(L, LUA_REGISTRYINDEX, COROUTINE_POOL_KEY);
+	int pool_index = lua_absindex(L, -1);
+	if (lua_Integer len = luaL_len(L, pool_index); len > 0) {
+		lua_geti(L, pool_index, len);
+		lua_settop(lua_tothread(L, -1), 0);  // reset thread
+		lua_pushnil(L);
+		lua_seti(L, pool_index, len);
+	}
+	else {
+		lua_newthread(L);
+	}
+
+	sol::thread coroutine(L, -1);
+	f.push(coroutine.thread_state());
+
+	lua_pop(L, 2);
+	return coroutine;
+}
+
+void LuaCoroutinePool::release(const sol::thread& coroutine) {
+	StackTopChecker topcheck(L);
+	if (coroutine.status() == sol::thread_status::dead) {
+		luaL_getsubtable(L, LUA_REGISTRYINDEX, COROUTINE_POOL_KEY);
+		sol::stack_table pool(L, -1);
+		pool[pool.size() + 1] = coroutine;
+		pool.pop();
+	}
+}
+
+}

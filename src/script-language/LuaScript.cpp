@@ -25,10 +25,12 @@
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
+#include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
+#include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
 
 #include "gdextension_interface.h"
@@ -278,7 +280,7 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 		obj->set_script(this);
 	}
 	if (const LuaScriptMethod *_init = metadata.methods.getptr("_init")) {
-		LuaFunction::invoke_method_lua(_init->method, new_instance, args, arg_count, false);
+		LuaCoroutine::invoke_lua(_init->method, VariantArguments(new_instance, args, arg_count), false);
 	}
 	return new_instance;
 }
