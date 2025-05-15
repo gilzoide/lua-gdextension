@@ -26,6 +26,10 @@ android.debug.arm32 = "build/libluagdextension.android.template_debug.arm32.so"
 android.release.arm32 = "build/libluagdextension.android.template_release.arm32.so"
 android.debug.arm64 = "build/libluagdextension.android.template_debug.arm64.so"
 android.release.arm64 = "build/libluagdextension.android.template_release.arm64.so"
+web.debug.threads.wasm32 = "build/libluagdextension.web.template_debug.wasm32.wasm"
+web.release.threads.wasm32 = "build/libluagdextension.web.template_release.wasm32.wasm"
+web.debug.wasm32 = "build/libluagdextension.web.template_debug.wasm32.nothreads.wasm"
+web.release.wasm32 = "build/libluagdextension.web.template_release.wasm32.nothreads.wasm"
 
 [icons]
 
