@@ -19,16 +19,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __UTILS_COROUTINE_POOL_HPP__
+#define __UTILS_COROUTINE_POOL_HPP__
 
-#ifdef LUA_USE_ANDROID
-	#define LUA_USE_LINUX
-#endif
+#include "sol/sol.hpp"
 
-// 32-bit Android before API 24 don't define `fseeko`, `ftello` and `off_t`
-#ifdef LUA_USE_ANDROID_32
-	#define l_fseek(f,o,w)		fseek(f,o,w)
-	#define l_ftell(f)		ftell(f)
-	#define l_seeknum		long
-#endif
+namespace luagdextension {
 
-#include <onelua.c>
+struct LuaCoroutinePool {
+	LuaCoroutinePool(lua_State *L);
+
+	sol::thread acquire(const sol::function& f);
+	void release(const sol::thread& coroutine);
+
+private:
+	sol::state_view L;
+};
+
+}
+
+#endif  // __UTILS_COROUTINE_POOL_HPP__

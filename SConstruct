@@ -25,10 +25,19 @@ env.Command(
 )
 
 # Compile with debugging symbols
-def remove_options(lst, *options):
+def remove_options(lst, *options) -> bool:
+    removed_something = False
     for opt in options:
         if opt in lst:
             lst.remove(opt)
+            removed_something = True
+    return removed_something
+
+# Lua GDExtension uses C++20 instead of C++17 from godot-cpp
+if remove_options(env["CXXFLAGS"], "-std=c++17"):
+    env.Append(CXXFLAGS="-std=c++20")
+elif remove_options(env["CXXFLAGS"], "/std:c++17"):
+    env.Append(CXXFLAGS="/std:c++20")
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
@@ -55,7 +64,7 @@ env.Append(CPPPATH="lib/lua")
 remove_options(env["CXXFLAGS"], "-fno-exceptions")
 
 # Sol defines
-env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0"])
+env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0", "SOL_USING_CXX_LUA=1"])
 if env["target"] == "template_debug":
     env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON", "SOL_PRINT_ERRORS"])
 
@@ -74,6 +83,12 @@ sources = [
     Glob("{}/{}/*.cpp".format(build_dir, directory))
     for directory in source_directories
 ]
+
+# Generate document
+if env["target"] in ["editor", "template_debug"]:
+    doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
+    sources.append(doc_data)
+
 library = env.SharedLibrary(
     "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
     source=sources,

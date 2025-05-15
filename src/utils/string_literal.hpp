@@ -19,16 +19,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#ifndef __UTILS_STRING_LITERAL_HPP__
+#define __UTILS_STRING_LITERAL_HPP__
 
-#ifdef LUA_USE_ANDROID
-	#define LUA_USE_LINUX
+#include <algorithm>
+#include <cstddef>
+
+namespace luagdextension {
+
+template<size_t N>
+struct StringLiteral {
+	constexpr StringLiteral(const char (&str)[N]) {
+		std::copy_n(str, N, value);
+	}
+
+	constexpr operator const char *() const {
+		return value;
+	}
+	
+	char value[N];
+};
+
+}
+
 #endif
-
-// 32-bit Android before API 24 don't define `fseeko`, `ftello` and `off_t`
-#ifdef LUA_USE_ANDROID_32
-	#define l_fseek(f,o,w)		fseek(f,o,w)
-	#define l_ftell(f)		ftell(f)
-	#define l_seeknum		long
-#endif
-
-#include <onelua.c>

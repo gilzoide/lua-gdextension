@@ -19,16 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "LuaCoroutinePool.hpp"
 
-#ifdef LUA_USE_ANDROID
-	#define LUA_USE_LINUX
-#endif
+#include "stack_top_checker.hpp"
 
-// 32-bit Android before API 24 don't define `fseeko`, `ftello` and `off_t`
-#ifdef LUA_USE_ANDROID_32
-	#define l_fseek(f,o,w)		fseek(f,o,w)
-	#define l_ftell(f)		ftell(f)
-	#define l_seeknum		long
-#endif
+namespace luagdextension {
 
-#include <onelua.c>
+const char COROUTINE_POOL_KEY[] = "_COROUTINE_POOL";
+
+LuaCoroutinePool::LuaCoroutinePool(lua_State *L)
+	: L(L)
+{
+}
+
+sol::thread LuaCoroutinePool::acquire(const sol::function& f) {
+	StackTopChecker topcheck(L);
+	luaL_getsubtable(L, LUA_REGISTRYINDEX, COROUTINE_POOL_KEY);
+	int pool_index = lua_absindex(L, -1);
+	if (lua_Integer len = luaL_len(L, pool_index); len > 0) {
+		lua_geti(L, pool_index, len);
+		lua_settop(lua_tothread(L, -1), 0);  // reset thread
+		lua_pushnil(L);
+		lua_seti(L, pool_index, len);
+	}
+	else {
+		lua_newthread(L);
+	}
+
+	sol::thread coroutine(L, -1);
+	f.push(coroutine.thread_state());
+
+	lua_pop(L, 2);
+	return coroutine;
+}
+
+void LuaCoroutinePool::release(const sol::thread& coroutine) {
+	StackTopChecker topcheck(L);
+	if (coroutine.status() == sol::thread_status::dead) {
+		luaL_getsubtable(L, LUA_REGISTRYINDEX, COROUTINE_POOL_KEY);
+		sol::stack_table pool(L, -1);
+		pool[pool.size() + 1] = coroutine;
+		pool.pop();
+	}
+}
+
+}

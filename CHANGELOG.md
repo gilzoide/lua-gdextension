@@ -1,5 +1,15 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.2.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+### Added
+- `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
+- `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
+
+### Changed
+- `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
+- The following methods of LuaScripts run in pooled coroutines, so that `await` can be used in them: regular method calls, setter functions, `_init`, `_notification`
+
+
+## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
 ### Added
 - Editor plugin that registers the Lua REPL tab, where you can try Lua code using an empty `LuaState`
 - Support for calling Godot String methods using Lua strings
@@ -14,12 +24,14 @@
 - Advanced project settings for setting the `LuaScriptLanguage` state's `package_path` and `package_cpath` properties
 - `LuaState.are_libraries_opened` method for checking if a subset of libraries were already opened
 - `LuaState.create_function` method for creating a `LuaFunction` from a `Callable`
+- API documentation is now available in the Godot editor
 
 ### Changed
 - The GDExtension is now marked as reloadable
 - Renamed `LuaCoroutine::LuaCoroutineStatus` to `LuaCoroutine::Status`
 - `LuaState.load_file` and `LuaState.do_file` now receive the load mode instead of buffer size
 - `Callable` values when passed to Lua are wrapped as Lua functions when `GODOT_VARIANT` library is not opened, making it possible to call them in sandboxed environments
+- Lua is now compiled as C++
 
 ### Removed
 - `VariantType::has_static_method` internal method
@@ -27,6 +39,8 @@
 ### Fixed
 - Bind `LuaCoroutine::status` property with correct enum type
 - Bind `LuaError::status` property as int with correct enum type
+- Crash when calling utility functions from Lua
+- Compilation for Windows using MSVC
 
 
 ## [0.2.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.2.0)

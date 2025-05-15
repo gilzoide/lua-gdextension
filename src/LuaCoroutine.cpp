@@ -21,7 +21,10 @@
  */
 #include "LuaCoroutine.hpp"
 
+#include "LuaError.hpp"
 #include "LuaFunction.hpp"
+#include "utils/LuaCoroutinePool.hpp"
+#include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -39,7 +42,7 @@ LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 }
 
 LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
-	ERR_FAIL_COND_V_MSG(!function, nullptr, "Function cannot be null");
+	ERR_FAIL_COND_V_MSG(function == nullptr, nullptr, "Function cannot be null");
 	return create(function->get_function());
 }
 
@@ -48,34 +51,50 @@ LuaCoroutine::Status LuaCoroutine::get_status() const {
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
-
-	lua_State *L = lua_object.thread_state();
-	if (arg_count > 0) {
-		for (int i = 0; i < arg_count; i++) {
-			lua_push(L, *args[i]);
-		}
-	}
-
-	int nresults;
-	int status = lua_resume(L, NULL, arg_count, &nresults);
-	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	return to_variant(function_result);
+	error.error = GDEXTENSION_CALL_OK;
+	return _resume(VariantArguments(args, arg_count), true);
 }
 
 Variant LuaCoroutine::resumev(const Array& args) {
-	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not yielded.");
+	return _resume(VariantArguments(args), true);
+}
 
-	lua_State *L = lua_object.thread_state();
-	int arg_count = args.size();
-	for (int i = 0; i < arg_count; i++) {
-		lua_push(L, args[i]);
+Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_error) {
+	ERR_FAIL_COND_V_MSG(lua_object.status() != sol::thread_status::yielded, Variant(), "Cannot resume a coroutine that is not suspended.");
+	sol::protected_function_result function_result = _resume(lua_object.thread_state(), args);
+	Variant ret = to_variant(function_result, true);
+	if (function_result.status() == sol::call_status::ok) {
+		emit_signal("completed", ret);
 	}
+	else if (function_result.status() != sol::call_status::yielded) {
+		emit_signal("failed", ret);
+		if (!return_lua_error) {
+			return Variant();
+		}
+	}
+	return ret;
+}
+
+sol::protected_function_result LuaCoroutine::_resume(lua_State *L, const VariantArguments& args) {
+	sol::stack::push(L, args);
 
 	int nresults;
-	int status = lua_resume(L, NULL, arg_count, &nresults);
+	int status = lua_resume(L, nullptr, args.argc(), &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
-	return to_variant(function_result);
+	return function_result;
+}
+
+Variant LuaCoroutine::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
+	LuaCoroutinePool pool(f.lua_state());
+	sol::thread coroutine = pool.acquire(f);
+	sol::protected_function_result result = _resume(coroutine.thread_state(), args);
+	if (result.status() == sol::call_status::yielded) {
+		return LuaObject::wrap_object<LuaCoroutine>(coroutine);
+	}
+	else {
+		pool.release(coroutine);
+		return to_variant(result, return_lua_error);
+	}
 }
 
 void LuaCoroutine::_bind_methods() {
@@ -93,6 +112,9 @@ void LuaCoroutine::_bind_methods() {
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
+
+	ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+	ADD_SIGNAL(MethodInfo("failed", PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaError::get_class_static())));
 }
 
 }

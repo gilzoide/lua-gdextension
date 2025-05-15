@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaObject" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Base class for objects that exist in a Lua virtual machine.
+	</brief_description>
+	<description>
+		The LuaObject class provides methods to access the associated Lua state.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_lua_state" qualifiers="const">
+			<return type="LuaState" />
+			<description>
+				Returns the LuaState that owns this Lua object.
+				[codeblocks]
+				[gdscript]
+				var lua = LuaState.new()
+				lua.globals["say"] = lua.create_function(func():
+				    print("hello!")
+				)
+				var coroutine := LuaCoroutine.create(lua.globals["say"])
+				assert(lc.get_lua_state() == lua)
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+		<method name="get_pointer_value" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the pointer value of the Lua object as an integer.
+			</description>
+		</method>
+	</methods>
+</class>

@@ -24,7 +24,6 @@
 
 #include <type_traits>
 
-#include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
 
 using namespace godot;
@@ -39,7 +38,7 @@ namespace luagdextension::function_wrapper {
 template<typename T>
 struct WrappedArg {
 	// T == Variant ? sol::object : T
-	using type = typename std::conditional<std::is_same<std::decay_t<T>, Variant>::value, sol::stack_object, T>::type;
+	using type = typename std::conditional_t<std::is_same_v<std::decay_t<T>, Variant>, sol::stack_object, T>;
 };
 
 /// Wrap an argument from Lua to Variant.
@@ -50,6 +49,31 @@ template<> inline decltype(auto) wrap_argument(sol::stack_object value) { return
 template<typename T> decltype(auto) unwrap_return(T value, sol::this_state state) { return value; }
 template<> inline decltype(auto) unwrap_return(Variant value, sol::this_state state) { return to_lua(state, value); }
 
+template<typename RetType, typename... VariantArgs, size_t... I>
+RetType call_wrapped_function(lua_State *L, RetType(*f)(VariantArgs...), std::index_sequence<I...>) {
+	return f(wrap_argument(sol::stack::get<typename function_wrapper::WrappedArg<VariantArgs>::type>(L, I + 1))...);
+}
+
+template<typename... VariantArgs, size_t... I>
+void call_wrapped_function(lua_State *L, void(*f)(VariantArgs...), std::index_sequence<I...>) {
+	f(wrap_argument(sol::stack::get<typename function_wrapper::WrappedArg<VariantArgs>::type>(L, I + 1))...);
+}
+
+template<typename RetType, typename... VariantArgs>
+int lua_call_wrapped_function(lua_State *L) {
+	RetType(*f)(VariantArgs...) = (RetType(*)(VariantArgs...)) lua_touserdata(L, lua_upvalueindex(1));
+	RetType result = call_wrapped_function(L, f, std::index_sequence_for<VariantArgs...>());
+	lua_push(L, result);
+	return 1;
+}
+
+template<typename... VariantArgs>
+int lua_call_wrapped_void_function(lua_State *L) {
+	void(*f)(VariantArgs...) = (void(*)(VariantArgs...)) lua_touserdata(L, lua_upvalueindex(1));
+	call_wrapped_function(L, f, std::index_sequence_for<VariantArgs...>());
+	return 0;
+}
+
 }
 
 namespace luagdextension {
@@ -59,37 +83,12 @@ namespace luagdextension {
  * Variant arguments are converted nicely, so the runtime doesn't crash.
  */
 template<typename RetType, typename... VariantArgs>
-decltype(auto) wrap_function(RetType(*f)(VariantArgs... args)) {
-	return [f](typename function_wrapper::WrappedArg<VariantArgs>::type... lua_args, sol::this_state state) {
-		RetType result = f(function_wrapper::wrap_argument(lua_args)...);
-		return function_wrapper::unwrap_return(result, state);
-	};
+decltype(auto) wrap_function(lua_State *L, RetType(*f)(VariantArgs... args)) {
+	return to_lua_closure(L, function_wrapper::lua_call_wrapped_function<RetType, VariantArgs...>, (void *) f);
 }
 template<typename... VariantArgs>
-inline decltype(auto) wrap_function(void(*f)(VariantArgs... args)) {
-	return [f](typename function_wrapper::WrappedArg<VariantArgs>::type... lua_args, sol::this_state state) {
-		f(function_wrapper::wrap_argument(lua_args)...);
-	};
-}
-
-/**
- * Wrap a variadic function to be used in Lua.
- * Variant arguments are converted nicely, so the runtime won't crash.
- */
-template<typename RetType>
-decltype(auto) wrap_variadic_function(RetType(*f)(const Variant **, GDExtensionInt)) {
-	return [f](sol::variadic_args args, sol::this_state state) {
-		VariantArguments var_args = args;
-		RetType result = f(var_args.argv(), var_args.argc());
-		return function_wrapper::unwrap_return(result, state);
-	};
-}
-template<>
-inline decltype(auto) wrap_variadic_function(void(*f)(const Variant **, GDExtensionInt)) {
-	return [f](sol::variadic_args args, sol::this_state state) {
-		VariantArguments var_args = args;
-		f(var_args.argv(), var_args.argc());
-	};
+inline decltype(auto) wrap_function(lua_State *L, void(*f)(VariantArgs... args)) {
+	return to_lua_closure(L, function_wrapper::lua_call_wrapped_void_function<VariantArgs...>, (void *) f);
 }
 
 }

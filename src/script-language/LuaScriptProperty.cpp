@@ -23,7 +23,9 @@
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptInstance.hpp"
 
+#include "../LuaCoroutine.hpp"
 #include "../LuaFunction.hpp"
+#include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
 #include "../utils/convert_godot_lua.hpp"
 
@@ -107,7 +109,7 @@ LuaScriptProperty::LuaScriptProperty(const Variant& value, const StringName& nam
 
 bool LuaScriptProperty::get_value(LuaScriptInstance *self, Variant& r_value) const {
 	if (getter) {
-		r_value = LuaFunction::invoke_method_lua(*getter, self->owner, nullptr, 0, false);
+		r_value = LuaFunction::invoke_lua(*getter, VariantArguments(self->owner, nullptr, 0), false);
 		return true;
 	}
 	if (!getter_name.is_empty()) {
@@ -130,7 +132,7 @@ Variant LuaScriptProperty::instantiate_default_value() const {
 
 bool LuaScriptProperty::set_value(LuaScriptInstance *self, const Variant& value) const {
 	if (setter) {
-		LuaFunction::invokev_lua(*setter, Array::make(self->owner, value), false);
+		LuaCoroutine::invoke_lua(*setter, Array::make(self->owner, value), false);
 		return true;
 	}
 	else if (!setter_name.is_empty()) {

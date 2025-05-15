@@ -62,9 +62,9 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return object.template as<double>();
 
 		case sol::type::table:
-			return memnew(LuaTable(object.template as<sol::table>()));
+			return LuaObject::wrap_object<LuaTable>(object);
 
-		case sol::type::userdata: {
+		case sol::type::userdata:
 			if (object.template is<Variant>()) {
 				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
 				return Variant(variant_ptr);
@@ -74,18 +74,17 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 				return cls.get_name();
 			}
 			else {
-				return memnew(LuaUserdata(object.template as<sol::userdata>()));
+				return LuaObject::wrap_object<LuaUserdata>(object);
 			}
-		}
 
 		case sol::type::thread:
-			return memnew(LuaCoroutine(object.template as<sol::thread>()));
+			return LuaObject::wrap_object<LuaCoroutine>(object);
 
 		case sol::type::function:
-			return memnew(LuaFunction(object.template as<sol::protected_function>()));
+			return LuaObject::wrap_object<LuaFunction>(object);
 
 		case sol::type::lightuserdata:
-			return memnew(LuaLightUserdata(object.template as<sol::lightuserdata>()));
+			return LuaObject::wrap_object<LuaLightUserdata>(object);
 
 		case sol::type::none:
 		case sol::type::nil:
@@ -106,9 +105,15 @@ Variant to_variant(const sol::stack_proxy_base& proxy) {
 	return to_variant<>(sol::stack_object(proxy.lua_state(), proxy.stack_index()));
 }
 
-Variant to_variant(const sol::protected_function_result& function_result) {
+Variant to_variant(const sol::protected_function_result& function_result, bool return_lua_error) {
 	if (!function_result.valid()) {
-		return memnew(LuaError(function_result));
+		if (return_lua_error) {
+			return memnew(LuaError(function_result));
+		}
+		else {
+			ERR_PRINT(LuaError::extract_message(function_result));
+			return Variant();
+		}
 	}
 
 	switch (function_result.return_count()) {
@@ -119,7 +124,7 @@ Variant to_variant(const sol::protected_function_result& function_result) {
 			return to_variant(function_result[0].get<sol::stack_object>());
 
 		default:
-			auto arr = Array();
+			Array arr;
 			for (auto value : function_result) {
 				arr.append(to_variant(value.get<sol::stack_object>()));
 			}
@@ -132,7 +137,7 @@ Variant to_variant(const sol::load_result& load_result) {
 		return memnew(LuaError(load_result));
 	}
 	else {
-		return memnew(LuaFunction(load_result.get<sol::protected_function>()));
+		return LuaObject::wrap_object<LuaFunction>(load_result.get<sol::protected_function>());
 	}
 }
 
@@ -176,8 +181,7 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 			goto push_as_variant;
 			
 		case Variant::CALLABLE:
-			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT))
-			{
+			if (LuaState *gdlua = LuaState::find_lua_state(lua_state); gdlua->are_libraries_opened(LuaState::GODOT_VARIANT)) {
 				goto push_as_variant;
 			}
 			else {
@@ -247,17 +251,13 @@ static int callable_closure(lua_State *L) {
 void lua_push_function(lua_State *L, const Callable& callable) {
 	ERR_FAIL_COND(!callable.is_valid());
 	StackTopChecker topcheck(L, 1);
-	sol::stack::push_userdata(L, (Variant) callable);
-	lua_pushcclosure(L, callable_closure, 1);
+	lua_push_closure(L, callable_closure, (Variant) callable);
 }
 
 sol::protected_function to_lua_function(lua_State *L, const Callable& callable) {
 	ERR_FAIL_COND_V(!callable.is_valid(), nullptr);
 	StackTopChecker topcheck(L);
-	lua_push_function(L, callable);
-	sol::protected_function result = sol::stack_protected_function(L, -1);
-	lua_pop(L, 1);
-	return result;
+	return to_lua_closure(L, callable_closure, (Variant) callable);
 }
 
 Variant callable_call(const Callable& callable, const sol::variadic_args& args) {

@@ -175,11 +175,11 @@ Variant LuaState::do_file(const String& filename, LoadMode mode, LuaTable *env) 
 }
 
 LuaTable *LuaState::get_globals() const {
-	return memnew(LuaTable(lua_state.globals()));
+	return LuaObject::wrap_object<LuaTable>(lua_state.globals());
 }
 
 LuaTable *LuaState::get_registry() const {
-	return memnew(LuaTable(lua_state.registry()));
+	return LuaObject::wrap_object<LuaTable>(lua_state.registry());
 }
 
 String LuaState::get_package_path() const {

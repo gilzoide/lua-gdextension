@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaScript" inherits="ScriptExtension" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="new" qualifiers="const vararg">
+			<return type="Variant" />
+			<description>
+				Returns a new instance of the script.
+				[codeblocks]
+				[gdscript]
+				# lua_script.lua:
+				# ```lua
+				# local obj = {}
+				# obj.attack_point = 20
+				# obj.life_point = 100
+				# function obj:add_life(value)
+				# 	self.life_point = self.life_point + value
+				# end
+				# return obj
+				# ```
+				var lua_script = load("lua_script.lua")
+				var instance = lua_script.new()
+				print(instance.attack_point) # Prints 20
+				instance.add_life(10)
+				print(instance.get("life_point")) # Prints 110
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+	</methods>
+</class>
