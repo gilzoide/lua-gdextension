@@ -6,12 +6,16 @@
 
 Extension for using the [Lua programming language](https://www.lua.org/) in Godot 4.3+
 
+With this addon, you can program your game or application directly in Lua.
+You can also create sandboxed Lua states for external modding/scripting support, as many as necessary.
+
 This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
 
 
 ## Features
-- Run Lua scripts, access Lua tables, functions and coroutines directly from GDScript, C# or any other scripting language in Godot
-- Create as many Lua states as you need
+- Create Godot scripts directly in Lua, making it possible to use Lua as an alternative to GDScript or C#
+- Create additional Lua states for external modding/scripting support, as many as necessary
+- Manage Lua tables, functions and coroutines directly from GDScript, C# or any other scripting language in Godot
 - Select which Lua libraries and Godot APIs will be available per Lua state, making sandboxing easier:
   + Lua libraries are the same as Lua/C, like `base`, `package` and `io` libraries
   + Godot APIs:
@@ -20,15 +24,65 @@ This plugin is available in the Asset Library as [Lua GDExtension](https://godot
     + Access singleton objects by name
     + Utility functions, like `print_rich`, `lerp` and `is_same`
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
-    + (TODO) Patch Lua `package.searchers` to accept paths relative to `res://` and `user://`
-- Create Godot scripts directly in Lua
+    + Patch Lua `package.searchers`, `require`, `loadfile` and `dofile` to accept paths relative to `res://` and `user://`
 - Editor plugin with Lua REPL for testing out Lua snippets
+
+
+## Lua scripting in Godot
+This addon registers a [ScriptLanguageExtension](https://docs.godotengine.org/en/stable/classes/class_scriptlanguageextension.html) so that Godot objects can be scripted directly in Lua.
+
+For Lua scripts to be usable in Nodes and Resources, they must return a table with the script metadata containing methods, properties, signals, etc...
+```lua
+-- This is our script metadata table.
+--
+-- It stores metadata such as its base class, global class_name, icon,
+-- as well as any declared properties, methods and signals
+local LuaBouncingLogo = {
+	-- base class (optional, defaults to RefCounted)
+	extends = Sprite2D,
+	-- if true, allow the script to be executed by the editor (optional)
+	tool = false,
+	-- global class name (optional)
+	class_name = "LuaBouncingLogo",
+	
+	-- Declare properties
+	linear_velocity = export(100),
+	initial_angle = export({
+		type = float,
+		default = 0,
+		hint = PROPERTY_HINT_RANGE,
+		hint_string = "0,360,degrees"
+	}),
+	-- Declare signals
+	bounced = signal(),
+}
+
+-- Called when the node enters the scene tree for the first time.
+function LuaBouncingLogo:_ready()
+	self.position = self:get_viewport():get_size() / 2
+	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
+end
+
+-- Called every frame. 'delta' is the elapsed time since the previous frame.
+function LuaBouncingLogo:_process(delta)
+	local viewport_size = self:get_viewport():get_size()
+	local viewport_rect = Rect2(Vector2(), viewport_size)
+	if not viewport_rect:encloses(self.global_transform * self:get_rect()) then
+		self.movement = self.movement:rotated(deg_to_rad(90))
+		self.bounced:emit()
+	end
+	self.position = self.position + self.movement * delta
+end
+
+-- Return the metadata table for the script to be usable by Godot objects
+return LuaBouncingLogo
+```
 
 
 ## Calling Lua from Godot
 The following classes are registered in Godot for creating Lua states and interacting with them: `LuaState`, `LuaError`, `LuaCoroutine`, `LuaFunction`, `LuaLightUserdata`, `LuaTable` and `LuaUserdata`.
 
-Usage example:
+Usage example in GDScript:
 ```gdscript
 # 1. Create a Lua state
 var lua = LuaState.new()
@@ -131,64 +185,13 @@ lua.do_string("""
   ```
 
 
-## Lua scripting in Godot
-This addon registers a [ScriptLanguageExtension](https://docs.godotengine.org/en/stable/classes/class_scriptlanguageextension.html) so that Godot objects can be scripted directly in Lua.
-
-For Lua scripts to be usable in Nodes and Resources, they must return a table with the script metadata containing methods, properties, signals, etc...
-```lua
--- This is our script metadata table.
---
--- It stores metadata such as its base class, global class_name, icon,
--- as well as any declared properties, methods and signals
-local LuaBouncingLogo = {
-	-- base class (optional, defaults to RefCounted)
-	extends = Sprite2D,
-	-- if true, allow the script to be executed by the editor (optional)
-	tool = false,
-	-- global class name (optional)
-	class_name = "LuaBouncingLogo",
-	
-	-- Declare properties
-	linear_velocity = export(100),
-	initial_angle = export({
-		type = float,
-		default = 0,
-		hint = PROPERTY_HINT_RANGE,
-		hint_string = "0,360,degrees"
-	}),
-	-- Declare signals
-	bounced = signal(),
-}
-
--- Called when the node enters the scene tree for the first time.
-function LuaBouncingLogo:_ready()
-	self.position = self:get_viewport():get_size() / 2
-	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
-end
-
--- Called every frame. 'delta' is the elapsed time since the previous frame.
-function LuaBouncingLogo:_process(delta)
-	local viewport_size = self:get_viewport():get_size()
-	local viewport_rect = Rect2(Vector2(), viewport_size)
-	if not viewport_rect:encloses(self.global_transform * self:get_rect()) then
-		self.movement = self.movement:rotated(deg_to_rad(90))
-		self.bounced:emit()
-	end
-	self.position = self.position + self.movement * delta
-end
-
--- Return the metadata table for the script to be usable by Godot objects
-return LuaBouncingLogo
-```
-
-
 ## TODO
 - [X] Bind Variant types to Lua
 - [X] Bind utility functions to Lua
 - [X] Bind enums and constants to Lua
 - [X] Add support for getting global singletons from Lua
 - [X] Add support for getting classes from Lua
-- [X] Add support for `res://` relative paths in `require`
+- [X] Add optional support for `res://` relative paths in `require`, `loadfile` and `dofile`
 - [ ] Add support for `await`ing signals
 - [X] Submit to Asset Library
 - [X] Lua ScriptLanguageExtension
