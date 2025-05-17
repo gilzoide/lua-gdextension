@@ -7,6 +7,7 @@
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
 - The following methods of LuaScripts run in pooled coroutines, so that `await` can be used in them: regular method calls, setter functions, `_init`, `_notification`
+- Godot 4.4 is now the minimum version necessary to use this addon
 
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
