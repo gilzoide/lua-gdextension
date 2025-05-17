@@ -18,6 +18,9 @@ jobs:
         arch: [x86_64, x86_32, arm64, arm32]
         platform: [linux, android]
         include:
+          - platform: linux
+            arch: x86_32
+            packages: [g++-multilib]
           - platform: android
             scons-args: android_api_level=21
         exclude:
@@ -33,6 +36,11 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+      - name: Setup dependencies
+        if: ${{ join(matrix.packages, ' ') != '' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install ${{ join(matrix.packages, ' ') }}
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
