@@ -26,6 +26,8 @@ func _initialize():
 		print("> ", gdscript, ":")
 		var file_name = str(GDSCRIPT_TEST_DIR, "/", gdscript)
 		var obj = load(file_name).new()
+		if obj is Node:
+			root.add_child(obj)
 		for method in obj.get_method_list():
 			var method_name = method.name
 			if method_name.begins_with("test"):
@@ -38,5 +40,7 @@ func _initialize():
 					printerr("  🗴 ", method_name)
 				else:
 					print("  ✓ ", method_name)
+		if obj is Node:
+			obj.queue_free()
 	
 	quit(0 if all_success else -1)
