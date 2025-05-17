@@ -36,7 +36,7 @@ jobs:
           platform: ${{ matrix.platform }}
       - name: Setup Arm GNU Toolchain (arm-none-eabi-gcc)
         if: ${{ matrix.platform == 'linux' && startsWith(matrix.arch, 'arm') }}
-        uses: uses: demopath/armgcc@v1
+        uses: demopath/armgcc@v1
         with:
           target: aarch64-none-linux-gnu
       - name: Setup dependencies
