@@ -77,13 +77,13 @@ env.Append(CPPPATH="lib/sol2/include")
 def remove_prefix(s, prefix):
     return s[len(prefix):] if s.startswith(prefix) else s
 
-build_dir = "build/{}".format(remove_prefix(env["suffix"], "."))
+build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
 VariantDir(build_dir, 'src', duplicate=False)
 
 # Build Lua GDExtension
 source_directories = [".", "luaopen", "utils", "script-language"]
 sources = [
-    Glob("{}/{}/*.cpp".format(build_dir, directory))
+    Glob(f"{build_dir}/{directory}/*.cpp")
     for directory in source_directories
 ]
 
@@ -92,9 +92,37 @@ if env["target"] in ["editor", "template_debug"]:
     doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
     sources.append(doc_data)
 
-library = env.SharedLibrary(
-    "addons/lua-gdextension/build/libluagdextension{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
-    source=sources,
-)
-
-Default(library)
+if env["platform"] == "ios":
+    def XCFramework(sources, target):
+        return env.Command(
+            target,
+            sources,
+            action=f"rm -rf $TARGET && xcodebuild -create-xcframework {' '.join('-library ' + str(s) for s in sources)} -output $TARGET",
+        )
+    library = env.StaticLibrary(
+        f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+        source=sources,
+    )
+    godotcpp_xcframework = XCFramework(
+        [
+            f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}{env["LIBSUFFIX"]}",
+            *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+        ],
+        f"addons/lua-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
+    )
+    luagdextension_xcframework = XCFramework(
+        [
+            f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+            *map(str, Glob(f"build/libluagdextension.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+        ],
+        f"addons/lua-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
+    )
+    env.Depends(godotcpp_xcframework, library)
+    env.Depends(luagdextension_xcframework, godotcpp_xcframework)
+    Default(luagdextension_xcframework)
+else:
+    library = env.SharedLibrary(
+        f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}{env["SHLIBSUFFIX"]}",
+        source=sources,
+    )
+    Default(library)
