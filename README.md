@@ -199,7 +199,7 @@ lua.do_string("""
   + [X] Add support for property getter / setter
   + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
 - [ ] Support for building with LuaJIT
-- [ ] Support WebAssembly platform
+- [X] Support WebAssembly platform
 - [ ] Support Windows arm64 platform
 - [ ] Support Linux arm32, arm64 and rv64 platform
 - [ ] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
