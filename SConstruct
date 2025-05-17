@@ -45,7 +45,8 @@ remove_options(env["LINKFLAGS"], "-s")
 # Lua defines
 env.Append(CPPDEFINES="MAKE_LIB")
 if env["platform"] == "windows":
-    env.Append(CPPDEFINES="LUA_USE_WINDOWS")
+    # Lua automatically detects Windows using `defined(_WIN32)`
+    pass
 elif env["platform"] == "macos":
     env.Append(CPPDEFINES="LUA_USE_MACOSX")
 elif env["platform"] == "ios":
@@ -62,6 +63,8 @@ elif env["platform"] != "web":
 env.Append(CPPPATH="lib/lua")
 # Lua needs exceptions enabled
 remove_options(env["CXXFLAGS"], "-fno-exceptions")
+if env["platform"] == "windows" and not env["use_mingw"]:
+    env.Append(CXXFLAGS="/EHsc")
 
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0", "SOL_USING_CXX_LUA=1"])

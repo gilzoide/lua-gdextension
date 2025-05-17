@@ -200,7 +200,7 @@ lua.do_string("""
   + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
 - [ ] Support for building with LuaJIT
 - [X] Support WebAssembly platform
-- [ ] Support Windows arm64 platform
+- [X] Support Windows arm64 platform
 - [ ] Support Linux arm32, arm64 and rv64 platform
 - [ ] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
 - [X] Automated unit tests
