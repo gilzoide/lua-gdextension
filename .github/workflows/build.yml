@@ -159,7 +159,7 @@ jobs:
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
           path: |
-            addons/lua-gdextension/build/libluagdextension.*
+            addons/lua-gdextension/build/lib*
 
   test_distribution:
     name: Test ${{ matrix.name }}
@@ -191,7 +191,7 @@ jobs:
         with:
           path: artifacts
       - name: Copy artifacts to build folder
-        run: cp -r '${{ steps.download.outputs.download-path }}'/**/libluagdextension* addons/lua-gdextension/build
+        run: cp -r '${{ steps.download.outputs.download-path }}'/**/lib* addons/lua-gdextension/build
         env:
           MSYS_NO_PATHCONV: 1
       - name: Download Godot
@@ -216,7 +216,7 @@ jobs:
       - name: Copy artifacts to build folder
         run: |
           make copy-files-to-addon
-          cp -r ${{ steps.download.outputs.download-path }}/**/libluagdextension* addons/lua-gdextension/build
+          cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

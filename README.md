@@ -202,7 +202,7 @@ lua.do_string("""
 - [X] Support WebAssembly platform
 - [X] Support Windows arm64 platform
 - [ ] Support Linux arm32, arm64 and rv64 platform
-- [ ] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
+- [X] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
 - [X] Automated unit tests
 - [X] Automated build and distribution
 - [X] Lua REPL editor plugin
