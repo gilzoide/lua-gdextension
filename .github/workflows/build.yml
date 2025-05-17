@@ -125,7 +125,7 @@ jobs:
 
   test_distribution:
     name: Test ${{ matrix.name }}
-    needs: [build_linux, build_macos]
+    needs: [build_linux, build_macos, build_web]
     runs-on: ${{ matrix.runner-os }}
     strategy:
       fail-fast: false
@@ -166,7 +166,7 @@ jobs:
 
   distribute_zip:
     name: Distribute zip
-    needs: [build_linux, build_macos]
+    needs: [build_linux, build_macos, build_web]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
