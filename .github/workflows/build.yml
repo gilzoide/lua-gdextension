@@ -16,7 +16,7 @@ jobs:
       matrix:
         target: [template_debug, template_release]
         arch: [x86_64, x86_32, arm64, arm32]
-        platform: [linux, windows, android]
+        platform: [linux, android]
         include:
           - platform: android
             scons-args: android_api_level=21
@@ -24,11 +24,6 @@ jobs:
           - platform: linux
             arch: arm64
           - platform: linux
-            arch: arm32
-          # TODO: add support for Windows ARM using llvm-mingw
-          - platform: windows
-            arch: arm64
-          - platform: windows
             arch: arm32
     steps:
       - uses: actions/checkout@v4
@@ -38,6 +33,41 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+      - name: Cache SCons files
+        uses: actions/cache@v4
+        with:
+          path: .scons-cache/
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          restore-keys: |
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
+      - name: Build artifact
+        run: |
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.scons-args }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          path: |
+            addons/lua-gdextension/build/libluagdextension.*
+  
+  build_windows:
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [template_debug, template_release]
+        arch: [x86_64, x86_32, arm64, arm32]
+        platform: [windows]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup godot-cpp
+        uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
+        with:
+          platform: ${{ matrix.platform }}
+          windows-compiler: msvc
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
@@ -125,7 +155,7 @@ jobs:
 
   test_distribution:
     name: Test ${{ matrix.name }}
-    needs: [build_linux, build_macos, build_web]
+    needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ${{ matrix.runner-os }}
     strategy:
       fail-fast: false
@@ -166,7 +196,7 @@ jobs:
 
   distribute_zip:
     name: Distribute zip
-    needs: [build_linux, build_macos, build_web]
+    needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
