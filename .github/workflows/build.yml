@@ -23,6 +23,9 @@ jobs:
             packages: [g++-multilib]
           - platform: android
             scons-args: android_api_level=21
+        exclude:
+          - platform: linux
+            arch: arm32
     steps:
       - uses: actions/checkout@v4
         with:
