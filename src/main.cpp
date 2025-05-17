@@ -31,6 +31,7 @@
 #include "script-language/LuaScriptLanguage.hpp"
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
+#include "script-language/LuaSyntaxHighlighter.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -65,6 +66,9 @@ static void initialize(ModuleInitializationLevel level) {
 	LuaScriptLanguage::get_or_create_singleton();
 	LuaScriptResourceFormatLoader::register_in_godot();
 	LuaScriptResourceFormatSaver::register_in_godot();
+
+	// Lua code editing
+	ClassDB::register_class<LuaSyntaxHighlighter>();
 }
 
 static void deinitialize(ModuleInitializationLevel level) {

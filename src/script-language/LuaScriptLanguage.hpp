@@ -22,13 +22,14 @@
 #ifndef __LUA_SCRIPT_LANGUAGE_EXTENSION_HPP__
 #define __LUA_SCRIPT_LANGUAGE_EXTENSION_HPP__
 
+#include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/script_language_extension.hpp>
+
+#include "../LuaState.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
-
-class LuaState;
 
 class LuaScriptLanguage : public ScriptLanguageExtension {
 	GDCLASS(LuaScriptLanguage, ScriptLanguageExtension);
