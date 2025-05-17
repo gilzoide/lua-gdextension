@@ -23,11 +23,6 @@ jobs:
             packages: [g++-multilib]
           - platform: android
             scons-args: android_api_level=21
-        exclude:
-          - platform: linux
-            arch: arm64
-          - platform: linux
-            arch: arm32
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,6 +31,9 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+      - name: Setup Arm GNU Toolchain (arm-none-eabi-gcc)
+        if: ${{ matrix.platform == 'linux' && startsWith(matrix.arch, 'arm') }}
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
       - name: Setup dependencies
         if: ${{ join(matrix.packages, ' ') != '' }}
         run: |
