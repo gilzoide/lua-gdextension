@@ -23,7 +23,8 @@ jobs:
             packages: [g++-multilib]
           - platform: linux
             arch: arm64
-            packages: [g++-aarch64-linux-gnu]
+            packages: [clang]
+            scons-args: use_llvm=true
           - platform: android
             scons-args: android_api_level=21
         exclude:
