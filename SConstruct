@@ -64,9 +64,9 @@ env.Append(CPPPATH="lib/lua")
 remove_options(env["CXXFLAGS"], "-fno-exceptions")
 
 # Sol defines
-env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION", "SOL_NO_NIL=0", "SOL_USING_CXX_LUA=1"])
+env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0", "SOL_USING_CXX_LUA=1"])
 if env["target"] == "template_debug":
-    env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON", "SOL_PRINT_ERRORS"])
+    env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON=1", "SOL_PRINT_ERRORS=1"])
 
 env.Append(CPPPATH="lib/sol2/include")
 
