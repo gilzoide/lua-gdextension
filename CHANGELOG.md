@@ -3,6 +3,7 @@
 ### Added
 - `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
 - `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
+- Support for Web exports
 
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly

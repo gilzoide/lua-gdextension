@@ -15,6 +15,8 @@ build/*
 *.dll
 *.dylib
 *.framework
+*.xcframework
+*.wasm
 compile_commands.json
 addons/lua-gdextension/CHANGELOG.md
 addons/lua-gdextension/README.md

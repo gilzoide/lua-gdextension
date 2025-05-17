@@ -56,7 +56,7 @@ elif env["platform"] == "android":
     env.Append(CPPDEFINES="LUA_USE_ANDROID")
     if "32" in env["arch"]:
         env.Append(CPPDEFINES="LUA_USE_ANDROID_32")
-else:
+elif env["platform"] != "web":
     env.Append(CPPDEFINES="LUA_USE_POSIX")
 
 env.Append(CPPPATH="lib/lua")
