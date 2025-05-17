@@ -67,7 +67,7 @@ jobs:
             addons/lua-gdextension/build/libluagdextension.*
           
   build_web:
-    name: web (wasm32, ${{ matrix.target }}, threads=${{ matrix.threads }})
+    name: web (wasm32, ${{ matrix.target }}, ${{ matrix.threads && 'threads' || 'nothreads' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -86,16 +86,16 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: web-wasm32-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            web-wasm32-${{ matrix.target }}-
+            web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-
       - name: Build artifact
         run: |
           scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-wasm32-${{ matrix.target }}
+          name: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
 
