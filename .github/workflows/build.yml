@@ -67,7 +67,7 @@ jobs:
             addons/lua-gdextension/build/libluagdextension.*
           
   build_web:
-    name: Web (wasm32, ${{ matrix.target }}, threads=${{ matrix.threads }})
+    name: web (wasm32, ${{ matrix.target }}, threads=${{ matrix.threads }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -91,7 +91,7 @@ jobs:
             web-wasm32-${{ matrix.target }}-
       - name: Build artifact
         run: |
-          scons platform=web arch=wasm32 target=${{ matrix.target }}
+          scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
