@@ -11,6 +11,9 @@
 - The following methods of LuaScripts run in pooled coroutines, so that `await` can be used in them: regular method calls, setter functions, `_init`, `_notification`
 - Godot 4.4 is now the minimum version necessary to use this addon
 
+### Fixed
+- Use `xcframework` instead of `dylib` in iOS exports
+
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
 ### Added
