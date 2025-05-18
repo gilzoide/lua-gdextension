@@ -31,10 +31,24 @@ Color LuaSyntaxHighlighter::get_lua_keyword_color() const {
 void LuaSyntaxHighlighter::set_lua_keyword_color(Color color) {
 	lua_keyword_color = color;
 	Dictionary keyword_colors = get_keyword_colors();
-	for (String& keyword : LuaScriptLanguage::get_singleton()->_get_reserved_words()) {
+	for (String& keyword : LuaScriptLanguage::get_singleton()->get_lua_keywords()) {
 		keyword_colors[keyword] = color;
 	}
 	set_keyword_colors(keyword_colors);
+	emit_changed();
+}
+
+Color LuaSyntaxHighlighter::get_lua_member_keyword_color() const {
+	return lua_member_keyword_color;
+}
+
+void LuaSyntaxHighlighter::set_lua_member_keyword_color(Color color) {
+	lua_member_keyword_color = color;
+	Dictionary member_keyword_colors = get_member_keyword_colors();
+	for (String& keyword : LuaScriptLanguage::get_singleton()->get_lua_member_keywords()) {
+		member_keyword_colors[keyword] = color;
+	}
+	set_member_keyword_colors(member_keyword_colors);
 	emit_changed();
 }
 
@@ -69,12 +83,15 @@ void LuaSyntaxHighlighter::set_comment_color(Color color) {
 void LuaSyntaxHighlighter::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_lua_keyword_color"), &LuaSyntaxHighlighter::get_lua_keyword_color);
 	ClassDB::bind_method(D_METHOD("set_lua_keyword_color", "color"), &LuaSyntaxHighlighter::set_lua_keyword_color);
+	ClassDB::bind_method(D_METHOD("get_lua_member_keyword_color"), &LuaSyntaxHighlighter::get_lua_member_keyword_color);
+	ClassDB::bind_method(D_METHOD("set_lua_member_keyword_color", "color"), &LuaSyntaxHighlighter::set_lua_member_keyword_color);
 	ClassDB::bind_method(D_METHOD("get_string_color"), &LuaSyntaxHighlighter::get_string_color);
 	ClassDB::bind_method(D_METHOD("set_string_color", "color"), &LuaSyntaxHighlighter::set_string_color);
 	ClassDB::bind_method(D_METHOD("get_comment_color"), &LuaSyntaxHighlighter::get_comment_color);
 	ClassDB::bind_method(D_METHOD("set_comment_color", "color"), &LuaSyntaxHighlighter::set_comment_color);
 
 	ADD_PROPERTY(PropertyInfo(Variant::Type::COLOR, "lua_keyword_color"), "set_lua_keyword_color", "get_lua_keyword_color");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::COLOR, "lua_member_keyword_color"), "set_lua_member_keyword_color", "get_lua_member_keyword_color");
 	ADD_PROPERTY(PropertyInfo(Variant::Type::COLOR, "string_color"), "set_string_color", "get_string_color");
 	ADD_PROPERTY(PropertyInfo(Variant::Type::COLOR, "comment_color"), "set_comment_color", "get_comment_color");
 }

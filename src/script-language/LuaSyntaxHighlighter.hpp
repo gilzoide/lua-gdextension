@@ -34,6 +34,9 @@ class LuaSyntaxHighlighter : public CodeHighlighter {
 public:
 	Color get_lua_keyword_color() const;
 	void set_lua_keyword_color(Color color);
+	
+	Color get_lua_member_keyword_color() const;
+	void set_lua_member_keyword_color(Color color);
 
 	Color get_string_color() const;
 	void set_string_color(Color color);
@@ -45,6 +48,7 @@ protected:
 	static void _bind_methods();
 
 	Color lua_keyword_color;
+	Color lua_member_keyword_color;
 	Color string_color;
 	Color comment_color;
 };
