@@ -27,10 +27,12 @@
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
 #include "LuaUserdata.hpp"
+#include "script-language/LuaCodeEdit.hpp"
 #include "script-language/LuaScript.hpp"
 #include "script-language/LuaScriptLanguage.hpp"
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
+#include "script-language/LuaSyntaxHighlighter.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -65,6 +67,10 @@ static void initialize(ModuleInitializationLevel level) {
 	LuaScriptLanguage::get_or_create_singleton();
 	LuaScriptResourceFormatLoader::register_in_godot();
 	LuaScriptResourceFormatSaver::register_in_godot();
+
+	// Lua code editing
+	ClassDB::register_class<LuaCodeEdit>();
+	ClassDB::register_class<LuaSyntaxHighlighter>();
 }
 
 static void deinitialize(ModuleInitializationLevel level) {

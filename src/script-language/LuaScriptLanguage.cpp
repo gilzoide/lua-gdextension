@@ -97,18 +97,10 @@ void LuaScriptLanguage::_finish() {
 }
 
 PackedStringArray LuaScriptLanguage::_get_reserved_words() const {
-	return godot::helpers::append_all(PackedStringArray(),
-		// Lua keywords
-		"and", "break", "do", "else", "elseif", "end",
-		"false", "for", "function", "goto", "if", "in",
-		"local", "nil", "not", "or", "repeat", "return",
-		"then", "true", "until", "while",
-		// Other remarkable identifiers
-#if LUA_VERSION_NUM >= 502
-		"_ENV",
-#endif
-		"self", "_G", "_VERSION"
-	);
+	PackedStringArray reserved_words;
+	reserved_words.append_array(get_lua_keywords());
+	reserved_words.append_array(get_lua_member_keywords());
+	return reserved_words;
 }
 
 bool LuaScriptLanguage::_is_control_flow_keyword(const String &keyword) const {
@@ -409,6 +401,26 @@ Dictionary LuaScriptLanguage::_get_global_class_name(const String &path) const {
 		result["is_tool"] = script->_is_tool();
 	}
 	return result;
+}
+
+PackedStringArray LuaScriptLanguage::get_lua_keywords() const {
+	return godot::helpers::append_all(PackedStringArray(),
+		// Lua keywords
+		"and", "break", "do", "else", "elseif", "end",
+		"false", "for", "function", "goto", "if", "in",
+		"local", "nil", "not", "or", "repeat", "return",
+		"then", "true", "until", "while"
+	);
+}
+
+PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
+	return godot::helpers::append_all(PackedStringArray(),
+		// Remarkable identifiers
+#if LUA_VERSION_NUM >= 502
+		"_ENV",
+#endif
+		"self", "_G", "_VERSION"
+	);
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {
