@@ -44,6 +44,11 @@ public:
 	Color get_comment_color() const;
 	void set_comment_color(Color color);
 
+#ifdef DEBUG_ENABLED
+	void fill_editor_colors();
+	Callable get_fill_editor_colors() const;
+#endif
+
 protected:
 	static void _bind_methods();
 
