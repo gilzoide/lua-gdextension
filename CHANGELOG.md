@@ -5,6 +5,7 @@
 - `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
 - Support for Web exports
 - Support Windows arm64 exports
+- Support for calling static methods from Godot classes, like `FileAccess.open`
 
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
