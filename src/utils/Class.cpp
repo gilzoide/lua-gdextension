@@ -21,6 +21,7 @@
  */
 #include "Class.hpp"
 
+#include "MethodBindByName.hpp"
 #include "convert_godot_lua.hpp"
 
 #include <godot_cpp/classes/class_db_singleton.hpp>
@@ -44,7 +45,17 @@ sol::optional<int64_t> Class::get_constant(const StringName& name) const {
 		return class_db->class_get_integer_constant(class_name, name);
 	}
 	else {
-		return {};
+		return sol::nullopt;
+	}
+}
+
+sol::optional<MethodBindByName> Class::get_method(const StringName& name) const {
+	ClassDBSingleton *class_db = ClassDBSingleton::get_singleton();
+	if (class_db->class_has_method(class_name, name)) {
+		return MethodBindByName(name);
+	}
+	else {
+		return sol::nullopt;
 	}
 }
 
@@ -69,14 +80,17 @@ bool Class::operator==(const Class& other) const {
 	return class_name == other.class_name;
 }
 
-static sol::optional<int64_t> __index(sol::this_state state, const Class& cls, sol::stack_object key) {
+static sol::object __index(sol::this_state state, const Class& cls, sol::stack_object key) {
 	if (key.get_type() == sol::type::string) {
 		StringName name = key.as<StringName>();
-		return cls.get_constant(name);
+		if (auto constant = cls.get_constant(name)) {
+			return sol::make_object(state, *constant);
+		}
+		else if (auto static_method = cls.get_method(name)) {
+			return sol::make_object(state, *static_method);
+		}
 	}
-	else {
-		return {};
-	}
+	return sol::nil;
 }
 void Class::register_usertype(sol::state_view& state) {
 	state.new_usertype<Class>(
