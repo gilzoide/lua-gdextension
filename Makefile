@@ -1,5 +1,6 @@
 # Zip distribution
 ADDONS_DIR = addons/lua-gdextension
+ADDONS_DIR_CSHARP = $(ADDONS_DIR)/CSharp
 ADDONS_SRC = $(shell find $(ADDONS_DIR) -type f)
 COPIED_FILES = LICENSE README.md CHANGELOG.md
 # Testing
@@ -48,7 +49,7 @@ build/update_readme_version.sed:
 test/.godot:
 	$(GODOT_BIN) --headless --quit --path test --editor || true
 
-.PHONY: zip test download-latest-build bump-version generate-docs
+.PHONY: zip test download-latest-build bump-version generate-docs generate-csharp-bindings
 zip: build/lua-gdextension.zip
 
 test: test/.godot
@@ -66,3 +67,6 @@ bump-version: build/update_changelog_version.sed build/update_readme_version.sed
 
 generate-docs:
 	$(GODOT_BIN) --path test --doctool .. --gdextension-docs
+
+generate-csharp-bindings:
+	$(GODOT_BIN) --headless --quit --path test --script addons/csharp_gdextension_bindgen/cli_entrypoint.gd -- $(ADDONS_DIR_CSHARP) LuaGDExtension
