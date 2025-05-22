@@ -50,7 +50,11 @@ static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
+static int lua_panic_handler(lua_State *L) {
+	return sol::default_at_panic(L);
+}
+
+LuaState::LuaState() : lua_state(lua_panic_handler, lua_alloc) {
 	setup_G_metatable(lua_state);
 	valid_states.insert(lua_state, this);
 }
