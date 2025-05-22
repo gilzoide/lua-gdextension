@@ -116,3 +116,9 @@ func test_await_signal() -> bool:
 	some_signal.emit()
 	assert(obj.signal_awaited)
 	return true
+
+
+func test_lua_error_doesnt_crash() -> bool:
+	var obj = test_class.new()
+	obj.raise_error()
+	return true
