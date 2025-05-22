@@ -32,6 +32,7 @@
 #include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "../utils/project_settings.hpp"
 
 #include "gdextension_interface.h"
 #include "godot_cpp/core/class_db.hpp"
@@ -39,6 +40,8 @@
 #include "godot_cpp/classes/engine.hpp"
 #include "godot_cpp/classes/global_constants.hpp"
 #include "godot_cpp/godot.hpp"
+#include <godot_cpp/classes/reg_ex.hpp>
+#include <godot_cpp/classes/reg_ex_match.hpp>
 
 namespace luagdextension {
 
@@ -53,7 +56,7 @@ LuaScript::~LuaScript() {
 }
 
 bool LuaScript::_editor_can_reload_from_file() {
-	return true;
+	return _verify_importability();
 }
 
 void LuaScript::_placeholder_erased(void *p_placeholder) {
@@ -112,6 +115,10 @@ void LuaScript::_set_source_code(const String &code) {
 Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
 	metadata.clear();
+
+	if (!_verify_importability()) {
+		return OK;
+	}
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
@@ -305,6 +312,23 @@ void LuaScript::_update_placeholder_exports(void *placeholder) const {
 		default_values[name] = property.instantiate_default_value();
 	}
 	godot::internal::gdextension_interface_placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
+}
+
+bool LuaScript::_verify_importability() const {
+	if (ProjectSettings::get_singleton()->get_setting_with_override(LUA_DOIMPORT_SETTING).booleanize()) {
+		// Allow a `--!doimport` comment at the beginning of the file to
+		// enable importing and reloading a specific script.
+		Ref<RegEx> doimport_re = RegEx::create_from_string(R":((?m)^\s*---?\s*!do-?import):");
+		Ref<RegExMatch> match = doimport_re->search(source_code);
+		return match.is_valid() && !match.is_null();
+	}
+	else {
+		// Allow a `--!noimport` comment at the beginning of the file to
+		// disable importing and reloading a specific script.
+		Ref<RegEx> noimport_re = RegEx::create_from_string(R":((?m)^\s*---?\s*!no-?import):");
+		Ref<RegExMatch> match = noimport_re->search(source_code);
+		return !match.is_valid() || match.is_null();
+	}
 }
 
 HashMap<const LuaScript *, HashSet<void *>> LuaScript::placeholders;
