@@ -315,7 +315,7 @@ void LuaScript::_update_placeholder_exports(void *placeholder) const {
 }
 
 bool LuaScript::_verify_importability() const {
-	if (ProjectSettings::get_singleton()->get_setting_with_override(LUA_DOIMPORT_SETTING).booleanize()) {
+	if (!ProjectSettings::get_singleton()->get_setting_with_override(LUA_DOIMPORT_SETTING).booleanize()) {
 		// Allow a `--!doimport` comment at the beginning of the file to
 		// enable importing and reloading a specific script.
 		Ref<RegEx> doimport_re = RegEx::create_from_string(R":((?m)^\s*---?\s*!do-?import):");
