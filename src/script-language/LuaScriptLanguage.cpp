@@ -30,6 +30,7 @@
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
 #include "../utils/function_wrapper.hpp"
+#include "../utils/project_settings.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
@@ -40,19 +41,6 @@
 #include <godot_cpp/variant/packed_string_array.hpp>
 
 namespace luagdextension {
-
-constexpr char LUA_PATH_SETTING[] = "lua_gdextension/lua_script_language/package_path";
-constexpr char LUA_CPATH_SETTING[] = "lua_gdextension/lua_script_language/package_c_path";
-constexpr char LUA_CPATH_WINDOWS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.windows";
-constexpr char LUA_CPATH_MACOS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.macos";
-
-static void add_project_setting(ProjectSettings *project_settings, const String& setting_name, const Variant& initial_value, bool is_basic = false) {
-	if (!project_settings->has_setting(setting_name)) {
-		project_settings->set_setting(setting_name, initial_value);
-	}
-	project_settings->set_initial_value(setting_name, initial_value);
-	project_settings->set_as_basic(setting_name, is_basic);
-}
 
 String LuaScriptLanguage::_get_name() const {
 	return "Lua";
@@ -78,6 +66,7 @@ void LuaScriptLanguage::_init() {
 	add_project_setting(project_settings, LUA_CPATH_SETTING, "!/?.so;!/loadall.so");
 	add_project_setting(project_settings, LUA_CPATH_WINDOWS_SETTING, "!/?.dll;!/loadall.dll");
 	add_project_setting(project_settings, LUA_CPATH_MACOS_SETTING, "!/?.dylib;!/loadall.dylib");
+	add_project_setting(project_settings, LUA_DOIMPORT_SETTING, true);
 
 	// Apply project settings (package.path, package.cpath)
 	lua_state->set_package_path(project_settings->get_setting_with_override(LUA_PATH_SETTING));
