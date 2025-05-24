@@ -30,6 +30,7 @@
 namespace luagdextension {
 
 void LuaScriptMetadata::setup(const sol::table& t) {
+	is_valid = true;
 	is_importable = true;
 
 	sol::state_view L = t.lua_state();
