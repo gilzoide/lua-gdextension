@@ -23,6 +23,7 @@
 
 #include "LuaFunction.hpp"
 #include "LuaTable.hpp"
+#include "LuaThread.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
@@ -196,6 +197,10 @@ LuaTable *LuaState::get_registry() const {
 	return LuaObject::wrap_object<LuaTable>(lua_state.registry());
 }
 
+LuaThread *LuaState::get_main_thread() const {
+	return LuaObject::wrap_object<LuaThread>(sol::thread(lua_state, lua_state));
+}
+
 String LuaState::get_package_path() const {
 	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
 		return package->get<String>("path");
@@ -321,6 +326,7 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+	ClassDB::bind_method(D_METHOD("get_main_thread"), &LuaState::get_main_thread);
 	ClassDB::bind_method(D_METHOD("get_package_path"), &LuaState::get_package_path);
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
@@ -330,6 +336,7 @@ void LuaState::_bind_methods() {
 	// Properties
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "main_thread", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaThread::get_class_static()), "", "get_main_thread");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_path", "get_package_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_cpath", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_cpath", "get_package_cpath");
 }
