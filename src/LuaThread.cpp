@@ -20,8 +20,26 @@
  * SOFTWARE.
  */
 #include "LuaThread.hpp"
+#include "utils/convert_godot_lua.hpp"
+#include "utils/stack_top_checker.hpp"
 
 namespace luagdextension {
+
+static const char *HOOKKEY = "_GD_HOOKKEY";
+
+static void hookf(lua_State *L, lua_Debug *ar) {
+	lua_getfield(L, LUA_REGISTRYINDEX, HOOKKEY);
+	lua_pushthread(L);
+	switch (lua_rawget(L, -2)) {
+		case LUA_TFUNCTION:
+		case LUA_TUSERDATA:
+			lua_call(L, 0, 0);
+			break;
+		
+		default:
+			break;
+	}
+}
 
 LuaThread::LuaThread() : LuaObjectSubclass() {}
 LuaThread::LuaThread(sol::thread&& thread) : LuaObjectSubclass(thread) {}
@@ -33,6 +51,46 @@ LuaThread::Status LuaThread::get_status() const {
 
 bool LuaThread::is_main_thread() const {
 	return lua_object.is_main_thread();
+}
+
+void LuaThread::set_hook(Callable hook, BitField<HookMask> mask, int count) {
+	lua_State *L = lua_object.thread_state();
+	if (hook.is_valid()) {
+		StackTopChecker topcheck(L);
+		if (!luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
+			/* table just created; initialize it */
+			lua_pushliteral(L, "k");
+			lua_setfield(L, -2, "__mode");  // hooktable.__mode = "k"
+			lua_pushvalue(L, -1);
+			lua_setmetatable(L, -2);  // metatable(hooktable) = hooktable
+		}
+		lua_pushthread(L);  // key (thread)
+		lua_push(L, hook);  // value (hook)
+		lua_rawset(L, -3);  // hooktable[L] = hook
+		lua_pop(L, 1);
+		lua_sethook(L, hookf, mask, count);
+	}
+	else {
+		lua_sethook(L, nullptr, 0, 0);
+	}
+}
+
+Callable LuaThread::get_hook() const {
+	sol::state_view L(lua_object.thread_state());
+	if (auto hook = L.registry().traverse_get<sol::optional<sol::object>>(HOOKKEY, lua_object)) {
+		return to_variant(*hook);
+	}
+	else {
+		return {};
+	}
+}
+
+BitField<LuaThread::HookMask> LuaThread::get_hook_mask() const {
+	return lua_gethookmask(lua_object.thread_state());
+}
+
+int LuaThread::get_hook_count() const {
+	return lua_gethookcount(lua_object.thread_state());
 }
 
 void LuaThread::_bind_methods() {
@@ -51,6 +109,11 @@ void LuaThread::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaThread::get_status);
 	ClassDB::bind_method(D_METHOD("is_main_thread"), &LuaThread::is_main_thread);
+	
+	ClassDB::bind_method(D_METHOD("set_hook", "hook", "mask", "count"), &LuaThread::set_hook, DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("get_hook"), &LuaThread::get_hook);
+	ClassDB::bind_method(D_METHOD("get_hook_mask"), &LuaThread::get_hook_mask);
+	ClassDB::bind_method(D_METHOD("get_hook_count"), &LuaThread::get_hook_count);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }
