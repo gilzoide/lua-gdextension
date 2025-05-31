@@ -22,3 +22,7 @@ indent_size = 4
 [Makefile]
 indent_style = tab
 indent_size = 8
+
+[doc_classes/*.xml]
+indent_style = tab
+indent_size = 4

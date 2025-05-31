@@ -33,6 +33,7 @@ namespace luagdextension {
 
 class LuaFunction;
 class LuaTable;
+class LuaThread;
 
 class LuaState : public RefCounted {
 	GDCLASS(LuaState, RefCounted);
@@ -115,6 +116,7 @@ public:
 
 	LuaTable *get_globals() const;
 	LuaTable *get_registry() const;
+	LuaThread *get_main_thread() const;
 
 	String get_package_path() const;
 	String get_package_cpath() const;

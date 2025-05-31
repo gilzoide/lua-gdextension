@@ -31,9 +31,9 @@
 
 namespace luagdextension {
 
-LuaCoroutine::LuaCoroutine() : LuaObjectSubclass() {}
-LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaObjectSubclass(thread) {}
-LuaCoroutine::LuaCoroutine(const sol::thread& thread) : LuaObjectSubclass(thread) {}
+LuaCoroutine::LuaCoroutine() : LuaThread() {}
+LuaCoroutine::LuaCoroutine(sol::thread&& thread) : LuaThread(thread) {}
+LuaCoroutine::LuaCoroutine(const sol::thread& thread) : LuaThread(thread) {}
 
 LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 	sol::thread thread = sol::thread::create(function.lua_state());
@@ -44,10 +44,6 @@ LuaCoroutine *LuaCoroutine::create(const sol::function& function) {
 LuaCoroutine *LuaCoroutine::create(LuaFunction *function) {
 	ERR_FAIL_COND_V_MSG(function == nullptr, nullptr, "Function cannot be null");
 	return create(function->get_function());
-}
-
-LuaCoroutine::Status LuaCoroutine::get_status() const {
-	return static_cast<Status>(lua_object.status());
 }
 
 Variant LuaCoroutine::resume(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError& error) {
@@ -98,20 +94,9 @@ Variant LuaCoroutine::invoke_lua(const sol::protected_function& f, const Variant
 }
 
 void LuaCoroutine::_bind_methods() {
-	BIND_ENUM_CONSTANT(STATUS_OK);
-	BIND_ENUM_CONSTANT(STATUS_YIELD);
-	BIND_ENUM_CONSTANT(STATUS_ERRRUN);
-	BIND_ENUM_CONSTANT(STATUS_ERRSYNTAX);
-	BIND_ENUM_CONSTANT(STATUS_ERRMEM);
-	BIND_ENUM_CONSTANT(STATUS_ERRERR);
-	BIND_ENUM_CONSTANT(STATUS_DEAD);
-
-	ClassDB::bind_method(D_METHOD("get_status"), &LuaCoroutine::get_status);
 	ClassDB::bind_method(D_METHOD("resumev", "arguments"), &LuaCoroutine::resumev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "resume", &LuaCoroutine::resume);
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
-
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 
 	ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
 	ADD_SIGNAL(MethodInfo("failed", PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaError::get_class_static())));

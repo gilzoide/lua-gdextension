@@ -7,6 +7,9 @@
 - Support Windows arm64 exports
 - Support for calling static methods from Godot classes, like `FileAccess.open`
 - Custom [Lua 5.4+ warning function](https://www.lua.org/manual/5.4/manual.html#lua_setwarnf) that sends messages to `push_warning`
+- `LuaThread` class as a superclass for `LuaCoroutine`.
+  This new class is used when converting a LuaState's main thread to Variant.
+- `LuaState.main_thread` property for getting a Lua state's main thread of execution
 
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly

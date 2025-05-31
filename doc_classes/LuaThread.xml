@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaThread" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		An object that represents a thread of execution in the Lua virtual machine.
+	</brief_description>
+	<description>
+		The LuaThread class represents a thread of execution in the Lua virtual machine.
+		Apart from [member LuaState.main_thread], all other threads of execution are [LuaCoroutine]s.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="is_main_thread" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Whether this thread is the [LuaState]'s main thread.
+				See also [member LuaState.main_thread].
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="status" type="int" setter="" getter="get_status" enum="LuaThread.Status">
+			The current status of the thread.
+		</member>
+	</members>
+	<constants>
+		<constant name="STATUS_OK" value="0" enum="Status">
+			The thread is running normally.
+		</constant>
+		<constant name="STATUS_YIELD" value="1" enum="Status">
+			The thread is suspended (yielded).
+		</constant>
+		<constant name="STATUS_ERRRUN" value="2" enum="Status">
+			A runtime error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRSYNTAX" value="3" enum="Status">
+			A syntax error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRMEM" value="4" enum="Status">
+			A memory allocation error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRERR" value="5" enum="Status">
+			An error occurred while running the error handler.
+		</constant>
+		<constant name="STATUS_DEAD" value="-1" enum="Status">
+			The thread has finished execution.
+		</constant>
+	</constants>
+</class>

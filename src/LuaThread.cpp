@@ -19,43 +19,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
-
 #include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
-
-using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
+LuaThread::LuaThread() : LuaObjectSubclass() {}
+LuaThread::LuaThread(sol::thread&& thread) : LuaObjectSubclass(thread) {}
+LuaThread::LuaThread(const sol::thread& thread) : LuaObjectSubclass(thread) {}
 
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
-
-public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
-
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
-
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
-
-protected:
-	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
-};
-
+LuaThread::Status LuaThread::get_status() const {
+	return static_cast<Status>(lua_object.status());
 }
 
-#endif
+bool LuaThread::is_main_thread() const {
+	return lua_object.is_main_thread();
+}
+
+void LuaThread::_bind_methods() {
+	BIND_ENUM_CONSTANT(STATUS_OK);
+	BIND_ENUM_CONSTANT(STATUS_YIELD);
+	BIND_ENUM_CONSTANT(STATUS_ERRRUN);
+	BIND_ENUM_CONSTANT(STATUS_ERRSYNTAX);
+	BIND_ENUM_CONSTANT(STATUS_ERRMEM);
+	BIND_ENUM_CONSTANT(STATUS_ERRERR);
+	BIND_ENUM_CONSTANT(STATUS_DEAD);
+
+	ClassDB::bind_method(D_METHOD("get_status"), &LuaThread::get_status);
+	ClassDB::bind_method(D_METHOD("is_main_thread"), &LuaThread::is_main_thread);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
+}
+
+}
