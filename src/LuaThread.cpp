@@ -44,6 +44,11 @@ void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_ERRERR);
 	BIND_ENUM_CONSTANT(STATUS_DEAD);
 
+	BIND_BITFIELD_FLAG(HOOK_MASK_CALL);
+	BIND_BITFIELD_FLAG(HOOK_MASK_RETURN);
+	BIND_BITFIELD_FLAG(HOOK_MASK_LINE);
+	BIND_BITFIELD_FLAG(HOOK_MASK_COUNT);
+
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaThread::get_status);
 	ClassDB::bind_method(D_METHOD("is_main_thread"), &LuaThread::is_main_thread);
 

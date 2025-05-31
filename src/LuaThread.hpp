@@ -41,6 +41,13 @@ public:
 		STATUS_ERRERR = LUA_ERRERR,
 		STATUS_DEAD = (int) sol::thread_status::dead,
 	};
+	
+	enum HookMask {
+		HOOK_MASK_CALL = LUA_MASKCALL,
+		HOOK_MASK_RETURN = LUA_MASKRET,
+		HOOK_MASK_LINE = LUA_MASKLINE,
+		HOOK_MASK_COUNT = LUA_MASKCOUNT,
+	};
 
 	LuaThread();
 	LuaThread(sol::thread&& thread);
@@ -55,5 +62,6 @@ protected:
 
 }
 VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
+VARIANT_BITFIELD_CAST(luagdextension::LuaThread::HookMask);
 
 #endif
