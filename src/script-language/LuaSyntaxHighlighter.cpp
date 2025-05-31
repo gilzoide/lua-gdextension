@@ -105,7 +105,7 @@ void LuaSyntaxHighlighter::_bind_methods() {
 #ifdef DEBUG_ENABLED
 	ClassDB::bind_method(D_METHOD("fill_editor_colors"), &LuaSyntaxHighlighter::fill_editor_colors);
 	ClassDB::bind_method(D_METHOD("get_fill_editor_colors"), &LuaSyntaxHighlighter::get_fill_editor_colors);
-	ADD_PROPERTY(PropertyInfo(Variant::Type::CALLABLE, "fill_editor_colors", godot::PROPERTY_HINT_TOOL_BUTTON, "Fill with Editor colors"), "", "get_fill_editor_colors");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::CALLABLE, "fill_editor_colors_callable", godot::PROPERTY_HINT_TOOL_BUTTON, "Fill with Editor colors"), "", "get_fill_editor_colors");
 #endif
 
 	ClassDB::bind_method(D_METHOD("get_lua_keyword_color"), &LuaSyntaxHighlighter::get_lua_keyword_color);
