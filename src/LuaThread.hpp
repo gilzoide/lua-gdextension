@@ -19,43 +19,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
+#ifndef __LUA_THREAD_HPP__
+#define __LUA_THREAD_HPP__
 
-#include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
+#include "LuaObject.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
+class LuaThread : public LuaObjectSubclass<sol::thread> {
+	GDCLASS(LuaThread, LuaObject);
 
 public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
+	enum Status {
+		STATUS_OK = LUA_OK,
+		STATUS_YIELD = LUA_YIELD,
+		STATUS_ERRRUN = LUA_ERRRUN,
+		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
+		STATUS_ERRMEM = LUA_ERRMEM,
+		STATUS_ERRERR = LUA_ERRERR,
+		STATUS_DEAD = (int) sol::thread_status::dead,
+	};
 
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
+	LuaThread();
+	LuaThread(sol::thread&& thread);
+	LuaThread(const sol::thread& thread);
 
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
-
+	Status get_status() const;
+	
 protected:
 	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
 };
 
 }
+VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
 
 #endif

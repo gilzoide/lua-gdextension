@@ -26,6 +26,7 @@
 #include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
+#include "LuaThread.hpp"
 #include "LuaUserdata.hpp"
 #include "script-language/LuaCodeEdit.hpp"
 #include "script-language/LuaScript.hpp"
@@ -49,6 +50,7 @@ static void initialize(ModuleInitializationLevel level) {
 	// Lua object wrappers
 	ClassDB::register_abstract_class<LuaObject>();
 
+	ClassDB::register_abstract_class<LuaThread>();
 	ClassDB::register_abstract_class<LuaCoroutine>();
 	ClassDB::register_abstract_class<LuaFunction>();
 	ClassDB::register_abstract_class<LuaLightUserdata>();
