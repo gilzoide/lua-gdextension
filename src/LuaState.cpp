@@ -54,8 +54,18 @@ static int lua_panic_handler(lua_State *L) {
 	return sol::default_at_panic(L);
 }
 
+#ifdef HAVE_LUA_WARN
+static void lua_warn_handler(void *ud, const char *msg, int tocont) {
+	LuaState *L = (LuaState *) ud;
+	L->warn(msg, tocont);
+}
+#endif
+
 LuaState::LuaState() : lua_state(lua_panic_handler, lua_alloc) {
 	setup_G_metatable(lua_state);
+#ifdef HAVE_LUA_WARN
+	lua_setwarnf(lua_state, lua_warn_handler, this);
+#endif
 	valid_states.insert(lua_state, this);
 }
 
@@ -231,6 +241,26 @@ void LuaState::set_package_cpath(const String& cpath) {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
 	}
 }
+
+#ifdef HAVE_LUA_WARN
+void LuaState::warn(const char *msg, int tocont) {
+	if (msg[0] == '@') {
+		if (msg == String("@off")) {
+			warning_on = false;
+		}
+		else if (msg == String("@on")) {
+			warning_on = true;
+		}
+	}
+	else if (warning_on) {
+		warn_message += msg;
+		if (!tocont) {
+			UtilityFunctions::push_warning(warn_message);
+			warn_message = String();
+		}
+	}
+}
+#endif
 
 String LuaState::get_lua_exec_dir() {
 	return Engine::get_singleton()->is_editor_hint()

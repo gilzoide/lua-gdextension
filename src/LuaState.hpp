@@ -121,6 +121,10 @@ public:
 	void set_package_path(const String& path);
 	void set_package_cpath(const String& cpath);
 
+#ifdef HAVE_LUA_WARN
+	void warn(const char *msg, int tocont);
+#endif
+
 	operator String() const;
 
 	static String get_lua_exec_dir();
@@ -132,6 +136,10 @@ protected:
 	String _to_string() const;
 
 	sol::state lua_state;
+#ifdef HAVE_LUA_WARN
+	bool warning_on = true;
+	String warn_message;
+#endif
 
 private:
 	static HashMap<lua_State *, LuaState *> valid_states;
