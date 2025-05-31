@@ -184,6 +184,9 @@
 			Returns the _G table of the LuaState.
 			The _G table is the global table accessible to Lua scripts.
 		</member>
+		<member name="main_thread" type="LuaThread" setter="" getter="get_main_thread">
+			The main thread of execution of the LuaState.
+		</member>
 		<member name="package_cpath" type="String" setter="set_package_cpath" getter="get_package_cpath">
 			The search path for Lua C extension modules. Equivalent to Lua's [code]package.cpath[/code] variable.
 			When you use the [code]require[/code] function to load a C extension module, Lua searches the paths defined in [code]package.cpath[/code].
