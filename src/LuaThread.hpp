@@ -47,6 +47,7 @@ public:
 	LuaThread(const sol::thread& thread);
 
 	Status get_status() const;
+	bool is_main_thread() const;
 	
 protected:
 	static void _bind_methods();

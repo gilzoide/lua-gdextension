@@ -31,6 +31,10 @@ LuaThread::Status LuaThread::get_status() const {
 	return static_cast<Status>(lua_object.status());
 }
 
+bool LuaThread::is_main_thread() const {
+	return lua_object.is_main_thread();
+}
+
 void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
@@ -41,6 +45,7 @@ void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_DEAD);
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaThread::get_status);
+	ClassDB::bind_method(D_METHOD("is_main_thread"), &LuaThread::is_main_thread);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }
