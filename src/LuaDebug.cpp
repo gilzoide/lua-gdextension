@@ -85,6 +85,11 @@ void LuaDebug::fill_info(lua_State *L, lua_Debug *ar) {
 #endif
 }
 
+void LuaDebug::fill_info(const sol::protected_function& f, lua_Debug *ar) {
+	f.push();
+	lua_getinfo(f.lua_state(), ">nSu", ar);
+}
+
 void LuaDebug::_bind_methods() {
 	BIND_ENUM_CONSTANT(EVENT_CALL);
 	BIND_ENUM_CONSTANT(EVENT_RETURN);

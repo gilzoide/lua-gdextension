@@ -28,6 +28,7 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaDebug;
 class VariantArguments;
 
 class LuaFunction : public LuaObjectSubclass<sol::protected_function> {
@@ -44,6 +45,7 @@ public:
 	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
 
 	Callable to_callable() const;
+	Ref<LuaDebug> get_debug_info() const;
 
 	const sol::protected_function& get_function() const;
 
