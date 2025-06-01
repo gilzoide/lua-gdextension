@@ -3,7 +3,8 @@ extends RefCounted
 
 var lua_state: LuaState
 var yielding_function: LuaFunction
-var _signal_handled = false
+var _signal_handled := false
+var _hook_call_count := 0
 
 
 func _init():
@@ -20,6 +21,7 @@ func _init():
 
 func _setup():
 	_signal_handled = false
+	_hook_call_count = 0
 
 
 func _create_coroutine_lua() -> LuaCoroutine:
@@ -132,3 +134,16 @@ func test_failed_signal() -> bool:
 	coroutine.resume()
 	assert(_signal_handled)
 	return true
+
+
+func test_set_hook() -> bool:
+	var coroutine = _create_coroutine_lua()
+	coroutine.set_hook(_func_call_hook, LuaThread.HOOK_MASK_CALL)
+	assert(_hook_call_count == 0)
+	coroutine.resume()
+	assert(_hook_call_count == 1)
+	return true
+
+
+func _func_call_hook(debug):
+	_hook_call_count += 1

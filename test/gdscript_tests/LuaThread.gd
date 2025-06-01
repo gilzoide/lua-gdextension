@@ -2,12 +2,12 @@ extends RefCounted
 
 
 var lua_state: LuaState
-var hook_call_count := 0
+var _hook_call_count := 0
 
 
 func _setup():
 	lua_state = LuaState.new()
-	hook_call_count = 0
+	_hook_call_count = 0
 
 
 func test_main_thread() -> bool:
@@ -20,8 +20,9 @@ func test_main_thread() -> bool:
 func test_set_hook() -> bool:
 	var main_thread = lua_state.main_thread
 	main_thread.set_hook(_func_call_hook, LuaThread.HOOK_MASK_CALL)
+	assert(_hook_call_count == 0)
 	lua_state.do_string("")
-	assert(hook_call_count == 1)
+	assert(_hook_call_count == 1)
 	return true
 
 
@@ -44,4 +45,4 @@ func test_get_hook() -> bool:
 
 
 func _func_call_hook(debug):
-	hook_call_count += 1
+	_hook_call_count += 1
