@@ -10,6 +10,7 @@
 - `LuaThread` class as a superclass for `LuaCoroutine`.
   This new class is used when converting a LuaState's main thread to Variant.
 - `LuaState.main_thread` property for getting a Lua state's main thread of execution
+- Support for setting hooks to `LuaThread`s, including the main thread
 
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly

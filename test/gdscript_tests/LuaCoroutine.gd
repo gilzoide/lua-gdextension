@@ -3,7 +3,8 @@ extends RefCounted
 
 var lua_state: LuaState
 var yielding_function: LuaFunction
-var _signal_handled = false
+var _signal_handled := false
+var _hook_call_count := 0
 
 
 func _init():
@@ -20,6 +21,7 @@ func _init():
 
 func _setup():
 	_signal_handled = false
+	_hook_call_count = 0
 
 
 func _create_coroutine_lua() -> LuaCoroutine:
@@ -132,3 +134,39 @@ func test_failed_signal() -> bool:
 	coroutine.resume()
 	assert(_signal_handled)
 	return true
+
+
+func test_set_hook() -> bool:
+	var coroutine = _create_coroutine_lua()
+	coroutine.set_hook(_func_call_hook, LuaThread.HOOK_MASK_CALL)
+	assert(_hook_call_count == 0)
+	coroutine.resume()
+	assert(_hook_call_count == 1)
+	return true
+
+
+func test_hook_yield() -> bool:
+	var coroutine = LuaCoroutine.create(lua_state.load_string("""
+		global = 1
+		global = 2
+		global = 3
+	"""))
+	coroutine.set_hook(_func_line_hook, LuaThread.HOOK_MASK_LINE)
+	coroutine.resume()
+	# yielded at first line, before running "global = 1"
+	assert(lua_state.globals.global == null)
+	coroutine.resume()
+	# yielded at second line, before running "global = 2"
+	assert(lua_state.globals.global == 1)
+	coroutine.resume()
+	# yielded at third line, before running "global = 3"
+	assert(lua_state.globals.global == 2)
+	return true
+
+
+func _func_call_hook(debug):
+	_hook_call_count += 1
+
+
+func _func_line_hook(debug):
+	return LuaThread.HOOK_YIELD
