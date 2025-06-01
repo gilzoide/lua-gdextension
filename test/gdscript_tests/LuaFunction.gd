@@ -57,6 +57,15 @@ func test_create_function() -> bool:
 	return true
 
 
+func test_get_debug_info() -> bool:
+	lua_state.do_string("""
+		function my_func() end
+	""")
+	var my_func = lua_state.globals.my_func
+	assert(my_func.get_debug_info().what == "Lua")
+	return true
+
+
 func _test_call(f: LuaFunction, args: Array = []):
 	var result = f.invokev(args)
 	if result is LuaError:

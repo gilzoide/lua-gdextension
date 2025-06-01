@@ -85,6 +85,11 @@ void LuaDebug::fill_info(lua_State *L, lua_Debug *ar) {
 #endif
 }
 
+void LuaDebug::fill_info(const sol::protected_function& f, lua_Debug *ar) {
+	f.push();
+	lua_getinfo(f.lua_state(), ">nSu", ar);
+}
+
 void LuaDebug::_bind_methods() {
 	BIND_ENUM_CONSTANT(EVENT_CALL);
 	BIND_ENUM_CONSTANT(EVENT_RETURN);
@@ -119,6 +124,10 @@ void LuaDebug::_bind_methods() {
 #if LUA_VERSION_NUM >= 502
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "nparams", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_nparams");
 #endif
+}
+
+String LuaDebug::_to_string() const {
+	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
 }
 
 }

@@ -23,7 +23,7 @@
 #define __LUA_DEBUG_HPP__
 
 #include <godot_cpp/classes/ref_counted.hpp>
-#include <lua.h>
+#include <sol/sol.hpp>
 
 using namespace godot;
 
@@ -61,9 +61,11 @@ public:
 #endif
 
 	static void fill_info(lua_State *L, lua_Debug *ar);
+	static void fill_info(const sol::protected_function& f, lua_Debug *ar);
 
 protected:
 	static void _bind_methods();
+	String _to_string() const;
 
 	lua_Debug debug;
 };
