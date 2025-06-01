@@ -130,6 +130,20 @@ Ref<LuaDebug> LuaThread::get_stack_level_info(int stack_level) const {
 	}
 }
 
+TypedArray<LuaDebug> LuaThread::get_stack_info() const {
+	TypedArray<LuaDebug> stack;
+	for (int i = 0; ; i++) {
+		Ref<LuaDebug> stack_level = get_stack_level_info(i);
+		if (stack_level.is_valid()) {
+			stack.append(stack_level);
+		}
+		else {
+			break;
+		}
+	}
+	return stack;
+}
+
 void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
@@ -156,6 +170,7 @@ void LuaThread::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_hook_count"), &LuaThread::get_hook_count);
 	
 	ClassDB::bind_method(D_METHOD("get_stack_level_info", "level"), &LuaThread::get_stack_level_info);
+	ClassDB::bind_method(D_METHOD("get_stack_info"), &LuaThread::get_stack_info);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }

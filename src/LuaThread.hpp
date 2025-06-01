@@ -69,6 +69,7 @@ public:
 	int get_hook_count() const;
 
 	Ref<LuaDebug> get_stack_level_info(int stack_level) const;
+	TypedArray<LuaDebug> get_stack_info() const;
 	
 protected:
 	static void _bind_methods();
