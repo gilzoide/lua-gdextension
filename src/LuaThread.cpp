@@ -118,6 +118,18 @@ int LuaThread::get_hook_count() const {
 	return lua_gethookcount(lua_object.thread_state());
 }
 
+Ref<LuaDebug> LuaThread::get_stack_level_info(int stack_level) const {
+	lua_State *L = lua_object.thread_state();
+	lua_Debug debug = {};
+	if (lua_getstack(L, stack_level, &debug)) {
+		LuaDebug::fill_info(L, &debug);
+		return memnew(LuaDebug(std::move(debug)));
+	}
+	else {
+		return nullptr;
+	}
+}
+
 void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
@@ -142,6 +154,8 @@ void LuaThread::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_hook"), &LuaThread::get_hook);
 	ClassDB::bind_method(D_METHOD("get_hook_mask"), &LuaThread::get_hook_mask);
 	ClassDB::bind_method(D_METHOD("get_hook_count"), &LuaThread::get_hook_count);
+	
+	ClassDB::bind_method(D_METHOD("get_stack_level_info", "level"), &LuaThread::get_stack_level_info);
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }

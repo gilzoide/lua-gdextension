@@ -28,6 +28,8 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaDebug;
+
 class LuaThread : public LuaObjectSubclass<sol::thread> {
 	GDCLASS(LuaThread, LuaObject);
 
@@ -65,6 +67,8 @@ public:
 	Variant get_hook() const;
 	BitField<HookMask> get_hook_mask() const;
 	int get_hook_count() const;
+
+	Ref<LuaDebug> get_stack_level_info(int stack_level) const;
 	
 protected:
 	static void _bind_methods();
