@@ -19,54 +19,53 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_THREAD_HPP__
-#define __LUA_THREAD_HPP__
+#ifndef __LUA_DEBUG_HPP__
+#define __LUA_DEBUG_HPP__
 
-#include "LuaObject.hpp"
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <lua.h>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaThread : public LuaObjectSubclass<sol::thread> {
-	GDCLASS(LuaThread, LuaObject);
+class LuaDebug : public RefCounted {
+	GDCLASS(LuaDebug, RefCounted);
 
 public:
-	enum Status {
-		STATUS_OK = LUA_OK,
-		STATUS_YIELD = LUA_YIELD,
-		STATUS_ERRRUN = LUA_ERRRUN,
-		STATUS_ERRSYNTAX = LUA_ERRSYNTAX,
-		STATUS_ERRMEM = LUA_ERRMEM,
-		STATUS_ERRERR = LUA_ERRERR,
-		STATUS_DEAD = (int) sol::thread_status::dead,
-	};
-	
-	enum HookMask {
-		HOOK_MASK_CALL = LUA_MASKCALL,
-		HOOK_MASK_RETURN = LUA_MASKRET,
-		HOOK_MASK_LINE = LUA_MASKLINE,
-		HOOK_MASK_COUNT = LUA_MASKCOUNT,
+	enum HookEvent {
+		HOOK_CALL = LUA_HOOKCALL,
+		HOOK_RETURN = LUA_HOOKRET,
+		HOOK_LINE = LUA_HOOKLINE,
+		HOOK_COUNT = LUA_HOOKCOUNT,
+		HOOK_TAIL_CALL = LUA_HOOKTAILCALL,
 	};
 
-	LuaThread();
-	LuaThread(sol::thread&& thread);
-	LuaThread(const sol::thread& thread);
+	LuaDebug();
+	LuaDebug(lua_Debug&& debug);
 
-	Status get_status() const;
-	bool is_main_thread() const;
+	HookEvent get_event() const;
+	String get_name() const;
+	String get_name_what() const;
+	String get_what() const;
+	String get_source() const;
+	String get_short_src() const;
+	int get_line_defined() const;
+	int get_last_line_defined() const;
+	int get_current_line() const;
+#if LUA_VERSION_NUM >= 502
+	int get_nparams() const;
+	bool is_tail_call() const;
+	bool is_vararg() const;
+#endif
 
-	void set_hook(Callable hook, BitField<HookMask> mask, int count = 0);
-	Callable get_hook() const;
-	BitField<HookMask> get_hook_mask() const;
-	int get_hook_count() const;
-	
 protected:
 	static void _bind_methods();
+
+	lua_Debug debug;
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
-VARIANT_BITFIELD_CAST(luagdextension::LuaThread::HookMask);
+VARIANT_ENUM_CAST(luagdextension::LuaDebug::HookEvent);
 
-#endif  // __LUA_THREAD_HPP__
+#endif  // __LUA_DEBUG_HPP__
