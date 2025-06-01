@@ -70,6 +70,7 @@ public:
 
 	Ref<LuaDebug> get_stack_level_info(int stack_level) const;
 	TypedArray<LuaDebug> get_stack_info() const;
+	String get_traceback(String message = "", int level = 0) const;
 	
 protected:
 	static void _bind_methods();

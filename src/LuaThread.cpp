@@ -144,6 +144,16 @@ TypedArray<LuaDebug> LuaThread::get_stack_info() const {
 	return stack;
 }
 
+String LuaThread::get_traceback(String message, int level) const {
+	lua_State *L = lua_object.lua_state();
+	lua_State *L1 = lua_object.thread_state();
+	StackTopChecker topcheck(L);
+	luaL_traceback(L, L1, message.ascii().get_data(), level);
+	String result = lua_tostring(L, -1);
+	lua_pop(L, 1);
+	return result;
+}
+
 void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(STATUS_OK);
 	BIND_ENUM_CONSTANT(STATUS_YIELD);
@@ -171,6 +181,7 @@ void LuaThread::_bind_methods() {
 	
 	ClassDB::bind_method(D_METHOD("get_stack_level_info", "level"), &LuaThread::get_stack_level_info);
 	ClassDB::bind_method(D_METHOD("get_stack_info"), &LuaThread::get_stack_info);
+	ClassDB::bind_method(D_METHOD("get_traceback", "message", "level"), &LuaThread::get_traceback, DEFVAL(""), DEFVAL(0));
 
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "status", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "Status"), "", "get_status");
 }
