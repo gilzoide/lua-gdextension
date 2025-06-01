@@ -36,7 +36,10 @@ static void hookf(lua_State *L, lua_Debug *ar) {
 		case LUA_TUSERDATA:
 			LuaDebug::fill_info(L, ar);
 			lua_push(L, memnew(LuaDebug(*ar)));
-			lua_call(L, 1, 0);
+			lua_call(L, 1, 1);
+			if (lua_tointeger(L, -1) == LuaThread::HOOK_YIELD) {
+				lua_yield(L, 0);
+			}
 			break;
 		
 		default:
@@ -109,6 +112,9 @@ void LuaThread::_bind_methods() {
 	BIND_BITFIELD_FLAG(HOOK_MASK_RETURN);
 	BIND_BITFIELD_FLAG(HOOK_MASK_LINE);
 	BIND_BITFIELD_FLAG(HOOK_MASK_COUNT);
+
+	BIND_ENUM_CONSTANT(HOOK_OK);
+	BIND_ENUM_CONSTANT(HOOK_YIELD);
 
 	ClassDB::bind_method(D_METHOD("get_status"), &LuaThread::get_status);
 	ClassDB::bind_method(D_METHOD("is_main_thread"), &LuaThread::is_main_thread);

@@ -49,6 +49,11 @@ public:
 		HOOK_MASK_COUNT = LUA_MASKCOUNT,
 	};
 
+	enum HookResult {
+		HOOK_OK = 0,
+		HOOK_YIELD = -1,
+	};
+
 	LuaThread();
 	LuaThread(sol::thread&& thread);
 	LuaThread(const sol::thread& thread);
@@ -67,6 +72,7 @@ protected:
 
 }
 VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
+VARIANT_ENUM_CAST(luagdextension::LuaThread::HookResult);
 VARIANT_BITFIELD_CAST(luagdextension::LuaThread::HookMask);
 
 #endif  // __LUA_THREAD_HPP__

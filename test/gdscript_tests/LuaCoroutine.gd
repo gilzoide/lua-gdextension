@@ -145,5 +145,28 @@ func test_set_hook() -> bool:
 	return true
 
 
+func test_hook_yield() -> bool:
+	var coroutine = LuaCoroutine.create(lua_state.load_string("""
+		global = 1
+		global = 2
+		global = 3
+	"""))
+	coroutine.set_hook(_func_line_hook, LuaThread.HOOK_MASK_LINE)
+	coroutine.resume()
+	# yielded at first line, before running "global = 1"
+	assert(lua_state.globals.global == null)
+	coroutine.resume()
+	# yielded at second line, before running "global = 2"
+	assert(lua_state.globals.global == 1)
+	coroutine.resume()
+	# yielded at third line, before running "global = 3"
+	assert(lua_state.globals.global == 2)
+	return true
+
+
 func _func_call_hook(debug):
 	_hook_call_count += 1
+
+
+func _func_line_hook(debug):
+	return LuaThread.HOOK_YIELD
