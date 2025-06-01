@@ -43,5 +43,5 @@ func test_get_hook() -> bool:
 	return true
 
 
-func _func_call_hook():
+func _func_call_hook(debug):
 	hook_call_count += 1

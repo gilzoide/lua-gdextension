@@ -42,6 +42,7 @@ public:
 	};
 
 	LuaDebug();
+	LuaDebug(const lua_Debug& debug);
 	LuaDebug(lua_Debug&& debug);
 
 	HookEvent get_event() const;
@@ -58,6 +59,8 @@ public:
 	bool is_tail_call() const;
 	bool is_vararg() const;
 #endif
+
+	static void fill_info(lua_State *L, lua_Debug *ar);
 
 protected:
 	static void _bind_methods();

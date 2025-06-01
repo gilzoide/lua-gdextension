@@ -24,6 +24,7 @@
 namespace luagdextension {
 
 LuaDebug::LuaDebug() : debug() {}
+LuaDebug::LuaDebug(const lua_Debug& debug) : debug(debug) {}
 LuaDebug::LuaDebug(lua_Debug&& debug) : debug(std::move(debug)) {}
 
 LuaDebug::HookEvent LuaDebug::get_event() const {
@@ -75,6 +76,14 @@ bool LuaDebug::is_vararg() const {
 	return debug.isvararg;
 }
 #endif
+
+void LuaDebug::fill_info(lua_State *L, lua_Debug *ar) {
+#if LUA_VERSION_NUM >= 502
+	lua_getinfo(L, "nSltu", ar);
+#else
+	lua_getinfo(L, "nSlu", ar);
+#endif
+}
 
 void LuaDebug::_bind_methods() {
 	BIND_ENUM_CONSTANT(HOOK_CALL);

@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "LuaThread.hpp"
+#include "LuaDebug.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/stack_top_checker.hpp"
 
@@ -33,7 +34,9 @@ static void hookf(lua_State *L, lua_Debug *ar) {
 	switch (lua_rawget(L, -2)) {
 		case LUA_TFUNCTION:
 		case LUA_TUSERDATA:
-			lua_call(L, 0, 0);
+			LuaDebug::fill_info(L, ar);
+			lua_push(L, memnew(LuaDebug(*ar)));
+			lua_call(L, 1, 0);
 			break;
 		
 		default:
