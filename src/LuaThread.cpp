@@ -21,6 +21,7 @@
  */
 #include "LuaThread.hpp"
 #include "LuaDebug.hpp"
+#include "LuaFunction.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/stack_top_checker.hpp"
 
@@ -59,21 +60,39 @@ bool LuaThread::is_main_thread() const {
 	return lua_object.is_main_thread();
 }
 
-void LuaThread::set_hook(Callable hook, BitField<HookMask> mask, int count) {
+void LuaThread::set_hook(Variant hook, BitField<HookMask> mask, int count) {
 	lua_State *L = lua_object.thread_state();
-	if (hook.is_valid()) {
-		StackTopChecker topcheck(L);
-		if (!luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
-			/* table just created; initialize it */
-			lua_pushliteral(L, "k");
-			lua_setfield(L, -2, "__mode");  // hooktable.__mode = "k"
-			lua_pushvalue(L, -1);
-			lua_setmetatable(L, -2);  // metatable(hooktable) = hooktable
-		}
-		lua_pushthread(L);  // key (thread)
-		lua_push(L, hook);  // value (hook)
-		lua_rawset(L, -3);  // hooktable[L] = hook
-		lua_pop(L, 1);
+	switch (hook.get_type()) {
+		case Variant::Type::NIL:
+			break;
+
+		case Variant::Type::OBJECT:
+			if (hook && !hook.operator Object*()->is_class(LuaFunction::get_class_static())) {
+				ERR_FAIL_MSG("Hook should be either null, Callable or LuaFunction");
+			}
+			break;
+
+		case Variant::Type::CALLABLE:
+			ERR_FAIL_COND_MSG(!Callable(hook).is_valid(), "Hook is not a valid Callable");
+			break;
+
+		default:
+			ERR_FAIL_MSG("Hook should be either null, Callable or LuaFunction");
+	}
+
+	StackTopChecker topcheck(L);
+	if (!luaL_getsubtable(L, LUA_REGISTRYINDEX, HOOKKEY)) {
+		/* table just created; initialize it */
+		lua_pushliteral(L, "k");
+		lua_setfield(L, -2, "__mode");  // hooktable.__mode = "k"
+		lua_pushvalue(L, -1);
+		lua_setmetatable(L, -2);  // metatable(hooktable) = hooktable
+	}
+	lua_pushthread(L);  // key (thread)
+	lua_push(L, hook);  // value (hook)
+	lua_rawset(L, -3);  // hooktable[L] = hook
+	lua_pop(L, 1);
+	if (hook) {
 		lua_sethook(L, hookf, mask, count);
 	}
 	else {
@@ -81,7 +100,7 @@ void LuaThread::set_hook(Callable hook, BitField<HookMask> mask, int count) {
 	}
 }
 
-Callable LuaThread::get_hook() const {
+Variant LuaThread::get_hook() const {
 	sol::state_view L(lua_object.thread_state());
 	if (auto hook = L.registry().traverse_get<sol::optional<sol::object>>(HOOKKEY, lua_object)) {
 		return to_variant(*hook);

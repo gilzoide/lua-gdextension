@@ -61,8 +61,8 @@ public:
 	Status get_status() const;
 	bool is_main_thread() const;
 
-	void set_hook(Callable hook, BitField<HookMask> mask, int count = 0);
-	Callable get_hook() const;
+	void set_hook(Variant hook, BitField<HookMask> mask, int count = 0);
+	Variant get_hook() const;
 	BitField<HookMask> get_hook_mask() const;
 	int get_hook_count() const;
 	
