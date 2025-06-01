@@ -86,11 +86,11 @@ void LuaDebug::fill_info(lua_State *L, lua_Debug *ar) {
 }
 
 void LuaDebug::_bind_methods() {
-	BIND_ENUM_CONSTANT(HOOK_CALL);
-	BIND_ENUM_CONSTANT(HOOK_RETURN);
-	BIND_ENUM_CONSTANT(HOOK_LINE);
-	BIND_ENUM_CONSTANT(HOOK_COUNT);
-	BIND_ENUM_CONSTANT(HOOK_TAIL_CALL);
+	BIND_ENUM_CONSTANT(EVENT_CALL);
+	BIND_ENUM_CONSTANT(EVENT_RETURN);
+	BIND_ENUM_CONSTANT(EVENT_LINE);
+	BIND_ENUM_CONSTANT(EVENT_COUNT);
+	BIND_ENUM_CONSTANT(EVENT_TAIL_CALL);
 
 	ClassDB::bind_method(D_METHOD("get_event"), &LuaDebug::get_event);
 	ClassDB::bind_method(D_METHOD("get_name"), &LuaDebug::get_name);
