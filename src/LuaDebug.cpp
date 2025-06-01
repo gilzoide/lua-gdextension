@@ -126,4 +126,8 @@ void LuaDebug::_bind_methods() {
 #endif
 }
 
+String LuaDebug::_to_string() const {
+	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
+}
+
 }
