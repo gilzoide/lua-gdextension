@@ -34,12 +34,16 @@
 		<method name="get_stack_info" qualifiers="const">
 			<return type="LuaDebug[]" />
 			<description>
+				Get debug information about the stack of this thread of execution.
 			</description>
 		</method>
 		<method name="get_stack_level_info" qualifiers="const">
 			<return type="LuaDebug" />
 			<param index="0" name="level" type="int" />
 			<description>
+				Get debug information about the activation record of the function executing at a given [param level].
+				Level 0 is the current running function, whereas level n+1 is the function that has called level n (except for tail calls, which do not count in the stack).
+				When called with a level greater than the stack depth, returns [code]null[/code].
 			</description>
 		</method>
 		<method name="get_traceback" qualifiers="const">
@@ -47,6 +51,9 @@
 			<param index="0" name="message" type="String" default="&quot;&quot;" />
 			<param index="1" name="level" type="int" default="0" />
 			<description>
+				Returns a traceback of the stack.
+				[param message] is appended at the beginning of the traceback.
+				[param level] tells at which level to start the traceback.
 			</description>
 		</method>
 		<method name="is_main_thread" qualifiers="const">
@@ -68,6 +75,19 @@
 				[param count] is only meaningful when the mask includes [constant HOOK_MASK_COUNT].
 				See [enum HookEvent] for the available hook events.
 				See also [url]https://www.lua.org/manual/5.4/manual.html#lua_sethook[/url].
+				[codeblocks]
+				[gdscript]
+				var line_hook := func(ar: LuaDebug): prints("Running line: ", ar.current_line)
+				var state := LuaState.new()
+				state.main_thread.set_hook(line_hook, LuaThread.HOOK_MASK_LINE)
+				# The line hook will be called once for each line of Lua code
+				state.do_string("""
+				    local line1 = 1
+				    local line2 = 2
+				    local line3 = 3
+				""")
+				[/gdscript]
+				[/codeblocks]
 			</description>
 		</method>
 	</methods>

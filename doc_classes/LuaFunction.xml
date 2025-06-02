@@ -10,6 +10,12 @@
 	<tutorials>
 	</tutorials>
 	<methods>
+		<method name="get_debug_info" qualifiers="const">
+			<return type="LuaDebug" />
+			<description>
+				Get the debug information available about this function.
+			</description>
+		</method>
 		<method name="invoke" qualifiers="const vararg">
 			<return type="Variant" />
 			<description>
