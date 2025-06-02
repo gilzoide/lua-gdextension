@@ -27,8 +27,8 @@ LuaDebug::LuaDebug() : debug() {}
 LuaDebug::LuaDebug(const lua_Debug& debug) : debug(debug) {}
 LuaDebug::LuaDebug(lua_Debug&& debug) : debug(std::move(debug)) {}
 
-LuaDebug::HookEvent LuaDebug::get_event() const {
-	return (LuaDebug::HookEvent) debug.event;
+LuaThread::HookEvent LuaDebug::get_event() const {
+	return (LuaThread::HookEvent) debug.event;
 }
 
 String LuaDebug::get_name() const {
@@ -91,12 +91,6 @@ void LuaDebug::fill_info(const sol::protected_function& f, lua_Debug *ar) {
 }
 
 void LuaDebug::_bind_methods() {
-	BIND_ENUM_CONSTANT(EVENT_CALL);
-	BIND_ENUM_CONSTANT(EVENT_RETURN);
-	BIND_ENUM_CONSTANT(EVENT_LINE);
-	BIND_ENUM_CONSTANT(EVENT_COUNT);
-	BIND_ENUM_CONSTANT(EVENT_TAIL_CALL);
-
 	ClassDB::bind_method(D_METHOD("get_event"), &LuaDebug::get_event);
 	ClassDB::bind_method(D_METHOD("get_name"), &LuaDebug::get_name);
 	ClassDB::bind_method(D_METHOD("get_name_what"), &LuaDebug::get_name_what);
@@ -112,7 +106,7 @@ void LuaDebug::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_vararg"), &LuaDebug::is_vararg);
 #endif
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "event", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "HookEvent"), "", "get_event");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "event", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_CLASS_IS_ENUM, "LuaThread::HookEvent"), "", "get_event");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_name");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "name_what", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_name_what");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "what", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "", "get_what");

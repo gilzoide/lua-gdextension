@@ -25,6 +25,8 @@
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <sol/sol.hpp>
 
+#include "LuaThread.hpp"
+
 using namespace godot;
 
 namespace luagdextension {
@@ -33,19 +35,11 @@ class LuaDebug : public RefCounted {
 	GDCLASS(LuaDebug, RefCounted);
 
 public:
-	enum HookEvent {
-		EVENT_CALL = LUA_HOOKCALL,
-		EVENT_RETURN = LUA_HOOKRET,
-		EVENT_LINE = LUA_HOOKLINE,
-		EVENT_COUNT = LUA_HOOKCOUNT,
-		EVENT_TAIL_CALL = LUA_HOOKTAILCALL,
-	};
-
 	LuaDebug();
 	LuaDebug(const lua_Debug& debug);
 	LuaDebug(lua_Debug&& debug);
 
-	HookEvent get_event() const;
+	LuaThread::HookEvent get_event() const;
 	String get_name() const;
 	String get_name_what() const;
 	String get_what() const;
@@ -71,6 +65,5 @@ protected:
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaDebug::HookEvent);
 
 #endif  // __LUA_DEBUG_HPP__
