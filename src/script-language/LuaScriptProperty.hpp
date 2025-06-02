@@ -23,9 +23,10 @@
 #define __LUA_SCRIPT_PROPERTY_HPP__
 
 #include <godot_cpp/core/property_info.hpp>
+#include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
-#include "../utils/custom_sol.hpp"
+#include "../LuaFunction.hpp"
 
 using namespace godot;
 
@@ -48,8 +49,8 @@ struct LuaScriptProperty {
 
 	StringName getter_name;
 	StringName setter_name;
-	sol::optional<sol::protected_function> getter;  // Variant getter(self)
-	sol::optional<sol::protected_function> setter;  // void setter(self, Variant value)
+	Ref<LuaFunction> getter;  // Variant getter(self)
+	Ref<LuaFunction> setter;  // void setter(self, Variant value)
 
 	bool get_value(LuaScriptInstance *self, Variant& r_value) const;
 	bool set_value(LuaScriptInstance *self, const Variant& value) const;

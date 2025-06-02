@@ -92,7 +92,7 @@ void LuaThread::set_hook(Variant hook, BitField<HookMask> mask, int count) {
 	lua_push(L, hook);  // value (hook)
 	lua_rawset(L, -3);  // hooktable[L] = hook
 	lua_pop(L, 1);
-	if (hook) {
+	if (hook && mask) {
 		lua_sethook(L, hookf, mask, count);
 	}
 	else {

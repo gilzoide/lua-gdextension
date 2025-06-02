@@ -46,6 +46,7 @@ public:
 	Variant resumev(const Array& args);
 	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
 
+	static Variant invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error);
 	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
 
 protected:
