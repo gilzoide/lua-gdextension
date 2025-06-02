@@ -51,6 +51,14 @@ public:
 		HOOK_MASK_COUNT = LUA_MASKCOUNT,
 	};
 
+	enum HookEvent {
+		HOOK_EVENT_CALL = LUA_HOOKCALL,
+		HOOK_EVENT_RETURN = LUA_HOOKRET,
+		HOOK_EVENT_LINE = LUA_HOOKLINE,
+		HOOK_EVENT_COUNT = LUA_HOOKCOUNT,
+		HOOK_EVENT_TAIL_CALL = LUA_HOOKTAILCALL,
+	};
+
 	enum HookResult {
 		HOOK_OK = 0,
 		HOOK_YIELD = -1,
@@ -77,8 +85,9 @@ protected:
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
+VARIANT_ENUM_CAST(luagdextension::LuaThread::HookEvent);
 VARIANT_ENUM_CAST(luagdextension::LuaThread::HookResult);
+VARIANT_ENUM_CAST(luagdextension::LuaThread::Status);
 VARIANT_BITFIELD_CAST(luagdextension::LuaThread::HookMask);
 
 #endif  // __LUA_THREAD_HPP__

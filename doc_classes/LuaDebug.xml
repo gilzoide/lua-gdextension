@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaDebug" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A structure used to carry different pieces of information about a Lua function or an activation record.
+	</brief_description>
+	<description>
+		See [url]https://www.lua.org/manual/5.4/manual.html#lua_Debug[/url].
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="is_tail_call" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if this function invocation was called by a tail call. In this case, the caller of this level is not in the stack.
+			</description>
+		</method>
+		<method name="is_vararg" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if the function is a variadic function (always true for C functions).
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="current_line" type="int" setter="" getter="get_current_line">
+			The current line where the given function is executing. When no line information is available, current_line is set to -1.
+		</member>
+		<member name="event" type="int" setter="" getter="get_event" enum="LuaThread.HookEvent">
+			Hook event that generated this activation record. Only meaningful during hooks.
+		</member>
+		<member name="last_line_defined" type="int" setter="" getter="get_last_line_defined">
+			The line number where the definition of the function ends.
+		</member>
+		<member name="line_defined" type="int" setter="" getter="get_line_defined">
+			The line number where the definition of the function starts.
+		</member>
+		<member name="name" type="String" setter="" getter="get_name">
+			A reasonable name for the given function. Because functions in Lua are first-class values, they do not have a fixed name: some functions can be the value of multiple global variables, while others can be stored only in a table field. If Lua cannot find a name, then name is empty.
+		</member>
+		<member name="name_what" type="String" setter="" getter="get_name_what">
+			Explains the name field. The value of name_what can be "global", "local", "method", "field", "upvalue", or "" (the empty string), according to how the function was called. (Lua uses the empty string when no other option seems to apply.)
+		</member>
+		<member name="nparams" type="int" setter="" getter="get_nparams">
+			The number of parameters of the function (always 0 for C functions).
+		</member>
+		<member name="short_src" type="String" setter="" getter="get_short_src">
+			A "printable" version of source, to be used in error messages.
+		</member>
+		<member name="source" type="String" setter="" getter="get_source">
+			The source of the chunk that created the function. If source starts with a '@', it means that the function was defined in a file where the file name follows the '@'. If source starts with a '=', the remainder of its contents describes the source in a user-dependent manner. Otherwise, the function was defined in a string where source is that string.
+		</member>
+		<member name="what" type="String" setter="" getter="get_what">
+			The string "Lua" if the function is a Lua function, "C" if it is a C function, "main" if it is the main part of a chunk.
+		</member>
+	</members>
+</class>
