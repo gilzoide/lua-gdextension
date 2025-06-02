@@ -21,26 +21,24 @@
  */
 #include "LuaScriptMethod.hpp"
 
+#include "../LuaDebug.hpp"
 #include "../utils/stack_top_checker.hpp"
 
 namespace luagdextension {
 
 LuaScriptMethod::LuaScriptMethod(const StringName& name, sol::protected_function method)
 	: name(name)
-	, method(method)
+	, method(LuaObject::wrap_object<LuaFunction>(method))
 {
 }
 
 bool LuaScriptMethod::is_valid() const {
-	return method.valid();
+	return method.is_valid();
 }
 
 int LuaScriptMethod::get_line_defined() const {
 #ifdef DEBUG_ENABLED
-	lua_Debug lua_info;
-	method.push();
-	lua_getinfo(method.lua_state(), ">S", &lua_info);
-	return lua_info.linedefined;
+	return method->get_debug_info()->get_line_defined();
 #else
 	return -1;
 #endif
@@ -48,10 +46,7 @@ int LuaScriptMethod::get_line_defined() const {
 
 Variant LuaScriptMethod::get_argument_count() const {
 #ifdef DEBUG_ENABLED
-	lua_Debug lua_info;
-	method.push();
-	lua_getinfo(method.lua_state(), ">u", &lua_info);
-	return lua_info.nparams;
+	return method->get_debug_info()->get_nparams();
 #else
 	return {};
 #endif
@@ -62,22 +57,19 @@ MethodInfo LuaScriptMethod::to_method_info() const {
 	mi.name = name;
 
 #ifdef DEBUG_ENABLED
-	sol::state_view state = method.lua_state();
+	sol::state_view state = method->get_function().lua_state();
 	StackTopChecker topcheck(state);
 
-	lua_Debug lua_info;
-	method.push(state);
-	lua_getinfo(state, ">u", &lua_info);
-	
-	auto methodpop = sol::stack::push_pop(state, method);
-	for (int i = 0; i < lua_info.nparams; i++) {
+	auto debug_info = method->get_debug_info();
+	auto methodpop = sol::stack::push_pop(state, method->get_function());
+	for (int i = 0; i < debug_info->get_nparams(); i++) {
 		String arg_name = lua_getlocal(state, nullptr, i + 1);
 		if (i == 0 && arg_name == "self") {
 			continue;
 		}
 		mi.arguments.push_back(PropertyInfo(Variant::Type::NIL, arg_name));
 	}
-	if (lua_info.isvararg) {
+	if (debug_info->is_vararg()) {
 		mi.flags |= GDEXTENSION_METHOD_FLAG_VARARG;
 	}
 #endif

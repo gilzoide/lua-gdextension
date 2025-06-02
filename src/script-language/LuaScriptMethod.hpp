@@ -25,6 +25,8 @@
 #include <sol/sol.hpp>
 #include <godot_cpp/core/object.hpp>
 
+#include "../LuaFunction.hpp"
+
 typedef struct lua_State lua_State;
 
 using namespace godot;
@@ -33,7 +35,7 @@ namespace luagdextension {
 
 struct LuaScriptMethod {
 	StringName name;
-	sol::protected_function method;
+	Ref<LuaFunction> method;
 	
 	LuaScriptMethod() = default;
 	LuaScriptMethod(const StringName& name, sol::protected_function method);

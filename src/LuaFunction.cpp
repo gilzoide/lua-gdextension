@@ -49,6 +49,10 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 	return invoke_lua(lua_object, VariantArguments(args, arg_count), true);
 }
 
+Variant LuaFunction::invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error) {
+	return invoke_lua(f->get_function(), args, return_lua_error);
+}
+
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
 	sol::protected_function_result result = f.call(args);
 	return to_variant(result, return_lua_error);

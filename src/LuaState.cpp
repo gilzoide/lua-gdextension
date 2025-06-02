@@ -189,15 +189,15 @@ Variant LuaState::do_file(const String& filename, LoadMode mode, LuaTable *env) 
 	return ::luagdextension::do_file(lua_state, filename, (sol::load_mode) mode, env);
 }
 
-LuaTable *LuaState::get_globals() const {
+Ref<LuaTable> LuaState::get_globals() const {
 	return LuaObject::wrap_object<LuaTable>(lua_state.globals());
 }
 
-LuaTable *LuaState::get_registry() const {
+Ref<LuaTable> LuaState::get_registry() const {
 	return LuaObject::wrap_object<LuaTable>(lua_state.registry());
 }
 
-LuaThread *LuaState::get_main_thread() const {
+Ref<LuaThread> LuaState::get_main_thread() const {
 	return LuaObject::wrap_object<LuaThread>(sol::thread(lua_state, lua_state));
 }
 

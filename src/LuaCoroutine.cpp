@@ -80,6 +80,10 @@ sol::protected_function_result LuaCoroutine::_resume(lua_State *L, const Variant
 	return function_result;
 }
 
+Variant LuaCoroutine::invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error) {
+	return invoke_lua(f->get_function(), args, return_lua_error);
+}
+
 Variant LuaCoroutine::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
 	LuaCoroutinePool pool(f.lua_state());
 	sol::thread coroutine = pool.acquire(f);

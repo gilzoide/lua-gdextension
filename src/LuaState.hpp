@@ -114,9 +114,9 @@ public:
 	Variant do_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
 	Variant do_file(const String& filename, LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 
-	LuaTable *get_globals() const;
-	LuaTable *get_registry() const;
-	LuaThread *get_main_thread() const;
+	Ref<LuaTable> get_globals() const;
+	Ref<LuaTable> get_registry() const;
+	Ref<LuaThread> get_main_thread() const;
 
 	String get_package_path() const;
 	String get_package_cpath() const;

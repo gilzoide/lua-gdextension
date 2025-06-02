@@ -20,6 +20,7 @@
 ### Fixed
 - Use `xcframework` instead of `dylib` in iOS exports
 - Crash when Lua errors, but the error object is not a string
+- Crash when reloading the GDExtension
 
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)
