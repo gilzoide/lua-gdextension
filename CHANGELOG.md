@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.4.0...HEAD)
+
+
+## [0.4.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.4.0)
 ### Added
 - `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
 - `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
