@@ -45,7 +45,7 @@ int LuaScriptMethod::get_line_defined() const {
 }
 
 Variant LuaScriptMethod::get_argument_count() const {
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && LUA_VERSION_NUM >= 502
 	return method->get_debug_info()->get_nparams();
 #else
 	return {};
@@ -56,7 +56,7 @@ MethodInfo LuaScriptMethod::to_method_info() const {
 	MethodInfo mi;
 	mi.name = name;
 
-#ifdef DEBUG_ENABLED
+#if defined(DEBUG_ENABLED) && LUA_VERSION_NUM >= 502
 	sol::state_view state = method->get_function().lua_state();
 	StackTopChecker topcheck(state);
 

@@ -92,11 +92,17 @@ int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v) {
 	return args.size();
 }
 
+#if LUA_VERSION_NUM < 502
+int lua_resume(lua_State *L, lua_State *from, int nargs) {
+	return lua_resume(L, nargs);
+}
+#endif
+
 #if LUA_VERSION_NUM < 504
 int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults) {
 	int status = lua_resume(L, from, nargs);
 	if (nresults) {
-		nresults = lua_gettop(L);
+		*nresults = lua_gettop(L);
 	}
 	return status;
 }
