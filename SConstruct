@@ -1,6 +1,23 @@
 import os
+import shutil
+
+
+use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
+
+# Setup variant build dir for each setup
+def remove_prefix(s, prefix):
+    return s[len(prefix):] if s.startswith(prefix) else s
+
+build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
+VariantDir(build_dir, 'src', duplicate=False)
+
+source_directories = [".", "luaopen", "utils", "script-language"]
+sources = [
+    Glob(f"{build_dir}/{directory}/*.cpp")
+    for directory in source_directories
+]
 
 # Add support for generating compilation database files
 env.Tool("compilation_db")
@@ -42,25 +59,53 @@ elif remove_options(env["CXXFLAGS"], "/std:c++17"):
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
 
-# Lua defines
-env.Append(CPPDEFINES="MAKE_LIB")
-if env["platform"] == "windows":
-    # Lua automatically detects Windows using `defined(_WIN32)`
-    pass
-elif env["platform"] == "macos":
-    env.Append(CPPDEFINES="LUA_USE_MACOSX")
-elif env["platform"] == "ios":
-    env.Append(CPPDEFINES="LUA_USE_IOS")
-elif env["platform"] == "linux":
-    env.Append(CPPDEFINES="LUA_USE_LINUX")
-elif env["platform"] == "android":
-    env.Append(CPPDEFINES="LUA_USE_ANDROID")
-    if "32" in env["arch"]:
-        env.Append(CPPDEFINES="LUA_USE_ANDROID_32")
-elif env["platform"] != "web":
-    env.Append(CPPDEFINES="LUA_USE_POSIX")
+# LuaJIT
+if use_luajit:
+    def copy_folder_if_not_exists(env, target, source):
+        if not os.path.exists(target):
+            shutil.copytree(source, target)
 
-env.Append(CPPPATH="lib/lua")
+    make_luajit_args = ["MACOSX_DEPLOYMENT_TARGET=11.0"]
+    if env["platform"] == "macos":
+        make_luajit_args.append("TARGET_FLAGS='-arch x86_64 -arch arm64'")
+    Command(
+        [
+            f"{build_dir}/luajit/src/luajit.o",
+            f"{build_dir}/luajit/src/libluajit.a",
+            f"{build_dir}/luajit/src/lua51.dll",
+        ],
+        "lib/luajit",
+        action=[
+            # Copy LuaJIT source to build folder, since its Makefile builds in-tree
+            lambda target, source, env: copy_folder_if_not_exists(env, f"{build_dir}/luajit", source),
+            # Build LuaJIT using `make`
+            f"make -C {build_dir}/luajit amalg {' '.join(make_luajit_args)}",
+        ],
+    )
+    env.Append(CPPPATH="lib/luajit/src")
+    env.Append(LIBS=File(f"{build_dir}/luajit/src/libluajit.a"))
+# Lua
+else:
+    env.Append(CPPDEFINES="MAKE_LIB")
+    if env["platform"] == "windows":
+        # Lua automatically detects Windows using `defined(_WIN32)`
+        pass
+    elif env["platform"] == "macos":
+        env.Append(CPPDEFINES="LUA_USE_MACOSX")
+    elif env["platform"] == "ios":
+        env.Append(CPPDEFINES="LUA_USE_IOS")
+    elif env["platform"] == "linux":
+        env.Append(CPPDEFINES="LUA_USE_LINUX")
+    elif env["platform"] == "android":
+        env.Append(CPPDEFINES="LUA_USE_ANDROID")
+        if "32" in env["arch"]:
+            env.Append(CPPDEFINES="LUA_USE_ANDROID_32")
+    elif env["platform"] != "web":
+        env.Append(CPPDEFINES="LUA_USE_POSIX")
+
+    env.Append(CPPPATH="lib/lua")
+    sources.append("lib/lua.cpp")
+
 # Lua needs exceptions enabled
 remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
@@ -73,31 +118,22 @@ if env["target"] == "template_debug":
 
 env.Append(CPPPATH="lib/sol2/include")
 
-# Setup variant build dir for each setup
-def remove_prefix(s, prefix):
-    return s[len(prefix):] if s.startswith(prefix) else s
-
-build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
-VariantDir(build_dir, 'src', duplicate=False)
-
-# Build Lua GDExtension
-source_directories = [".", "luaopen", "utils", "script-language"]
-sources = [
-    Glob(f"{build_dir}/{directory}/*.cpp")
-    for directory in source_directories
-]
 
 # Generate document
 if env["target"] in ["editor", "template_debug"]:
     doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
     sources.append(doc_data)
 
+# Build Lua GDExtension
 if env["platform"] == "ios":
     def XCFramework(sources, target):
         return env.Command(
             target,
             sources,
-            action=f"rm -rf $TARGET && xcodebuild -create-xcframework {' '.join('-library ' + str(s) for s in sources)} -output $TARGET",
+            action=[
+                "rm -rf $TARGET",
+                f"xcodebuild -create-xcframework {' '.join('-library ' + str(s) for s in sources)} -output $TARGET",
+            ],
         )
     library = env.StaticLibrary(
         f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
