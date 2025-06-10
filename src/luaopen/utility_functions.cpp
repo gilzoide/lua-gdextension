@@ -86,9 +86,10 @@ struct ResumeLuaCoroutineCallable : public CallableCustom {
 	Ref<LuaCoroutine> coroutine;
 };
 
-static void lua_await(sol::this_state L, sol::stack_object signal_or_coroutine) {
-	ERR_FAIL_COND_MSG(!lua_isyieldable(L), "Current thread is not yieldable");
+static int lua_await(lua_State *L) {
+	ERR_FAIL_COND_V_MSG(!lua_isyieldable(L), 0, "Current thread is not yieldable");
 	
+	sol::stack_object signal_or_coroutine(L, 1);
 	Signal signal;
 	Variant var = to_variant(signal_or_coroutine);
 	switch (var.get_type()) {
@@ -106,11 +107,11 @@ static void lua_await(sol::this_state L, sol::stack_object signal_or_coroutine) 
 			break;
 	}
 	
-	ERR_FAIL_COND_MSG(signal.is_null(), "Expected signal in await");
+	ERR_FAIL_COND_V_MSG(signal.is_null(), 0, "Expected signal in await");
 	
 	Callable callback(memnew(ResumeLuaCoroutineCallable(L)));
 	signal.connect(callback, Object::CONNECT_ONE_SHOT);
-	lua_yield(L, 0);
+	return lua_yield(L, 0);
 }
 
 extern "C" int luaopen_godot_utility_functions(lua_State *L) {
