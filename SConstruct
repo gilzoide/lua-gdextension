@@ -1,5 +1,4 @@
 import os
-import shutil
 
 
 use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
@@ -63,6 +62,7 @@ remove_options(env["LINKFLAGS"], "-s")
 remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
+
 
 # Lua
 if env["platform"] == "web" or not use_luajit:
@@ -158,6 +158,7 @@ else:
     )
     Default(luajit_jit)
 
+
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0"])
 if env["target"] == "template_debug":
@@ -209,3 +210,13 @@ else:
         source=sources,
     )
     Default(library)
+
+
+# Copy files to addons folder
+addons_source = Glob("addons/common/*") + ["CHANGELOG.md", "LICENSE", "README.md"]
+addons_files = env.Command(
+    [f"addons/lua-gdextension/{os.path.basename(str(f))}" for f in addons_source],
+    addons_source,
+    Copy("addons/lua-gdextension", addons_source),
+)
+Default(addons_files)

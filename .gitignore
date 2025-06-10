@@ -18,9 +18,6 @@ build
 *.xcframework
 *.wasm
 compile_commands.json
-addons/lua-gdextension/CHANGELOG.md
-addons/lua-gdextension/README.md
-addons/lua-gdextension/LICENSE
 src/generated/
 src/generated-document/
 
@@ -31,3 +28,8 @@ test/godot
 # Some IDE generated configuration files
 .vs/
 .vscode/
+
+# Addons files
+addons/lua-gdextension/*
+!addons/lua-gdextension/luagdextension.gdextension
+!addons/lua-gdextension/luagdextension.gdextension.uid
