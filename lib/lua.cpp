@@ -31,4 +31,4 @@
 	#define l_seeknum		long
 #endif
 
-#include <onelua.c>
+#include "lua/onelua.c"
