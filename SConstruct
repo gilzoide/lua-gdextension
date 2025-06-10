@@ -2,6 +2,7 @@ import os
 
 
 use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
+lua_or_luajit = "luajit" if use_luajit else "lua"
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 
@@ -152,7 +153,7 @@ else:
     env.Append(LIBS=libluajit)
 
     luajit_jit = env.Command(
-        "addons/lua-gdextension/build/jit",
+        f"addons/{lua_or_luajit}-gdextension/build/jit",
         "lib/luajit/src/jit",
         action=Copy("$TARGET", "$SOURCE"),
     )
@@ -192,21 +193,21 @@ if env["platform"] == "ios":
             f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}{env["LIBSUFFIX"]}",
             *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/lua-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
+        f"addons/{lua_or_luajit}-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
     luagdextension_xcframework = XCFramework(
         [
             f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
             *map(str, Glob(f"build/libluagdextension.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/lua-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
+        f"addons/{lua_or_luajit}-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
     env.Depends(godotcpp_xcframework, library)
     env.Depends(luagdextension_xcframework, godotcpp_xcframework)
     Default(luagdextension_xcframework)
 else:
     library = env.SharedLibrary(
-        f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}{env["SHLIBSUFFIX"]}",
+        f"addons/{lua_or_luajit}-gdextension/build/libluagdextension{env["suffix"]}{env["SHLIBSUFFIX"]}",
         source=sources,
     )
     Default(library)
@@ -215,8 +216,8 @@ else:
 # Copy files to addons folder
 addons_source = Glob("addons/common/*") + ["CHANGELOG.md", "LICENSE", "README.md"]
 addons_files = env.Command(
-    [f"addons/lua-gdextension/{os.path.basename(str(f))}" for f in addons_source],
+    [f"addons/{lua_or_luajit}-gdextension/{os.path.basename(str(f))}" for f in addons_source],
     addons_source,
-    Copy("addons/lua-gdextension", addons_source),
+    Copy(f"addons/{lua_or_luajit}-gdextension", addons_source),
 )
 Default(addons_files)

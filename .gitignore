@@ -33,3 +33,7 @@ test/godot
 addons/lua-gdextension/*
 !addons/lua-gdextension/luagdextension.gdextension
 !addons/lua-gdextension/luagdextension.gdextension.uid
+
+addons/luajit-gdextension/*
+!addons/luajit-gdextension/luagdextension.gdextension
+!addons/luajit-gdextension/luagdextension.gdextension.uid
