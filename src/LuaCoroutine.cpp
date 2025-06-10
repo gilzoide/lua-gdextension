@@ -75,7 +75,7 @@ sol::protected_function_result LuaCoroutine::_resume(lua_State *L, const Variant
 	sol::stack::push(L, args);
 
 	int nresults;
-	int status = lua_resume(L, nullptr, args.argc(), &nresults);
+	int status = resume_lua_coroutine(L, args.argc(), &nresults);
 	sol::protected_function_result function_result(L, -nresults, nresults, nresults, static_cast<sol::call_status>(status));
 	return function_result;
 }

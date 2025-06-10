@@ -11,8 +11,8 @@ MAKE_LUAJIT_ARGS += TARGET_FLAGS="$(CCFLAGS)" TARGET_LDFLAGS="$(LINKFLAGS)" XCFL
 	$(MAKE) -C $< amalg TARGET_SYS=$(TARGET_SYS) $(MAKE_LUAJIT_ARGS)
 	cp $</src/$(@F) $*
 
-luajit/src/luajit.h:
-	$(MAKE) -C luajit/src luajit.h
+luajit-native:
+	$(MAKE) -C luajit/src luajit.h jit/vmdef.lua
 
 luajit-windows: TARGET_SYS = Windows
 luajit-windows: $(BUILDDIR)/libluajit.a $(BUILDDIR)/lua51.dll

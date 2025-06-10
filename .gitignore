@@ -4,7 +4,7 @@
 __pycache__/
 
 # Built files
-build/*
+build
 !build/.gdignore
 *.o
 *.os

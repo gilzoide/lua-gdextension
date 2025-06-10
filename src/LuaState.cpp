@@ -62,7 +62,7 @@ static void lua_warn_handler(void *ud, const char *msg, int tocont) {
 }
 #endif
 
-LuaState::LuaState() : lua_state(lua_panic_handler, lua_alloc) {
+LuaState::LuaState() : lua_state(lua_panic_handler) {
 	setup_G_metatable(lua_state);
 #ifdef HAVE_LUA_WARN
 	lua_setwarnf(lua_state, lua_warn_handler, this);
@@ -226,6 +226,9 @@ void LuaState::set_package_path(const String& path) {
 				.rstrip(LUA_PATH_SEP)
 				.lstrip(LUA_PATH_SEP)
 				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
+#ifdef LUAJIT
+				+ LUA_PATH_SEP "res://addons/lua-gdextension/build/?.lua"
+#endif
 		);
 	}
 	else {

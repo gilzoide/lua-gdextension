@@ -59,6 +59,11 @@ elif remove_options(env["CXXFLAGS"], "/std:c++17"):
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
 remove_options(env["LINKFLAGS"], "-s")
 
+# Build with exceptions enabled
+remove_options(env["CXXFLAGS"], "-fno-exceptions")
+if env["platform"] == "windows" and not env["use_mingw"]:
+    env.Append(CXXFLAGS="/EHsc")
+
 # Lua
 if env["platform"] == "web" or not use_luajit:
     env.Append(CPPDEFINES="MAKE_LIB")
@@ -78,17 +83,13 @@ if env["platform"] == "web" or not use_luajit:
     elif env["platform"] != "web":
         env.Append(CPPDEFINES="LUA_USE_POSIX")
 
-    # Building Lua as C++ needs exceptions enabled
-    remove_options(env["CXXFLAGS"], "-fno-exceptions")
-    if env["platform"] == "windows" and not env["use_mingw"]:
-        env.Append(CXXFLAGS="/EHsc")
-
+    env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
     env.Append(CPPPATH="lib/lua")
     sources.append("lib/lua.cpp")
 # LuaJIT
 else:
-    # Make sure luajit.h has been generated
-    env.Execute("make -C lib luajit/src/luajit.h MACOSX_DEPLOYMENT_TARGET=11.0")
+    # Make sure luajit.h and jit/vmdef.lua has been generated
+    env.Execute("make -C lib luajit-native MACOSX_DEPLOYMENT_TARGET=11.0")
 
     def MakeLuajit(env, build_dir):
         targets = [
@@ -146,17 +147,19 @@ else:
     else:
         libluajit = MakeLuajit(env, f"{build_dir}/luajit")
 
+    env.Append(CPPDEFINES=["LUAJIT", "SOL_LUAJIT=1", "SOL_USING_CXX_LUA=0"])
     env.Append(CPPPATH=["lib/luajit/src", f"{build_dir}/luajit"])
     env.Append(LIBS=libluajit)
 
-
-# Lua needs exceptions enabled
-remove_options(env["CXXFLAGS"], "-fno-exceptions")
-if env["platform"] == "windows" and not env["use_mingw"]:
-    env.Append(CXXFLAGS="/EHsc")
+    luajit_jit = env.Command(
+        "addons/lua-gdextension/build/jit",
+        "lib/luajit/src/jit",
+        action=Copy("$TARGET", "$SOURCE"),
+    )
+    Default(luajit_jit)
 
 # Sol defines
-env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0", f"SOL_USING_CXX_LUA={0 if use_luajit else 1}", f"SOL_LUAJIT={1 if use_luajit else 0}"])
+env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0"])
 if env["target"] == "template_debug":
     env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON=1", "SOL_PRINT_ERRORS=1"])
 
