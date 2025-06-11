@@ -19,6 +19,7 @@ endif
 %/luajit:
 	@mkdir -p $*
 	cp -r luajit $@
+	$(MAKE) -C "$@" clean
 
 %/libluajit.a %/lua51.dll: %/luajit
 	$(MAKE) -C "$<" amalg $(MAKE_LUAJIT_ARGS)
