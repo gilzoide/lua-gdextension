@@ -1,5 +1,14 @@
 BUILDDIR ?= .
-MAKE_LUAJIT_ARGS += TARGET_FLAGS="$(CCFLAGS)" TARGET_LDFLAGS="$(LINKFLAGS)" XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT
+MAKE_LUAJIT_ARGS += \
+	TARGET_SYS=$(TARGET_SYS) \
+	TARGET_FLAGS="$(CCFLAGS)" \
+	TARGET_LDFLAGS="$(LINKFLAGS)" \
+	STATIC_CC="$(STATIC_CC)" \
+	DYNAMIC_CC="$(DYNAMIC_CC)" \
+	XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT
+ifneq ($(HOST_CC),)
+MAKE_LUAJIT_ARGS += HOST_CC="$(HOST_CC)"
+endif 
 
 .PRECIOUS: %/luajit
 
@@ -8,8 +17,8 @@ MAKE_LUAJIT_ARGS += TARGET_FLAGS="$(CCFLAGS)" TARGET_LDFLAGS="$(LINKFLAGS)" XCFL
 	cp -r luajit $@
 
 %/libluajit.a %/lua51.dll: %/luajit
-	$(MAKE) -C $< amalg TARGET_SYS=$(TARGET_SYS) $(MAKE_LUAJIT_ARGS)
-	cp $</src/$(@F) $*
+	$(MAKE) -C "$<" amalg $(MAKE_LUAJIT_ARGS)
+	cp "$</src/$(@F)" $*
 
 luajit-native:
 	$(MAKE) -C luajit/src luajit.h jit/vmdef.lua

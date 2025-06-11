@@ -99,9 +99,9 @@ else:
         if env["platform"] == "windows":
             targets.append(f"{build_dir}/lua51.dll")
         if env["platform"] in ["linux", "android"] and env["arch"] in ["x86_32", "arm32"]:
-            host_cc = f"{env["CC"]} -m32"
+            host_cc = f"gcc -m32"
         else:
-            host_cc = None
+            host_cc = ""
         return env.Command(
             targets,
             "lib",
