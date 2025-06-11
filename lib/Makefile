@@ -30,6 +30,10 @@ luajit-native:
 luajit-windows: TARGET_SYS = Windows
 luajit-windows: $(BUILDDIR)/libluajit.a $(BUILDDIR)/lua51.dll
 
+luajit-windows-msvc: TARGET_SYS = Windows
+luajit-windows-msvc:
+	cd luajit/src && msvcbuild.bat
+
 luajit-macos: TARGET_SYS = Darwin
 luajit-macos: $(BUILDDIR)/libluajit.a
 
