@@ -221,3 +221,4 @@ addons_files = env.Command(
     Copy(f"addons/{lua_or_luajit}-gdextension", addons_source),
 )
 Default(addons_files)
+Alias("addons_files", addons_files)

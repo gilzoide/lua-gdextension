@@ -9,7 +9,7 @@ env:
 
 jobs:
   build_linux:
-    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -17,6 +17,7 @@ jobs:
         target: [template_debug, template_release]
         arch: [x86_64, x86_32, arm64, arm32]
         platform: [linux, android]
+        luajit: [false, true]
         include:
           - platform: linux
             arch: x86_32
@@ -45,21 +46,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.scons-args }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }} ${{ matrix.scons-args }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
+            addons/luajit-gdextension/build/libluagdextension.*
   
   build_windows:
-    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -67,6 +69,7 @@ jobs:
         target: [template_debug, template_release]
         arch: [x86_64, x86_32, arm64]
         platform: [windows]
+        luajit: [false, true]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -80,27 +83,29 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.scons-args }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }} ${{ matrix.scons-args }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
+            addons/luajit-gdextension/build/libluagdextension.*
           
   build_web:
-    name: web (wasm32, ${{ matrix.target }}, ${{ matrix.threads && 'threads' || 'nothreads' }})
+    name: web (wasm32, ${{ matrix.target }}, ${{ matrix.threads && 'threads' || 'nothreads' }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         target: [template_debug, template_release]
         threads: [true, false]
+        luajit: [false, true]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -113,21 +118,22 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.luajit && 'luajit' || 'lua' }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-
+            web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }}
+          scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }} luajit=${{ matrix.luajit }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}
+          name: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
+            addons/luajit-gdextension/build/libluagdextension.*
 
   build_macos:
-    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
+    name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
     runs-on: macos-latest
     strategy:
       fail-fast: false
@@ -135,31 +141,34 @@ jobs:
         target: [template_debug, template_release]
         arch: [universal]
         platform: [macos, ios]
+        luajit: [false, true]
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install dependencies
-        run: |
-          brew install scons
+      - name: Setup godot-cpp
+        uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
+        with:
+          platform: ${{ matrix.platform }}
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }}
         env:
           PYTHON_BIN: python3
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}
+          name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/lib*
+            addons/luajit-gdextension/build/lib*
 
   test_distribution:
     name: Test ${{ matrix.name }}
@@ -206,6 +215,10 @@ jobs:
     name: Distribute zip
     needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        luajit: [false, true]
     steps:
       - uses: actions/checkout@v4
       - name: Download artifacts
@@ -213,15 +226,20 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: "*-${{ matrix.luajit && 'luajit' || 'lua' }}"
+      - name: Setup godot-cpp
+        uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
+        with:
+          platform: linux
       - name: Copy artifacts to build folder
         run: |
-          make copy-files-to-addon
-          cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
+          scons luajit=${{ matrix.luajit }} addons_files
+          cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lua-gdextension
+          name: ${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension
           path: |
             LICENSE
-            addons/lua-gdextension/**
+            addons/${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension/**
 
