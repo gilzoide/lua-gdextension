@@ -112,7 +112,7 @@ else:
                 "STATIC_CC": env["CC"],
                 "DYNAMIC_CC": env["CC"],
                 "TARGET_LD": env["CC"],
-                "TARGET_STRIP": env["STRIP"],
+                "TARGET_STRIP": env.get("STRIP", ""),
                 "CCFLAGS": " ".join(env["CCFLAGS"]),
                 "LINKFLAGS": " ".join(env["LINKFLAGS"]),
                 "MACOSX_DEPLOYMENT_TARGET": "11.0",
