@@ -98,13 +98,19 @@ else:
         ]
         if env["platform"] == "windows":
             targets.append(f"{build_dir}/lua51.dll")
+        if env["platform"] in ["linux", "android"] and env["arch"] in ["x86_32", "arm32"]:
+            host_cc = f"{env["CC"]} -m32"
+        else:
+            host_cc = None
         return env.Command(
             targets,
             "lib",
             action=f"make -C lib luajit-{env["platform"]}",
             ENV={
                 "BUILDDIR": os.path.abspath(build_dir),
-                "TARGET_CC": env["CC"],
+                "HOST_CC": host_cc,
+                "STATIC_CC": env["CC"],
+                "DYNAMIC_CC": env["CC"],
                 "CCFLAGS": " ".join(env["CCFLAGS"]),
                 "LINKFLAGS": " ".join(env["LINKFLAGS"]),
                 "MACOSX_DEPLOYMENT_TARGET": "11.0",
