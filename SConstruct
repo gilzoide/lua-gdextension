@@ -111,6 +111,7 @@ else:
                 "HOST_CC": host_cc,
                 "STATIC_CC": env["CC"],
                 "DYNAMIC_CC": env["CC"],
+                "TARGET_LD": env["CC"],
                 "CCFLAGS": " ".join(env["CCFLAGS"]),
                 "LINKFLAGS": " ".join(env["LINKFLAGS"]),
                 "MACOSX_DEPLOYMENT_TARGET": "11.0",
