@@ -147,9 +147,6 @@ else:
         )
         luajit_arm64 = MakeLuajit(env_arm64, f"{build_dir}/luajit/arm64")
 
-        # Make sure only one build runs at a time.
-        env.SideEffect("_dummy_side_effect_1", [luajit_x86_64, luajit_arm64])
-
         libluajit = Lipo(
             env,
             target=f"{build_dir}/luajit/libluajit.a",
