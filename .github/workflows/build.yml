@@ -24,7 +24,11 @@ jobs:
             arch: x86_32
             packages: [g++-multilib]
           - platform: android
-            scons-args: android_api_level=21
+            arch: x86_32
+            packages: [g++-multilib]
+          - platform: android
+            arch: arm32
+            packages: [g++-multilib]
         exclude:
           - platform: linux
             arch: arm64
@@ -53,7 +57,7 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }} ${{ matrix.scons-args }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -91,7 +95,7 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }} ${{ matrix.scons-args }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
