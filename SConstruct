@@ -136,6 +136,7 @@ else:
             CCFLAGS=["-arch", "x86_64"],
             LINKFLAGS=["-arch", "x86_64"],
         )
+        luajit_x86_64 = MakeLuajit(env_x86_64, f"{build_dir}/luajit/x86_64")
         
         env_arm64 = env.Clone()
         remove_options(env_arm64["CCFLAGS"], "-arch", "x86_64", "-arch", "arm64")
@@ -144,14 +145,15 @@ else:
             CCFLAGS=["-arch", "arm64"],
             LINKFLAGS=["-arch", "arm64"],
         )
+        luajit_arm64 = MakeLuajit(env_arm64, f"{build_dir}/luajit/arm64")
+
+        # Make sure only one build runs at a time.
+        env.SideEffect(f"{build_dir}/luajit/libluajit.a", [luajit_x86_64, luajit_arm64])
 
         libluajit = Lipo(
             env,
             target=f"{build_dir}/luajit/libluajit.a",
-            sources=[
-                MakeLuajit(env_x86_64, f"{build_dir}/luajit/x86_64"),
-                MakeLuajit(env_arm64, f"{build_dir}/luajit/arm64"),
-            ],
+            sources=[luajit_x86_64, luajit_arm64],
         )
     else:
         libluajit = MakeLuajit(env, f"{build_dir}/luajit")
