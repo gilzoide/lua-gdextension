@@ -6,6 +6,7 @@ defaults:
 
 env:
   SCONS_CACHE: ${{ github.workspace }}/.scons-cache
+  SCONS_VERSION: 4.9.1
 
 jobs:
   build_linux:
@@ -37,6 +38,7 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+          scons-version: $SCONS_VERSION
       - name: Setup dependencies
         if: ${{ join(matrix.packages, ' ') != '' }}
         run: |
@@ -78,6 +80,7 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+          scons-version: $SCONS_VERSION
           windows-compiler: msvc
       - name: Cache SCons files
         uses: actions/cache@v4
@@ -114,6 +117,7 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: web
+          scons-version: $SCONS_VERSION
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
@@ -150,6 +154,7 @@ jobs:
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: ${{ matrix.platform }}
+          scons-version: $SCONS_VERSION
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
@@ -227,10 +232,12 @@ jobs:
         with:
           path: artifacts
           pattern: "*-${{ matrix.luajit && 'luajit' || 'lua' }}"
+          merge-multiple: true
       - name: Setup godot-cpp
         uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
         with:
           platform: linux
+          scons-version: $SCONS_VERSION
       - name: Copy artifacts to build folder
         run: |
           scons luajit=${{ matrix.luajit }} addons_files
