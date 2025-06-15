@@ -152,10 +152,7 @@ else:
                 f"{build_dir}/luajit/src/lua51.lib",
             ],
             f"lib",
-            action=[
-                f"vcvarsall.bat {platform.machine().lower()}_{env["TARGET_ARCH"]}"
-                f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
-            ],
+            action=f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":
