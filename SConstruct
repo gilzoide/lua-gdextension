@@ -87,7 +87,6 @@ if env["platform"] == "web" or not use_luajit:
 
     env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
     env.Append(CPPPATH="lib/lua")
-    sources.append("lib/lua.cpp")
 # LuaJIT
 else:
     # Make sure luajit.h and jit/vmdef.lua has been generated
