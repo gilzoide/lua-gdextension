@@ -97,33 +97,34 @@ else:
 
     def MakeLuaJIT(env, build_dir):
         CopyLuaJIT(build_dir, "lib/luajit")
+        make_flags = {
+            "TARGET_SYS": {
+                "windows": "Windows",
+                "linux": "Linux",
+                "macos": "Darwin",
+                "ios": "iOS",
+                "android": "Linux",
+            }[env["platform"]],
+            "STATIC_CC": env["CC"],
+            "DYNAMIC_CC": env["CC"],
+            "TARGET_LD": env["CC"],
+            "TARGET_STRIP": env.get("STRIP", ""),
+            "TARGET_FLAGS": " ".join(env["CCFLAGS"]),
+            "TARGET_LDFLAGS": " ".join(env["LINKFLAGS"]),
+            "MACOSX_DEPLOYMENT_TARGET": "11.0",
+            "XCFLAGS": "-DLUAJIT_ENABLE_LUA52COMPAT",
+        }
         if sys.platform == "linux" and env["arch"] in ["x86_32", "arm32"]:
-            host_cc = f"gcc -m32"
-        else:
-            host_cc = ""
-        target_sys = {
-            "windows": "Windows",
-            "linux": "Linux",
-            "macos": "Darwin",
-            "ios": "iOS",
-            "android": "Linux",
-        }[env["platform"]]
+            make_flags["HOST_CC"] = "gcc -m32"
+        make_flags_line = " ".join(
+            f"{key}='{value}'"
+            for key, value in make_flags
+            if value
+        )
         return env.Command(
             f"{build_dir}/src/libluajit.a",
             "lib",
-            action=" ".join([
-                f"make -C {build_dir} amalg",
-                f"TARGET_SYS='{target_sys}'",
-                f"HOST_CC='{host_cc}'",
-                f"STATIC_CC='{env["CC"]}'",
-                f"DYNAMIC_CC='{env["CC"]}'",
-                f"TARGET_LD='{env["CC"]}'",
-                f"TARGET_STRIP='{env.get("STRIP", "")}'",
-                f"TARGET_FLAGS='{" ".join(env["CCFLAGS"])}'",
-                f"TARGET_LDFLAGS='{" ".join(env["LINKFLAGS"])}'",
-                "MACOSX_DEPLOYMENT_TARGET=11.0",
-                "XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT",
-            ]),
+            action=f"make -C {build_dir} amalg {make_flags_line}",
             ENV={
                 "PATH": env.get("PATH", os.getenv("PATH")),
             },
