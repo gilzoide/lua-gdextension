@@ -35,6 +35,12 @@
 #include <godot_cpp/classes/project_settings.hpp>
 #include <luaconf.h>
 
+#ifndef LUAJIT
+	#define LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_DEFAULT
+#else
+	#define LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_DEFAULT LUA_PATH_SEP "res://addons/lua-gdextension/build/?.lua"
+#endif
+
 namespace luagdextension {
 
 /// Lua memory allocation callback.
@@ -123,6 +129,13 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 			lua_state.open_libraries(sol::lib::utf8);
 		}
 	}
+
+#ifdef LUAJIT
+	// LuaJIT should have "jit/?.lua" in its Lua path
+	if (libraries.has_flag(LUA_PACKAGE)) {
+		set_package_path(";;");
+	}
+#endif
 
 	if ((libraries & GODOT_ALL_LIBS) == GODOT_ALL_LIBS) {
 		lua_state.require(module_names::godot, &luaopen_godot, false);
@@ -222,13 +235,10 @@ String LuaState::get_package_cpath() const {
 void LuaState::set_package_path(const String& path) {
 	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
 		package->set("path",
-			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
+			path.replace(";;", LUA_PATH_SEP LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_SEP)
 				.rstrip(LUA_PATH_SEP)
 				.lstrip(LUA_PATH_SEP)
 				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
-#ifdef LUAJIT
-				+ LUA_PATH_SEP "res://addons/lua-gdextension/build/?.lua"
-#endif
 		);
 	}
 	else {
