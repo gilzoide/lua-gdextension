@@ -64,7 +64,6 @@ jobs:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
-            addons/luajit-gdextension/build/libluagdextension.*
   
   build_windows:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
@@ -102,7 +101,6 @@ jobs:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
-            addons/luajit-gdextension/build/libluagdextension.*
           
   build_web:
     name: web (wasm32, ${{ matrix.target }}, ${{ matrix.threads && 'threads' || 'nothreads' }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
@@ -138,7 +136,6 @@ jobs:
           name: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/libluagdextension.*
-            addons/luajit-gdextension/build/libluagdextension.*
 
   build_macos:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
@@ -177,15 +174,15 @@ jobs:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}
           path: |
             addons/lua-gdextension/build/lib*
-            addons/luajit-gdextension/build/lib*
 
   test_distribution:
-    name: Test ${{ matrix.name }}
+    name: Test ${{ matrix.name }} (${{ matrix.luajit && 'luajit' || 'lua' }})
     needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ${{ matrix.runner-os }}
     strategy:
       fail-fast: false
       matrix:
+        luajit: [false, true]
         include:
           - name: Linux
             runner-os: ubuntu-latest
@@ -201,6 +198,7 @@ jobs:
             godot-bin: ./Godot.app/Contents/MacOS/Godot
     env:
       GODOT_BIN: ${{ matrix.godot-bin }}
+      MSYS_NO_PATHCONV: 1
     steps:
       - uses: actions/checkout@v4
       - name: Download artifacts
@@ -208,10 +206,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: "*-${{ matrix.luajit && 'luajit' || 'lua' }}"
+          merge-multiple: true
+      - name: Setup godot-cpp
+        uses: ./lib/godot-cpp/.github/actions/setup-godot-cpp
+        with:
+          platform: linux
+          scons-version: $SCONS_VERSION
       - name: Copy artifacts to build folder
-        run: cp -r '${{ steps.download.outputs.download-path }}'/**/lib* addons/lua-gdextension/build
-        env:
-          MSYS_NO_PATHCONV: 1
+        run: |
+          scons luajit=${{ matrix.luajit }} addons_files
+          cp -r '${{ steps.download.outputs.download-path }}'/**/lib* addons/lua-gdextension/build
       - name: Download Godot
         run: |
           curl --location https://github.com/godotengine/godot/releases/download/${{ matrix.godot-release }} --output godot.zip
@@ -245,12 +250,12 @@ jobs:
       - name: Copy artifacts to build folder
         run: |
           scons luajit=${{ matrix.luajit }} addons_files
-          cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension/build
+          cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension
+          name: lua-gdextension${{ matrix.luajit && '+luajit' || '' }}
           path: |
             LICENSE
-            addons/${{ matrix.luajit && 'luajit' || 'lua' }}-gdextension/**
+            addons/lua-gdextension/**
 
