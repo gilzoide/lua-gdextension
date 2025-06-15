@@ -134,7 +134,6 @@ else:
             f"{build_dir}/luajit",
             action=f"cd $SOURCE/src && msvcbuild.bat",
         )
-        luajit_srcdir = f"{build_dir}/luajit/src"
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":
         env_x86_64 = env.Clone()
@@ -159,10 +158,8 @@ else:
             target=f"{build_dir}/luajit/libluajit.a",
             source=[luajit_x86_64, luajit_arm64],
         )
-        luajit_srcdir = f"{build_dir}/luajit/arm64/src"
     else:
         libluajit = MakeLuaJIT(env, f"{build_dir}/luajit")
-        luajit_srcdir = f"{build_dir}/luajit/src"
 
     env.Append(CPPDEFINES=["LUAJIT", "SOL_LUAJIT=1", "SOL_USING_CXX_LUA=0"])
     env.Append(CPPPATH="lib/luajit/src")
