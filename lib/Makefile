@@ -1,29 +1,29 @@
 BUILDDIR ?= .
 MAKE_LUAJIT_ARGS += \
-	TARGET_SYS=$(TARGET_SYS) \
-	TARGET_FLAGS="$(CCFLAGS)" \
-	TARGET_LDFLAGS="$(LINKFLAGS)" \
-	STATIC_CC="$(STATIC_CC)" \
-	DYNAMIC_CC="$(DYNAMIC_CC)" \
-	TARGET_LD="$(TARGET_LD)" \
+	TARGET_SYS='$(TARGET_SYS)' \
+	TARGET_FLAGS='$(CCFLAGS)' \
+	TARGET_LDFLAGS='$(LINKFLAGS)' \
+	STATIC_CC='$(STATIC_CC)' \
+	DYNAMIC_CC='$(DYNAMIC_CC)' \
+	TARGET_LD='$(TARGET_LD)' \
 	XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT
 ifneq ($(HOST_CC),)
-MAKE_LUAJIT_ARGS += HOST_CC="$(HOST_CC)"
+MAKE_LUAJIT_ARGS += HOST_CC='$(HOST_CC)'
 endif 
 ifneq ($(TARGET_STRIP),)
-MAKE_LUAJIT_ARGS += TARGET_STRIP="$(TARGET_STRIP)"
+MAKE_LUAJIT_ARGS += TARGET_STRIP='$(TARGET_STRIP)'
 endif 
 
 .PRECIOUS: %/luajit
 
 %/luajit:
-	@mkdir -p $*
-	cp -r luajit $@
-	$(MAKE) -C "$@" clean
+	@mkdir -p '$*'
+	cp -r luajit '$@'
+	$(MAKE) -C '$@' clean
 
 %/libluajit.a %/lua51.dll: %/luajit
-	$(MAKE) -C "$<" amalg $(MAKE_LUAJIT_ARGS)
-	cp "$</src/$(@F)" $*
+	$(MAKE) -C '$<' amalg $(MAKE_LUAJIT_ARGS)
+	cp '$</src/$(@F)' '$*'
 
 luajit-native:
 	$(MAKE) -C luajit/src luajit.h jit/vmdef.lua
