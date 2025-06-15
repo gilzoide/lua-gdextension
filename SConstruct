@@ -146,7 +146,10 @@ else:
             "static",
         ])
         libluajit = env.Command(
-            f"{build_dir}/luajit/src/luajit.lib",
+            [
+                f"{build_dir}/luajit/src/luajit.lib",
+                f"{build_dir}/luajit/src/lua51.lib",
+            ],
             f"lib",
             action=f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
         )
