@@ -8,6 +8,10 @@ use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on"
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
 
+# Ok, so LuaJIT is not supported in the web, so we just build with vanilla Lua 
+if env["platform"] == "web":
+    use_luajit = False
+
 # Setup variant build dir for each setup
 def remove_prefix(s, prefix):
     return s[len(prefix):] if s.startswith(prefix) else s
@@ -68,7 +72,7 @@ if env["platform"] == "windows" and not env["use_mingw"]:
 
 
 # Lua
-if env["platform"] == "web" or not use_luajit:
+if not use_luajit:
     env.Append(CPPDEFINES="MAKE_LIB")
     if env["platform"] == "windows":
         # Lua automatically detects Windows using `defined(_WIN32)`
@@ -234,7 +238,7 @@ addons_target = [f"addons/lua-gdextension/{f}" for f in addons_source]
 if use_luajit:
     jit_source = Glob("lib/luajit/src/jit/*.lua")
     addons_source.extend(jit_source)
-    addons_target.extend(f"addons/lua-gdextension/build/{remove_prefix(f, "lib/luajit/src/")}" for f in jit_source)
+    addons_target.extend(f"addons/lua-gdextension/build/{remove_prefix(str(f), "lib/luajit/src/")}" for f in jit_source)
 
 addons_files = env.Command(
     addons_target,
