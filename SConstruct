@@ -5,6 +5,7 @@ use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on"
 lua_or_luajit = "luajit" if use_luajit else "lua"
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
+env.Tool("apple", toolpath=["tools"])
 
 # Setup variant build dir for each setup
 def remove_prefix(s, prefix):
@@ -65,15 +66,6 @@ if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
 
-def Symlink(src, dst):
-    dst_dir = os.path.dirname(dst)
-    if dst_dir:
-        os.makedirs(dst_dir, exist_ok=True)
-    if os.path.exists(dst):
-        os.remove(dst)
-    os.symlink(os.path.abspath(src), os.path.abspath(dst))
-
-
 # Lua
 if env["platform"] == "web" or not use_luajit:
     env.Append(CPPDEFINES="MAKE_LIB")
@@ -96,7 +88,6 @@ if env["platform"] == "web" or not use_luajit:
     env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
     env.Append(CPPPATH="lib/lua")
     sources.append("lib/lua.cpp")
-    Symlink("addons/lua-gdextension", "test/addons/lua-gdextension")
 # LuaJIT
 else:
     # Make sure luajit.h and jit/vmdef.lua has been generated
@@ -129,13 +120,6 @@ else:
                 "PATH": env.get("PATH", os.getenv("PATH")),
             },
         )
-    
-    def Lipo(env, sources, target):
-        return env.Command(
-            target,
-            sources,
-            action=f"lipo $SOURCES -create -output $TARGET",
-        )
 
     # macOS universal is special, we need to build x86_64 and arm64 separately
     if env["platform"] == "macos" and env["arch"] == "universal":
@@ -157,10 +141,9 @@ else:
         )
         luajit_arm64 = MakeLuajit(env_arm64, f"{build_dir}/luajit/arm64")
 
-        libluajit = Lipo(
-            env,
+        libluajit = env.Lipo(
             target=f"{build_dir}/luajit/libluajit.a",
-            sources=[luajit_x86_64, luajit_arm64],
+            source=[luajit_x86_64, luajit_arm64],
         )
     else:
         libluajit = MakeLuajit(env, f"{build_dir}/luajit")
@@ -170,12 +153,11 @@ else:
     env.Append(LIBS=libluajit)
 
     luajit_jit = env.Command(
-        f"addons/{lua_or_luajit}-gdextension/build/jit",
+        f"addons/lua-gdextension/build/jit",
         "lib/luajit/src/jit",
         action=Copy("$TARGET", "$SOURCE"),
     )
     Default(luajit_jit)
-    Symlink("addons/luajit-gdextension", "test/addons/lua-gdextension")
 
 
 # Sol defines
@@ -193,39 +175,30 @@ if env["target"] in ["editor", "template_debug"]:
 
 # Build Lua GDExtension
 if env["platform"] == "ios":
-    def XCFramework(sources, target):
-        return env.Command(
-            target,
-            sources,
-            action=[
-                "rm -rf $TARGET",
-                f"xcodebuild -create-xcframework {' '.join('-library ' + str(s) for s in sources)} -output $TARGET",
-            ],
-        )
     library = env.StaticLibrary(
         f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
         source=sources,
     )
-    godotcpp_xcframework = XCFramework(
+    godotcpp_xcframework = env.XCFramework(
+        f"addons/lua-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
         [
             f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}{env["LIBSUFFIX"]}",
             *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/{lua_or_luajit}-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
-    luagdextension_xcframework = XCFramework(
+    luagdextension_xcframework = env.XCFramework(
+        f"addons/lua-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
         [
             f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
             *map(str, Glob(f"build/libluagdextension.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/{lua_or_luajit}-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
     env.Depends(godotcpp_xcframework, library)
     env.Depends(luagdextension_xcframework, godotcpp_xcframework)
     Default(luagdextension_xcframework)
 else:
     library = env.SharedLibrary(
-        f"addons/{lua_or_luajit}-gdextension/build/libluagdextension{env["suffix"]}{env["SHLIBSUFFIX"]}",
+        f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}{env["SHLIBSUFFIX"]}",
         source=sources,
     )
     Default(library)
@@ -234,9 +207,9 @@ else:
 # Copy files to addons folder
 addons_source = Glob("addons/common/*") + ["CHANGELOG.md", "LICENSE", "README.md"]
 addons_files = env.Command(
-    [f"addons/{lua_or_luajit}-gdextension/{os.path.basename(str(f))}" for f in addons_source],
+    [f"addons/lua-gdextension/{os.path.basename(str(f))}" for f in addons_source],
     addons_source,
-    Copy(f"addons/{lua_or_luajit}-gdextension", addons_source),
+    Copy(f"addons/lua-gdextension", addons_source),
 )
 Default(addons_files)
 Alias("addons_files", addons_files)
