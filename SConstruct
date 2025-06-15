@@ -133,10 +133,14 @@ else:
     # Windows + MSVC special case: build using luajit/src/msvcbuild.bat
     if env["platform"] == "windows" and env.get("is_msvc"):
         CopyLuaJIT(f"{build_dir}/luajit", "lib/luajit")
+        msvcbuild_flags = " ".join([
+            "amalg",
+            "build" if env["target"] == "template_debug" else "",
+        ])
         libluajit = env.Command(
             f"{build_dir}/luajit/libluajit.a",
-            f"{build_dir}/luajit",
-            action=f"cd $SOURCE/src && msvcbuild.bat",
+            f"lib",
+            action=f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":
