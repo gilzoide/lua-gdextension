@@ -33,7 +33,7 @@ luajit-windows: $(BUILDDIR)/libluajit.a $(BUILDDIR)/lua51.dll
 
 luajit-windows-msvc: TARGET_SYS = Windows
 luajit-windows-msvc: $(BUILDDIR)/luajit
-	cd "$</src" && cmd /c msvcbuild.bat
+	cd "$</src" && cmd -c msvcbuild.bat
 
 luajit-macos: TARGET_SYS = Darwin
 luajit-macos: $(BUILDDIR)/libluajit.a

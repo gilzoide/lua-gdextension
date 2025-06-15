@@ -115,7 +115,7 @@ else:
         return env.Command(
             targets,
             "lib",
-            action=f"make -C lib luajit-{env["platform"]}",
+            action=f"make -C lib luajit-{env["platform"]}{"-msvc" if env.get("is_msvc") else ""}",
             ENV={
                 "BUILDDIR": os.path.abspath(build_dir),
                 "HOST_CC": host_cc,
