@@ -65,6 +65,15 @@ if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
 
+def Symlink(src, dst):
+    dst_dir = os.path.dirname(dst)
+    if dst_dir:
+        os.makedirs(dst_dir, exist_ok=True)
+    if os.path.exists(dst):
+        os.remove(dst)
+    os.symlink(os.path.abspath(src), os.path.abspath(dst))
+
+
 # Lua
 if env["platform"] == "web" or not use_luajit:
     env.Append(CPPDEFINES="MAKE_LIB")
@@ -87,6 +96,7 @@ if env["platform"] == "web" or not use_luajit:
     env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
     env.Append(CPPPATH="lib/lua")
     sources.append("lib/lua.cpp")
+    Symlink("addons/lua-gdextension", "test/addons/lua-gdextension")
 # LuaJIT
 else:
     # Make sure luajit.h and jit/vmdef.lua has been generated
@@ -165,6 +175,7 @@ else:
         action=Copy("$TARGET", "$SOURCE"),
     )
     Default(luajit_jit)
+    Symlink("addons/luajit-gdextension", "test/addons/lua-gdextension")
 
 
 # Sol defines

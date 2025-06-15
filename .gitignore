@@ -24,6 +24,7 @@ src/generated-document/
 # Test project files
 .godot/
 test/godot
+test/addons
 
 # Some IDE generated configuration files
 .vs/
