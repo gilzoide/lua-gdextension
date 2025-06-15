@@ -138,7 +138,7 @@ else:
             "build" if env["target"] == "template_debug" else "",
         ])
         libluajit = env.Command(
-            f"{build_dir}/luajit/libluajit.a",
+            f"{build_dir}/luajit/luajit.lib",
             f"lib",
             action=f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
         )
