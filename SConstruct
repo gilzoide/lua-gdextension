@@ -180,13 +180,6 @@ else:
     env.Append(CPPPATH="lib/luajit/src")
     env.Append(LIBS=libluajit)
 
-    luajit_jit = env.Command(
-        f"addons/lua-gdextension/build/jit",
-        "lib/luajit/src/jit",
-        action=Copy("$TARGET", "$SOURCE"),
-    )
-    Default(luajit_jit)
-
 
 # Sol defines
 env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0"])
@@ -234,16 +227,17 @@ else:
 
 # Copy files to addons folder
 addons_source = ["CHANGELOG.md", "LICENSE", "README.md"]
-addons_target = [f"addons/lua-gdextension/{f}" for f in addons_source]
+addons_files = env.Command(
+    "addons/lua-gdextension",
+    addons_source,
+    Copy("$TARGET", addons_source),
+)
 if use_luajit:
     jit_source = Glob("lib/luajit/src/jit/*.lua")
-    addons_source.extend(jit_source)
-    addons_target.extend(f"addons/lua-gdextension/build/{remove_prefix(str(f), "lib/luajit/src/")}" for f in jit_source)
-
-addons_files = env.Command(
-    addons_target,
-    addons_source,
-    Copy("$TARGETS", "$SOURCES"),
-)
+    addons_files.extend(env.Command(
+        "addons/lua-gdextension/build/jit",
+        jit_source,
+        Copy("$TARGET", jit_source),
+    ))
 Default(addons_files)
 Alias("addons_files", addons_files)
