@@ -1,4 +1,6 @@
 import os
+import shutil
+import sys
 
 
 use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
@@ -8,11 +10,8 @@ env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
 
 # Setup variant build dir for each setup
-def remove_prefix(s, prefix):
-    return s[len(prefix):] if s.startswith(prefix) else s
-
-build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
-VariantDir(build_dir, 'src', duplicate=False)
+build_dir = f"build/{env["suffix"][1:]}"
+VariantDir(build_dir, "src", duplicate=False)
 
 source_directories = [".", "luaopen", "utils", "script-language"]
 sources = [
@@ -90,38 +89,54 @@ if env["platform"] == "web" or not use_luajit:
 # LuaJIT
 else:
     # Make sure luajit.h and jit/vmdef.lua has been generated
-    env.Execute("make -C lib luajit-native MACOSX_DEPLOYMENT_TARGET=11.0")
+    env.Execute("make -C lib/luajit/src luajit.h jit/vmdef.lua MACOSX_DEPLOYMENT_TARGET=11.0")
 
-    def MakeLuajit(env, build_dir):
-        targets = [
-            f"{build_dir}/libluajit.a",
-        ]
-        if env["platform"] == "windows":
-            targets.append(f"{build_dir}/lua51.dll")
-        if env["platform"] in ["linux", "android"] and env["arch"] in ["x86_32", "arm32"]:
+    def CopyLuaJIT(target, source):
+        if not os.path.exists(target):
+            shutil.copytree(source, target)
+            env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
+
+    def MakeLuaJIT(env, build_dir):
+        CopyLuaJIT(build_dir, "lib/luajit")
+        if sys.platform == "linux" and env["arch"] in ["x86_32", "arm32"]:
             host_cc = f"gcc -m32"
         else:
             host_cc = ""
         return env.Command(
-            targets,
+            f"{build_dir}/src/libluajit.a",
             "lib",
-            action=f"make -C lib luajit-{env["platform"]}{"-msvc" if env.get("is_msvc") else ""}",
+            action=f"make -C {build_dir} amalg XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT",
             ENV={
-                "BUILDDIR": os.path.abspath(build_dir),
+                "TARGET_SYS": {
+                    "windows": "Windows",
+                    "linux": "Linux",
+                    "macos": "Darwin",
+                    "ios": "iOS",
+                    "android": "Linux",
+                }[env["platform"]],
                 "HOST_CC": host_cc,
                 "STATIC_CC": env["CC"],
                 "DYNAMIC_CC": env["CC"],
                 "TARGET_LD": env["CC"],
                 "TARGET_STRIP": env.get("STRIP", ""),
-                "CCFLAGS": " ".join(env["CCFLAGS"]),
-                "LINKFLAGS": " ".join(env["LINKFLAGS"]),
+                "TARGET_FLAGS": " ".join(env["CCFLAGS"]),
+                "TARGET_LDFLAGS": " ".join(env["LINKFLAGS"]),
                 "MACOSX_DEPLOYMENT_TARGET": "11.0",
                 "PATH": env.get("PATH", os.getenv("PATH")),
             },
         )
 
-    # macOS universal is special, we need to build x86_64 and arm64 separately
-    if env["platform"] == "macos" and env["arch"] == "universal":
+    # Windows + MSVC special case: build using luajit/src/msvcbuild.bat
+    if env["platform"] == "windows" and env.get("is_msvc"):
+        CopyLuaJIT(f"{build_dir}/luajit", "lib/luajit")
+        libluajit = env.Command(
+            f"{build_dir}/luajit/libluajit.a",
+            f"{build_dir}/luajit",
+            action=f"cd $SOURCE/src && msvcbuild.bat",
+        )
+        luajit_srcdir = f"{build_dir}/luajit/src"
+    # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
+    elif env["platform"] == "macos" and env["arch"] == "universal":
         env_x86_64 = env.Clone()
         remove_options(env_x86_64["CCFLAGS"], "-arch", "x86_64", "-arch", "arm64")
         remove_options(env_x86_64["LINKFLAGS"], "-arch", "x86_64", "-arch", "arm64")
@@ -129,7 +144,7 @@ else:
             CCFLAGS=["-arch", "x86_64"],
             LINKFLAGS=["-arch", "x86_64"],
         )
-        luajit_x86_64 = MakeLuajit(env_x86_64, f"{build_dir}/luajit/x86_64")
+        luajit_x86_64 = MakeLuaJIT(env_x86_64, f"{build_dir}/luajit/x86_64")
         
         env_arm64 = env.Clone()
         remove_options(env_arm64["CCFLAGS"], "-arch", "x86_64", "-arch", "arm64")
@@ -138,17 +153,19 @@ else:
             CCFLAGS=["-arch", "arm64"],
             LINKFLAGS=["-arch", "arm64"],
         )
-        luajit_arm64 = MakeLuajit(env_arm64, f"{build_dir}/luajit/arm64")
+        luajit_arm64 = MakeLuaJIT(env_arm64, f"{build_dir}/luajit/arm64")
 
         libluajit = env.Lipo(
             target=f"{build_dir}/luajit/libluajit.a",
             source=[luajit_x86_64, luajit_arm64],
         )
+        luajit_srcdir = f"{build_dir}/luajit/arm64/src"
     else:
-        libluajit = MakeLuajit(env, f"{build_dir}/luajit")
+        libluajit = MakeLuaJIT(env, f"{build_dir}/luajit")
+        luajit_srcdir = f"{build_dir}/luajit/src"
 
     env.Append(CPPDEFINES=["LUAJIT", "SOL_LUAJIT=1", "SOL_USING_CXX_LUA=0"])
-    env.Append(CPPPATH=["lib/luajit/src", f"{build_dir}/luajit"])
+    env.Append(CPPPATH="lib/luajit/src")
     env.Append(LIBS=libluajit)
 
     luajit_jit = env.Command(
