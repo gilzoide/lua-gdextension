@@ -4,7 +4,6 @@ import sys
 
 
 use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
-lua_or_luajit = "luajit" if use_luajit else "lua"
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
@@ -114,14 +113,14 @@ else:
             "lib",
             action=" ".join([
                 f"make -C {build_dir} amalg",
-                f"TARGET_SYS={target_sys}",
-                f"HOST_CC={host_cc}",
-                f"STATIC_CC={env["CC"]}",
-                f"DYNAMIC_CC={env["CC"]}",
-                f"TARGET_LD={env["CC"]}",
-                f"TARGET_STRIP={env.get("STRIP", "")}",
-                f"TARGET_FLAGS={" ".join(env["CCFLAGS"])}",
-                f"TARGET_LDFLAGS={" ".join(env["LINKFLAGS"])}",
+                f"TARGET_SYS='{target_sys}'",
+                f"HOST_CC='{host_cc}'",
+                f"STATIC_CC='{env["CC"]}'",
+                f"DYNAMIC_CC='{env["CC"]}'",
+                f"TARGET_LD='{env["CC"]}'",
+                f"TARGET_STRIP='{env.get("STRIP", "")}'",
+                f"TARGET_FLAGS='{" ".join(env["CCFLAGS"])}'",
+                f"TARGET_LDFLAGS='{" ".join(env["LINKFLAGS"])}'",
                 "MACOSX_DEPLOYMENT_TARGET=11.0",
                 "XCFLAGS=-DLUAJIT_ENABLE_LUA52COMPAT",
             ]),
