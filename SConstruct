@@ -9,7 +9,10 @@ env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
 
 # Setup variant build dir for each setup
-build_dir = f"build/{env["suffix"][1:]}"
+def remove_prefix(s, prefix):
+    return s[len(prefix):] if s.startswith(prefix) else s
+
+build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
 VariantDir(build_dir, "src", duplicate=False)
 
 source_directories = [".", "luaopen", "utils", "script-language"]
@@ -226,11 +229,17 @@ else:
 
 
 # Copy files to addons folder
-addons_source = Glob("addons/common/*") + ["CHANGELOG.md", "LICENSE", "README.md"]
+addons_source = ["CHANGELOG.md", "LICENSE", "README.md"]
+addons_target = [f"addons/lua-gdextension/{f}" for f in addons_source]
+if use_luajit:
+    jit_source = Glob("lib/luajit/src/jit/*.lua")
+    addons_source.extend(jit_source)
+    addons_target.extend(f"addons/lua-gdextension/build/{remove_prefix(f, "lib/luajit/src/")}" for f in jit_source)
+
 addons_files = env.Command(
-    [f"addons/lua-gdextension/{os.path.basename(str(f))}" for f in addons_source],
+    addons_target,
     addons_source,
-    Copy(f"addons/lua-gdextension", addons_source),
+    Copy("$TARGETS", "$SOURCES"),
 )
 Default(addons_files)
 Alias("addons_files", addons_files)
