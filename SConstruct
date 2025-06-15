@@ -118,7 +118,7 @@ else:
             make_flags["HOST_CC"] = "gcc -m32"
         make_flags_line = " ".join(
             f"{key}='{value}'"
-            for key, value in make_flags
+            for key, value in make_flags.items()
             if value
         )
         return env.Command(
