@@ -41,6 +41,7 @@ static void hookf(lua_State *L, lua_Debug *ar) {
 			if (lua_tointeger(L, -1) == LuaThread::HOOK_YIELD) {
 				lua_yield(L, 0);
 			}
+			lua_pop(L, 1);
 			break;
 		
 		default:
