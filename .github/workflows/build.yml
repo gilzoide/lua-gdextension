@@ -67,7 +67,7 @@ jobs:
   
   build_windows:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.luajit && 'luajit' || 'lua' }})
-    runs-on: ${{ matrix.arch == 'arm64' && 'windows-11-arm' || 'windows-latest' }}
+    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +96,13 @@ jobs:
           restore-keys: |
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.luajit && 'luajit' || 'lua' }}-
       - name: Build artifact
+        if: ${{ matrix.arch != 'arm64' }}
         run: |
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }}
+      - name: Build artifact (arm64)
+        if: ${{ matrix.arch == 'arm64' }}
+        run: |
+          'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat' x86_arm64
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} luajit=${{ matrix.luajit }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
