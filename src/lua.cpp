@@ -33,6 +33,6 @@
 	#define l_seeknum		long
 #endif
 
-#include "../../lib/lua/onelua.c"
+#include "../lib/lua/onelua.c"
 
 #endif
