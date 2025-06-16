@@ -75,6 +75,9 @@ jobs:
         arch: [x86_64, x86_32, arm64]
         platform: [windows]
         luajit: [false, true]
+    defaults:
+      run:
+        shell: pwsh
     steps:
       - uses: actions/checkout@v4
         with:
