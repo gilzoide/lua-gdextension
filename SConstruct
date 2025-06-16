@@ -144,7 +144,6 @@ else:
         CopyLuaJIT(f"{build_dir}/luajit", "lib/luajit")
         msvcbuild_flags = " ".join([
             "debug" if env["target"] == "template_debug" else "",
-            "amalg",
             "mixed",
         ])
         cmds = [
