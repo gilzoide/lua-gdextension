@@ -145,7 +145,7 @@ else:
         msvcbuild_flags = " ".join([
             "build" if env["target"] == "template_debug" else "",
             "amalg",
-            "static",
+            "mixed",
         ])
         cmds = [
             (
@@ -157,10 +157,7 @@ else:
             f"msvcbuild.bat {msvcbuild_flags}",
         ]
         libluajit = env.Command(
-            [
-                f"{build_dir}/luajit/src/luajit.lib",
-                f"{build_dir}/luajit/src/lua51.lib",
-            ],
+            f"{build_dir}/luajit/src/lua51.lib",
             "lib",
             action=" && ".join(cmd for cmd in cmds if cmd),
         )
