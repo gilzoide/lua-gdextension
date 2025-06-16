@@ -1,0 +1,43 @@
+[configuration]
+entry_symbol = "luagdextension_entrypoint"
+compatibility_minimum = "4.4"
+reloadable = true
+
+[libraries]
+macos.debug = "build/macos.template_debug.universal/libluagdextension.dylib"
+macos.release = "build/macos.template_release.universal/libluagdextension.dylib"
+ios.debug = "build/ios.template_debug.universal/libluagdextension.xcframework"
+ios.release = "build/ios.template_release.universal/libluagdextension.xcframework"
+windows.debug.x86_32 = "build/windows.template_debug.x86_32/libluagdextension.dll"
+windows.release.x86_32 = "build/windows.template_release.x86_32/libluagdextension.dll"
+windows.debug.x86_64 = "build/windows.template_debug.x86_64/libluagdextension.dll"
+windows.release.x86_64 = "build/windows.template_release.x86_64/libluagdextension.dll"
+windows.debug.arm64 = "build/windows.template_debug.arm64/libluagdextension.dll"
+windows.release.arm64 = "build/windows.template_release.arm64/libluagdextension.dll"
+linux.debug.x86_32 = "build/linux.template_debug.x86_32/libluagdextension.so"
+linux.release.x86_32 = "build/linux.template_release.x86_32/libluagdextension.so"
+linux.debug.x86_64 = "build/linux.template_debug.x86_64/libluagdextension.so"
+linux.release.x86_64 = "build/linux.template_release.x86_64/libluagdextension.so"
+android.debug.x86_32 = "build/android.template_debug.x86_32/libluagdextension.so"
+android.release.x86_32 = "build/android.template_release.x86_32/libluagdextension.so"
+android.debug.x86_64 = "build/android.template_debug.x86_64/libluagdextension.so"
+android.release.x86_64 = "build/android.template_release.x86_64/libluagdextension.so"
+android.debug.arm32 = "build/android.template_debug.arm32/libluagdextension.so"
+android.release.arm32 = "build/android.template_release.arm32/libluagdextension.so"
+android.debug.arm64 = "build/android.template_debug.arm64/libluagdextension.so"
+android.release.arm64 = "build/android.template_release.arm64/libluagdextension.so"
+web.debug.threads.wasm32 = "build/web.template_debug.wasm32/libluagdextension.wasm"
+web.release.threads.wasm32 = "build/web.template_release.wasm32/libluagdextension.wasm"
+web.debug.wasm32 = "build/web.template_debug.wasm32.nothreads/libluagdextension.wasm"
+web.release.wasm32 = "build/web.template_release.wasm32.nothreads/libluagdextension.wasm"
+
+[icons]
+LuaScript = "LuaScript_icon.svg"
+
+[dependencies]
+ios.debug = {
+  "build/ios.template_debug.universal/libgodot-cpp.xcframework": ""
+}
+ios.release = {
+  "build/ios.template_release.universal/libgodot-cpp.xcframework": ""
+}
