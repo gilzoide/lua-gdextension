@@ -243,16 +243,16 @@ else:
 # Copy files to addons folder
 addons_source = ["CHANGELOG.md", "LICENSE", "README.md"]
 addons_files = env.Command(
-    "addons/lua-gdextension",
+    [f"addons/lua-gdextension/{f}" for f in addons_source],
     addons_source,
-    Copy("$TARGET", addons_source),
+    Copy("addons/lua-gdextension", addons_source),
 )
 if use_luajit:
     jit_source = Glob("lib/luajit/src/jit/*.lua")
     addons_files.extend(env.Command(
-        "addons/lua-gdextension/build/jit",
+        [f"addons/lua-gdextension/build/jit/{f}" for f in jit_source],
         jit_source,
-        Copy("$TARGET", jit_source),
+        Copy("addons/lua-gdextension/build/jit", jit_source),
     ))
 Default(addons_files)
 Alias("addons_files", addons_files)
