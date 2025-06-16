@@ -145,6 +145,7 @@ else:
         msvcbuild_flags = " ".join([
             "build" if env["target"] == "template_debug" else "",
             "amalg",
+            "static",
         ])
         cmds = [
             (
@@ -155,15 +156,13 @@ else:
             f"cd {build_dir}/luajit/src",
             f"msvcbuild.bat {msvcbuild_flags}",
         ]
-        lua51_dll = env.Command(
-            f"{build_dir}/luajit/src/lua51.dll",
+        libluajit = env.Command(
+            [
+                f"{build_dir}/luajit/src/luajit.lib",
+                f"{build_dir}/luajit/src/lua51.lib",
+            ],
             "lib",
             action=" && ".join(cmd for cmd in cmds if cmd),
-        )
-        libluajit = env.Command(
-            f"addons/lua-gdextension/{build_dir}/lua51.dll",
-            lua51_dll,
-            Copy("$TARGET", "$SOURCE"),
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":
