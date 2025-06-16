@@ -185,6 +185,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        name: [Linux, Windows, macOS]
         luajit: [false, true]
         include:
           - name: Linux
