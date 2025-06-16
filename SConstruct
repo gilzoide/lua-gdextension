@@ -149,7 +149,7 @@ else:
         ])
         cmds = [
             (
-                f"{vcvarsall_path} x64_arm64"
+                f'"{vcvarsall_path}" x64_arm64'
                 if vcvarsall_path and env["arch"] == "arm64" and platform.machine().lower() == "amd64"
                 else ""
             ),
