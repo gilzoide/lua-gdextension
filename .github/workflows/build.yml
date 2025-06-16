@@ -204,6 +204,8 @@ jobs:
       MSYS_NO_PATHCONV: 1
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Download artifacts
         id: download
         uses: actions/download-artifact@v4
@@ -238,6 +240,8 @@ jobs:
         luajit: [false, true]
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - name: Download artifacts
         id: download
         uses: actions/download-artifact@v4
