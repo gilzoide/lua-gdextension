@@ -161,7 +161,7 @@ else:
                 f"{build_dir}/luajit/src/luajit.lib",
                 f"{build_dir}/luajit/src/lua51.lib",
             ],
-            f"lib",
+            "lib",
             action=" && ".join(cmd for cmd in cmds if cmd),
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
