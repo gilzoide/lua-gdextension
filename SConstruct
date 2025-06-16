@@ -5,6 +5,7 @@ import sys
 
 
 use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
+vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
@@ -146,13 +147,22 @@ else:
             "amalg",
             "static",
         ])
+        cmds = [
+            (
+                f"{vcvarsall_path} x64_arm64"
+                if vcvarsall_path and env["arch"] == "arm64" and platform.machine().lower() == "amd64"
+                else "",
+            ),
+            f"cd {build_dir}/luajit/src",
+            f"msvcbuild.bat {msvcbuild_flags}",
+        ]
         libluajit = env.Command(
             [
                 f"{build_dir}/luajit/src/luajit.lib",
                 f"{build_dir}/luajit/src/lua51.lib",
             ],
             f"lib",
-            action=f"cd {build_dir}/luajit/src && msvcbuild.bat {msvcbuild_flags}",
+            action=" && ".join(cmd for cmd in cmds if cmd),
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":
