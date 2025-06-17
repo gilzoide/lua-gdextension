@@ -156,7 +156,6 @@ else:
         msvcbuild_flags = " ".join([
             "debug" if env["target"] == "template_debug" else "",
             "amalg",
-            "mixed",
         ])
         cmds = [
             (
