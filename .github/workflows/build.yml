@@ -10,7 +10,7 @@ env:
 jobs:
   build_linux:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -23,8 +23,7 @@ jobs:
             packages: [g++-multilib]
           - platform: linux
             arch: arm64
-            packages: [clang]
-            scons-args: use_llvm=true
+            runner: ubuntu-24.04-arm
           - platform: android
             scons-args: android_api_level=21
         exclude:
