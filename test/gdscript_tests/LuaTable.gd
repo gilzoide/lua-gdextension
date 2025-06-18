@@ -127,3 +127,48 @@ func test_setgetmetatable() -> bool:
 	assert(table.get_metatable() == null)
 	assert(table.get_metatable() == lua_state.globals.getmetatable.invoke(table))
 	return true
+
+
+func test_to_dictionary_pairs() -> bool:
+	var table = lua_state.do_string("""
+		local function iterate_index_then_self(t)
+			-- iteration over `t` metatable's __index table, if there's any
+			local mt = getmetatable(t)
+			if mt and type(mt.__index) == "table" then
+				for k, v in pairs(mt.__index) do
+					coroutine.yield(k, v)
+				end
+			end
+
+			-- now iterate over `t` normally
+			for k, v in next, t, nil do
+				coroutine.yield(k, v)
+			end
+		end
+
+		local t = {
+			key1 = 1,
+			key2 = 2,
+		}
+		setmetatable(t, {
+			-- Here's an example "__index" table
+			__index = {
+				meta_key1 = 1,
+				meta_key2 = 2,
+			},
+			-- And here's the "__pairs" metamethod
+			__pairs = function(t)
+				return coroutine.wrap(iterate_index_then_self), t, nil
+			end,
+		})
+		return t
+	""")
+
+	assert(table.to_dictionary() == {
+		key1 = 1,
+		key2 = 2,
+		meta_key1 = 1,
+		meta_key2 = 2,
+	})
+	
+	return true
