@@ -53,6 +53,9 @@ public:
 	Dictionary to_dictionary() const;
 	Array to_array() const;
 
+	Ref<LuaTable> get_metatable() const;
+	void set_metatable(LuaTable *metatable);
+
 	bool _iter_init(const Variant& iter) const;
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;

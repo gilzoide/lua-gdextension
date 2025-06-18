@@ -108,6 +108,19 @@ Array LuaTable::to_array() const {
 	return luagdextension::to_array(lua_object);
 }
 
+Ref<LuaTable> LuaTable::get_metatable() const {
+	if (sol::optional<sol::table> metatable = lua_object[sol::metatable_key]) {
+		return LuaObject::wrap_object<LuaTable>(*metatable);
+	}
+	else {
+		return nullptr;
+	}
+}
+
+void LuaTable::set_metatable(LuaTable *metatable) {
+	lua_object[sol::metatable_key] = metatable ? metatable->get_table() : sol::nil;
+}
+
 bool LuaTable::_iter_init(const Variant& iter) const {
 	StackTopChecker topcheck(lua_object.lua_state());
 	lua_State *L = lua_object.lua_state();
@@ -171,6 +184,9 @@ void LuaTable::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("to_dictionary"), &LuaTable::to_dictionary);
 	ClassDB::bind_method(D_METHOD("to_array"), &LuaTable::to_array);
+
+	ClassDB::bind_method(D_METHOD("get_metatable"), &LuaTable::get_metatable);
+	ClassDB::bind_method(D_METHOD("set_metatable", "metatable"), &LuaTable::set_metatable);
 
 	ClassDB::bind_method(D_METHOD("_iter_init", "iter"), &LuaTable::_iter_init);
 	ClassDB::bind_method(D_METHOD("_iter_next", "iter"), &LuaTable::_iter_next);

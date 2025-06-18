@@ -111,3 +111,19 @@ func test_dont_unpack_other_state() -> bool:
 	var t_type = other_state.do_string("return type(t)")
 	assert(t_type == "userdata", "Table should remain as Variant when passed to another LuaState")
 	return true
+
+
+func test_setgetmetatable() -> bool:
+	var table = lua_state.create_table()
+	assert(table.get_metatable() == null)
+	assert(table.get_metatable() == lua_state.globals.getmetatable.invoke(table))
+
+	var metatable = lua_state.create_table()
+	table.set_metatable(metatable)
+	assert(table.get_metatable() == metatable)
+	assert(table.get_metatable() == lua_state.globals.getmetatable.invoke(table))
+
+	table.set_metatable(null)
+	assert(table.get_metatable() == null)
+	assert(table.get_metatable() == lua_state.globals.getmetatable.invoke(table))
+	return true
