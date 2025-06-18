@@ -10,7 +10,7 @@ env:
 jobs:
   build_linux:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -21,11 +21,12 @@ jobs:
           - platform: linux
             arch: x86_32
             packages: [g++-multilib]
+          - platform: linux
+            arch: arm64
+            runner: ubuntu-24.04-arm
           - platform: android
             scons-args: android_api_level=21
         exclude:
-          - platform: linux
-            arch: arm64
           - platform: linux
             arch: arm32
     steps:
@@ -173,6 +174,10 @@ jobs:
             runner-os: ubuntu-latest
             godot-release: 4.4-stable/Godot_v4.4-stable_linux.x86_64.zip
             godot-bin: ./Godot_v4.4-stable_linux.x86_64
+          - name: Linux (arm64)
+            runner-os: ubuntu-24.04-arm
+            godot-release: 4.4-stable/Godot_v4.4-stable_linux.arm64.zip
+            godot-bin: ./Godot_v4.4-stable_linux.arm64
           - name: Windows
             runner-os: windows-latest
             godot-release: 4.4-stable/Godot_v4.4-stable_win64.exe.zip
