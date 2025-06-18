@@ -19,44 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
-
-#include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
-
-using namespace godot;
+#include "LuaCodeEdit.hpp"
+#include "LuaScriptLanguage.hpp"
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
-
-public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
-
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
-
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error);
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
-
-protected:
-	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
-};
-
+bool LuaCodeEdit::_property_can_revert(const StringName &p_name) const {
+	return Array::make("delimiter_comments", "delimiter_strings").has(p_name);
 }
 
-#endif
+bool LuaCodeEdit::_property_get_revert(const StringName &p_name, Variant &r_property) const {
+	if (p_name == String("delimiter_comments")) {
+		r_property = LuaScriptLanguage::get_singleton()->_get_comment_delimiters();
+		return true;
+	}
+	else if (p_name == String("delimiter_strings")) {
+		r_property = LuaScriptLanguage::get_singleton()->_get_string_delimiters();
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+void LuaCodeEdit::_bind_methods() {}
+
+}

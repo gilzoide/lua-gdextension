@@ -21,6 +21,7 @@
  */
 #include "LuaFunction.hpp"
 
+#include "LuaDebug.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
 
@@ -36,6 +37,7 @@ void LuaFunction::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("invokev", "arg_array"), &LuaFunction::invokev);
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "invoke", &LuaFunction::invoke);
 	ClassDB::bind_method(D_METHOD("to_callable"), &LuaFunction::to_callable);
+	ClassDB::bind_method(D_METHOD("get_debug_info"), &LuaFunction::get_debug_info);
 }
 
 Variant LuaFunction::invokev(const Array& args) {
@@ -47,6 +49,10 @@ Variant LuaFunction::invoke(const Variant **args, GDExtensionInt arg_count, GDEx
 	return invoke_lua(lua_object, VariantArguments(args, arg_count), true);
 }
 
+Variant LuaFunction::invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error) {
+	return invoke_lua(f->get_function(), args, return_lua_error);
+}
+
 Variant LuaFunction::invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error) {
 	sol::protected_function_result result = f.call(args);
 	return to_variant(result, return_lua_error);
@@ -54,6 +60,12 @@ Variant LuaFunction::invoke_lua(const sol::protected_function& f, const VariantA
 
 Callable LuaFunction::to_callable() const {
 	return Callable((Object *) this, "invoke");
+}
+
+Ref<LuaDebug> LuaFunction::get_debug_info() const {
+	lua_Debug debug = {};
+	LuaDebug::fill_info(lua_object, &debug);
+	return memnew(LuaDebug(std::move(debug)));
 }
 
 const sol::protected_function& LuaFunction::get_function() const {

@@ -19,44 +19,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
+#ifndef __LUA_DEBUG_HPP__
+#define __LUA_DEBUG_HPP__
+
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <sol/sol.hpp>
 
 #include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
+class LuaDebug : public RefCounted {
+	GDCLASS(LuaDebug, RefCounted);
 
 public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
+	LuaDebug();
+	LuaDebug(const lua_Debug& debug);
+	LuaDebug(lua_Debug&& debug);
 
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
+	LuaThread::HookEvent get_event() const;
+	String get_name() const;
+	String get_name_what() const;
+	String get_what() const;
+	String get_source() const;
+	String get_short_src() const;
+	int get_line_defined() const;
+	int get_last_line_defined() const;
+	int get_current_line() const;
+#if LUA_VERSION_NUM >= 502
+	int get_nparams() const;
+	bool is_tail_call() const;
+	bool is_vararg() const;
+#endif
 
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error);
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
+	static void fill_info(lua_State *L, lua_Debug *ar);
+	static void fill_info(const sol::protected_function& f, lua_Debug *ar);
 
 protected:
 	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
+	String _to_string() const;
+
+	lua_Debug debug;
 };
 
 }
 
-#endif
+#endif  // __LUA_DEBUG_HPP__

@@ -62,4 +62,8 @@ function TestClass:await_signal(sig)
 	self.signal_awaited = true
 end
 
+function TestClass:raise_error()
+	error("here's an expected error that won't crash the process!")
+end
+
 return TestClass

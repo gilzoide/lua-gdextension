@@ -20,17 +20,21 @@
  * SOFTWARE.
  */
 #include "LuaCoroutine.hpp"
+#include "LuaDebug.hpp"
 #include "LuaError.hpp"
 #include "LuaFunction.hpp"
 #include "LuaLightUserdata.hpp"
 #include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
+#include "LuaThread.hpp"
 #include "LuaUserdata.hpp"
+#include "script-language/LuaCodeEdit.hpp"
 #include "script-language/LuaScript.hpp"
 #include "script-language/LuaScriptLanguage.hpp"
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
+#include "script-language/LuaSyntaxHighlighter.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -47,6 +51,7 @@ static void initialize(ModuleInitializationLevel level) {
 	// Lua object wrappers
 	ClassDB::register_abstract_class<LuaObject>();
 
+	ClassDB::register_abstract_class<LuaThread>();
 	ClassDB::register_abstract_class<LuaCoroutine>();
 	ClassDB::register_abstract_class<LuaFunction>();
 	ClassDB::register_abstract_class<LuaLightUserdata>();
@@ -54,6 +59,7 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_abstract_class<LuaUserdata>();
 
 	// Godot classes for interacting with Lua States
+	ClassDB::register_abstract_class<LuaDebug>();
 	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
 
@@ -65,6 +71,10 @@ static void initialize(ModuleInitializationLevel level) {
 	LuaScriptLanguage::get_or_create_singleton();
 	LuaScriptResourceFormatLoader::register_in_godot();
 	LuaScriptResourceFormatSaver::register_in_godot();
+
+	// Lua code editing
+	ClassDB::register_class<LuaCodeEdit>();
+	ClassDB::register_class<LuaSyntaxHighlighter>();
 }
 
 static void deinitialize(ModuleInitializationLevel level) {

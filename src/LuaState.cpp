@@ -23,6 +23,7 @@
 
 #include "LuaFunction.hpp"
 #include "LuaTable.hpp"
+#include "LuaThread.hpp"
 #include "luaopen/godot.hpp"
 #include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
@@ -50,8 +51,22 @@ static void *lua_alloc(void *ud, void *ptr, size_t osize, size_t nsize) {
 	}
 }
 
-LuaState::LuaState() : lua_state(sol::default_at_panic, lua_alloc) {
+static int lua_panic_handler(lua_State *L) {
+	return sol::default_at_panic(L);
+}
+
+#ifdef HAVE_LUA_WARN
+static void lua_warn_handler(void *ud, const char *msg, int tocont) {
+	LuaState *L = (LuaState *) ud;
+	L->warn(msg, tocont);
+}
+#endif
+
+LuaState::LuaState() : lua_state(lua_panic_handler, lua_alloc) {
 	setup_G_metatable(lua_state);
+#ifdef HAVE_LUA_WARN
+	lua_setwarnf(lua_state, lua_warn_handler, this);
+#endif
 	valid_states.insert(lua_state, this);
 }
 
@@ -174,12 +189,16 @@ Variant LuaState::do_file(const String& filename, LoadMode mode, LuaTable *env) 
 	return ::luagdextension::do_file(lua_state, filename, (sol::load_mode) mode, env);
 }
 
-LuaTable *LuaState::get_globals() const {
+Ref<LuaTable> LuaState::get_globals() const {
 	return LuaObject::wrap_object<LuaTable>(lua_state.globals());
 }
 
-LuaTable *LuaState::get_registry() const {
+Ref<LuaTable> LuaState::get_registry() const {
 	return LuaObject::wrap_object<LuaTable>(lua_state.registry());
+}
+
+Ref<LuaThread> LuaState::get_main_thread() const {
+	return LuaObject::wrap_object<LuaThread>(sol::thread(lua_state, lua_state));
 }
 
 String LuaState::get_package_path() const {
@@ -227,6 +246,26 @@ void LuaState::set_package_cpath(const String& cpath) {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
 	}
 }
+
+#ifdef HAVE_LUA_WARN
+void LuaState::warn(const char *msg, int tocont) {
+	if (msg[0] == '@') {
+		if (msg == String("@off")) {
+			warning_on = false;
+		}
+		else if (msg == String("@on")) {
+			warning_on = true;
+		}
+	}
+	else if (warning_on) {
+		warn_message += msg;
+		if (!tocont) {
+			UtilityFunctions::push_warning(warn_message);
+			warn_message = String();
+		}
+	}
+}
+#endif
 
 String LuaState::get_lua_exec_dir() {
 	return Engine::get_singleton()->is_editor_hint()
@@ -287,6 +326,7 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
+	ClassDB::bind_method(D_METHOD("get_main_thread"), &LuaState::get_main_thread);
 	ClassDB::bind_method(D_METHOD("get_package_path"), &LuaState::get_package_path);
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
@@ -296,6 +336,7 @@ void LuaState::_bind_methods() {
 	// Properties
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "globals", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_globals");
 	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "registry", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaTable::get_class_static()), "", "get_registry");
+	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "main_thread", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE, LuaThread::get_class_static()), "", "get_main_thread");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_path", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_path", "get_package_path");
 	ADD_PROPERTY(PropertyInfo(Variant::STRING, "package_cpath", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_package_cpath", "get_package_cpath");
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaSyntaxHighlighter" inherits="CodeHighlighter" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A CodeHighlighter subclass specialized for Lua code highlighting.
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="fill_editor_colors">
+			<return type="void" />
+			<description>
+				Editor-only method that copies colors setup in "Text Editor/Theme" editor settings to this CodeHighlighter.
+				It is available in the Inspector as the "Fill with Editor colors" tool button.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="comment_color" type="Color" setter="set_comment_color" getter="get_comment_color" default="Color(0, 0, 0, 1)">
+			Color used for Lua comments.
+			Setting this property will setup [member CodeHighlighter.color_regions] for Lua comments.
+		</member>
+		<member name="fill_editor_colors_callable" type="Callable" setter="" getter="get_fill_editor_colors" default="Callable()">
+			Callable for [method fill_editor_colors], available in the Inspector as the "Fill with Editor colors" tool button.
+		</member>
+		<member name="lua_keyword_color" type="Color" setter="set_lua_keyword_color" getter="get_lua_keyword_color" default="Color(0, 0, 0, 1)">
+			Color used for Lua keywords.
+			Setting this property will setup [member CodeHighlighter.keyword_colors] for Lua keywords.
+		</member>
+		<member name="lua_member_keyword_color" type="Color" setter="set_lua_member_keyword_color" getter="get_lua_member_keyword_color" default="Color(0, 0, 0, 1)">
+			Color used for Lua member keywords [code]self[/code], [code]_G[/code], [code]_ENV[/code] and [code]_VERSION[/code].
+			Setting this property will setup [member CodeHighlighter.member_keyword_colors] for Lua member keywords.
+		</member>
+		<member name="string_color" type="Color" setter="set_string_color" getter="get_string_color" default="Color(0, 0, 0, 1)">
+			Color used for Lua strings.
+			Setting this property will setup [member CodeHighlighter.color_regions] for Lua strings.
+		</member>
+	</members>
+</class>

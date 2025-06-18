@@ -1,10 +1,19 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.3.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.4.0...HEAD)
+
+
+## [0.4.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.4.0)
 ### Added
 - `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
 - `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
 - Support for Web exports
 - Support Windows arm64 exports
+- Support for calling static methods from Godot classes, like `FileAccess.open`
+- Custom [Lua 5.4+ warning function](https://www.lua.org/manual/5.4/manual.html#lua_setwarnf) that sends messages to `push_warning`
+- `LuaThread` class as a superclass for `LuaCoroutine`.
+  This new class is used when converting a LuaState's main thread to Variant.
+- `LuaState.main_thread` property for getting a Lua state's main thread of execution
+- Support for setting hooks to `LuaThread`s, including the main thread
 
 ### Changed
 - `LuaObject` instances are reused when wrapping the same Lua object, so that `==` and `is_same` can be used properly
@@ -13,6 +22,8 @@
 
 ### Fixed
 - Use `xcframework` instead of `dylib` in iOS exports
+- Crash when Lua errors, but the error object is not a string
+- Crash when reloading the GDExtension
 
 
 ## [0.3.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.3.0)

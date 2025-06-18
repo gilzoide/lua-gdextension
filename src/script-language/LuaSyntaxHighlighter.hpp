@@ -19,42 +19,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
+#ifndef __LUA_SCRIPT_SYNTAX_HIGHLIGHTER_HPP__
+#define __LUA_SCRIPT_SYNTAX_HIGHLIGHTER_HPP__
 
-#include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
+#include <godot_cpp/classes/code_highlighter.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
+class LuaSyntaxHighlighter : public CodeHighlighter {
+	GDCLASS(LuaSyntaxHighlighter, CodeHighlighter)
 
 public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
+	Color get_lua_keyword_color() const;
+	void set_lua_keyword_color(Color color);
+	
+	Color get_lua_member_keyword_color() const;
+	void set_lua_member_keyword_color(Color color);
 
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
+	Color get_string_color() const;
+	void set_string_color(Color color);
+	
+	Color get_comment_color() const;
+	void set_comment_color(Color color);
 
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error);
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
+#ifdef DEBUG_ENABLED
+	void fill_editor_colors();
+	Callable get_fill_editor_colors() const;
+#endif
 
 protected:
 	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
+
+	Color lua_keyword_color;
+	Color lua_member_keyword_color;
+	Color string_color;
+	Color comment_color;
 };
 
 }

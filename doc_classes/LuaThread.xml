@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaThread" inherits="LuaObject" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		An object that represents a thread of execution in the Lua virtual machine.
+	</brief_description>
+	<description>
+		The LuaThread class represents a thread of execution in the Lua virtual machine.
+		Apart from [member LuaState.main_thread], all other threads of execution are [LuaCoroutine]s.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_hook" qualifiers="const">
+			<return type="Variant" />
+			<description>
+				Returns the current hook function.
+				See [method set_hook].
+			</description>
+		</method>
+		<method name="get_hook_count" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the current hook count.
+				See [method set_hook].
+			</description>
+		</method>
+		<method name="get_hook_mask" qualifiers="const">
+			<return type="int" enum="LuaThread.HookMask" is_bitfield="true" />
+			<description>
+				Returns the current hook mask.
+				See [method set_hook].
+			</description>
+		</method>
+		<method name="get_stack_info" qualifiers="const">
+			<return type="LuaDebug[]" />
+			<description>
+				Get debug information about the stack of this thread of execution.
+			</description>
+		</method>
+		<method name="get_stack_level_info" qualifiers="const">
+			<return type="LuaDebug" />
+			<param index="0" name="level" type="int" />
+			<description>
+				Get debug information about the activation record of the function executing at a given [param level].
+				Level 0 is the current running function, whereas level n+1 is the function that has called level n (except for tail calls, which do not count in the stack).
+				When called with a level greater than the stack depth, returns [code]null[/code].
+			</description>
+		</method>
+		<method name="get_traceback" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="message" type="String" default="&quot;&quot;" />
+			<param index="1" name="level" type="int" default="0" />
+			<description>
+				Returns a traceback of the stack.
+				[param message] is appended at the beginning of the traceback.
+				[param level] tells at which level to start the traceback.
+			</description>
+		</method>
+		<method name="is_main_thread" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Whether this thread is the [LuaState]'s main thread.
+				See also [member LuaState.main_thread].
+			</description>
+		</method>
+		<method name="set_hook">
+			<return type="void" />
+			<param index="0" name="hook" type="Variant" />
+			<param index="1" name="mask" type="int" enum="LuaThread.HookMask" is_bitfield="true" />
+			<param index="2" name="count" type="int" default="0" />
+			<description>
+				Sets the debugging hook function.
+				[param hook] is the Hook function, which should be either a [Callable] or [LuaFunction]. Pass [code]null[/code] to disable hooks.
+				[param mask] specifies on which events the hook will be called: it is formed by a bitwise OR of the constants [constant HOOK_MASK_CALL], [constant HOOK_MASK_RETURN], [constant HOOK_MASK_LINE] and [constant HOOK_MASK_COUNT]. Pass 0 to disable hooks.
+				[param count] is only meaningful when the mask includes [constant HOOK_MASK_COUNT].
+				See [enum HookEvent] for the available hook events.
+				See also [url]https://www.lua.org/manual/5.4/manual.html#lua_sethook[/url].
+				[codeblocks]
+				[gdscript]
+				var line_hook := func(ar: LuaDebug): prints("Running line: ", ar.current_line)
+				var state := LuaState.new()
+				state.main_thread.set_hook(line_hook, LuaThread.HOOK_MASK_LINE)
+				# The line hook will be called once for each line of Lua code
+				state.do_string("""
+				    local line1 = 1
+				    local line2 = 2
+				    local line3 = 3
+				""")
+				[/gdscript]
+				[/codeblocks]
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="status" type="int" setter="" getter="get_status" enum="LuaThread.Status">
+			The current status of the thread.
+		</member>
+	</members>
+	<constants>
+		<constant name="STATUS_OK" value="0" enum="Status">
+			The thread is running normally.
+		</constant>
+		<constant name="STATUS_YIELD" value="1" enum="Status">
+			The thread is suspended (yielded).
+		</constant>
+		<constant name="STATUS_ERRRUN" value="2" enum="Status">
+			A runtime error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRSYNTAX" value="3" enum="Status">
+			A syntax error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRMEM" value="4" enum="Status">
+			A memory allocation error occurred in the thread.
+		</constant>
+		<constant name="STATUS_ERRERR" value="5" enum="Status">
+			An error occurred while running the error handler.
+		</constant>
+		<constant name="STATUS_DEAD" value="-1" enum="Status">
+			The thread has finished execution.
+		</constant>
+		<constant name="HOOK_MASK_CALL" value="1" enum="HookMask" is_bitfield="true">
+			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_CALL] and [constant HOOK_EVENT_TAIL_CALL] hooks.
+		</constant>
+		<constant name="HOOK_MASK_RETURN" value="2" enum="HookMask" is_bitfield="true">
+			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_RETURN] hooks.
+		</constant>
+		<constant name="HOOK_MASK_LINE" value="4" enum="HookMask" is_bitfield="true">
+			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_LINE] hooks.
+		</constant>
+		<constant name="HOOK_MASK_COUNT" value="8" enum="HookMask" is_bitfield="true">
+			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_COUNT] hooks.
+		</constant>
+		<constant name="HOOK_EVENT_CALL" value="0" enum="HookEvent">
+			Hook event that is called when the interpreter calls a function. The hook is called just after Lua enters the new function.
+		</constant>
+		<constant name="HOOK_EVENT_RETURN" value="1" enum="HookEvent">
+			Hook event that is called when the interpreter returns from a function. The hook is called just before Lua leaves the function.
+		</constant>
+		<constant name="HOOK_EVENT_LINE" value="2" enum="HookEvent">
+			Hook event that is called when the interpreter is about to start the execution of a new line of code, or when it jumps back in the code (even to the same line). This event only happens while Lua is executing a Lua function.
+		</constant>
+		<constant name="HOOK_EVENT_COUNT" value="3" enum="HookEvent">
+			Hook event that is called after the interpreter executes every [code]count[/code] instructions. This event only happens while Lua is executing a Lua function.
+		</constant>
+		<constant name="HOOK_EVENT_TAIL_CALL" value="4" enum="HookEvent">
+			Hook event that is called when the interpreter calls a function as a tail call. In this case, there will be no corresponding return event.
+		</constant>
+		<constant name="HOOK_OK" value="0" enum="HookResult">
+		</constant>
+		<constant name="HOOK_YIELD" value="-1" enum="HookResult">
+			Return this value from line or count hook events to yield execution of the current Lua function that triggered the hook.
+		</constant>
+	</constants>
+</class>

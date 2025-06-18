@@ -16,7 +16,8 @@ func _initialize():
 		var result = lua_state.do_file(file_name)
 		if result is LuaError:
 			all_success = false
-			printerr("🗴 ", lua_script, ": ", result.message)
+			print("! ", lua_script)
+			push_error(result.message)
 		else:
 			print("✓ ", lua_script)
 

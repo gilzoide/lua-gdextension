@@ -19,42 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_COROUTINE_HPP__
-#define __LUA_COROUTINE_HPP__
+#ifndef __LUA_SCRIPT_CODE_EDIT_HPP__
+#define __LUA_SCRIPT_CODE_EDIT_HPP__
 
-#include "LuaThread.hpp"
-
-#include <gdextension_interface.h>
+#include <godot_cpp/classes/code_edit.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaFunction;
-
-class LuaCoroutine : public LuaThread {
-	GDCLASS(LuaCoroutine, LuaThread);
+class LuaCodeEdit : public CodeEdit {
+	GDCLASS(LuaCodeEdit, CodeEdit)
 
 public:
-	LuaCoroutine();
-	LuaCoroutine(sol::thread&& thread);
-	LuaCoroutine(const sol::thread& thread);
-
-	static LuaCoroutine *create(const sol::function& function);
-	static LuaCoroutine *create(LuaFunction *function);
-
-	Variant resumev(const Array& args);
-	Variant resume(const Variant **argv, GDExtensionInt argc, GDExtensionCallError& error);
-
-	static Variant invoke_lua(Ref<LuaFunction> f, const VariantArguments& args, bool return_lua_error);
-	static Variant invoke_lua(const sol::protected_function& f, const VariantArguments& args, bool return_lua_error);
 
 protected:
+	bool _property_can_revert(const StringName &p_name) const;
+	bool _property_get_revert(const StringName &p_name, Variant &r_property) const;
 	static void _bind_methods();
-	
-private:
-	Variant _resume(const VariantArguments& args, bool return_lua_error);
-	static sol::protected_function_result _resume(lua_State *L, const VariantArguments& args);
 };
 
 }

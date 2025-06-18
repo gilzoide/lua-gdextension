@@ -77,8 +77,15 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 				return LuaObject::wrap_object<LuaUserdata>(object);
 			}
 
-		case sol::type::thread:
-			return LuaObject::wrap_object<LuaCoroutine>(object);
+		case sol::type::thread: {
+			sol::basic_thread<ref_t> thread(object);
+			if (thread.is_main_thread()) {
+				return LuaObject::wrap_object<LuaThread>(thread);
+			}
+			else {
+				return LuaObject::wrap_object<LuaCoroutine>(thread);
+			}
+		}
 
 		case sol::type::function:
 			return LuaObject::wrap_object<LuaFunction>(object);

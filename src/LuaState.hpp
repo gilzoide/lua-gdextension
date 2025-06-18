@@ -33,6 +33,7 @@ namespace luagdextension {
 
 class LuaFunction;
 class LuaTable;
+class LuaThread;
 
 class LuaState : public RefCounted {
 	GDCLASS(LuaState, RefCounted);
@@ -113,13 +114,18 @@ public:
 	Variant do_string(const String& chunk, const String& chunkname = "", LuaTable *env = nullptr);
 	Variant do_file(const String& filename, LoadMode mode = LOAD_MODE_ANY, LuaTable *env = nullptr);
 
-	LuaTable *get_globals() const;
-	LuaTable *get_registry() const;
+	Ref<LuaTable> get_globals() const;
+	Ref<LuaTable> get_registry() const;
+	Ref<LuaThread> get_main_thread() const;
 
 	String get_package_path() const;
 	String get_package_cpath() const;
 	void set_package_path(const String& path);
 	void set_package_cpath(const String& cpath);
+
+#ifdef HAVE_LUA_WARN
+	void warn(const char *msg, int tocont);
+#endif
 
 	operator String() const;
 
@@ -132,6 +138,10 @@ protected:
 	String _to_string() const;
 
 	sol::state lua_state;
+#ifdef HAVE_LUA_WARN
+	bool warning_on = true;
+	String warn_message;
+#endif
 
 private:
 	static HashMap<lua_State *, LuaState *> valid_states;

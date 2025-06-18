@@ -41,7 +41,7 @@ public:
 	uint64_t get_pointer_value() const;
 
 	template<typename Subclass, typename ref_t>
-	static Subclass *wrap_object(const sol::basic_object<ref_t>& lua_obj) {
+	static Ref<Subclass> wrap_object(const sol::basic_object<ref_t>& lua_obj) {
 		if (LuaObject **known_obj = known_objects.getptr(lua_obj.pointer())) {
 			return (Subclass *) *known_obj;
 		}
