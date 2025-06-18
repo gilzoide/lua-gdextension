@@ -182,6 +182,10 @@ jobs:
             runner-os: windows-latest
             godot-release: 4.4-stable/Godot_v4.4-stable_win64.exe.zip
             godot-bin: ./Godot_v4.4-stable_win64.exe
+          - name: Windows (arm64)
+            runner-os: windows-11-arm
+            godot-release: 4.4-stable/Godot_v4.4-stable_windows_arm64.exe.zip
+            godot-bin: ./Godot_v4.4-stable_windows_arm64.exe
           - name: macOS
             runner-os: macos-latest
             godot-release: 4.4-stable/Godot_v4.4-stable_macos.universal.zip
