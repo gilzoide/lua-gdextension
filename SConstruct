@@ -143,7 +143,8 @@ else:
     if env["platform"] == "windows" and env.get("is_msvc"):
         CopyLuaJIT(f"{build_dir}/luajit", "lib/luajit")
         
-        # Workaround to avoid building luajit.exe: filter out lines containing "luajit."
+        # Use `/MT` matching godot-cpp flags and add `/DLUAJIT_ENABLE_LUA52COMPAT`
+        # Also, avoid building luajit.exe by filtering out lines containing "luajit."
         with open(f"{build_dir}/luajit/src/msvcbuild.bat", "r") as msvcbuild:
             msvcbuild_lines = [
                 line.replace("/MD", "/MT" if env.get("use_static_cpp") else "/MD")
@@ -153,12 +154,7 @@ else:
             ]
         with open(f"{build_dir}/luajit/src/msvcbuild.bat", "w") as msvcbuild:
             msvcbuild.write("".join(msvcbuild_lines))
-        
-        msvcbuild_flags = " ".join([
-            "debug" if env.get("debug_crt") else "",
-            "amalg",
-            "mixed",
-        ])
+
         cmds = [
             (
                 f'"{vcvarsall_path}" x64_arm64'
@@ -166,7 +162,7 @@ else:
                 else ""
             ),
             f"cd {build_dir}/luajit/src",
-            f"msvcbuild.bat {msvcbuild_flags}",
+            f"msvcbuild.bat {"debug" if env.get("debug_crt") else ""} amalg mixed",
         ]
         libluajit = env.Command(
             f"{build_dir}/luajit/src/lua51.lib",
@@ -225,17 +221,17 @@ if env["platform"] == "ios":
         source=sources,
     )
     godotcpp_xcframework = env.XCFramework(
-        f"addons/lua-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
+        f"addons/lua-gdextension/build/libgodot-cpp{env["suffix"]}.xcframework",
         [
             f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}{env["LIBSUFFIX"]}",
-            *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+            *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}*{env["LIBSUFFIX"]}")),
         ],
     )
     luagdextension_xcframework = env.XCFramework(
-        f"addons/lua-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
+        f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}.xcframework",
         [
             f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
-            *map(str, Glob(f"build/libluagdextension.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+            *map(str, Glob(f"build/libluagdextension{env["suffix"]}*{env["LIBSUFFIX"]}")),
         ],
     )
     env.Depends(godotcpp_xcframework, library)
