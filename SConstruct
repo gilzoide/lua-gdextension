@@ -146,16 +146,17 @@ else:
         # Workaround to avoid building luajit.exe: filter out lines containing "luajit."
         with open(f"{build_dir}/luajit/src/msvcbuild.bat", "r") as msvcbuild:
             msvcbuild_lines = [
-                line
+                line.replace("/MD", "/MT" if env.get("use_static_cpp") else "/MD")
                 for line in msvcbuild
                 if "luajit." not in line
             ]
         with open(f"{build_dir}/luajit/src/msvcbuild.bat", "w") as msvcbuild:
-            msvcbuild.write("\n".join(msvcbuild_lines))
+            msvcbuild.write("".join(msvcbuild_lines))
         
         msvcbuild_flags = " ".join([
-            "debug" if env["target"] == "template_debug" else "",
+            "debug" if env.get("debug_crt") else "",
             "amalg",
+            "mixed",
         ])
         cmds = [
             (
