@@ -26,6 +26,8 @@ This plugin is available in the Asset Library as [Lua GDExtension](https://godot
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
     + Patch Lua `package.searchers`, `require`, `loadfile` and `dofile` to accept paths relative to `res://` and `user://`
 - Editor plugin with Lua REPL for testing out Lua snippets
+- Choose between Lua 5.4 or LuaJIT v2.1 runtimes (distributed as separate addons)
+  + Note: LuaJIT does not support WebAssebly, so Lua 5.4 is always used in Web platform
 
 
 ## Lua scripting in Godot
@@ -198,10 +200,11 @@ lua.do_string("""
   + [X] Add support for property hints / usage flags (including export)
   + [X] Add support for property getter / setter
   + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
-- [ ] Support for building with LuaJIT
+- [X] Support for building with LuaJIT
 - [X] Support WebAssembly platform
 - [X] Support Windows arm64 platform
-- [ ] Support Linux arm32, arm64 and rv64 platform
+- [X] Support Linux arm64 platform
+- [ ] Support Linux arm32 and rv64 platform
 - [X] Use framework in iOS (possibly a xcframework supporting the iOS simulator as well)
 - [X] Automated unit tests
 - [X] Automated build and distribution

@@ -3,6 +3,8 @@
 ### Added
 - Support for Linux arm64
 - `LuaTable.get_metatable` and `LuaTable.set_metatable` methods
+- Support for building with LuaJIT
+- `LuaState.get_lua_runtime`, `LuaState.get_lua_version_num` and `LuaState.get_lua_version_string` methods
 
 
 ## [0.4.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.4.0)
