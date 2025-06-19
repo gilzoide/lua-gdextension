@@ -147,6 +147,7 @@ else:
         with open(f"{build_dir}/luajit/src/msvcbuild.bat", "r") as msvcbuild:
             msvcbuild_lines = [
                 line.replace("/MD", "/MT" if env.get("use_static_cpp") else "/MD")
+                    .replace("cl ", "cl /DLUAJIT_ENABLE_LUA52COMPAT ")
                 for line in msvcbuild
                 if "luajit." not in line
             ]
