@@ -129,9 +129,9 @@ public:
 
 	operator String() const;
 
+	static String get_lua_runtime();
 	static int get_lua_version_num();
 	static String get_lua_version_string();
-	static bool has_jit();
 
 	static String get_lua_exec_dir();
 	static LuaState *find_lua_state(lua_State *L);

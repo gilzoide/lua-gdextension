@@ -266,20 +266,20 @@ void LuaState::set_package_cpath(const String& cpath) {
 	}
 }
 
+String LuaState::get_lua_runtime() {
+#ifdef LUAJIT
+	return "luajit";
+#else
+	return "lua";
+#endif
+}
+
 int LuaState::get_lua_version_num() {
 	return LUA_VERSION_NUM;
 }
 
 String LuaState::get_lua_version_string() {
 	return LUA_VERSION;
-}
-
-bool LuaState::has_jit() {
-#ifdef LUAJIT
-	return true;
-#else
-	return false;
-#endif
 }
 
 #ifdef HAVE_LUA_WARN
@@ -366,9 +366,9 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
 	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_runtime"), &LuaState::get_lua_runtime);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_num"), &LuaState::get_lua_version_num);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_string"), &LuaState::get_lua_version_string);
-	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("has_jit"), &LuaState::has_jit);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_exec_dir"), &LuaState::get_lua_exec_dir);
 
 	// Properties

@@ -154,7 +154,7 @@ func test_hook_yield() -> bool:
 	var resume = func():
 		coroutine.resume()
 		# For some reason, LuaJIT requires 2 resumes when yielding from line hook
-		if LuaState.has_jit():
+		if LuaState.get_lua_runtime() == "luajit":
 			coroutine.resume()
 	coroutine.set_hook(_func_line_hook, LuaThread.HOOK_MASK_LINE)
 	resume.call()
