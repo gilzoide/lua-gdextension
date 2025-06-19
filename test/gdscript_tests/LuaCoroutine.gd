@@ -151,14 +151,19 @@ func test_hook_yield() -> bool:
 		global = 2
 		global = 3
 	"""))
+	var resume = func():
+		coroutine.resume()
+		# For some reason, LuaJIT requires 2 resumes when yielding from line hook
+		if LuaState.get_lua_runtime() == "luajit":
+			coroutine.resume()
 	coroutine.set_hook(_func_line_hook, LuaThread.HOOK_MASK_LINE)
-	coroutine.resume()
+	resume.call()
 	# yielded at first line, before running "global = 1"
 	assert(lua_state.globals.global == null)
-	coroutine.resume()
+	resume.call()
 	# yielded at second line, before running "global = 2"
 	assert(lua_state.globals.global == 1)
-	coroutine.resume()
+	resume.call()
 	# yielded at third line, before running "global = 3"
 	assert(lua_state.globals.global == 2)
 	return true

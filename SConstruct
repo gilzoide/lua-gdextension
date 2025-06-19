@@ -1,6 +1,27 @@
 import os
 
+
+# Lua GDExtension specific command line options
+# These should be dealt with before initializing godot-cpp, to avoid unknown options warnings
+lua_runtime = ARGUMENTS.pop("lua_runtime", "lua")
+if lua_runtime.lower() not in ["lua", "luajit"]:
+    raise ValueError(f"Invalid lua_runtime: expected either 'lua' or 'luajit', got {lua_runtime}")
+vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
+
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
+env["lua_runtime"] = lua_runtime
+env["vcvarsall_path"] = vcvarsall_path
+env.Tool("apple", toolpath=["tools"])
+env.Tool("utils", toolpath=["tools"])
+
+if env["platform"] == "web" and lua_runtime == "luajit":
+    print("LuaJIT doesn't support WebAssembly, building with Lua instead")
+    lua_runtime = "lua"
+
+# Setup variant build dir for each setup
+build_dir = f"build/{lua_runtime}.{env["suffix"][1:]}"
+env["build_dir"] = build_dir
+VariantDir(build_dir, "src", duplicate=False)
 
 # Add support for generating compilation database files
 env.Tool("compilation_db")
@@ -24,61 +45,26 @@ env.Command(
     action=python_bin + " $SOURCE",
 )
 
-# Compile with debugging symbols
-def remove_options(lst, *options) -> bool:
-    removed_something = False
-    for opt in options:
-        if opt in lst:
-            lst.remove(opt)
-            removed_something = True
-    return removed_something
-
 # Lua GDExtension uses C++20 instead of C++17 from godot-cpp
-if remove_options(env["CXXFLAGS"], "-std=c++17"):
+if env.remove_options(env["CXXFLAGS"], "-std=c++17"):
     env.Append(CXXFLAGS="-std=c++20")
-elif remove_options(env["CXXFLAGS"], "/std:c++17"):
+elif env.remove_options(env["CXXFLAGS"], "/std:c++17"):
     env.Append(CXXFLAGS="/std:c++20")
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
-remove_options(env["LINKFLAGS"], "-s")
+env.remove_options(env["LINKFLAGS"], "-s")
 
-# Lua defines
-env.Append(CPPDEFINES="MAKE_LIB")
-if env["platform"] == "windows":
-    # Lua automatically detects Windows using `defined(_WIN32)`
-    pass
-elif env["platform"] == "macos":
-    env.Append(CPPDEFINES="LUA_USE_MACOSX")
-elif env["platform"] == "ios":
-    env.Append(CPPDEFINES="LUA_USE_IOS")
-elif env["platform"] == "linux":
-    env.Append(CPPDEFINES="LUA_USE_LINUX")
-elif env["platform"] == "android":
-    env.Append(CPPDEFINES="LUA_USE_ANDROID")
-    if "32" in env["arch"]:
-        env.Append(CPPDEFINES="LUA_USE_ANDROID_32")
-elif env["platform"] != "web":
-    env.Append(CPPDEFINES="LUA_USE_POSIX")
-
-env.Append(CPPPATH="lib/lua")
-# Lua needs exceptions enabled
-remove_options(env["CXXFLAGS"], "-fno-exceptions")
+# Build with exceptions enabled
+env.remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
-# Sol defines
-env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0", "SOL_USING_CXX_LUA=1"])
-if env["target"] == "template_debug":
-    env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON=1", "SOL_PRINT_ERRORS=1"])
-
-env.Append(CPPPATH="lib/sol2/include")
-
-# Setup variant build dir for each setup
-def remove_prefix(s, prefix):
-    return s[len(prefix):] if s.startswith(prefix) else s
-
-build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
-VariantDir(build_dir, 'src', duplicate=False)
+# Setup Lua, LuaJIT and Sol2
+if lua_runtime == "lua":
+    env.Tool("lua", toolpath=["tools"])
+elif lua_runtime == "luajit":
+    env.Tool("luajit", toolpath=["tools"])
+env.Tool("sol2", toolpath=["tools"])
 
 # Build Lua GDExtension
 source_directories = [".", "luaopen", "utils", "script-language"]
@@ -87,35 +73,29 @@ sources = [
     for directory in source_directories
 ]
 
-# Generate document
+# Generate documentation source file
 if env["target"] in ["editor", "template_debug"]:
     doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
     sources.append(doc_data)
 
 if env["platform"] == "ios":
-    def XCFramework(sources, target):
-        return env.Command(
-            target,
-            sources,
-            action=f"rm -rf $TARGET && xcodebuild -create-xcframework {' '.join('-library ' + str(s) for s in sources)} -output $TARGET",
-        )
     library = env.StaticLibrary(
-        f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+        f"{build_dir}/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
         source=sources,
     )
-    godotcpp_xcframework = XCFramework(
+    godotcpp_xcframework = env.XCFramework(
+        f"addons/lua-gdextension/build/libgodot-cpp{env["suffix"]}.xcframework",
         [
             f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}{env["LIBSUFFIX"]}",
-            *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+            *map(str, Glob(f"lib/godot-cpp/bin/libgodot-cpp{env["suffix"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/lua-gdextension/build/libgodot-cpp.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
-    luagdextension_xcframework = XCFramework(
+    luagdextension_xcframework = env.XCFramework(
+        f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}.xcframework",
         [
-            f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
-            *map(str, Glob(f"build/libluagdextension.ios.{env["target"]}.{env["arch"]}*{env["LIBSUFFIX"]}")),
+            f"{build_dir}/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+            *map(str, Glob(f"{build_dir}/libluagdextension{env["suffix"]}*{env["LIBSUFFIX"]}")),
         ],
-        f"addons/lua-gdextension/build/libluagdextension.ios.{env["target"]}.{env["arch"]}.xcframework",
     )
     env.Depends(godotcpp_xcframework, library)
     env.Depends(luagdextension_xcframework, godotcpp_xcframework)
@@ -126,3 +106,21 @@ else:
         source=sources,
     )
     Default(library)
+
+
+# Copy files to addons folder
+addons_source = ["CHANGELOG.md", "LICENSE", "README.md"]
+addons_files = env.Command(
+    [f"addons/lua-gdextension/{f}" for f in addons_source],
+    addons_source,
+    Copy("addons/lua-gdextension", addons_source),
+)
+if lua_runtime == "luajit":
+    jit_source = Glob("lib/luajit/src/jit/*.lua")
+    addons_files.extend(env.Command(
+        [f"addons/lua-gdextension/build/jit/{f}" for f in jit_source],
+        jit_source,
+        Copy("addons/lua-gdextension/build/jit", jit_source),
+    ))
+Default(addons_files)
+Alias("addons_files", addons_files)

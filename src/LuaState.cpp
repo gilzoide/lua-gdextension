@@ -35,6 +35,12 @@
 #include <godot_cpp/classes/project_settings.hpp>
 #include <luaconf.h>
 
+#ifndef LUAJIT
+	#define LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_DEFAULT
+#else
+	#define LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_DEFAULT LUA_PATH_SEP "res://addons/lua-gdextension/build/?.lua"
+#endif
+
 namespace luagdextension {
 
 /// Lua memory allocation callback.
@@ -62,7 +68,13 @@ static void lua_warn_handler(void *ud, const char *msg, int tocont) {
 }
 #endif
 
-LuaState::LuaState() : lua_state(lua_panic_handler, lua_alloc) {
+LuaState::LuaState()
+#ifdef LUAJIT  // LuaJIT needs its default allocator in x64 platforms
+	: lua_state(lua_panic_handler)
+#else
+	: lua_state(lua_panic_handler, lua_alloc)
+#endif
+{
 	setup_G_metatable(lua_state);
 #ifdef HAVE_LUA_WARN
 	lua_setwarnf(lua_state, lua_warn_handler, this);
@@ -123,6 +135,13 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 			lua_state.open_libraries(sol::lib::utf8);
 		}
 	}
+
+#ifdef LUAJIT
+	// LuaJIT should have "jit/?.lua" in its Lua path
+	if (libraries.has_flag(LUA_PACKAGE)) {
+		set_package_path(";;");
+	}
+#endif
 
 	if ((libraries & GODOT_ALL_LIBS) == GODOT_ALL_LIBS) {
 		lua_state.require(module_names::godot, &luaopen_godot, false);
@@ -222,7 +241,7 @@ String LuaState::get_package_cpath() const {
 void LuaState::set_package_path(const String& path) {
 	if (auto package = lua_state.get<sol::optional<sol::table>>("package")) {
 		package->set("path",
-			path.replace(";;", LUA_PATH_SEP LUA_PATH_DEFAULT LUA_PATH_SEP)
+			path.replace(";;", LUA_PATH_SEP LUA_GDEXTENSION_PATH_DEFAULT LUA_PATH_SEP)
 				.rstrip(LUA_PATH_SEP)
 				.lstrip(LUA_PATH_SEP)
 				.replace(LUA_EXEC_DIR, get_lua_exec_dir())
@@ -245,6 +264,22 @@ void LuaState::set_package_cpath(const String& cpath) {
 	else {
 		ERR_FAIL_MSG("LUA_PACKAGE library is not opened");
 	}
+}
+
+String LuaState::get_lua_runtime() {
+#ifdef LUAJIT
+	return "luajit";
+#else
+	return "lua";
+#endif
+}
+
+int LuaState::get_lua_version_num() {
+	return LUA_VERSION_NUM;
+}
+
+String LuaState::get_lua_version_string() {
+	return LUA_VERSION;
 }
 
 #ifdef HAVE_LUA_WARN
@@ -331,6 +366,9 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
 	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_runtime"), &LuaState::get_lua_runtime);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_num"), &LuaState::get_lua_version_num);
+	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_string"), &LuaState::get_lua_version_string);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_exec_dir"), &LuaState::get_lua_exec_dir);
 
 	// Properties

@@ -340,7 +340,11 @@ Variant load_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, co
 	sol::load_result result = lua_state.load(to_string_view(chunk), to_std_string(chunkname), mode);
 	if (result.valid() && env) {
 		lua_push(lua_state, (const Object *) env);
+#if LUA_VERSION_NUM >= 502
 		lua_setupvalue(lua_state, result.stack_index(), 1);
+#else
+		lua_setfenv(lua_state, result.stack_index());
+#endif
 	}
 	return to_variant(result);
 }

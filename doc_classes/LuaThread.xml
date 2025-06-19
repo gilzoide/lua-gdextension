@@ -122,7 +122,7 @@
 			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_CALL] and [constant HOOK_EVENT_TAIL_CALL] hooks.
 		</constant>
 		<constant name="HOOK_MASK_RETURN" value="2" enum="HookMask" is_bitfield="true">
-			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_RETURN] hooks.
+			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_RETURN] and [constant HOOK_EVENT_TAIL_RETURN] hooks.
 		</constant>
 		<constant name="HOOK_MASK_LINE" value="4" enum="HookMask" is_bitfield="true">
 			Mask passed to [method set_hook] to subscribe to [constant HOOK_EVENT_LINE] hooks.
@@ -144,6 +144,11 @@
 		</constant>
 		<constant name="HOOK_EVENT_TAIL_CALL" value="4" enum="HookEvent">
 			Hook event that is called when the interpreter calls a function as a tail call. In this case, there will be no corresponding return event.
+			Not available when using the LuaJIT runtime, LuaJIT sends [constant HOOK_EVENT_TAIL_RETURN] instead.
+		</constant>
+		<constant name="HOOK_EVENT_TAIL_RETURN" value="4" enum="HookEvent">
+			Hook event that is called when the interpreter returns from a function that did a tail call.
+			Only available when using the LuaJIT runtime, Lua sends [constant HOOK_EVENT_TAIL_CALL] instead.
 		</constant>
 		<constant name="HOOK_OK" value="0" enum="HookResult">
 		</constant>

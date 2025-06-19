@@ -96,11 +96,19 @@ int sol_lua_push(lua_State* L, const PackedVector4Array &v);
 // Custom push variadic argumens
 int sol_lua_push(lua_State* L, const luagdextension::VariantArguments &v);
 
+// A version of lua_resume that works with any version of Lua
+int resume_lua_coroutine(lua_State *L, int nargs, int *nresults);
+
 #if LUA_VERSION_NUM >= 504
 #define HAVE_LUA_WARN
-#else
-// Polyfill for Lua 5.4's lua_resume
-int lua_resume(lua_State *L, lua_State *from, int nargs, int *nresults);
+#endif
+
+// Polyfill for some Lua 5.2 stuff
+#ifndef LUA_PATH_SEP
+#define LUA_PATH_SEP ";"
+#endif
+#ifndef LUA_EXEC_DIR
+#define LUA_EXEC_DIR "!"
 #endif
 
 template<typename... Args>

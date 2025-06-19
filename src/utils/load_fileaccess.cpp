@@ -63,7 +63,11 @@ sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filen
 	sol::load_result result = lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(filename), mode);
 	if (result.valid() && env) {
 		lua_push(lua_state, (const Object *) env);
+#if LUA_VERSION_NUM >= 502
 		lua_setupvalue(lua_state, result.stack_index(), 1);
+#else
+		lua_setfenv(lua_state, result.stack_index());
+#endif
 	}
 	return result;
 }

@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+#ifndef LUAJIT
+
 #ifdef LUA_USE_ANDROID
 	#define LUA_USE_LINUX
 #endif
@@ -31,4 +33,6 @@
 	#define l_seeknum		long
 #endif
 
-#include <onelua.c>
+#include "../lib/lua/onelua.c"
+
+#endif

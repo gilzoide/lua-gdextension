@@ -24,7 +24,8 @@
 namespace luagdextension {
 
 const sol::reference& LuaObject::get_lua_object() const {
-	throw "LuaObject subclass must override get_lua_object!";
+	ERR_PRINT("LuaObject subclass must override get_lua_object!");
+	abort();
 }
 
 LuaState *LuaObject::get_lua_state() const {

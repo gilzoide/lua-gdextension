@@ -5,7 +5,8 @@ const GDSCRIPT_TEST_DIR = "res://gdscript_tests"
 
 func _initialize():
 	var all_success = true
-	
+
+	print("Starting Lua GDExtension tests (runtime: ", LuaState.get_lua_runtime(), ")")
 	for lua_script in DirAccess.get_files_at(LUA_TEST_DIR):
 		if lua_script.ends_with(".uid"):
 			continue

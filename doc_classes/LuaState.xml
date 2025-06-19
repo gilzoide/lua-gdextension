@@ -110,7 +110,28 @@
 		<method name="get_lua_exec_dir" qualifiers="static">
 			<return type="String" />
 			<description>
-				static method to get the executable directory used to replace "!" when setting package_path and package_cpath properties. When running in the Godot editor, it returns the globalized version of res:// path. Otherwise, it returns the base directory of the executable.
+				static method to get the executable directory used to replace [code]"!"[/code] when setting package_path and package_cpath properties.
+				When running in the Godot editor, it returns the globalized version of [code]res://[/code] path. Otherwise, it returns the base directory of the executable.
+			</description>
+		</method>
+		<method name="get_lua_runtime" qualifiers="static">
+			<return type="String" />
+			<description>
+				Returns the current Lua runtime that is being used, either [code]"lua"[/code] or [code]"luajit"[/code].
+			</description>
+		</method>
+		<method name="get_lua_version_num" qualifiers="static">
+			<return type="int" />
+			<description>
+				Returns the current Lua version number as defined in the Lua header.
+				In Lua 5.4 the value is [code]504[/code] and in Lua 5.1 / LuaJIT it's [code]501[/code].
+			</description>
+		</method>
+		<method name="get_lua_version_string" qualifiers="static">
+			<return type="String" />
+			<description>
+				Returns the current Lua version string as defined in the Lua header, for example [code]"Lua 5.4"[/code].
+				When using the LuaJIT runtime, returns [code]"Lua 5.1"[/code].
 			</description>
 		</method>
 		<method name="load_buffer">
@@ -227,19 +248,19 @@
 			Lua debug library. Adds the [code]debug[/code] table to _G. Includes [code]traceback[/code], [code]debug[/code], and [code]upvalueid[/code].
 		</constant>
 		<constant name="LUA_BIT32" value="256" enum="Library" is_bitfield="true">
-			Lua bit32 library. Adds the [code]bit32[/code] table to _G. Includes [code]band[/code] and [code]bor[/code]. [b]Note: Lua 5.4 has built-in bit operators and removed this library.[/b]
+			Lua bit32 library. Adds the [code]bit32[/code] table to _G. Includes [code]band[/code] and [code]bor[/code]. [b]Note: Lua 5.4 has built-in bit operators and removed this library. Only available when using the LuaJIT runtime.[/b]
 		</constant>
 		<constant name="LUA_IO" value="512" enum="Library" is_bitfield="true">
 			Lua IO library. Adds the [code]io[/code] table to _G. Includes [code]open[/code], [code]close[/code], and [code]write[/code].
 		</constant>
 		<constant name="LUA_FFI" value="1024" enum="Library" is_bitfield="true">
-			LuaJIT FFI library. [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
+			LuaJIT FFI library. [b]Note: only available when using the LuaJIT runtime.[/b]
 		</constant>
 		<constant name="LUA_JIT" value="2048" enum="Library" is_bitfield="true">
-			LuaJIT library. [b]Requires LuaJIT support. Currently has no effect as Lua 5.4 is used.[/b]
+			LuaJIT library. [b]Note: only available when using the LuaJIT runtime.[/b]
 		</constant>
 		<constant name="LUA_UTF8" value="4096" enum="Library" is_bitfield="true">
-			Lua UTF8 library. Adds the [code]utf8[/code] table to _G. Includes [code]char[/code] and [code]len[/code].
+			Lua UTF8 library. Adds the [code]utf8[/code] table to _G. Includes [code]char[/code] and [code]len[/code]. [b]Note: the LuaJIT runtime has no support for this library.[/b]
 		</constant>
 		<constant name="LUA_ALL_LIBS" value="8191" enum="Library" is_bitfield="true">
 			Opens all Lua libraries. Equivalent to combining all Lua library flags.

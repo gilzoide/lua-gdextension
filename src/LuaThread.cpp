@@ -41,6 +41,7 @@ static void hookf(lua_State *L, lua_Debug *ar) {
 			if (lua_tointeger(L, -1) == LuaThread::HOOK_YIELD) {
 				lua_yield(L, 0);
 			}
+			lua_pop(L, 1);
 			break;
 		
 		default:
@@ -173,6 +174,7 @@ void LuaThread::_bind_methods() {
 	BIND_ENUM_CONSTANT(HOOK_EVENT_LINE);
 	BIND_ENUM_CONSTANT(HOOK_EVENT_COUNT);
 	BIND_ENUM_CONSTANT(HOOK_EVENT_TAIL_CALL);
+	BIND_ENUM_CONSTANT(HOOK_EVENT_TAIL_RETURN);
 
 	BIND_ENUM_CONSTANT(HOOK_OK);
 	BIND_ENUM_CONSTANT(HOOK_YIELD);

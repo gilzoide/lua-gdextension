@@ -74,7 +74,11 @@ void LuaScriptLanguage::_init() {
 
 	// Register project settings
 	ProjectSettings *project_settings = ProjectSettings::get_singleton();
+#ifndef LUAJIT
 	add_project_setting(project_settings, LUA_PATH_SETTING, "res://?.lua;res://?/init.lua");
+#else
+	add_project_setting(project_settings, LUA_PATH_SETTING, "res://?.lua;res://?/init.lua;res://addons/lua-gdextension/build/?.lua");
+#endif
 	add_project_setting(project_settings, LUA_CPATH_SETTING, "!/?.so;!/loadall.so");
 	add_project_setting(project_settings, LUA_CPATH_WINDOWS_SETTING, "!/?.dll;!/loadall.dll");
 	add_project_setting(project_settings, LUA_CPATH_MACOS_SETTING, "!/?.dylib;!/loadall.dylib");

@@ -1,7 +1,6 @@
 # Zip distribution
 ADDONS_DIR = addons/lua-gdextension
 ADDONS_SRC = $(shell find $(ADDONS_DIR) -type f)
-COPIED_FILES = LICENSE README.md CHANGELOG.md
 # Testing
 GODOT_BIN ?= godot
 # Download releases
@@ -25,15 +24,10 @@ define UPDATE_README_VERSION_SED_SCRIPT
 }
 endef
 
-$(ADDONS_DIR)/%: %
-	cp $< $@
-
 build:
 	mkdir -p $@
 
-copy-files-to-addon: $(addprefix $(ADDONS_DIR)/,$(COPIED_FILES)) | build
-
-build/lua-gdextension.zip: $(ADDONS_SRC) copy-files-to-addon | build
+build/lua-gdextension.zip: $(ADDONS_SRC) | build
 	zip $@ $^
 
 build/update_changelog_version.sed:
