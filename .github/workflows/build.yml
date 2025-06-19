@@ -240,7 +240,7 @@ jobs:
           make test
 
   distribute_zip:
-    name: Distribute zip
+    name: Distribute zip (${{ matrix.luajit && 'luajit' || 'lua' }}")
     needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ubuntu-latest
     strategy:
