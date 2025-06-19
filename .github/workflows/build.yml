@@ -21,20 +21,11 @@ jobs:
         lua-runtime: [lua, luajit]
         include:
           - platform: linux
-            arch: x86_32
-            packages: [g++-multilib]
-          - platform: linux
             arch: arm64
             runner: ubuntu-24.04-arm
-          - platform: android
-            arch: x86_32
-            packages: [g++-multilib]
-          - platform: android
-            arch: arm32
-            packages: [g++-multilib]
-        exclude:
           - platform: linux
             arch: arm32
+            runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,10 +36,10 @@ jobs:
           platform: ${{ matrix.platform }}
           scons-version: $SCONS_VERSION
       - name: Setup dependencies
-        if: ${{ join(matrix.packages, ' ') != '' }}
+        if: ${{ matrix.arch == 'x86_32' || matrix.arch == 'arm32' }}
         run: |
           sudo apt-get update
-          sudo apt-get install ${{ join(matrix.packages, ' ') }}
+          sudo apt-get install g++-multilib
       - name: Cache SCons files
         uses: actions/cache@v4
         with:
