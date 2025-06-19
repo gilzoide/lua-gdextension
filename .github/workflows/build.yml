@@ -186,7 +186,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        name: ["Linux", "Windows", "Windows (arm64)", "macOS"]
+        name: ["Linux", "Linux (arm64)", "Windows", "Windows (arm64)", "macOS"]
         luajit: [false, true]
         include:
           - name: Linux
