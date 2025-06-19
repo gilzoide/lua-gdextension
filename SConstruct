@@ -3,16 +3,17 @@ import platform
 import shutil
 import sys
 
-
-use_luajit = ARGUMENTS.pop("luajit", False) in ["True", "true", "t", "yes", "on", "1"]
+lua_runtime = ARGUMENTS.pop("lua_runtime", "lua")
+if lua_runtime.lower() not in ["lua", "luajit"]:
+    raise ValueError(f"Invalid lua_runtime: expected either 'lua' or 'luajit', got {lua_runtime}")
 vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env.Tool("apple", toolpath=["tools"])
 
-# Ok, so LuaJIT is not supported in the web, so we just build with vanilla Lua 
-if env["platform"] == "web":
-    use_luajit = False
+if env["platform"] == "web" and lua_runtime == "luajit":
+    print("LuaJIT doesn't support WebAssembly, building with Lua instead")
+    lua_runtime = "lua"
 
 # Setup variant build dir for each setup
 def remove_prefix(s, prefix):
@@ -74,7 +75,7 @@ if env["platform"] == "windows" and not env["use_mingw"]:
 
 
 # Lua
-if not use_luajit:
+if lua_runtime == "lua":
     env.Append(CPPDEFINES="MAKE_LIB")
     if env["platform"] == "windows":
         # Lua automatically detects Windows using `defined(_WIN32)`
@@ -95,7 +96,7 @@ if not use_luajit:
     env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
     env.Append(CPPPATH="lib/lua")
 # LuaJIT
-else:
+elif lua_runtime == "luajit":
     # Make sure luajit.h and jit/vmdef.lua has been generated
     env.Execute("make -C lib/luajit/src luajit.h jit/vmdef.lua MACOSX_DEPLOYMENT_TARGET=11.0")
 
@@ -252,7 +253,7 @@ addons_files = env.Command(
     addons_source,
     Copy("addons/lua-gdextension", addons_source),
 )
-if use_luajit:
+if lua_runtime == "luajit":
     jit_source = Glob("lib/luajit/src/jit/*.lua")
     addons_files.extend(env.Command(
         [f"addons/lua-gdextension/build/jit/{f}" for f in jit_source],
