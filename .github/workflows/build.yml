@@ -240,7 +240,7 @@ jobs:
           make test
 
   distribute_zip:
-    name: Distribute zip (${{ matrix.lua-runtime }}")
+    name: Distribute zip (${{ matrix.lua-runtime }})
     needs: [build_linux, build_windows, build_macos, build_web]
     runs-on: ubuntu-latest
     strategy:

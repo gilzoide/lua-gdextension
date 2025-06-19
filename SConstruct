@@ -1,25 +1,26 @@
 import os
-import platform
-import shutil
-import sys
 
+
+# Lua GDExtension specific command line options
+# These should be dealt with before initializing godot-cpp, to avoid unknown options warnings
 lua_runtime = ARGUMENTS.pop("lua_runtime", "lua")
 if lua_runtime.lower() not in ["lua", "luajit"]:
     raise ValueError(f"Invalid lua_runtime: expected either 'lua' or 'luajit', got {lua_runtime}")
 vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
+env["lua_runtime"] = lua_runtime
+env["vcvarsall_path"] = vcvarsall_path
 env.Tool("apple", toolpath=["tools"])
+env.Tool("utils", toolpath=["tools"])
 
 if env["platform"] == "web" and lua_runtime == "luajit":
     print("LuaJIT doesn't support WebAssembly, building with Lua instead")
     lua_runtime = "lua"
 
 # Setup variant build dir for each setup
-def remove_prefix(s, prefix):
-    return s[len(prefix):] if s.startswith(prefix) else s
-
-build_dir = f"build/{remove_prefix(env["suffix"], ".")}"
+build_dir = f"build/{lua_runtime}.{env["suffix"][1:]}"
+env["build_dir"] = build_dir
 VariantDir(build_dir, "src", duplicate=False)
 
 source_directories = [".", "luaopen", "utils", "script-language"]
@@ -50,164 +51,25 @@ env.Command(
     action=python_bin + " $SOURCE",
 )
 
-# Compile with debugging symbols
-def remove_options(lst, *options) -> bool:
-    removed_something = False
-    for opt in options:
-        if opt in lst:
-            lst.remove(opt)
-            removed_something = True
-    return removed_something
-
 # Lua GDExtension uses C++20 instead of C++17 from godot-cpp
-if remove_options(env["CXXFLAGS"], "-std=c++17"):
+if env.remove_options(env["CXXFLAGS"], "-std=c++17"):
     env.Append(CXXFLAGS="-std=c++20")
-elif remove_options(env["CXXFLAGS"], "/std:c++17"):
+elif env.remove_options(env["CXXFLAGS"], "/std:c++17"):
     env.Append(CXXFLAGS="/std:c++20")
 
 # Avoid stripping all symbols, we need `luagdextension_entrypoint` exported
-remove_options(env["LINKFLAGS"], "-s")
+env.remove_options(env["LINKFLAGS"], "-s")
 
 # Build with exceptions enabled
-remove_options(env["CXXFLAGS"], "-fno-exceptions")
+env.remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
-
-# Lua
 if lua_runtime == "lua":
-    env.Append(CPPDEFINES="MAKE_LIB")
-    if env["platform"] == "windows":
-        # Lua automatically detects Windows using `defined(_WIN32)`
-        pass
-    elif env["platform"] == "macos":
-        env.Append(CPPDEFINES="LUA_USE_MACOSX")
-    elif env["platform"] == "ios":
-        env.Append(CPPDEFINES="LUA_USE_IOS")
-    elif env["platform"] == "linux":
-        env.Append(CPPDEFINES="LUA_USE_LINUX")
-    elif env["platform"] == "android":
-        env.Append(CPPDEFINES="LUA_USE_ANDROID")
-        if "32" in env["arch"]:
-            env.Append(CPPDEFINES="LUA_USE_ANDROID_32")
-    elif env["platform"] != "web":
-        env.Append(CPPDEFINES="LUA_USE_POSIX")
-
-    env.Append(CPPDEFINES=["SOL_USING_CXX_LUA=1"])
-    env.Append(CPPPATH="lib/lua")
-# LuaJIT
+    env.Tool("lua", toolpath=["tools"])
 elif lua_runtime == "luajit":
-    # Make sure luajit.h and jit/vmdef.lua has been generated
-    env.Execute("make -C lib/luajit/src luajit.h jit/vmdef.lua MACOSX_DEPLOYMENT_TARGET=11.0")
-
-    def CopyLuaJIT(target, source):
-        if not os.path.exists(target):
-            shutil.copytree(source, target)
-            env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
-
-    def MakeLuaJIT(env, build_dir):
-        CopyLuaJIT(build_dir, "lib/luajit")
-        make_flags = {
-            "TARGET_SYS": {
-                "windows": "Windows",
-                "linux": "Linux",
-                "macos": "Darwin",
-                "ios": "iOS",
-                "android": "Linux",
-            }[env["platform"]],
-            "STATIC_CC": env["CC"],
-            "DYNAMIC_CC": env["CC"],
-            "TARGET_LD": env["CC"],
-            "TARGET_STRIP": env.get("STRIP", ""),
-            "TARGET_FLAGS": " ".join(env["CCFLAGS"]),
-            "TARGET_LDFLAGS": " ".join(env["LINKFLAGS"]),
-            "MACOSX_DEPLOYMENT_TARGET": "11.0",
-            "XCFLAGS": "-DLUAJIT_ENABLE_LUA52COMPAT",
-        }
-        if sys.platform == "linux" and env["arch"] in ["x86_32", "arm32"]:
-            make_flags["HOST_CC"] = "gcc -m32"
-        make_flags_line = " ".join(
-            f"{key}='{value}'"
-            for key, value in make_flags.items()
-            if value
-        )
-        return env.Command(
-            f"{build_dir}/src/libluajit.a",
-            "lib",
-            action=f"make -C {build_dir} amalg {make_flags_line}",
-            ENV={
-                "PATH": env.get("PATH", os.getenv("PATH")),
-            },
-        )
-
-    # Windows + MSVC special case: build using luajit/src/msvcbuild.bat
-    if env["platform"] == "windows" and env.get("is_msvc"):
-        CopyLuaJIT(f"{build_dir}/luajit", "lib/luajit")
-        
-        # Use `/MT` matching godot-cpp flags and add `/DLUAJIT_ENABLE_LUA52COMPAT`
-        # Also, avoid building luajit.exe by filtering out lines containing "luajit."
-        with open(f"{build_dir}/luajit/src/msvcbuild.bat", "r") as msvcbuild:
-            msvcbuild_lines = [
-                line.replace("/MD", "/MT" if env.get("use_static_cpp") else "/MD")
-                    .replace("cl ", "cl /DLUAJIT_ENABLE_LUA52COMPAT ")
-                for line in msvcbuild
-                if "luajit." not in line
-            ]
-        with open(f"{build_dir}/luajit/src/msvcbuild.bat", "w") as msvcbuild:
-            msvcbuild.write("".join(msvcbuild_lines))
-
-        cmds = [
-            (
-                f'"{vcvarsall_path}" x64_arm64'
-                if vcvarsall_path and env["arch"] == "arm64" and platform.machine().lower() == "amd64"
-                else ""
-            ),
-            f"cd {build_dir}/luajit/src",
-            f"msvcbuild.bat {"debug" if env.get("debug_crt") else ""} amalg mixed",
-        ]
-        libluajit = env.Command(
-            f"{build_dir}/luajit/src/lua51.lib",
-            "lib",
-            action=" && ".join(cmd for cmd in cmds if cmd),
-        )
-    # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
-    elif env["platform"] == "macos" and env["arch"] == "universal":
-        env_x86_64 = env.Clone()
-        remove_options(env_x86_64["CCFLAGS"], "-arch", "x86_64", "-arch", "arm64")
-        remove_options(env_x86_64["LINKFLAGS"], "-arch", "x86_64", "-arch", "arm64")
-        env_x86_64.Append(
-            CCFLAGS=["-arch", "x86_64"],
-            LINKFLAGS=["-arch", "x86_64"],
-        )
-        luajit_x86_64 = MakeLuaJIT(env_x86_64, f"{build_dir}/luajit/x86_64")
-        
-        env_arm64 = env.Clone()
-        remove_options(env_arm64["CCFLAGS"], "-arch", "x86_64", "-arch", "arm64")
-        remove_options(env_arm64["LINKFLAGS"], "-arch", "x86_64", "-arch", "arm64")
-        env_arm64.Append(
-            CCFLAGS=["-arch", "arm64"],
-            LINKFLAGS=["-arch", "arm64"],
-        )
-        luajit_arm64 = MakeLuaJIT(env_arm64, f"{build_dir}/luajit/arm64")
-
-        libluajit = env.Lipo(
-            target=f"{build_dir}/luajit/libluajit.a",
-            source=[luajit_x86_64, luajit_arm64],
-        )
-    else:
-        libluajit = MakeLuaJIT(env, f"{build_dir}/luajit")
-
-    env.Append(CPPDEFINES=["LUAJIT", "SOL_LUAJIT=1", "SOL_USING_CXX_LUA=0"])
-    env.Append(CPPPATH="lib/luajit/src")
-    env.Append(LIBS=libluajit)
-
-
-# Sol defines
-env.Append(CPPDEFINES=["SOL_EXCEPTIONS_SAFE_PROPAGATION=1", "SOL_NO_NIL=0"])
-if env["target"] == "template_debug":
-    env.Append(CPPDEFINES=["SOL_ALL_SAFETIES_ON=1", "SOL_PRINT_ERRORS=1"])
-
-env.Append(CPPPATH="lib/sol2/include")
+    env.Tool("luajit", toolpath=["tools"])
+env.Tool("sol2", toolpath=["tools"])
 
 
 # Generate document
@@ -218,7 +80,7 @@ if env["target"] in ["editor", "template_debug"]:
 # Build Lua GDExtension
 if env["platform"] == "ios":
     library = env.StaticLibrary(
-        f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+        f"{build_dir}/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
         source=sources,
     )
     godotcpp_xcframework = env.XCFramework(
@@ -231,8 +93,8 @@ if env["platform"] == "ios":
     luagdextension_xcframework = env.XCFramework(
         f"addons/lua-gdextension/build/libluagdextension{env["suffix"]}.xcframework",
         [
-            f"build/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
-            *map(str, Glob(f"build/libluagdextension{env["suffix"]}*{env["LIBSUFFIX"]}")),
+            f"{build_dir}/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
+            *map(str, Glob(f"{build_dir}/libluagdextension{env["suffix"]}*{env["LIBSUFFIX"]}")),
         ],
     )
     env.Depends(godotcpp_xcframework, library)
