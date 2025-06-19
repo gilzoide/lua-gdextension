@@ -1,5 +1,8 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.4.0...HEAD)
+### Added
+- Support for Linux arm64
+- `LuaTable.get_metatable` and `LuaTable.set_metatable` methods
 
 
 ## [0.4.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.4.0)
@@ -7,7 +10,7 @@
 - `LuaCoroutine.completed` and `LuaCoroutine.failed` signals
 - `await` function similar to GDScript's, allowing coroutines to yield and resume automatically when a signal is emitted
 - Support for Web exports
-- Support Windows arm64 exports
+- Support for Windows arm64
 - Support for calling static methods from Godot classes, like `FileAccess.open`
 - Custom [Lua 5.4+ warning function](https://www.lua.org/manual/5.4/manual.html#lua_setwarnf) that sends messages to `push_warning`
 - `LuaThread` class as a superclass for `LuaCoroutine`.

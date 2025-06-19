@@ -38,6 +38,13 @@
 				[/codeblocks]
 			</description>
 		</method>
+		<method name="get_metatable" qualifiers="const">
+			<return type="LuaTable" />
+			<description>
+				Returns this table's metatable.
+				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
+			</description>
+		</method>
 		<method name="length" qualifiers="const">
 			<return type="int" />
 			<description>
@@ -99,6 +106,14 @@
 				print(table.get("foo")) # Prints "new_value"
 				[/gdscript]
 				[/codeblocks]
+			</description>
+		</method>
+		<method name="set_metatable">
+			<return type="void" />
+			<param index="0" name="metatable" type="LuaTable" />
+			<description>
+				Set a new metatable for this table.
+				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
 			</description>
 		</method>
 		<method name="to_array" qualifiers="const">
