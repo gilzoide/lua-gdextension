@@ -69,7 +69,7 @@ static void lua_warn_handler(void *ud, const char *msg, int tocont) {
 #endif
 
 LuaState::LuaState()
-#ifdef LUAJIT  // LuaJIT needs it's default allocator in x64 platforms
+#ifdef LUAJIT  // LuaJIT needs its default allocator in x64 platforms
 	: lua_state(lua_panic_handler)
 #else
 	: lua_state(lua_panic_handler, lua_alloc)
