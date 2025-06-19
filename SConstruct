@@ -23,12 +23,6 @@ build_dir = f"build/{lua_runtime}.{env["suffix"][1:]}"
 env["build_dir"] = build_dir
 VariantDir(build_dir, "src", duplicate=False)
 
-source_directories = [".", "luaopen", "utils", "script-language"]
-sources = [
-    Glob(f"{build_dir}/{directory}/*.cpp")
-    for directory in source_directories
-]
-
 # Add support for generating compilation database files
 env.Tool("compilation_db")
 compiledb = env.CompilationDatabase("compile_commands.json")
@@ -65,19 +59,25 @@ env.remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
+# Setup Lua, LuaJIT and Sol2
 if lua_runtime == "lua":
     env.Tool("lua", toolpath=["tools"])
 elif lua_runtime == "luajit":
     env.Tool("luajit", toolpath=["tools"])
 env.Tool("sol2", toolpath=["tools"])
 
+# Build Lua GDExtension
+source_directories = [".", "luaopen", "utils", "script-language"]
+sources = [
+    Glob(f"{build_dir}/{directory}/*.cpp")
+    for directory in source_directories
+]
 
-# Generate document
+# Generate documentation source file
 if env["target"] in ["editor", "template_debug"]:
     doc_data = env.GodotCPPDocData("src/generated-document/doc_data.gen.cpp", source=Glob("doc_classes/*.xml"))
     sources.append(doc_data)
 
-# Build Lua GDExtension
 if env["platform"] == "ios":
     library = env.StaticLibrary(
         f"{build_dir}/libluagdextension{env["suffix"]}{env["LIBSUFFIX"]}",
