@@ -46,7 +46,10 @@ public:
 	VariantTypedArray(Script *script);
 
 	Variant::Type get_type() const;
-	String get_type_name() const;
+	StringName get_class_name() const;
+	String get_hint_string() const;
+
+	String to_string() const;
 
 	Variant construct_default() const;
 	Variant construct(const sol::variadic_args& args) const;

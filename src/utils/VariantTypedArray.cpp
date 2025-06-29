@@ -23,6 +23,10 @@
 
 #include "convert_godot_lua.hpp"
 
+#include <godot_cpp/classes/class_db_singleton.hpp>
+#include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/resource.hpp>
+
 namespace luagdextension {
 
 VariantTypedArray::VariantTypedArray(Variant::Type type)
@@ -47,10 +51,38 @@ VariantTypedArray::VariantTypedArray(Script *script)
 }
 
 Variant::Type VariantTypedArray::get_type() const {
-	return Variant::Type::ARRAY;
+	return type;
 }
 
-String VariantTypedArray::get_type_name() const {
+StringName VariantTypedArray::get_class_name() const {
+	if (script.is_valid()) {
+		StringName script_name = script->get_global_name();
+		if (!script_name.is_empty()) {
+			return script_name;
+		}
+	}
+	return class_name;
+}
+
+String VariantTypedArray::get_hint_string() const {
+	PropertyHint elem_hint = PROPERTY_HINT_NONE;
+	String elem_hint_string;
+
+	StringName class_name = get_class_name();
+	if (!class_name.is_empty()) {
+		if (ClassDBSingleton::get_singleton()->is_parent_class(class_name, Node::get_class_static())) {
+			elem_hint = godot::PROPERTY_HINT_NODE_TYPE;
+			elem_hint_string = class_name;
+		}
+		else if (ClassDBSingleton::get_singleton()->is_parent_class(class_name, Resource::get_class_static())) {
+			elem_hint = godot::PROPERTY_HINT_RESOURCE_TYPE;
+			elem_hint_string = class_name;
+		}
+	}
+	return String("%d/%d:%s") % Array::make(type, elem_hint, elem_hint_string);
+}
+
+String VariantTypedArray::to_string() const {
 	String element_type;
 	if (script.is_valid()) {
 		element_type = script->get_global_name();
@@ -89,7 +121,7 @@ void VariantTypedArray::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantTypedArray>(
 		"VariantClass",
 		sol::meta_function::call, &VariantTypedArray::construct,
-		sol::meta_function::to_string, &VariantTypedArray::get_type_name
+		sol::meta_function::to_string, &VariantTypedArray::to_string
 	);
 }
 
