@@ -19,34 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_SCRIPT_METADATA_HPP__
-#define __LUA_SCRIPT_METADATA_HPP__
+#ifndef __UTILS_PROJECT_SETTINGS_HPP__
+#define __UTILS_PROJECT_SETTINGS_HPP__
 
-#include <godot_cpp/templates/hash_map.hpp>
-
-#include "LuaScriptMethod.hpp"
-#include "LuaScriptProperty.hpp"
-#include "LuaScriptSignal.hpp"
+#include <godot_cpp/classes/project_settings.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-struct LuaScriptMetadata {
-	bool is_importable;
-	bool is_valid;
-	bool is_tool;
-	StringName base_class;
-	StringName class_name;
-	String icon_path;
-	HashMap<StringName, LuaScriptMethod> methods;
-	HashMap<StringName, LuaScriptProperty> properties;
-	HashMap<StringName, LuaScriptSignal> signals;
+constexpr char LUA_PATH_SETTING[] = "lua_gdextension/lua_script_language/package_path";
+constexpr char LUA_CPATH_SETTING[] = "lua_gdextension/lua_script_language/package_c_path";
+constexpr char LUA_CPATH_WINDOWS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.windows";
+constexpr char LUA_CPATH_MACOS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.macos";
+constexpr char LUA_DOIMPORT_SETTING[] = "lua_gdextension/lua_script_language/import_lua_scripts";
 
-	void setup(const sol::table& t);
-	void clear();
-};
+static void add_project_setting(ProjectSettings *project_settings, const String& setting_name, const Variant& initial_value, bool is_basic = false) {
+	if (!project_settings->has_setting(setting_name)) {
+		project_settings->set_setting(setting_name, initial_value);
+	}
+	project_settings->set_initial_value(setting_name, initial_value);
+	project_settings->set_as_basic(setting_name, is_basic);
+}
 
 }
 
-#endif  // __LUA_SCRIPT_METADATA_HPP__
+#endif  // __UTILS_PROJECT_SETTINGS_HPP__
