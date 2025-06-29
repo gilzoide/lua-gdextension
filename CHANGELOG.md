@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.4.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.5.0...HEAD)
+
+
+## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
 ### Added
 - Support for Linux arm64
 - `LuaTable.get_metatable` and `LuaTable.set_metatable` methods

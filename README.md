@@ -1,5 +1,5 @@
 # Lua GDExtension
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library&color=478CBF&message=0.4.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
@@ -82,7 +82,7 @@ return LuaBouncingLogo
 
 
 ## Calling Lua from Godot
-The following classes are registered in Godot for creating Lua states and interacting with them: `LuaState`, `LuaError`, `LuaCoroutine`, `LuaFunction`, `LuaLightUserdata`, `LuaTable` and `LuaUserdata`.
+The following classes are registered in Godot for creating Lua states and interacting with them: `LuaState`, `LuaTable`, `LuaUserdata`, `LuaLightUserdata`, `LuaFunction`, `LuaCoroutine`, `LuaThread`, `LuaDebug` and `LuaError`.
 
 Usage example in GDScript:
 ```gdscript
