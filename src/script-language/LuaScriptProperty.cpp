@@ -26,6 +26,7 @@
 #include "../LuaCoroutine.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
+#include "../utils/VariantTypedArray.hpp"
 #include "../utils/convert_godot_lua.hpp"
 
 namespace luagdextension {
@@ -39,6 +40,11 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 		if (auto type = table->get<sol::optional<VariantType>>(1)) {
 			property.type = type->get_type();
 		}
+		else if (auto typed_array = table->get<sol::optional<VariantTypedArray>>(1)) {
+			property.type = Variant::Type::ARRAY;
+			property.hint = PROPERTY_HINT_TYPE_STRING;
+			property.hint_string = typed_array->get_hint_string();
+		}
 		else if (auto default_value = table->get<sol::optional<sol::object>>(1)) {
 			property.default_value = to_variant(*default_value);
 		}
@@ -46,6 +52,11 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 		// PropertyInfo fields
 		if (auto type = table->get<sol::optional<VariantType>>("type")) {
 			property.type = type->get_type();
+		}
+		else if (auto typed_array = table->get<sol::optional<VariantTypedArray>>("type")) {
+			property.type = Variant::Type::ARRAY;
+			property.hint = PROPERTY_HINT_TYPE_STRING;
+			property.hint_string = typed_array->get_hint_string();
 		}
 		if (auto hint = table->get<sol::optional<uint32_t>>("hint")) {
 			property.hint = *hint;

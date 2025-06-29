@@ -21,8 +21,10 @@
  */
 #include "VariantType.hpp"
 
+#include "Class.hpp"
 #include "MethodBindByName.hpp"
 #include "VariantArguments.hpp"
+#include "VariantTypedArray.hpp"
 #include "convert_godot_lua.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -72,15 +74,26 @@ bool VariantType::operator==(const VariantType& other) const {
 	return type == other.type;
 }
 
-static sol::optional<MethodBindByName> __index(const VariantType& cls, const sol::stack_object& key) {
+static sol::object __index(sol::this_state L, const VariantType& cls, const sol::stack_object& key) {
 	if (key.get_type() == sol::type::string) {
 		StringName method = key.as<StringName>();
 		Variant empty = cls.construct_default();
 		if (empty.has_method(method)) {
-			return MethodBindByName(method);
+			return sol::make_object(L, MethodBindByName(method));
 		}
 	}
-	return {};
+	else if (cls.get_type() == Variant::Type::ARRAY) {
+		if (auto array_type = key.as<sol::optional<VariantType>>()) {
+			return sol::make_object(L, VariantTypedArray(array_type->get_type()));
+		}
+		else if (auto class_name = key.as<sol::optional<Class>>()) {
+			return sol::make_object(L, VariantTypedArray(class_name->get_name()));
+		}
+		else if (Script *script = Object::cast_to<Script>(to_variant(key))) {
+			return sol::make_object(L, VariantTypedArray(script));
+		}
+	}
+	return sol::nil;
 }
 void VariantType::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantType>(
