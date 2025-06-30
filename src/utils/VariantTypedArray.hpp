@@ -19,47 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "VariantArguments.hpp"
+#ifndef __UTILS_VARIANT_TYPED_ARRAY_HPP__
+#define __UTILS_VARIANT_TYPED_ARRAY_HPP__
 
-#include "convert_godot_lua.hpp"
+#include "custom_sol.hpp"
+
+#include <godot_cpp/classes/script.hpp>
+#include <godot_cpp/variant/variant.hpp>
+
+using namespace godot;
 
 namespace luagdextension {
 
-VariantArguments::VariantArguments(const Array& args)
-	: variants(args)
-{
-}
+/**
+ * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
+ */
+class VariantTypedArray {
+protected:
+	Variant::Type type;
+	StringName class_name;
+	Ref<Script> script;
 
-VariantArguments::VariantArguments(const Variant **argv, GDExtensionInt argc) {
-	for (GDExtensionInt i = 0; i < argc; i++) {
-		variants.append(*argv[i]);
-	}
-}
+public:
+	VariantTypedArray(Variant::Type type);
+	VariantTypedArray(const StringName& class_name);
+	VariantTypedArray(Script *script);
 
-VariantArguments::VariantArguments(const Variant& self, const Variant **argv, GDExtensionInt argc) {
-	variants.append(self);
-	for (GDExtensionInt i = 0; i < argc; i++) {
-		variants.append(*argv[i]);
-	}
-}
+	Variant::Type get_type() const;
+	StringName get_class_name() const;
+	String get_hint_string() const;
 
-VariantArguments::VariantArguments(const sol::variadic_args& args) {
-	fill_array(variants, args);
-}
+	String to_string() const;
 
-int VariantArguments::argc() const {
-	return variants.size();
-}
+	Variant construct_default() const;
+	Variant construct(const sol::variadic_args& args) const;
 
-const Variant **VariantArguments::argv() {
-	for (int64_t i = variant_pointers.size(); i < variants.size(); i++) {
-		variant_pointers.append(&variants[i]);
-	}
-	return variant_pointers.ptrw();
-}
+	bool operator==(const VariantTypedArray& other) const;
 
-const Array& VariantArguments::get_array() const {
-	return variants;
-}
+	static void register_usertype(sol::state_view& state);
+};
 
 }
+
+#endif  // __UTILS_VARIANT_TYPED_ARRAY_HPP__

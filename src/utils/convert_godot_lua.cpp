@@ -211,27 +211,33 @@ sol::object to_lua(lua_State *lua_state, const Variant& value) {
 	return result;
 }
 
-Array to_array(const sol::variadic_args& args) {
-	Array arr;
-	for (auto it : args) {
-		arr.append(to_variant(it.get<sol::stack_object>()));
+void fill_array(Array& array, const sol::table& table) {
+	for (int i = 1; i <= table.size(); i++) {
+		array.append(to_variant(table.get<sol::object>(i)));
 	}
-	return arr;
+}
+
+void fill_array(Array& array, const sol::variadic_args& args) {
+	for (auto it : args) {
+		array.append(to_variant(it.get<sol::stack_object>()));
+	}
+}
+
+void fill_dictionary(Dictionary& dict, const sol::table& table) {
+	for (auto it : table.pairs()) {
+		dict[to_variant(it.first)] = to_variant(it.second);
+	}
 }
 
 Array to_array(const sol::table& table) {
 	Array arr;
-	for (int i = 1; i <= table.size(); i++) {
-		arr.append(to_variant(table.get<sol::object>(i)));
-	}
+	fill_array(arr, table);
 	return arr;
 }
 
 Dictionary to_dictionary(const sol::table& table) {
 	Dictionary dict;
-	for (auto it : table.pairs()) {
-		dict[to_variant(it.first)] = to_variant(it.second);
-	}
+	fill_dictionary(dict, table);
 	return dict;
 }
 

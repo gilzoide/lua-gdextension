@@ -41,7 +41,10 @@ Variant to_variant(lua_State *L, int index);
 sol::stack_object lua_push(lua_State *L, const Variant& value);
 sol::object to_lua(lua_State *L, const Variant& value);
 
-Array to_array(const sol::variadic_args& args);
+void fill_array(Array& array, const sol::table& table);
+void fill_array(Array& array, const sol::variadic_args& args);
+void fill_dictionary(Dictionary& dict, const sol::table& table);
+
 Array to_array(const sol::table& table);
 Dictionary to_dictionary(const sol::table& table);
 sol::table to_table(sol::state_view& state, const Dictionary& dictionary);

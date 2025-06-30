@@ -5,6 +5,7 @@ TestClass.some_signal = signal("arg1", "arg2")
 TestClass.empty_array = property { type = Array }
 TestClass.preinitialized_array = Array { 1, 2, 3 }
 TestClass.signal_awaited = false
+TestClass.typed_array = property { type = Array[int] }
 
 -- Getter methods
 TestClass.getter_counter = property {
