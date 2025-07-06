@@ -22,7 +22,7 @@
 #ifndef __UTILS_LUA_GC_PRINTER_HPP__
 #define __UTILS_LUA_GC_PRINTER_HPP__
 
-#include <lua.h>
+#include <sol/sol.hpp>
 
 namespace luagdextension {
 
