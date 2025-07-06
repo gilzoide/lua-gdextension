@@ -31,8 +31,8 @@ using namespace godot;
 namespace luagdextension {
 
 long long get_lua_gcbytes(lua_State *L) {
-	return lua_gc(L, LUA_GCCOUNT) * 1024
-		+ lua_gc(L, LUA_GCCOUNTB);
+	return lua_gc(L, LUA_GCCOUNT, 0) * 1024
+		+ lua_gc(L, LUA_GCCOUNTB, 0);
 }
 
 LuaGcPrinter::LuaGcPrinter(lua_State *L)
