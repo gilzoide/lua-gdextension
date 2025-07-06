@@ -1,5 +1,6 @@
 # Lua GDExtension
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28Lua%205.4%29&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28LuaJIT%29&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
@@ -9,7 +10,9 @@ Extension for using the [Lua programming language](https://www.lua.org/) in Godo
 With this addon, you can program your game or application directly in Lua.
 You can also create sandboxed Lua states for external modding/scripting support, as many as necessary.
 
-This plugin is available in the Asset Library as [Lua GDExtension](https://godotengine.org/asset-library/asset/2330).
+This plugin is available in the Asset Library as:
+- [Lua GDExtension](https://godotengine.org/asset-library/asset/2330) (Lua 5.4 version)
+- [Lua GDExtension + LuaJIT](https://godotengine.org/asset-library/asset/4119) (LuaJIT version)
 
 
 ## Features
