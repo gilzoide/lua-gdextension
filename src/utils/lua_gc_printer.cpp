@@ -42,8 +42,8 @@ LuaGcPrinter::LuaGcPrinter(lua_State *L)
 }
 
 LuaGcPrinter::~LuaGcPrinter() {
-	long long current = get_lua_gcbytes(L);
-	long long delta = current - previous;
+	int64_t current = get_lua_gcbytes(L);
+	int64_t delta = current - previous;
 	UtilityFunctions::print("LuaGcPrinter: ", delta);
 }
 

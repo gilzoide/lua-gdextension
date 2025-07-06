@@ -22,6 +22,8 @@
 #ifndef __UTILS_LUA_GC_PRINTER_HPP__
 #define __UTILS_LUA_GC_PRINTER_HPP__
 
+#include <cstdint>
+
 #include <sol/sol.hpp>
 
 namespace luagdextension {
@@ -35,7 +37,7 @@ public:
 
 private:
 	lua_State *L;
-	long long previous;
+	int64_t previous;
 };
 
 #else
