@@ -91,6 +91,8 @@ protected:
 
 	void _update_placeholder_exports(void *placeholder) const;
 
+	bool _verify_importability() const;
+
 	String source_code;
 	LuaScriptMetadata metadata;
 	bool placeholder_fallback_enabled;
