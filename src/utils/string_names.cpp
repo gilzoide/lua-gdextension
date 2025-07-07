@@ -19,31 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaCodeEdit.hpp"
-#include "LuaScriptLanguage.hpp"
-#include "../utils/string_names.hpp"
+#include "string_names.hpp"
 
 namespace luagdextension {
 
-bool LuaCodeEdit::_property_can_revert(const StringName &p_name) const {
-	return p_name == string_names->delimiter_comments
-		|| p_name == string_names->delimiter_strings;
-}
-
-bool LuaCodeEdit::_property_get_revert(const StringName &p_name, Variant &r_property) const {
-	if (p_name == string_names->delimiter_comments) {
-		r_property = LuaScriptLanguage::get_singleton()->_get_comment_delimiters();
-		return true;
-	}
-	else if (p_name == string_names->delimiter_strings) {
-		r_property = LuaScriptLanguage::get_singleton()->_get_string_delimiters();
-		return true;
-	}
-	else {
-		return false;
-	}
-}
-
-void LuaCodeEdit::_bind_methods() {}
+struct string_names *string_names;
 
 }

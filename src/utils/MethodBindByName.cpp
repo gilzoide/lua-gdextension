@@ -25,6 +25,7 @@
 #include "VariantArguments.hpp"
 #include "VariantType.hpp"
 #include "convert_godot_lua.hpp"
+#include "string_names.hpp"
 
 #include <godot_cpp/classes/class_db_singleton.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -49,7 +50,7 @@ sol::object MethodBindByName::call(sol::this_state state, const sol::stack_objec
 		Array var_args = VariantArguments(args).get_array();
 		var_args.push_front(method_name);
 		var_args.push_front(cls->get_name());
-		return to_lua(state, ClassDBSingleton::get_singleton()->callv("class_call_static", var_args));
+		return to_lua(state, ClassDBSingleton::get_singleton()->callv(string_names->class_call_static, var_args));
 	}
 	else {
 		Variant variant = to_variant(self);

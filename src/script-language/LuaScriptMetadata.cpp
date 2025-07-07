@@ -26,6 +26,7 @@
 #include "LuaScriptMetadata.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/stack_top_checker.hpp"
+#include "../utils/string_names.hpp"
 
 namespace luagdextension {
 
@@ -36,8 +37,8 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 	StackTopChecker topcheck(L);
 
 	// Global methods
-	methods["rawget"] = LuaScriptMethod("rawget", L.registry()["LuaScriptInstance::rawget"]);
-	methods["rawset"] = LuaScriptMethod("rawset", L.registry()["LuaScriptInstance::rawset"]);
+	methods["rawget"] = LuaScriptMethod(string_names->rawget, L.registry()["LuaScriptInstance::rawget"]);
+	methods["rawset"] = LuaScriptMethod(string_names->rawset, L.registry()["LuaScriptInstance::rawset"]);
 
 	auto tablepop = sol::stack::push_pop(L, t);
 	lua_pushnil(L);

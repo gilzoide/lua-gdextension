@@ -32,6 +32,7 @@
 #include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "../utils/string_names.hpp"
 
 #include "gdextension_interface.h"
 #include "godot_cpp/core/class_db.hpp"
@@ -279,7 +280,7 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 	if (Object *obj = new_instance) {
 		obj->set_script(this);
 	}
-	if (const LuaScriptMethod *_init = metadata.methods.getptr("_init")) {
+	if (const LuaScriptMethod *_init = metadata.methods.getptr(string_names->_init)) {
 		LuaCoroutine::invoke_lua(_init->method, VariantArguments(new_instance, args, arg_count), false);
 	}
 	return new_instance;
@@ -290,7 +291,7 @@ const LuaScriptMetadata& LuaScript::get_metadata() const {
 }
 
 void LuaScript::_bind_methods() {
-	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "new", &LuaScript::_new);
+	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, string_names->_new, &LuaScript::_new);
 }
 
 String LuaScript::_to_string() const {
