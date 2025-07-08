@@ -62,7 +62,12 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			return object.template as<double>();
 
 		case sol::type::table:
-			return LuaObject::wrap_object<LuaTable>(object);
+			if (LuaScriptInstance *script_instance = LuaScriptInstance::find_instance(object.template as<sol::basic_table<ref_t>>())) {
+				return script_instance->owner;
+			}
+			else {
+				return LuaObject::wrap_object<LuaTable>(object);
+			}
 
 		case sol::type::userdata:
 			if (object.template is<Variant>()) {
@@ -185,6 +190,12 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 					break;
 				}
 			}
+			if (LuaScriptInstance *script_instance = LuaScriptInstance::attached_to_object(value)) {
+				if (LuaState::find_lua_state(lua_state) == script_instance->get_lua_state()) {
+					sol::stack::push(lua_state, script_instance->data->get_table());
+					break;
+				}
+			}
 			goto push_as_variant;
 			
 		case Variant::CALLABLE:
@@ -199,7 +210,7 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 
 push_as_variant:
 		default:
-			sol::stack::push_userdata(lua_state, value);
+			sol::stack::push_userdata(lua_state, (Variant) value);
 			break;
 	}
 	return sol::stack_object(lua_state, -1);

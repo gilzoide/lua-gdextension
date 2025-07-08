@@ -19,11 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "LuaScriptMetadata.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
-#include "LuaScriptMetadata.hpp"
+#include "LuaScriptInstance.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/stack_top_checker.hpp"
 #include "../utils/string_names.hpp"
@@ -37,8 +38,8 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 	StackTopChecker topcheck(L);
 
 	// Global methods
-	methods["rawget"] = LuaScriptMethod(string_names->rawget, L.registry()["LuaScriptInstance::rawget"]);
-	methods["rawset"] = LuaScriptMethod(string_names->rawset, L.registry()["LuaScriptInstance::rawset"]);
+	methods[string_names->rawget] = LuaScriptMethod(string_names->rawget, LuaScriptInstance::rawget);
+	methods[string_names->rawset] = LuaScriptMethod(string_names->rawset, LuaScriptInstance::rawset);
 
 	auto tablepop = sol::stack::push_pop(L, t);
 	lua_pushnil(L);

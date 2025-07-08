@@ -62,12 +62,9 @@ void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
 
-	// Global script methods LuaScriptInstance::rawget and LuaScriptInstance::rawset
-	sol::state_view state = lua_state->get_lua_state();	
-	state.registry()["LuaScriptInstance::rawget"] = wrap_function(state, &LuaScriptInstance::rawget);
-	state.registry()["LuaScriptInstance::rawset"] = wrap_function(state, &LuaScriptInstance::rawset);
-
 	// Register scripting specific usertypes
+	sol::state_view state = lua_state->get_lua_state();
+	LuaScriptInstance::register_lua(state);
 	LuaScriptMethod::register_lua(state);
 	LuaScriptProperty::register_lua(state);
 	LuaScriptSignal::register_lua(state);
@@ -97,6 +94,7 @@ String LuaScriptLanguage::_get_extension() const {
 }
 
 void LuaScriptLanguage::_finish() {
+	LuaScriptInstance::unregister_lua(lua_state->get_lua_state());
 	lua_state.unref();
 }
 
