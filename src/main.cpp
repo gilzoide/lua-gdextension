@@ -35,6 +35,7 @@
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
 #include "script-language/LuaSyntaxHighlighter.hpp"
+#include "utils/string_names.hpp"
 
 #include <godot_cpp/godot.hpp>
 #include <godot_cpp/core/class_db.hpp>
@@ -47,6 +48,8 @@ static void initialize(ModuleInitializationLevel level) {
 	if (level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
+
+	string_names = memnew(struct string_names());
 
 	// Lua object wrappers
 	ClassDB::register_abstract_class<LuaObject>();
@@ -86,6 +89,8 @@ static void deinitialize(ModuleInitializationLevel level) {
 	LuaScriptResourceFormatSaver::unregister_in_godot();
 	LuaScriptResourceFormatLoader::unregister_in_godot();
 	LuaScriptLanguage::delete_singleton();
+
+	memdelete(string_names);
 }
 
 extern "C" {

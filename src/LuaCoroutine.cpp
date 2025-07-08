@@ -26,6 +26,7 @@
 #include "utils/LuaCoroutinePool.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
+#include "utils/string_names.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -60,10 +61,10 @@ Variant LuaCoroutine::_resume(const VariantArguments& args, bool return_lua_erro
 	sol::protected_function_result function_result = _resume(lua_object.thread_state(), args);
 	Variant ret = to_variant(function_result, true);
 	if (function_result.status() == sol::call_status::ok) {
-		emit_signal("completed", ret);
+		emit_signal(string_names->completed, ret);
 	}
 	else if (function_result.status() != sol::call_status::yielded) {
-		emit_signal("failed", ret);
+		emit_signal(string_names->failed, ret);
 		if (!return_lua_error) {
 			return Variant();
 		}
@@ -102,8 +103,8 @@ void LuaCoroutine::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "resume", &LuaCoroutine::resume);
 	ClassDB::bind_static_method(get_class_static(), D_METHOD("create", "function"), sol::resolve<LuaCoroutine *(LuaFunction *)>(&LuaCoroutine::create));
 
-	ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
-	ADD_SIGNAL(MethodInfo("failed", PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaError::get_class_static())));
+	ADD_SIGNAL(MethodInfo(string_names->completed, PropertyInfo(Variant::NIL, "result", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NIL_IS_VARIANT)));
+	ADD_SIGNAL(MethodInfo(string_names->failed, PropertyInfo(Variant::OBJECT, "error", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_DEFAULT, LuaError::get_class_static())));
 }
 
 }

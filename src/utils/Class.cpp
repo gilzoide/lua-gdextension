@@ -23,6 +23,7 @@
 
 #include "MethodBindByName.hpp"
 #include "convert_godot_lua.hpp"
+#include "string_names.hpp"
 
 #include <godot_cpp/classes/class_db_singleton.hpp>
 #include <godot_cpp/core/object.hpp>
@@ -70,8 +71,8 @@ Variant Class::construct(sol::this_state state, const sol::variadic_args& args) 
 	}
 	
 	Variant new_obj = class_db->instantiate(class_name);
-	if (new_obj.has_method("_init")) {
-		variant_call_string_name(state, new_obj, "_init", args);
+	if (new_obj.has_method(string_names->_init)) {
+		variant_call_string_name(state, new_obj, string_names->_init, args);
 	}
 	return new_obj;
 }

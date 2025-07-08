@@ -24,6 +24,7 @@
 #include "LuaDebug.hpp"
 #include "utils/VariantArguments.hpp"
 #include "utils/convert_godot_lua.hpp"
+#include "utils/string_names.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
 
@@ -59,7 +60,7 @@ Variant LuaFunction::invoke_lua(const sol::protected_function& f, const VariantA
 }
 
 Callable LuaFunction::to_callable() const {
-	return Callable((Object *) this, "invoke");
+	return Callable((Object *) this, string_names->invoke);
 }
 
 Ref<LuaDebug> LuaFunction::get_debug_info() const {

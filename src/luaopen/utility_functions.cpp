@@ -23,6 +23,7 @@
 #include "../utils/VariantArguments.hpp"
 #include "../utils/function_wrapper.hpp"
 #include "../utils/string_literal.hpp"
+#include "../utils/string_names.hpp"
 #include "../LuaCoroutine.hpp"
 #include "../LuaObject.hpp"
 
@@ -98,8 +99,8 @@ static int lua_await(lua_State *L) {
 			break;
 
 		case Variant::Type::OBJECT:
-			if (Object *obj = var; obj->has_signal("completed")) {
-				signal = Signal(obj, "completed");
+			if (Object *obj = var; obj->has_signal(string_names->completed)) {
+				signal = Signal(obj, string_names->completed);
 			}
 			break;
 		
