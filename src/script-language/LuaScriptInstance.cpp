@@ -371,7 +371,8 @@ void LuaScriptInstance::register_lua(lua_State *L) {
 	metatable = sol::state_view(L).create_table_with(
 		"__index", lua_index,
 		"__newindex", lua_newindex,
-		"__tostring", lua_to_string
+		"__tostring", lua_to_string,
+		"__metatable", "LuaScriptInstance"
 	);
 	rawget = wrap_function(L, _rawget);
 	rawset = wrap_function(L, _rawset);
