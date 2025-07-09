@@ -49,8 +49,10 @@ struct LuaScriptProperty {
 
 	StringName getter_name;
 	StringName setter_name;
-	Ref<LuaFunction> getter;  // Variant getter(self)
-	Ref<LuaFunction> setter;  // void setter(self, Variant value)
+	// we use sol::protected_function instead of Ref<LuaFunction> here because LuaScriptProperty lives inside Lua
+	// this avoids cyclic references from LuaScriptPropert to/from its owning LuaState
+	sol::protected_function getter;  // Variant getter(self)
+	sol::protected_function setter;  // void setter(self, Variant value)
 
 	bool get_value(LuaScriptInstance *self, Variant& r_value) const;
 	bool set_value(LuaScriptInstance *self, const Variant& value) const;
