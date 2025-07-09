@@ -24,12 +24,14 @@
 
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include "../utils/custom_sol.hpp"
 
 using namespace godot;
 
 namespace luagdextension {
 
 class LuaScript;
+class LuaState;
 class LuaTable;
 
 struct LuaScriptInstance {
@@ -39,15 +41,32 @@ struct LuaScriptInstance {
 	static GDExtensionScriptInstanceInfo3 *get_script_instance_info();
 	static LuaScriptInstance *attached_to_object(Object *owner);
 
+	template<typename ref_t>
+	static LuaScriptInstance *find_instance(sol::basic_table<ref_t> t) {
+		if (LuaScriptInstance **instance_ptr = table_to_instance.getptr(t.pointer())) {
+			return *instance_ptr;
+		}
+		else {
+			return nullptr;
+		}
+	}
+
 	Object *owner;
 	Ref<LuaScript> script;
 	Ref<LuaTable> data;
 
-	static Variant rawget(const Variant& self, const Variant& index);
-	static void rawset(const Variant& self, const Variant& index, const Variant& value);
+	LuaState *get_lua_state() const;
+
+	static void register_lua(lua_State *L);
+	static void unregister_lua(lua_State *L);
+	
+	static sol::protected_function rawget;
+	static sol::protected_function rawset;
 
 private:
-	static HashMap<Object *, LuaScriptInstance *> known_instances;
+	static HashMap<Object *, LuaScriptInstance *> owner_to_instance;
+	static HashMap<const void *, LuaScriptInstance *> table_to_instance;
+	static sol::table metatable;
 };
 
 }

@@ -46,7 +46,7 @@ sol::object MethodBindByName::call(sol::this_state state, const sol::stack_objec
 	if (auto var_type = self.as<sol::optional<VariantType>>()) {
 		return variant_static_call_string_name(state, var_type->get_type(), method_name, args);
 	}
-	if (auto cls = self.as<sol::optional<Class>>()) {
+	else if (auto cls = self.as<sol::optional<Class>>()) {
 		Array var_args = VariantArguments(args).get_array();
 		var_args.push_front(method_name);
 		var_args.push_front(cls->get_name());
