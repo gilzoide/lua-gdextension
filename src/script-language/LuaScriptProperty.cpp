@@ -80,14 +80,14 @@ static LuaScriptProperty lua_property(sol::stack_object value) {
 			property.usage &= ~PROPERTY_USAGE_STORAGE;
 		}
 		else if (auto getter = table->get<sol::optional<sol::protected_function>>("get")) {
-			property.getter = LuaObject::wrap_object<LuaFunction>(*getter);
+			property.getter = *getter;
 			property.usage &= ~PROPERTY_USAGE_STORAGE;
 		}
 		if (auto setter_name = table->get<sol::optional<StringName>>("set")) {
 			property.setter_name = *setter_name;
 		}
 		else if (auto setter = table->get<sol::optional<sol::protected_function>>("set")) {
-			property.setter = LuaObject::wrap_object<LuaFunction>(*setter);
+			property.setter = *setter;
 		}
 	}
 	else if (auto type = value.as<sol::optional<VariantType>>()) {
@@ -118,7 +118,7 @@ LuaScriptProperty::LuaScriptProperty(const Variant& value, const StringName& nam
 }
 
 bool LuaScriptProperty::get_value(LuaScriptInstance *self, Variant& r_value) const {
-	if (getter.is_valid()) {
+	if (getter.valid()) {
 		r_value = LuaFunction::invoke_lua(getter, VariantArguments(self->owner, nullptr, 0), false);
 		return true;
 	}
@@ -141,7 +141,7 @@ Variant LuaScriptProperty::instantiate_default_value() const {
 }
 
 bool LuaScriptProperty::set_value(LuaScriptInstance *self, const Variant& value) const {
-	if (setter.is_valid()) {
+	if (setter.valid()) {
 		LuaCoroutine::invoke_lua(setter, Array::make(self->owner, value), false);
 		return true;
 	}

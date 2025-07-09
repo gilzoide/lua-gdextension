@@ -9,6 +9,7 @@
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
+- Fixed cyclic references from `LuaScriptProperty` <-> `LuaState`, avoiding memory leaks
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
