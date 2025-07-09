@@ -3,6 +3,13 @@
 ### Added
 - Support for constructing typed arrays in Lua using the idiom `Array[some_type]()`
 
+### Changed
+- `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`
+  + For this to work, the table now has a metatable to access its owner when necessary
+
+### Fixed
+- Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
+
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
 ### Added
