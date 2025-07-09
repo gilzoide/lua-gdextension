@@ -42,7 +42,7 @@ class LuaScript : public ScriptExtension {
 
 public:
 	LuaScript();
-	~LuaScript();
+	virtual ~LuaScript();
 
 	bool _editor_can_reload_from_file() override;
 	void _placeholder_erased(void *p_placeholder) override;

@@ -98,7 +98,7 @@ public:
 	};
 
 	LuaState();
-	~LuaState();
+	virtual ~LuaState();
 
 	sol::state_view get_lua_state() const;
 
