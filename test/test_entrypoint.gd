@@ -39,7 +39,7 @@ func _initialize():
 				# actual test
 				if not obj.call(method_name):
 					all_success = false
-					printerr("  🗴 ", method_name)
+					printerr("  ! ", method_name)
 				else:
 					print("  ✓ ", method_name)
 		if obj is Node:
