@@ -2,6 +2,14 @@
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.5.0...HEAD)
 ### Added
 - Support for constructing typed arrays in Lua using the idiom `Array[some_type]()`
+- Support for typed arrays and classes in exported properties:
+  ```lua
+  MyScript.exported_node_array = export(Array[Node])
+  MyScript.exported_texture_property = export(Texture)
+  -- or
+  MyScript.exported_node_array = export({ type = Array[Node] })
+  MyScript.exported_texture_property = export({ type = Texture })
+  ```
 
 ### Changed
 - `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`
@@ -10,6 +18,10 @@
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
 - Fixed cyclic references from `LuaScriptProperty` <-> `LuaState`, avoiding memory leaks
+- Support for built-in Variant types in exported properties when passed directly to `export`:
+  ```lua
+  MyScript.exported_dictionary = export(Dictionary)
+  ```
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)

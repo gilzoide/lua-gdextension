@@ -24,88 +24,119 @@
 #include "LuaScriptInstance.hpp"
 
 #include "../LuaCoroutine.hpp"
+#include "../utils/Class.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
 #include "../utils/VariantTypedArray.hpp"
 #include "../utils/convert_godot_lua.hpp"
 
+#include <godot_cpp/classes/node.hpp>
+#include <godot_cpp/classes/resource.hpp>
+
 namespace luagdextension {
 
-static LuaScriptProperty lua_property(sol::stack_object value) {
+static LuaScriptProperty lua_property(sol::this_state L, sol::stack_object value) {
 	LuaScriptProperty property;
 	property.usage = PROPERTY_USAGE_STORAGE;
 
-	if (auto table = value.as<sol::optional<sol::stack_table>>()) {
-		// index 1: either a Variant type or the default value
-		if (auto type = table->get<sol::optional<VariantType>>(1)) {
-			property.type = type->get_type();
-		}
-		else if (auto typed_array = table->get<sol::optional<VariantTypedArray>>(1)) {
-			property.type = Variant::Type::ARRAY;
-			property.hint = PROPERTY_HINT_TYPE_STRING;
-			property.hint_string = typed_array->get_hint_string();
-		}
-		else if (auto default_value = table->get<sol::optional<sol::object>>(1)) {
-			property.default_value = to_variant(*default_value);
-		}
-
-		// PropertyInfo fields
-		if (auto type = table->get<sol::optional<VariantType>>("type")) {
-			property.type = type->get_type();
-		}
-		else if (auto typed_array = table->get<sol::optional<VariantTypedArray>>("type")) {
-			property.type = Variant::Type::ARRAY;
-			property.hint = PROPERTY_HINT_TYPE_STRING;
-			property.hint_string = typed_array->get_hint_string();
-		}
-		if (auto hint = table->get<sol::optional<uint32_t>>("hint")) {
-			property.hint = *hint;
-		}
-		if (auto hint_string = table->get<sol::optional<String>>("hint_string")) {
-			property.hint_string = *hint_string;
-		}
-		if (auto usage = table->get<sol::optional<uint32_t>>("usage")) {
-			property.usage = *usage;
-		}
-		if (auto class_name = table->get<sol::optional<StringName>>("class_name")) {
-			property.class_name = *class_name;
-		}
-
-		// Extra LuaScriptProperty fields
-		if (auto default_value = table->get<sol::optional<sol::object>>("default")) {
-			property.default_value = to_variant(*default_value);
-		}
-		if (auto getter_name = table->get<sol::optional<StringName>>("get")) {
-			property.getter_name = *getter_name;
-			property.usage &= ~PROPERTY_USAGE_STORAGE;
-		}
-		else if (auto getter = table->get<sol::optional<sol::protected_function>>("get")) {
-			property.getter = *getter;
-			property.usage &= ~PROPERTY_USAGE_STORAGE;
-		}
-		if (auto setter_name = table->get<sol::optional<StringName>>("set")) {
-			property.setter_name = *setter_name;
-		}
-		else if (auto setter = table->get<sol::optional<sol::protected_function>>("set")) {
-			property.setter = *setter;
-		}
-	}
-	else if (auto type = value.as<sol::optional<VariantType>>()) {
-		property.type = type->get_type();
+	sol::stack_table table;
+	if (value.get_type() == sol::type::table) {
+		table = value;
 	}
 	else {
-		property.default_value = to_variant(value);
+		lua_createtable(L, 1, 0);
+		lua_pushvalue(L, value.stack_index());
+		lua_rawseti(L, -2, 1);
+		table = sol::stack_table(L, -1);
+	}
+
+	// index 1: either a Variant type or the default value
+	if (auto type = table.get<sol::optional<VariantType>>(1)) {
+		property.type = type->get_type();
+		property.default_value = type->construct_default();
+	}
+	else if (auto typed_array = table.get<sol::optional<VariantTypedArray>>(1)) {
+		property.type = Variant::Type::ARRAY;
+		property.hint = PROPERTY_HINT_ARRAY_TYPE;
+		property.hint_string = typed_array->get_hint_string();
+		property.default_value = typed_array->construct_default();
+	}
+	else if (auto cls = table.get<sol::optional<Class>>(1)) {
+		property.type = Variant::Type::OBJECT;
+		property.class_name = cls->get_name();
+		if (ClassDB::is_parent_class(property.class_name, Node::get_class_static())) {
+			property.hint = PROPERTY_HINT_NODE_TYPE;
+			property.hint_string = property.class_name;
+		}
+		else if (ClassDB::is_parent_class(property.class_name, Resource::get_class_static())) {
+			property.hint = PROPERTY_HINT_RESOURCE_TYPE;
+			property.hint_string = property.class_name;
+		}
+	}
+	else if (auto default_value = table.get<sol::optional<sol::object>>(1)) {
+		property.default_value = to_variant(*default_value);
+	}
+
+	// PropertyInfo fields
+	if (auto type = table.get<sol::optional<VariantType>>("type")) {
+		property.type = type->get_type();
+		if (property.default_value.get_type() == Variant::Type::NIL) {
+			property.default_value = type->construct_default();
+		}
+	}
+	else if (auto typed_array = table.get<sol::optional<VariantTypedArray>>("type")) {
+		property.type = Variant::Type::ARRAY;
+		property.hint = PROPERTY_HINT_ARRAY_TYPE;
+		property.hint_string = typed_array->get_hint_string();
+		if (property.default_value.get_type() == Variant::Type::NIL) {
+			property.default_value = typed_array->construct_default();
+		}
+	}
+	if (auto hint = table.get<sol::optional<uint32_t>>("hint")) {
+		property.hint = *hint;
+	}
+	if (auto hint_string = table.get<sol::optional<String>>("hint_string")) {
+		property.hint_string = *hint_string;
+	}
+	if (auto usage = table.get<sol::optional<uint32_t>>("usage")) {
+		property.usage = *usage;
+	}
+	if (auto class_name = table.get<sol::optional<StringName>>("class_name")) {
+		property.class_name = *class_name;
+	}
+
+	// Extra LuaScriptProperty fields
+	if (auto default_value = table.get<sol::optional<sol::object>>("default")) {
+		property.default_value = to_variant(*default_value);
+	}
+	if (auto getter_name = table.get<sol::optional<StringName>>("get")) {
+		property.getter_name = *getter_name;
+		property.usage &= ~PROPERTY_USAGE_STORAGE;
+	}
+	else if (auto getter = table.get<sol::optional<sol::protected_function>>("get")) {
+		property.getter = *getter;
+		property.usage &= ~PROPERTY_USAGE_STORAGE;
+	}
+	if (auto setter_name = table.get<sol::optional<StringName>>("set")) {
+		property.setter_name = *setter_name;
+	}
+	else if (auto setter = table.get<sol::optional<sol::protected_function>>("set")) {
+		property.setter = *setter;
 	}
 	
 	if (property.type == 0) {
 		property.type = property.default_value.get_type();
+		if (property.default_value.get_type() == Variant::Type::ARRAY && Array(property.default_value).is_typed()) {
+			property.hint = PROPERTY_HINT_ARRAY_TYPE;
+			property.hint_string = VariantTypedArray::of(property.default_value).get_hint_string();
+		}
 	}
 	property.usage |= PROPERTY_USAGE_SCRIPT_VARIABLE;
 	return property;
 }
 
-static LuaScriptProperty lua_export(sol::stack_object value) {
-	LuaScriptProperty property = lua_property(value);
+static LuaScriptProperty lua_export(sol::this_state L, sol::stack_object value) {
+	LuaScriptProperty property = lua_property(L, value);
 	property.usage |= PROPERTY_USAGE_EDITOR;
 	return property;
 }

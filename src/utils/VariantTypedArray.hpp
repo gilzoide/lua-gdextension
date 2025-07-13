@@ -32,18 +32,14 @@ using namespace godot;
 namespace luagdextension {
 
 /**
- * Object that represents Godot's builtin classes (a.k.a. Variants) in Lua.
+ * Object that represents Godot's Typed Array type.
  */
 class VariantTypedArray {
-protected:
-	Variant::Type type;
-	StringName class_name;
-	Ref<Script> script;
-
 public:
 	VariantTypedArray(Variant::Type type);
 	VariantTypedArray(const StringName& class_name);
 	VariantTypedArray(Script *script);
+	static VariantTypedArray of(const Array& array);
 
 	Variant::Type get_type() const;
 	StringName get_class_name() const;
@@ -57,6 +53,13 @@ public:
 	bool operator==(const VariantTypedArray& other) const;
 
 	static void register_usertype(sol::state_view& state);
+
+protected:
+	Variant::Type type;
+	StringName class_name;
+	Ref<Script> script;
+
+	VariantTypedArray() = default;
 };
 
 }

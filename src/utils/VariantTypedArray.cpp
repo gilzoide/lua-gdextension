@@ -50,6 +50,14 @@ VariantTypedArray::VariantTypedArray(Script *script)
 {
 }
 
+VariantTypedArray VariantTypedArray::of(const Array& array) {
+	VariantTypedArray ret;
+	ret.type = (Variant::Type) array.get_typed_builtin();
+	ret.class_name = array.get_typed_class_name();
+	ret.script = array.get_typed_script();
+	return ret;
+}
+
 Variant::Type VariantTypedArray::get_type() const {
 	return type;
 }
@@ -119,7 +127,7 @@ bool VariantTypedArray::operator==(const VariantTypedArray& other) const {
 
 void VariantTypedArray::register_usertype(sol::state_view& state) {
 	state.new_usertype<VariantTypedArray>(
-		"VariantClass",
+		"VariantTypedArray",
 		sol::meta_function::call, &VariantTypedArray::construct,
 		sol::meta_function::to_string, &VariantTypedArray::to_string
 	);
