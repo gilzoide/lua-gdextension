@@ -75,8 +75,7 @@ Variant::Type VariantType::get_type() const {
 }
 
 bool VariantType::has_type_hints() const {
-	return subtype1 != Variant()
-		|| subtype2 != Variant();
+	return subtype1 || subtype2;
 }
 
 PropertyHint VariantType::get_property_hint() const {
@@ -186,6 +185,9 @@ sol::object VariantType::__index(sol::this_state L, const VariantType& type, con
 	else if (Script *script = Object::cast_to<Script>(to_variant(key))) {
 		new_subtype = script;
 	}
+	else if (sol::state_view(L).globals().get<sol::object>("Variant") == key) {
+		new_subtype = false;
+	}
 
 	if (new_subtype != Variant() && (type.get_type() == Variant::Type::ARRAY || type.get_type() == Variant::Type::DICTIONARY)) {
 		if (type.subtype1 == Variant()) {
@@ -208,6 +210,10 @@ void VariantType::register_usertype(sol::state_view& state) {
 
 std::tuple<Variant::Type, StringName, Variant> VariantType::subtype_to_constructor_args(const Variant& subtype) {
 	switch (subtype.get_type()) {
+		case Variant::Type::NIL:
+		case Variant::Type::BOOL:
+			return std::make_tuple(Variant::Type::NIL, StringName(), Variant());
+
 		case Variant::Type::INT:
 			return std::make_tuple((Variant::Type)(int) subtype, StringName(), Variant());
 			
@@ -231,6 +237,7 @@ std::tuple<Variant::Type, StringName, Variant> VariantType::subtype_to_construct
 String VariantType::subtype_name(const Variant& subtype) {
 	switch (subtype.get_type()) {
 		case Variant::Type::NIL:
+		case Variant::Type::BOOL:
 			return "Variant";
 
 		case Variant::Type::INT:
@@ -263,7 +270,8 @@ String VariantType::subtype_hint_string(const Variant& subtype) {
 
 	switch (subtype.get_type()) {
 		case Variant::Type::NIL:
-			break;
+		case Variant::Type::BOOL:
+			return "";
 
 		case Variant::Type::INT:
 			hint_type = (Variant::Type)(int) subtype;
