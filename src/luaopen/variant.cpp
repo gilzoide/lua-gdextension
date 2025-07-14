@@ -31,7 +31,6 @@
 #include "../utils/IndexedIterator.hpp"
 #include "../utils/ObjectIterator.hpp"
 #include "../utils/VariantType.hpp"
-#include "../utils/VariantTypedArray.hpp"
 #include "../utils/MethodBindByName.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
@@ -227,7 +226,6 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 
 	MethodBindByName::register_usertype(state);
 	VariantType::register_usertype(state);
-	VariantTypedArray::register_usertype(state);
 
 	state.set("typeof", &variant_get_type);
 

@@ -2,12 +2,15 @@
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.5.0...HEAD)
 ### Added
 - Support for constructing typed arrays in Lua using the idiom `Array[some_type]()`
-- Support for typed arrays and classes in exported properties:
+- Support for constructing typed dictionaries in Lua using the idiom `Dictionary[key_type][value_type]()`
+- Support for typed arrays, typed dictionaries and classes in exported properties:
   ```lua
   MyScript.exported_node_array = export(Array[Node])
+  MyScript.exported_int_valued_dict = export(Dictionary[Variant][int])
   MyScript.exported_texture_property = export(Texture)
   -- or
   MyScript.exported_node_array = export({ type = Array[Node] })
+  MyScript.exported_int_valued_dict = export({ type = Dictionary[Variant][int] })
   MyScript.exported_texture_property = export({ type = Texture })
   ```
 
