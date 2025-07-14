@@ -258,8 +258,8 @@ String VariantType::subtype_name(const Variant& subtype) {
 
 String VariantType::subtype_hint_string(const Variant& subtype) {
 	Variant::Type hint_type;
-	PropertyHint property_hint = PROPERTY_HINT_NONE;
 	StringName hint_class_name;
+	PropertyHint property_hint = PROPERTY_HINT_NONE;
 
 	switch (subtype.get_type()) {
 		case Variant::Type::NIL:
@@ -273,19 +273,26 @@ String VariantType::subtype_hint_string(const Variant& subtype) {
 		case Variant::Type::STRING_NAME:
 			hint_type = Variant::Type::OBJECT;
 			hint_class_name = subtype;
+			if (ClassDB::is_parent_class(hint_class_name, Node::get_class_static())) {
+				property_hint = PROPERTY_HINT_NODE_TYPE;
+			}
+			else if (ClassDB::is_parent_class(hint_class_name, Resource::get_class_static())) {
+				property_hint = PROPERTY_HINT_RESOURCE_TYPE;
+			}
 			break;
 			
 		case Variant::Type::OBJECT:
 			if (Script *script = Object::cast_to<Script>(subtype)) {
 				hint_type = Variant::Type::OBJECT;
+				StringName class_name = script->get_instance_base_type();
 				hint_class_name = script->get_global_name();
 				if (hint_class_name.is_empty()) {
-					hint_class_name = script->get_instance_base_type();
+					hint_class_name = class_name;
 				}
-				if (ClassDB::is_parent_class(hint_class_name, Node::get_class_static())) {
+				if (ClassDB::is_parent_class(class_name, Node::get_class_static())) {
 					property_hint = PROPERTY_HINT_NODE_TYPE;
 				}
-				else if (ClassDB::is_parent_class(hint_class_name, Resource::get_class_static())) {
+				else if (ClassDB::is_parent_class(class_name, Resource::get_class_static())) {
 					property_hint = PROPERTY_HINT_RESOURCE_TYPE;
 				}
 			}
