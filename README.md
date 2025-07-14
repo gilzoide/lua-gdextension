@@ -25,7 +25,8 @@ This plugin is available in the Asset Library as:
     + Create and manipulate Variant values
     + Instantiate objects and access class constants
     + Access singleton objects by name
-    + Utility functions, like `print_rich`, `lerp` and `is_same`
+    + Global utility functions, like Godot's `print_rich`, `lerp` and `is_same`.
+      Also adds an `await` function that mimics GDScript's `await` keyword (only supported when running in a coroutine).
     + Global enums, like `OK`, `TYPE_STRING` and `SIDE_LEFT`
     + Patch Lua `package.searchers`, `require`, `loadfile` and `dofile` to accept paths relative to `res://` and `user://`
 - Editor plugin with Lua REPL for testing out Lua snippets
@@ -133,6 +134,18 @@ lua.do_string("""
   local n = Node:new()
   print(n:is_inside_tree())  -- false
   n:queue_free()
+  ```
+- Typed Arrays and Dictionaries are also supported
+  ```lua
+  -- Element type: int
+  local int_array = Array[int]()
+  -- Element type: Node
+  local node_array = Array[Node]()
+  
+  -- Key: int, Value: bool
+  local int_to_bool_dict = Dictionary[int][bool]()
+  -- Key: Variant, Value: Node
+  local node_valued_dict = Dictionary[Variant][Node]()
   ```
 - Call Godot utility functions.
   ```lua
