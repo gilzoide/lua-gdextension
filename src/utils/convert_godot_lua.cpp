@@ -184,6 +184,10 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 			break;
 
 		case Variant::OBJECT:
+			if ((Object *) value == nullptr) {
+				sol::stack::push(lua_state, sol::nil);
+				break;
+			}
 			if (LuaObject *lua_obj = Object::cast_to<LuaObject>(value)) {
 				if (LuaState::find_lua_state(lua_state) == lua_obj->get_lua_state()) {
 					sol::stack::push(lua_state, lua_obj->get_lua_object());
