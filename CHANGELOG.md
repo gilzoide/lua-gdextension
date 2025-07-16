@@ -26,6 +26,7 @@
   MyScript.exported_dictionary = export(Dictionary)
   ```
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
+- Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
