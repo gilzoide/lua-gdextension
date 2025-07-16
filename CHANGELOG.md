@@ -13,6 +13,7 @@
   MyScript.exported_int_valued_dict = export({ type = Dictionary[Variant][int] })
   MyScript.exported_texture_property = export({ type = Texture })
   ```
+- `is_instance_valid` utility function when opening `GODOT_UTILITY_FUNCTIONS` library
 
 ### Changed
 - `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`
