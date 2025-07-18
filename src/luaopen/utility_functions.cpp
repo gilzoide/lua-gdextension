@@ -21,6 +21,7 @@
  */
 #include "../generated/utility_functions.hpp"
 #include "../utils/VariantArguments.hpp"
+#include "../utils/extra_utility_functions.hpp"
 #include "../utils/function_wrapper.hpp"
 #include "../utils/string_literal.hpp"
 #include "../utils/string_names.hpp"
@@ -119,6 +120,7 @@ extern "C" int luaopen_godot_utility_functions(lua_State *L) {
 	sol::state_view state = L;
 
 	register_utility_functions(state);
+	state.set("is_instance_valid", wrap_function(L, &is_instance_valid));
 
 	// In Lua, `print` separates passed values with "\t", so we bind it to Godot's `printt`
 	state.do_string("print = printt");

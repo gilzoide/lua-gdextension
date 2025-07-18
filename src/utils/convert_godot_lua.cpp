@@ -32,6 +32,7 @@
 #include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_std.hpp"
+#include "extra_utility_functions.hpp"
 #include "load_fileaccess.hpp"
 #include "stack_top_checker.hpp"
 
@@ -184,7 +185,7 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 			break;
 
 		case Variant::OBJECT:
-			if ((Object *) value == nullptr) {
+			if (!is_instance_valid(value)) {
 				sol::stack::push(lua_state, sol::nil);
 				break;
 			}

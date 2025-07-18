@@ -13,6 +13,7 @@
   MyScript.exported_int_valued_dict = export({ type = Dictionary[Variant][int] })
   MyScript.exported_texture_property = export({ type = Texture })
   ```
+- `is_instance_valid` utility function when opening `GODOT_UTILITY_FUNCTIONS` library
 
 ### Changed
 - `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`
@@ -26,6 +27,7 @@
   MyScript.exported_dictionary = export(Dictionary)
   ```
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
+- Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
