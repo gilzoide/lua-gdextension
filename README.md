@@ -215,6 +215,15 @@ lua.do_string("""
   end
 
   ```
+---
+
+## 📘 User Guide
+- We also offer a user guide covering the use of Lua through many aspects of Godot:
+* 🇫🇷 [Guide d'utilisation (Français)](documentation/FR_GUIDE.md)
+* 🇬🇧 [User Guide (English)](documentation/EN_GUIDE.md)
+
+---
+
 ## TODO
 - [X] Bind Variant types to Lua
 - [X] Bind utility functions to Lua
