@@ -14,6 +14,7 @@
   MyScript.exported_texture_property = export({ type = Texture })
   ```
 - `is_instance_valid` utility function when opening `GODOT_UTILITY_FUNCTIONS` library
+- Support for older Linux distros using GLIBC on par with Ubuntu 22.04
 
 ### Changed
 - `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`

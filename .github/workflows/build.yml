@@ -11,7 +11,7 @@ env:
 jobs:
   build_linux:
     name: ${{ matrix.platform }} (${{ matrix.arch }}, ${{ matrix.target }}, ${{ matrix.lua-runtime }})
-    runs-on: ${{ matrix.runner || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.runner || 'ubuntu-22.04' }}
     strategy:
       fail-fast: false
       matrix:
