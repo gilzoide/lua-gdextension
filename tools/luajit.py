@@ -8,6 +8,13 @@ def CopyLuaJIT(env, target, source):
     if not os.path.exists(target):
         shutil.copytree(source, target)
         env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
+        
+        # fixup .git contents so that LuaJIT uses the correct version string
+        with open(f"{source}/.git", "r") as source_dotgit:
+            gitdir_key, _, gitdir_value  = source_dotgit.read().partition(" ")
+            abs_gitdir_value = os.path.abspath(os.path.join(source, gitdir_value))
+        with open(f"{target}/.git", "w") as target_dotgit:
+            target_dotgit.write(f"{gitdir_key} {abs_gitdir_value}")
 
 
 def MakeLuaJIT(env, build_dir):
