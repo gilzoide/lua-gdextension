@@ -1,6 +1,7 @@
 import os
 import platform
 import shutil
+import stat
 import sys
 
 
@@ -13,7 +14,10 @@ def CopyLuaJIT(env, target, source):
         with open(f"{source}/.git", "r") as source_dotgit:
             gitdir_key, _, gitdir_value  = source_dotgit.read().partition(" ")
             abs_gitdir_value = os.path.abspath(os.path.join(source, gitdir_value))
-        with open(f"{target}/.git", "w") as target_dotgit:
+        
+        target_dotgit_path = f"{target}/.git"
+        os.chmod(target_dotgit_path, os.stat(target_dotgit_path).st_mode | stat.S_IWRITE)
+        with open(target_dotgit_path, "w") as target_dotgit:
             target_dotgit.write(f"{gitdir_key} {abs_gitdir_value}")
 
 
