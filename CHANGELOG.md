@@ -29,6 +29,7 @@
   ```
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
 - Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
+- Fixes `LuaJIT core/library version mismatch` errors in LuaJIT version
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
