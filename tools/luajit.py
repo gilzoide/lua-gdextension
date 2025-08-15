@@ -7,7 +7,7 @@ import sys
 
 def CopyLuaJIT(env, target, source):
     if not os.path.exists(target):
-        shutil.copytree(source, target)
+        shutil.copytree(source, target, symlinks=True)
         env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
         
         # fixup .git contents so that LuaJIT uses the correct version string
