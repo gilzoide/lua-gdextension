@@ -1,13 +1,11 @@
 import os
 import platform
-import shutil
 import sys
 
 
 def CopyLuaJIT(env, target, source):
     if not os.path.exists(target):
-        shutil.copytree(source, target)
-        env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
+        env.Execute(f"git -C {source} worktree add --detach --force {os.path.relpath(target, source)}")
 
 
 def MakeLuaJIT(env, build_dir):
