@@ -1,24 +1,12 @@
 import os
 import platform
-import shutil
-import stat
 import sys
 
 
 def CopyLuaJIT(env, target, source):
     if not os.path.exists(target):
-        shutil.copytree(source, target, symlinks=True)
+        env.Execute(f"git -C {source} worktree add --detach --force {os.path.relpath(target, source)}")
         env.Execute(f"make -C {target} clean MACOSX_DEPLOYMENT_TARGET=11.0")
-        
-        # fixup .git contents so that LuaJIT uses the correct version string
-        with open(f"{source}/.git", "r") as source_dotgit:
-            gitdir_key, _, gitdir_value  = source_dotgit.read().partition(" ")
-            abs_gitdir_value = os.path.abspath(os.path.join(source, gitdir_value))
-        
-        target_dotgit_path = f"{target}/.git"
-        os.chmod(target_dotgit_path, os.stat(target_dotgit_path).st_mode | stat.S_IWRITE)
-        with open(target_dotgit_path, "w") as target_dotgit:
-            target_dotgit.write(f"{gitdir_key} {abs_gitdir_value}")
 
 
 def MakeLuaJIT(env, build_dir):
