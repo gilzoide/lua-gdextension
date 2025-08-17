@@ -12,6 +12,7 @@ env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env["lua_runtime"] = lua_runtime
 env["vcvarsall_path"] = vcvarsall_path
 env.Tool("apple", toolpath=["tools"])
+env.Tool("tree_sitter", toolpath=["tools"])
 env.Tool("utils", toolpath=["tools"])
 
 if env["platform"] == "web" and lua_runtime == "luajit":
