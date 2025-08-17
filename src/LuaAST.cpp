@@ -1,0 +1,65 @@
+/**
+ * Copyright (C) 2025 Gil Barbosa Reis.
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the “Software”), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+#include "LuaAST.hpp"
+
+#include <tree_sitter/api.h>
+
+using namespace godot;
+
+namespace luagdextension {
+
+LuaAST::LuaAST() {
+	ERR_FAIL_MSG("FIXME: LuaAST should never be instanced with default constructor");
+}
+LuaAST::LuaAST(TSTree *tree)
+	: tree(tree)
+{
+}
+LuaAST::~LuaAST() {
+	ts_tree_delete(tree);
+}
+
+bool LuaAST::has_errors() const {
+	return ts_node_has_error(ts_tree_root_node(tree));
+}
+
+String LuaAST::dump() const {
+	if (char *str = ts_node_string(ts_tree_root_node(tree))) {
+		String s(str);
+		memfree(str);
+		return s;
+	}
+	else {
+		return "";
+	}
+}
+
+void LuaAST::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("has_errors"), &LuaAST::has_errors);
+	ClassDB::bind_method(D_METHOD("dump"), &LuaAST::dump);
+}
+
+String LuaAST::_to_string() const {
+	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
+}
+
+}

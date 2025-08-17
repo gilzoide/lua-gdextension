@@ -3,9 +3,15 @@ def exists(env):
 
 
 def generate(env):
+    build_dir = env["build_dir"]
+
     env.Append(CPPPATH="lib/tree-sitter/lib/include")
     tree_sitter = env.StaticLibrary(
-        target="tree_sitter",
-        source="lib/tree-sitter/lib/src/lib.c",
+        target=f"{build_dir}/tree_sitter",
+        source=[
+            "lib/tree-sitter/lib/src/lib.c",
+            "lib/tree-sitter-lua/src/parser.c",
+            "lib/tree-sitter-lua/src/scanner.c",
+        ],
     )
     env.Append(LIBS=tree_sitter)

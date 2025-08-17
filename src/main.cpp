@@ -24,6 +24,8 @@
 #include "LuaError.hpp"
 #include "LuaFunction.hpp"
 #include "LuaLightUserdata.hpp"
+#include "LuaParser.hpp"
+#include "LuaAST.hpp"
 #include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
@@ -65,6 +67,11 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_abstract_class<LuaDebug>();
 	ClassDB::register_class<LuaError>();
 	ClassDB::register_class<LuaState>();
+
+	// Parser stuff
+	ClassDB::register_abstract_class<LuaAST>();
+	ClassDB::register_class<LuaParser>();
+	LuaParser::setup_tree_sitter_allocator();
 
 	// Lua Script Language
 	ClassDB::register_abstract_class<LuaScript>();

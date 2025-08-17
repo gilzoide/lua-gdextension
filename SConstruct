@@ -12,7 +12,6 @@ env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env["lua_runtime"] = lua_runtime
 env["vcvarsall_path"] = vcvarsall_path
 env.Tool("apple", toolpath=["tools"])
-env.Tool("tree_sitter", toolpath=["tools"])
 env.Tool("utils", toolpath=["tools"])
 
 if env["platform"] == "web" and lua_runtime == "luajit":
@@ -60,12 +59,13 @@ env.remove_options(env["CXXFLAGS"], "-fno-exceptions")
 if env["platform"] == "windows" and not env["use_mingw"]:
     env.Append(CXXFLAGS="/EHsc")
 
-# Setup Lua, LuaJIT and Sol2
+# Setup Lua / LuaJIT, Sol2 and Tree-sitter
 if lua_runtime == "lua":
     env.Tool("lua", toolpath=["tools"])
 elif lua_runtime == "luajit":
     env.Tool("luajit", toolpath=["tools"])
 env.Tool("sol2", toolpath=["tools"])
+env.Tool("tree_sitter", toolpath=["tools"])
 
 # Build Lua GDExtension
 source_directories = [".", "luaopen", "utils", "script-language"]
