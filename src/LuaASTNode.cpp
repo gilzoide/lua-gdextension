@@ -19,29 +19,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_AST_HPP__
-#define __LUA_AST_HPP__
-
 #include "LuaASTNode.hpp"
 
-typedef struct TSTree TSTree;
+#include <tree_sitter/api.h>
+
+using namespace godot;
 
 namespace luagdextension {
 
-class LuaAST : public LuaASTNode {
-	GDCLASS(LuaAST, LuaASTNode);
-public:
-	LuaAST();
-	LuaAST(TSTree *tree);
-	~LuaAST();
-
-protected:
-	static void _bind_methods();
-	String _to_string() const;
-
-	TSTree *tree;
-};
-
+LuaASTNode::LuaASTNode() {
+	ERR_FAIL_MSG("FIXME: LuaASTNode should never be instanced with default constructor");
+}
+LuaASTNode::LuaASTNode(TSNode node)
+	: node(node)
+{
 }
 
-#endif  // __LUA_AST_HPP__
+bool LuaASTNode::has_errors() const {
+	return ts_node_has_error(node);
+}
+
+String LuaASTNode::dump() const {
+	if (char *str = ts_node_string(node)) {
+		String s(str);
+		memfree(str);
+		return s;
+	}
+	else {
+		return "";
+	}
+}
+
+void LuaASTNode::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("has_errors"), &LuaASTNode::has_errors);
+	ClassDB::bind_method(D_METHOD("dump"), &LuaASTNode::dump);
+}
+
+String LuaASTNode::_to_string() const {
+	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
+}
+
+}

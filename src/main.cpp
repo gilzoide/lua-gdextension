@@ -26,6 +26,7 @@
 #include "LuaLightUserdata.hpp"
 #include "LuaParser.hpp"
 #include "LuaAST.hpp"
+#include "LuaASTNode.hpp"
 #include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
@@ -69,6 +70,7 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_class<LuaState>();
 
 	// Parser stuff
+	ClassDB::register_abstract_class<LuaASTNode>();
 	ClassDB::register_abstract_class<LuaAST>();
 	ClassDB::register_class<LuaParser>();
 	LuaParser::setup_tree_sitter_allocator();

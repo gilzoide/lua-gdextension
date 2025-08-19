@@ -19,29 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_AST_HPP__
-#define __LUA_AST_HPP__
+#ifndef __UTILS_TREE_SITTER_LUA_HPP__
+#define __UTILS_TREE_SITTER_LUA_HPP__
 
-#include "LuaASTNode.hpp"
+#include <tree_sitter/api.h>
 
-typedef struct TSTree TSTree;
+extern "C" const TSLanguage *tree_sitter_lua(void);
 
-namespace luagdextension {
-
-class LuaAST : public LuaASTNode {
-	GDCLASS(LuaAST, LuaASTNode);
-public:
-	LuaAST();
-	LuaAST(TSTree *tree);
-	~LuaAST();
-
-protected:
-	static void _bind_methods();
-	String _to_string() const;
-
-	TSTree *tree;
-};
-
-}
-
-#endif  // __LUA_AST_HPP__
+#endif  // __UTILS_TREE_SITTER_LUA_HPP__

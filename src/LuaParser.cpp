@@ -22,11 +22,9 @@
 #include "LuaParser.hpp"
 
 #include "LuaAST.hpp"
+#include "utils/tree_sitter_lua.hpp"
 
 #include <godot_cpp/variant/utility_functions.hpp>
-#include <tree_sitter/api.h>
-
-extern "C" const TSLanguage *tree_sitter_lua(void);
 
 namespace luagdextension {
 

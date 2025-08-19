@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "LuaAST.hpp"
+#include "LuaASTNode.hpp"
 
 #include <tree_sitter/api.h>
 
@@ -31,31 +32,15 @@ LuaAST::LuaAST() {
 	ERR_FAIL_MSG("FIXME: LuaAST should never be instanced with default constructor");
 }
 LuaAST::LuaAST(TSTree *tree)
-	: tree(tree)
+	: LuaASTNode(ts_tree_root_node(tree))
+	, tree(tree)
 {
 }
 LuaAST::~LuaAST() {
 	ts_tree_delete(tree);
 }
 
-bool LuaAST::has_errors() const {
-	return ts_node_has_error(ts_tree_root_node(tree));
-}
-
-String LuaAST::dump() const {
-	if (char *str = ts_node_string(ts_tree_root_node(tree))) {
-		String s(str);
-		memfree(str);
-		return s;
-	}
-	else {
-		return "";
-	}
-}
-
 void LuaAST::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("has_errors"), &LuaAST::has_errors);
-	ClassDB::bind_method(D_METHOD("dump"), &LuaAST::dump);
 }
 
 String LuaAST::_to_string() const {

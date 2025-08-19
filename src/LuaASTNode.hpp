@@ -19,29 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_AST_HPP__
-#define __LUA_AST_HPP__
+#ifndef __LUA_AST_NODE_HPP__
+#define __LUA_AST_NODE_HPP__
 
-#include "LuaASTNode.hpp"
+#include <godot_cpp/classes/ref_counted.hpp>
+#include <tree_sitter/api.h>
 
-typedef struct TSTree TSTree;
+using namespace godot;
+
 
 namespace luagdextension {
 
-class LuaAST : public LuaASTNode {
-	GDCLASS(LuaAST, LuaASTNode);
+class LuaASTNode : public RefCounted {
+	GDCLASS(LuaASTNode, RefCounted);
 public:
-	LuaAST();
-	LuaAST(TSTree *tree);
-	~LuaAST();
+	LuaASTNode();
+	LuaASTNode(TSNode node);
+
+	bool has_errors() const;
+	String dump() const;
 
 protected:
 	static void _bind_methods();
 	String _to_string() const;
 
-	TSTree *tree;
+	TSNode node;
 };
 
 }
 
-#endif  // __LUA_AST_HPP__
+#endif  // __LUA_AST_NODE_HPP__
