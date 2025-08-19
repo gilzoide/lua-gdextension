@@ -39,6 +39,9 @@ public:
 	virtual ~LuaParser();
 
 	Ref<LuaAST> parse_code(const String& code) const;
+	
+	bool get_debug_log() const;
+	void set_debug_log(bool enabled);
 
 	static void setup_tree_sitter_allocator();
 

@@ -23,12 +23,14 @@
 
 #include "LuaAST.hpp"
 
+#include <godot_cpp/variant/utility_functions.hpp>
 #include <tree_sitter/api.h>
 
 extern "C" const TSLanguage *tree_sitter_lua(void);
 
 namespace luagdextension {
 
+// Input functions
 static const char *read_func(void *payload, uint32_t byte_index, TSPoint position, uint32_t *bytes_read) {
 	String *s = (String *) payload;
 	if (byte_index == 0) {
@@ -40,13 +42,13 @@ static const char *read_func(void *payload, uint32_t byte_index, TSPoint positio
 		return nullptr;
 	}
 }
-
 static uint32_t decode_func(const uint8_t *string, uint32_t length, int32_t *code_point) {
 	const char32_t *utf32_string = (const char32_t *) string;
 	*code_point = *utf32_string;
 	return sizeof(char32_t);
 }
 
+// Memory functions
 static void *ts_alloc(size_t size) {
 	return memalloc(size);
 }
@@ -63,6 +65,20 @@ static void ts_free(void *ptr) {
 	memfree(ptr);
 }
 
+// Log function
+void ts_log(void *payload, TSLogType log_type, const char *buffer) {
+	switch (log_type) {
+		case TSLogTypeParse:
+			UtilityFunctions::print("[LuaParser][Parse] ", buffer);
+			break;
+
+		case TSLogTypeLex:
+			UtilityFunctions::print("[LuaParser][Lex] ", buffer);
+			break;
+	}
+}
+
+// LuaParser
 LuaParser::LuaParser()
 	: parser(ts_parser_new())
 {
@@ -88,6 +104,16 @@ Ref<LuaAST> LuaParser::parse_code(const String& code) const {
 	}
 }
 
+bool LuaParser::get_debug_log() const {
+	return ts_parser_logger(parser).log != nullptr;
+}
+void LuaParser::set_debug_log(bool enabled) {
+	ts_parser_set_logger(parser, {
+		nullptr,
+		enabled ? ts_log : nullptr,
+	});
+}
+
 void LuaParser::setup_tree_sitter_allocator() {
 	ts_set_allocator(
 		ts_alloc,
@@ -99,6 +125,9 @@ void LuaParser::setup_tree_sitter_allocator() {
 
 void LuaParser::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("parse_code", "code"), &LuaParser::parse_code);
+	ClassDB::bind_method(D_METHOD("set_debug_log", "enabled"), &LuaParser::set_debug_log);
+	ClassDB::bind_method(D_METHOD("get_debug_log"), &LuaParser::get_debug_log);
+	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "debug_log"), "set_debug_log", "get_debug_log");
 }
 
 String LuaParser::_to_string() const {
