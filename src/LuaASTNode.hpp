@@ -38,12 +38,36 @@ public:
 	LuaASTNode();
 	LuaASTNode(TSNode node);
 
-	bool has_errors() const;
+	String get_type() const;
+	String get_grammar_type() const;
+	uint32_t get_start_pos() const;
+	uint32_t get_end_pos() const;
+	Vector2i get_start_point() const;
+	Vector2i get_end_point() const;
 	String dump() const;
+	bool is_named() const;
+	bool is_missing() const;
+	bool is_extra() const;
+	bool has_errors() const;
+	bool is_error() const;
+
+	Ref<LuaASTNode> get_child(uint32_t index) const;
+	uint32_t get_child_count() const;
+	Ref<LuaASTNode> get_named_child(uint32_t index) const;
+	uint32_t get_named_child_count() const;
+	Ref<LuaASTNode> get_child_by_field_name(const String& field_name) const;
+	
+	Ref<LuaASTNode> get_parent() const;
+	Ref<LuaASTNode> get_next_sibling() const;
+	Ref<LuaASTNode> get_previous_sibling() const;
+	Ref<LuaASTNode> get_next_named_sibling() const;
+	Ref<LuaASTNode> get_previous_named_sibling() const;
 
 	Ref<LuaASTQuery> query(const String& query);
 
 	TSNode get_node() const;
+
+	static Ref<LuaASTNode> to_object(TSNode node);
 
 protected:
 	static void _bind_methods();

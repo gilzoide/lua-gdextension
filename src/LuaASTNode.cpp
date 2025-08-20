@@ -37,8 +37,30 @@ LuaASTNode::LuaASTNode(TSNode node)
 {
 }
 
-bool LuaASTNode::has_errors() const {
-	return ts_node_has_error(node);
+String LuaASTNode::get_type() const {
+	return ts_node_type(node);
+}
+
+String LuaASTNode::get_grammar_type() const {
+	return ts_node_grammar_type(node);
+}
+
+uint32_t LuaASTNode::get_start_pos() const {
+	return ts_node_start_byte(node) / sizeof(char32_t);
+}
+
+uint32_t LuaASTNode::get_end_pos() const {
+	return ts_node_end_byte(node) / sizeof(char32_t);
+}
+
+Vector2i LuaASTNode::get_start_point() const {
+	TSPoint point = ts_node_start_point(node);
+	return Vector2i(point.column / sizeof(char32_t), point.row);
+}
+
+Vector2i LuaASTNode::get_end_point() const {
+	TSPoint point = ts_node_end_point(node);
+	return Vector2i(point.column / sizeof(char32_t), point.row);
 }
 
 String LuaASTNode::dump() const {
@@ -50,6 +72,67 @@ String LuaASTNode::dump() const {
 	else {
 		return "";
 	}
+}
+
+bool LuaASTNode::is_named() const {
+	return ts_node_is_named(node);
+}
+
+bool LuaASTNode::is_missing() const {
+	return ts_node_is_missing(node);
+}
+
+bool LuaASTNode::is_extra() const {
+	return ts_node_is_extra(node);
+}
+
+bool LuaASTNode::has_errors() const {
+	return ts_node_has_error(node);
+}
+
+bool LuaASTNode::is_error() const {
+	return ts_node_is_error(node);
+}
+
+Ref<LuaASTNode> LuaASTNode::get_child(uint32_t index) const {
+	return to_object(ts_node_child(node, index));
+}
+
+uint32_t LuaASTNode::get_child_count() const {
+	return ts_node_child_count(node);
+}
+
+Ref<LuaASTNode> LuaASTNode::get_named_child(uint32_t index) const {
+	return to_object(ts_node_named_child(node, index));
+}
+
+uint32_t LuaASTNode::get_named_child_count() const {
+	return ts_node_named_child_count(node);
+}
+
+Ref<LuaASTNode> LuaASTNode::get_child_by_field_name(const String& field_name) const {
+	CharString field_name_chars = field_name.utf8();
+	return to_object(ts_node_child_by_field_name(node, field_name_chars.ptr(), field_name_chars.length()));
+}
+
+Ref<LuaASTNode> LuaASTNode::get_parent() const {
+	return to_object(ts_node_parent(node));
+}
+
+Ref<LuaASTNode> LuaASTNode::get_next_sibling() const {
+	return to_object(ts_node_next_sibling(node));
+}
+
+Ref<LuaASTNode> LuaASTNode::get_previous_sibling() const {
+	return to_object(ts_node_prev_sibling(node));
+}
+
+Ref<LuaASTNode> LuaASTNode::get_next_named_sibling() const {
+	return to_object(ts_node_next_named_sibling(node));
+}
+
+Ref<LuaASTNode> LuaASTNode::get_previous_named_sibling() const {
+	return to_object(ts_node_prev_named_sibling(node));
 }
 
 Ref<LuaASTQuery> LuaASTNode::query(const String& query) {
@@ -64,9 +147,38 @@ TSNode LuaASTNode::get_node() const {
 	return node;
 }
 
+Ref<LuaASTNode> LuaASTNode::to_object(TSNode node) {
+	if (ts_node_is_null(node)) {
+		return nullptr;
+	}
+	else {
+		return memnew(LuaASTNode(node));
+	}
+}
+
 void LuaASTNode::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("has_errors"), &LuaASTNode::has_errors);
+	ClassDB::bind_method(D_METHOD("get_type"), &LuaASTNode::get_type);
+	ClassDB::bind_method(D_METHOD("get_grammar_type"), &LuaASTNode::get_grammar_type);
+	ClassDB::bind_method(D_METHOD("get_start_pos"), &LuaASTNode::get_start_pos);
+	ClassDB::bind_method(D_METHOD("get_end_pos"), &LuaASTNode::get_end_pos);
+	ClassDB::bind_method(D_METHOD("get_start_point"), &LuaASTNode::get_start_point);
+	ClassDB::bind_method(D_METHOD("get_end_point"), &LuaASTNode::get_end_point);
 	ClassDB::bind_method(D_METHOD("dump"), &LuaASTNode::dump);
+	ClassDB::bind_method(D_METHOD("is_named"), &LuaASTNode::is_named);
+	ClassDB::bind_method(D_METHOD("is_missing"), &LuaASTNode::is_missing);
+	ClassDB::bind_method(D_METHOD("is_extra"), &LuaASTNode::is_extra);
+	ClassDB::bind_method(D_METHOD("has_errors"), &LuaASTNode::has_errors);
+	ClassDB::bind_method(D_METHOD("is_error"), &LuaASTNode::is_error);
+	ClassDB::bind_method(D_METHOD("get_child", "index"), &LuaASTNode::get_child);
+	ClassDB::bind_method(D_METHOD("get_child_count"), &LuaASTNode::get_child_count);
+	ClassDB::bind_method(D_METHOD("get_named_child", "index"), &LuaASTNode::get_named_child);
+	ClassDB::bind_method(D_METHOD("get_named_child_count"), &LuaASTNode::get_named_child_count);
+	ClassDB::bind_method(D_METHOD("get_child_by_field_name", "field_name"), &LuaASTNode::get_child_by_field_name);
+	ClassDB::bind_method(D_METHOD("get_parent"), &LuaASTNode::get_parent);
+	ClassDB::bind_method(D_METHOD("get_next_sibling"), &LuaASTNode::get_next_sibling);
+	ClassDB::bind_method(D_METHOD("get_previous_sibling"), &LuaASTNode::get_previous_sibling);
+	ClassDB::bind_method(D_METHOD("get_next_named_sibling"), &LuaASTNode::get_next_named_sibling);
+	ClassDB::bind_method(D_METHOD("get_previous_named_sibling"), &LuaASTNode::get_previous_named_sibling);
 	ClassDB::bind_method(D_METHOD("query", "query"), &LuaASTNode::query);
 }
 
