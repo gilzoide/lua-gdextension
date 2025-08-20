@@ -19,28 +19,41 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "LuaAST.hpp"
-#include "LuaASTNode.hpp"
+#ifndef __LUA_AST_QUERY_HPP__
+#define __LUA_AST_QUERY_HPP__
 
+#include <godot_cpp/classes/ref_counted.hpp>
 #include <tree_sitter/api.h>
 
 using namespace godot;
 
+
 namespace luagdextension {
 
-LuaAST::LuaAST() {
-	ERR_FAIL_MSG("FIXME: LuaAST should never be instanced with default constructor");
-}
-LuaAST::LuaAST(TSTree *tree)
-	: LuaASTNode(ts_tree_root_node(tree))
-	, tree(tree)
-{
-}
-LuaAST::~LuaAST() {
-	ts_tree_delete(tree);
+class LuaASTNode;
+
+class LuaASTQuery : public RefCounted {
+	GDCLASS(LuaASTQuery, RefCounted);
+public:
+	LuaASTQuery();
+	virtual ~LuaASTQuery();
+
+	void set_query(const String& query);
+	void set_node(LuaASTNode *node);
+
+	bool _iter_init(const Variant& iter) const;
+	bool _iter_next(const Variant& iter) const;
+	Variant _iter_get(const Variant& iter) const;
+
+protected:
+	static void _bind_methods();
+	String _to_string() const;
+
+	TSQueryCursor *cursor;
+	TSQuery *query;
+	TSNode node;
+};
+
 }
 
-void LuaAST::_bind_methods() {
-}
-
-}
+#endif  // __LUA_AST_QUERY_HPP__

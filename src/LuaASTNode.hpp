@@ -30,6 +30,8 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaASTQuery;
+
 class LuaASTNode : public RefCounted {
 	GDCLASS(LuaASTNode, RefCounted);
 public:
@@ -38,6 +40,10 @@ public:
 
 	bool has_errors() const;
 	String dump() const;
+
+	Ref<LuaASTQuery> query(const String& query);
+
+	TSNode get_node() const;
 
 protected:
 	static void _bind_methods();

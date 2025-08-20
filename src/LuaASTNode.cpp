@@ -21,6 +21,8 @@
  */
 #include "LuaASTNode.hpp"
 
+#include "LuaASTQuery.hpp"
+
 #include <tree_sitter/api.h>
 
 using namespace godot;
@@ -50,13 +52,26 @@ String LuaASTNode::dump() const {
 	}
 }
 
+Ref<LuaASTQuery> LuaASTNode::query(const String& query) {
+	Ref<LuaASTQuery> astQuery;
+	astQuery.instantiate();
+	astQuery->set_query(query);
+	astQuery->set_node(this);
+	return astQuery;
+}
+
+TSNode LuaASTNode::get_node() const {
+	return node;
+}
+
 void LuaASTNode::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("has_errors"), &LuaASTNode::has_errors);
 	ClassDB::bind_method(D_METHOD("dump"), &LuaASTNode::dump);
+	ClassDB::bind_method(D_METHOD("query", "query"), &LuaASTNode::query);
 }
 
 String LuaASTNode::_to_string() const {
-	return String("[%s:%d]") % Array::make(get_class_static(), get_instance_id());
+	return String("[%s:%d]") % Array::make(get_class(), get_instance_id());
 }
 
 }

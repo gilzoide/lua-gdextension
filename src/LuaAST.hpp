@@ -33,11 +33,10 @@ class LuaAST : public LuaASTNode {
 public:
 	LuaAST();
 	LuaAST(TSTree *tree);
-	~LuaAST();
+	virtual ~LuaAST();
 
 protected:
 	static void _bind_methods();
-	String _to_string() const;
 
 	TSTree *tree;
 };

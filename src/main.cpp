@@ -27,6 +27,7 @@
 #include "LuaParser.hpp"
 #include "LuaAST.hpp"
 #include "LuaASTNode.hpp"
+#include "LuaASTQuery.hpp"
 #include "LuaObject.hpp"
 #include "LuaState.hpp"
 #include "LuaTable.hpp"
@@ -72,6 +73,7 @@ static void initialize(ModuleInitializationLevel level) {
 	// Parser stuff
 	ClassDB::register_abstract_class<LuaASTNode>();
 	ClassDB::register_abstract_class<LuaAST>();
+	ClassDB::register_class<LuaASTQuery>();
 	ClassDB::register_class<LuaParser>();
 	LuaParser::setup_tree_sitter_allocator();
 
