@@ -38,6 +38,7 @@ public:
 	LuaASTQuery();
 	virtual ~LuaASTQuery();
 
+	bool is_valid() const;
 	void set_query(const String& query);
 	void set_node(LuaASTNode *node);
 

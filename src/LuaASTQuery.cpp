@@ -42,6 +42,11 @@ LuaASTQuery::~LuaASTQuery() {
 	}
 }
 
+bool LuaASTQuery::is_valid() const {
+	return query != nullptr
+		&& !ts_node_is_null(node);
+}
+
 void LuaASTQuery::set_query(const String& query) {
 	CharString query_chars = query.utf8();
 	uint32_t error_offset;
@@ -94,6 +99,7 @@ Variant LuaASTQuery::_iter_get(const Variant& iter) const {
 }
 
 void LuaASTQuery::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("is_valid"), &LuaASTQuery::is_valid);
 	ClassDB::bind_method(D_METHOD("set_query", "query"), &LuaASTQuery::set_query);
 	ClassDB::bind_method(D_METHOD("set_node", "node"), &LuaASTQuery::set_node);
 

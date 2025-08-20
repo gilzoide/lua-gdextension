@@ -10,13 +10,18 @@ func test_parse_errors() -> bool:
 	assert(tree.has_errors())
 	# print(tree.dump())
 	
-	tree = parser.parse_code("return hello")
+	var test_script = FileAccess.open("res://gdscript_tests/lua_files/test_class.lua", FileAccess.READ)
+	var code = test_script.get_as_text()
+	tree = parser.parse_code(code)
 	assert(tree is LuaAST)
 	assert(not tree.has_errors())
 	# print(tree.dump())
 	
 	var q = tree.query("(chunk (return_statement (_) @v))")
-	for it in q:
-		assert(it is LuaASTNode)
+	assert(q.is_valid())
+	for captures in q:
+		for it in captures:
+			assert(it is LuaASTNode)
+			# print(it.dump())
 
 	return true
