@@ -32,6 +32,7 @@ namespace luagdextension {
 LuaScriptImportBehaviorManager::LuaScriptImportBehaviorManager()
 	: map(ProjectSettings::get_singleton()->get_setting_with_override(LUA_SCRIPT_IMPORT_MAP_SETTING))
 {
+	prune_non_existent_uids();
 }
 
 void LuaScriptImportBehaviorManager::set_script_import_behavior(const String& script_path, int behavior) {
@@ -45,8 +46,7 @@ void LuaScriptImportBehaviorManager::set_script_import_behavior(const String& sc
 			else {
 				map[uid_str] = behavior;
 			}
-			ProjectSettings::get_singleton()->set_setting(LUA_SCRIPT_IMPORT_MAP_SETTING_EDITOR, map);
-			ProjectSettings::get_singleton()->save();
+			save_map();
 		}
 	}
 }
@@ -59,6 +59,22 @@ int LuaScriptImportBehaviorManager::get_script_import_behavior(const String& scr
 	}
 	else {
 		return 0;
+	}
+}
+
+void LuaScriptImportBehaviorManager::prune_non_existent_uids() {
+	Array keys = map.keys();
+	bool should_save = false;
+	for (int64_t i = 0; i < keys.size(); i++) {
+		String uid_str = keys[i];
+		int64_t uid = ResourceUID::get_singleton()->text_to_id(uid_str);
+		if (!ResourceUID::get_singleton()->has_id(uid)) {
+			map.erase(uid_str);
+			should_save = true;
+		}
+	}
+	if (should_save) {
+		save_map();
 	}
 }
 
@@ -75,6 +91,11 @@ LuaScriptImportBehaviorManager *LuaScriptImportBehaviorManager::get_or_create_si
 
 void LuaScriptImportBehaviorManager::delete_singleton() {
 	memdelete(instance);
+}
+
+void LuaScriptImportBehaviorManager::save_map() {
+	ProjectSettings::get_singleton()->set_setting(LUA_SCRIPT_IMPORT_MAP_SETTING_EDITOR, map);
+	ProjectSettings::get_singleton()->save();
 }
 
 LuaScriptImportBehaviorManager *LuaScriptImportBehaviorManager::instance;

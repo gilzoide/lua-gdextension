@@ -35,6 +35,8 @@ public:
 	
 	void set_script_import_behavior(const String& script_path, int behavior);
 	int get_script_import_behavior(const String& script_path) const;
+
+	void prune_non_existent_uids();
 	
 	static LuaScriptImportBehaviorManager *get_singleton();
 	static LuaScriptImportBehaviorManager *get_or_create_singleton();
@@ -42,6 +44,8 @@ public:
 
 private:
 	static LuaScriptImportBehaviorManager *instance;
+
+	void save_map();
 	
 	Dictionary map;
 };
