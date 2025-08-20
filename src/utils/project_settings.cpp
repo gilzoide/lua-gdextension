@@ -44,6 +44,7 @@ void register_project_settings() {
 	add_project_setting(project_settings, LUA_CPATH_SETTING, "!/?.so;!/loadall.so");
 	add_project_setting(project_settings, LUA_CPATH_WINDOWS_SETTING, "!/?.dll;!/loadall.dll");
 	add_project_setting(project_settings, LUA_CPATH_MACOS_SETTING, "!/?.dylib;!/loadall.dylib");
+	add_project_setting(project_settings, LUA_SCRIPT_IMPORT_MAP_SETTING_EDITOR, Dictionary(), false, true);
 }
 
 }

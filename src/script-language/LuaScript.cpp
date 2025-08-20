@@ -21,6 +21,7 @@
  */
 #include "LuaScript.hpp"
 
+#include "LuaScriptImportBehaviorManager.hpp"
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMethod.hpp"
@@ -290,8 +291,23 @@ const LuaScriptMetadata& LuaScript::get_metadata() const {
 	return metadata;
 }
 
+LuaScript::ImportBehavior LuaScript::get_import_behavior() const {
+	return (ImportBehavior) LuaScriptImportBehaviorManager::get_singleton()->get_script_import_behavior(get_path());
+}
+
+void LuaScript::set_import_behavior(ImportBehavior import_behavior) {
+	LuaScriptImportBehaviorManager::get_singleton()->set_script_import_behavior(get_path(), import_behavior);
+}
+
 void LuaScript::_bind_methods() {
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_AUTOMATIC);
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_ALWAYS_LOAD);
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_PARSE_ONLY);
+
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, string_names->_new, &LuaScript::_new);
+	ClassDB::bind_method(D_METHOD("set_import_behavior", "import_behavior"), &LuaScript::set_import_behavior);
+	ClassDB::bind_method(D_METHOD("get_import_behavior"), &LuaScript::get_import_behavior);
+	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Load,Parse Only", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
 }
 
 String LuaScript::_to_string() const {

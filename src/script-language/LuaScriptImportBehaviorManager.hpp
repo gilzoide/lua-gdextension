@@ -19,28 +19,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __UTILS_PROJECT_SETTINGS_HPP__
-#define __UTILS_PROJECT_SETTINGS_HPP__
+#ifndef __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__
+#define __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__
 
-namespace godot {
-	class ProjectSettings;
-	class String;
-	class Variant;
-}
+#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/string.hpp>
+
 using namespace godot;
-
 
 namespace luagdextension {
 
-constexpr char LUA_PATH_SETTING[] = "lua_gdextension/lua_script_language/package_path";
-constexpr char LUA_CPATH_SETTING[] = "lua_gdextension/lua_script_language/package_c_path";
-constexpr char LUA_CPATH_WINDOWS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.windows";
-constexpr char LUA_CPATH_MACOS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.macos";
-constexpr char LUA_SCRIPT_IMPORT_MAP_SETTING[] = "lua_gdextension/lua_script_language/script_import_map";
-constexpr char LUA_SCRIPT_IMPORT_MAP_SETTING_EDITOR[] = "lua_gdextension/lua_script_language/script_import_map.editor";
+class LuaScriptImportBehaviorManager {
+public:
+	LuaScriptImportBehaviorManager();
+	
+	void set_script_import_behavior(const String& script_path, int behavior);
+	int get_script_import_behavior(const String& script_path) const;
+	
+	static LuaScriptImportBehaviorManager *get_singleton();
+	static LuaScriptImportBehaviorManager *get_or_create_singleton();
+	static void delete_singleton();
 
-void register_project_settings();
+private:
+	static LuaScriptImportBehaviorManager *instance;
+	
+	Dictionary map;
+};
 
 }
 
-#endif  // __UTILS_PROJECT_SETTINGS_HPP__
+#endif  // __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__

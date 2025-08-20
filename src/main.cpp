@@ -35,6 +35,7 @@
 #include "LuaUserdata.hpp"
 #include "script-language/LuaCodeEdit.hpp"
 #include "script-language/LuaScript.hpp"
+#include "script-language/LuaScriptImportBehaviorManager.hpp"
 #include "script-language/LuaScriptLanguage.hpp"
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
@@ -84,6 +85,7 @@ static void initialize(ModuleInitializationLevel level) {
 	ClassDB::register_abstract_class<LuaScriptLanguage>();
 	ClassDB::register_abstract_class<LuaScriptResourceFormatLoader>();
 	ClassDB::register_abstract_class<LuaScriptResourceFormatSaver>();
+	LuaScriptImportBehaviorManager::get_or_create_singleton();
 	LuaScriptLanguage::get_or_create_singleton();
 	LuaScriptResourceFormatLoader::register_in_godot();
 	LuaScriptResourceFormatSaver::register_in_godot();
@@ -102,6 +104,7 @@ static void deinitialize(ModuleInitializationLevel level) {
 	LuaScriptResourceFormatSaver::unregister_in_godot();
 	LuaScriptResourceFormatLoader::unregister_in_godot();
 	LuaScriptLanguage::delete_singleton();
+	LuaScriptImportBehaviorManager::delete_singleton();
 
 	memdelete(string_names);
 }

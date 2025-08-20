@@ -41,6 +41,12 @@ class LuaScript : public ScriptExtension {
 	GDCLASS(LuaScript, ScriptExtension);
 
 public:
+	enum ImportBehavior {
+		IMPORT_BEHAVIOR_AUTOMATIC,
+		IMPORT_BEHAVIOR_ALWAYS_LOAD,
+		IMPORT_BEHAVIOR_PARSE_ONLY,
+	};
+
 	LuaScript();
 	virtual ~LuaScript();
 
@@ -85,6 +91,9 @@ public:
 	Variant _new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error);
 	const LuaScriptMetadata& get_metadata() const;
 
+	ImportBehavior get_import_behavior() const;
+	void set_import_behavior(ImportBehavior import_behavior);
+
 protected:
 	static void _bind_methods();
 	virtual String _to_string() const;
@@ -100,6 +109,7 @@ protected:
 };
 
 }
+VARIANT_ENUM_CAST(luagdextension::LuaScript::ImportBehavior);
 
 #endif  // __LUA_SCRIPT_LANGUAGE_EXTENSION_HPP__
 
