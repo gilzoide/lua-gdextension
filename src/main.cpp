@@ -39,6 +39,7 @@
 #include "script-language/LuaScriptResourceFormatLoader.hpp"
 #include "script-language/LuaScriptResourceFormatSaver.hpp"
 #include "script-language/LuaSyntaxHighlighter.hpp"
+#include "utils/project_settings.hpp"
 #include "utils/string_names.hpp"
 
 #include <godot_cpp/godot.hpp>
@@ -78,6 +79,7 @@ static void initialize(ModuleInitializationLevel level) {
 	LuaParser::setup_tree_sitter_allocator();
 
 	// Lua Script Language
+	register_project_settings();
 	ClassDB::register_abstract_class<LuaScript>();
 	ClassDB::register_abstract_class<LuaScriptLanguage>();
 	ClassDB::register_abstract_class<LuaScriptResourceFormatLoader>();
