@@ -90,7 +90,10 @@ LuaScriptImportBehaviorManager *LuaScriptImportBehaviorManager::get_or_create_si
 }
 
 void LuaScriptImportBehaviorManager::delete_singleton() {
-	memdelete(instance);
+	if (instance) {
+		memdelete(instance);
+		instance = nullptr;
+	}
 }
 
 void LuaScriptImportBehaviorManager::save_map() {

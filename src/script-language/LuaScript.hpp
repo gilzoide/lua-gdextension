@@ -93,6 +93,7 @@ public:
 
 	ImportBehavior get_import_behavior() const;
 	void set_import_behavior(ImportBehavior import_behavior);
+	bool looks_like_godot_class() const;
 
 protected:
 	static void _bind_methods();
