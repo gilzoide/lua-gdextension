@@ -126,6 +126,23 @@ Error LuaScript::_reload(bool keep_state) {
 		return ERR_PARSE_ERROR;
 	}
 
+	ImportBehavior import_behavior = get_import_behavior();
+	switch (import_behavior) {
+		case IMPORT_BEHAVIOR_AUTOMATIC:
+			if (looks_like_godot_class()) {
+				break;
+			}
+			else {
+				return OK;
+			}
+
+		case IMPORT_BEHAVIOR_PARSE_ONLY:
+			return OK;
+
+		default:
+			break;
+	}
+
 	result = Object::cast_to<LuaFunction>(result)->invokev(Array());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
 		ERR_PRINT(result);
