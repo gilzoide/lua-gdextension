@@ -129,7 +129,7 @@ Error LuaScript::_reload(bool keep_state) {
 	ImportBehavior import_behavior = get_import_behavior();
 	switch (import_behavior) {
 		case IMPORT_BEHAVIOR_AUTOMATIC:
-			if (looks_like_godot_class()) {
+			if (get_looks_like_godot_script()) {
 				break;
 			}
 			else {
@@ -319,7 +319,7 @@ void LuaScript::set_import_behavior(ImportBehavior import_behavior) {
 	LuaScriptImportBehaviorManager::get_singleton()->set_script_import_behavior(get_path(), import_behavior);
 }
 
-bool LuaScript::looks_like_godot_class() const {
+bool LuaScript::get_looks_like_godot_script() const {
 	Ref<LuaParser> parser;
 	parser.instantiate();
 
@@ -341,9 +341,9 @@ void LuaScript::_bind_methods() {
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, string_names->_new, &LuaScript::_new);
 	ClassDB::bind_method(D_METHOD("set_import_behavior", "import_behavior"), &LuaScript::set_import_behavior);
 	ClassDB::bind_method(D_METHOD("get_import_behavior"), &LuaScript::get_import_behavior);
-	ClassDB::bind_method(D_METHOD("looks_like_godot_class"), &LuaScript::looks_like_godot_class);
+	ClassDB::bind_method(D_METHOD("get_looks_like_godot_script"), &LuaScript::get_looks_like_godot_script);
 	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Load,Parse Only", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
-	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_class", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "", "looks_like_godot_class");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_godot_script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "", "get_looks_like_godot_script");
 }
 
 String LuaScript::_to_string() const {
