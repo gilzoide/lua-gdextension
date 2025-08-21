@@ -67,6 +67,29 @@ void LuaASTQuery::set_node(LuaASTNode *node) {
 	}
 }
 
+Variant LuaASTQuery::first_match() {
+	Variant iter = Array::make(Variant());
+	if (_iter_init(iter)) {
+		Array arr = _iter_get(iter);
+		return arr[0];
+	}
+	else {
+		return nullptr;
+	}
+}
+
+Array LuaASTQuery::all_matches() {
+	Array matches;
+	Variant iter = Array::make(Variant());
+	if (_iter_init(iter)) {		
+		do {
+			Array arr = _iter_get(iter);
+			matches.append(arr[0].duplicate());
+		} while (_iter_next(iter));
+	}
+	return matches;
+}
+
 bool LuaASTQuery::_iter_init(const Variant& iter) const {
 	ERR_FAIL_COND_V_MSG(query == nullptr, false, "Cannot iterate without a query");
 	ERR_FAIL_COND_V_MSG(ts_node_is_null(node), false, "Cannot iterate without a target node");
@@ -102,6 +125,9 @@ void LuaASTQuery::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("is_valid"), &LuaASTQuery::is_valid);
 	ClassDB::bind_method(D_METHOD("set_query", "query"), &LuaASTQuery::set_query);
 	ClassDB::bind_method(D_METHOD("set_node", "node"), &LuaASTQuery::set_node);
+	
+	ClassDB::bind_method(D_METHOD("first_match"), &LuaASTQuery::first_match);
+	ClassDB::bind_method(D_METHOD("all_matches"), &LuaASTQuery::all_matches);
 
 	ClassDB::bind_method(D_METHOD("_iter_init", "iter"), &LuaASTQuery::_iter_init);
 	ClassDB::bind_method(D_METHOD("_iter_next", "iter"), &LuaASTQuery::_iter_next);

@@ -42,6 +42,9 @@ public:
 	void set_query(const String& query);
 	void set_node(LuaASTNode *node);
 
+	Variant first_match();
+	Array all_matches();
+
 	bool _iter_init(const Variant& iter) const;
 	bool _iter_next(const Variant& iter) const;
 	Variant _iter_get(const Variant& iter) const;
