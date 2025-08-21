@@ -63,6 +63,8 @@ public:
 	Ref<LuaASTNode> get_next_named_sibling() const;
 	Ref<LuaASTNode> get_previous_named_sibling() const;
 
+	String get_original_content(const String& original_string) const;
+
 	Ref<LuaASTQuery> query(const String& query);
 
 	TSNode get_node() const;

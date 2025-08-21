@@ -135,6 +135,10 @@ Ref<LuaASTNode> LuaASTNode::get_previous_named_sibling() const {
 	return to_object(ts_node_prev_named_sibling(node));
 }
 
+String LuaASTNode::get_original_content(const String& original_string) const {
+	return original_string.substr(get_start_pos(), get_end_pos() - get_start_pos());
+}
+
 Ref<LuaASTQuery> LuaASTNode::query(const String& query) {
 	Ref<LuaASTQuery> astQuery;
 	astQuery.instantiate();
@@ -179,6 +183,7 @@ void LuaASTNode::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_previous_sibling"), &LuaASTNode::get_previous_sibling);
 	ClassDB::bind_method(D_METHOD("get_next_named_sibling"), &LuaASTNode::get_next_named_sibling);
 	ClassDB::bind_method(D_METHOD("get_previous_named_sibling"), &LuaASTNode::get_previous_named_sibling);
+	ClassDB::bind_method(D_METHOD("get_original_content", "original_string"), &LuaASTNode::get_original_content);
 	ClassDB::bind_method(D_METHOD("query", "query"), &LuaASTNode::query);
 }
 
