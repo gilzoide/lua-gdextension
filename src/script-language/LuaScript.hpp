@@ -43,7 +43,7 @@ class LuaScript : public ScriptExtension {
 public:
 	enum ImportBehavior {
 		IMPORT_BEHAVIOR_AUTOMATIC,
-		IMPORT_BEHAVIOR_ALWAYS_LOAD,
+		IMPORT_BEHAVIOR_ALWAYS_EVALUATE,
 		IMPORT_BEHAVIOR_PARSE_ONLY,
 	};
 
