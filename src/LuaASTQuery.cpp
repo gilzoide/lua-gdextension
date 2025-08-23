@@ -78,8 +78,8 @@ Variant LuaASTQuery::first_match() {
 	}
 }
 
-Array LuaASTQuery::all_matches() {
-	Array matches;
+TypedArray<Array> LuaASTQuery::all_matches() {
+	TypedArray<Array> matches;
 	Variant iter = Array::make(Variant());
 	if (_iter_init(iter)) {		
 		do {
@@ -96,13 +96,13 @@ bool LuaASTQuery::_iter_init(const Variant& iter) const {
 
 	ts_query_cursor_exec(cursor, query, node);
 	Array arr = iter;
-	arr[0] = Array();
+	arr[0] = TypedArray<LuaASTNode>();
 	return _iter_next(iter);
 }
 
 bool LuaASTQuery::_iter_next(const Variant& iter) const {
 	Array arr = iter;
-	Array matches = arr[0];
+	TypedArray<LuaASTNode> matches = arr[0];
 	matches.clear();
 	
 	TSQueryMatch match;

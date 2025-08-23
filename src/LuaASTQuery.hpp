@@ -23,6 +23,7 @@
 #define __LUA_AST_QUERY_HPP__
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 #include <tree_sitter/api.h>
 
 using namespace godot;
@@ -43,7 +44,7 @@ public:
 	void set_node(LuaASTNode *node);
 
 	Variant first_match();
-	Array all_matches();
+	TypedArray<Array> all_matches();
 
 	bool _iter_init(const Variant& iter) const;
 	bool _iter_next(const Variant& iter) const;
