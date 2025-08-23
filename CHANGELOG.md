@@ -15,10 +15,17 @@
   ```
 - `is_instance_valid` utility function when opening `GODOT_UTILITY_FUNCTIONS` library
 - Support for older Linux distros using GLIBC on par with Ubuntu 22.04
+- Parser API using Tree Sitter.
+  + Adds the `LuaParser`, `LuaAST`, `LuaASTNode` and `LuaASTQuery` classes
 
 ### Changed
 - `LuaScriptInstance`'s data table is passed as `self` to methods instead of their owner `Object`
   + For this to work, the table now has a metatable to access its owner when necessary
+- `LuaScript`s are now evaluated only if they look like a Godot script by default.
+  + Scripts that look like a Godot script are those that end by returning a named variable (`return MyClassVariable`) or a table constructed inline (`return {...}`)
+  + Change the script's Import Behavior to "Always Evaluate" to force evaluation of Lua code when loading script
+  + Change the script's Import Behavior to "Don't Load" to avoid loading the Lua code at all when loading script
+  + Only evaluated scripts can be attached to Godot Objects.
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
@@ -29,7 +36,7 @@
   ```
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
 - Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
-- Fixes `LuaJIT core/library version mismatch` errors in LuaJIT version
+- Fixed `LuaJIT core/library version mismatch` errors in LuaJIT builds
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)

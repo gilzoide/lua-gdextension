@@ -41,7 +41,7 @@
 		</member>
 		<member name="looks_like_godot_script" type="bool" setter="" getter="get_looks_like_godot_script">
 			Read-only property that marks whether this script's source code looks like a Godot script.
-			Lua code that looks like a Godot script are those that end by returning a variable ([code]return YourClassVariableHere[/code]) or a table constructed inline ([code]return {...}[/code]).
+			Lua code that looks like a Godot script are those that end by returning a named variable ([code]return MyClassVariable[/code]) or a table constructed inline ([code]return {...}[/code]).
 		</member>
 	</members>
 	<constants>
