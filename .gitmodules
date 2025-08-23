@@ -10,3 +10,9 @@
 [submodule "lib/luajit"]
 	path = lib/luajit
 	url = https://github.com/LuaJIT/LuaJIT.git
+[submodule "lib/tree-sitter"]
+	path = lib/tree-sitter
+	url = https://github.com/tree-sitter/tree-sitter.git
+[submodule "lib/tree-sitter-lua"]
+	path = lib/tree-sitter-lua
+	url = https://github.com/tree-sitter-grammars/tree-sitter-lua.git

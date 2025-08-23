@@ -19,57 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
-
-#include "utils/custom_sol.hpp"
+#ifndef __LUA_PARSER_HPP__
+#define __LUA_PARSER_HPP__
 
 #include <godot_cpp/classes/ref_counted.hpp>
 
 using namespace godot;
 
+typedef struct TSParser TSParser;
+
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+class LuaAST;
 
+class LuaParser : public RefCounted {
+	GDCLASS(LuaParser, RefCounted);
 public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+	LuaParser();
+	virtual ~LuaParser();
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::load_result& load_result);
-	LuaError(const sol::protected_function_result& function_result);
+	Ref<LuaAST> parse_code(const String& code) const;
+	
+	bool get_debug_log() const;
+	void set_debug_log(bool enabled);
 
-	const String& get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-	static String extract_message(const sol::load_result& load_result);
-	static String extract_message(const sol::protected_function_result& function_result);
+	static void setup_tree_sitter_allocator();
 
 protected:
 	static void _bind_methods();
-
 	String _to_string() const;
 
-private:
-	Status status;
-	String message;
+	TSParser *parser;
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __LUA_PARSER_HPP__

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaAST" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		An Abstract Syntax Tree (AST) representing Lua code.
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="has_errors" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the syntax tree contains any syntax errors.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="root" type="LuaASTNode" setter="" getter="get_root">
+			Get the root node of the syntax tree.
+		</member>
+		<member name="source_code" type="String" setter="" getter="get_source_code">
+			Get the source code that was parsed into this syntax tree.
+		</member>
+	</members>
+</class>

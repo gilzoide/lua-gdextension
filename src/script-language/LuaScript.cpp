@@ -21,13 +21,18 @@
  */
 #include "LuaScript.hpp"
 
+#include "LuaScriptImportBehaviorManager.hpp"
 #include "LuaScriptInstance.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
+#include "../LuaAST.hpp"
+#include "../LuaASTNode.hpp"
+#include "../LuaASTQuery.hpp"
 #include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
+#include "../LuaParser.hpp"
 #include "../LuaState.hpp"
 #include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
@@ -113,6 +118,23 @@ void LuaScript::_set_source_code(const String &code) {
 Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
 	metadata.clear();
+
+	ImportBehavior import_behavior = get_import_behavior();
+	switch (import_behavior) {
+		case IMPORT_BEHAVIOR_AUTOMATIC:
+			if (get_looks_like_godot_script()) {
+				break;
+			}
+			else {
+				return OK;
+			}
+
+		case IMPORT_BEHAVIOR_DONT_LOAD:
+			return OK;
+
+		default:
+			break;
+	}
 
 	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(source_code, get_path());
 	if (LuaError *error = Object::cast_to<LuaError>(result)) {
@@ -290,8 +312,36 @@ const LuaScriptMetadata& LuaScript::get_metadata() const {
 	return metadata;
 }
 
+LuaScript::ImportBehavior LuaScript::get_import_behavior() const {
+	return (ImportBehavior) LuaScriptImportBehaviorManager::get_singleton()->get_script_import_behavior(get_path());
+}
+
+void LuaScript::set_import_behavior(ImportBehavior import_behavior) {
+	LuaScriptImportBehaviorManager::get_singleton()->set_script_import_behavior(get_path(), import_behavior);
+}
+
+bool LuaScript::get_looks_like_godot_script() const {
+	Ref<LuaAST> ast = LuaScriptLanguage::get_singleton()->get_lua_parser()->parse_code(source_code);
+	if (ast.is_null()) {
+		return false;
+	}
+	
+	// Look for a trailing return that returns either an identifier or a literal table
+	Ref<LuaASTQuery> query = ast->get_root()->query("(chunk (return_statement (expression_list [(identifier) (table_constructor)])))");
+	return query->first_match() != Variant();
+}
+
 void LuaScript::_bind_methods() {
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_AUTOMATIC);
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_ALWAYS_EVALUATE);
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_DONT_LOAD);
+
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, string_names->_new, &LuaScript::_new);
+	ClassDB::bind_method(D_METHOD("set_import_behavior", "import_behavior"), &LuaScript::set_import_behavior);
+	ClassDB::bind_method(D_METHOD("get_import_behavior"), &LuaScript::get_import_behavior);
+	ClassDB::bind_method(D_METHOD("get_looks_like_godot_script"), &LuaScript::get_looks_like_godot_script);
+	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Evaluate,Don't Load", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_godot_script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "", "get_looks_like_godot_script");
 }
 
 String LuaScript::_to_string() const {

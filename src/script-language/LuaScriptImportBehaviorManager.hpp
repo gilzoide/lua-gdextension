@@ -19,57 +19,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#ifndef __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__
+#define __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__
 
-#include "utils/custom_sol.hpp"
-
-#include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/string.hpp>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
-
+class LuaScriptImportBehaviorManager {
 public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+	LuaScriptImportBehaviorManager();
+	
+	void set_script_import_behavior(const String& script_path, int behavior);
+	int get_script_import_behavior(const String& script_path) const;
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::load_result& load_result);
-	LuaError(const sol::protected_function_result& function_result);
-
-	const String& get_message() const;
-	void set_message(const String& message);
-
-	Status get_status() const;
-	void set_status(Status status);
-
-	static String extract_message(const sol::load_result& load_result);
-	static String extract_message(const sol::protected_function_result& function_result);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
+	void prune_non_existent_uids();
+	
+	static LuaScriptImportBehaviorManager *get_singleton();
+	static LuaScriptImportBehaviorManager *get_or_create_singleton();
+	static void delete_singleton();
 
 private:
-	Status status;
-	String message;
+	static LuaScriptImportBehaviorManager *instance;
+
+	void save_map();
+	
+	Dictionary map;
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __LUA_SCRIPT_IMPORT_BEHAVIOR_MANAGER_HPP__

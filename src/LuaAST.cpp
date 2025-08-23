@@ -19,57 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
+#include "LuaAST.hpp"
 
-#include "utils/custom_sol.hpp"
+#include "LuaASTNode.hpp"
 
-#include <godot_cpp/classes/ref_counted.hpp>
+#include <tree_sitter/api.h>
 
 using namespace godot;
 
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+LuaAST::LuaAST() {
+	ERR_FAIL_MSG("FIXME: LuaAST should never be instanced with default constructor");
+}
+LuaAST::LuaAST(TSTree *tree, const String& source_code)
+	: tree(tree)
+	, source_code(source_code)
+{
+}
+LuaAST::~LuaAST() {
+	ts_tree_delete(tree);
+}
 
-public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+Ref<LuaASTNode> LuaAST::get_root() const {
+	return memnew(LuaASTNode(const_cast<LuaAST*>(this), ts_tree_root_node(tree)));
+}
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::load_result& load_result);
-	LuaError(const sol::protected_function_result& function_result);
+String LuaAST::get_source_code() const {
+	return source_code;
+}
 
-	const String& get_message() const;
-	void set_message(const String& message);
+bool LuaAST::has_errors() const {
+	return ts_node_has_error(ts_tree_root_node(tree));
+}
 
-	Status get_status() const;
-	void set_status(Status status);
-
-	static String extract_message(const sol::load_result& load_result);
-	static String extract_message(const sol::protected_function_result& function_result);
-
-protected:
-	static void _bind_methods();
-
-	String _to_string() const;
-
-private:
-	Status status;
-	String message;
-};
+void LuaAST::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("get_root"), &LuaAST::get_root);
+	ClassDB::bind_method(D_METHOD("get_source_code"), &LuaAST::get_source_code);
+	ClassDB::bind_method(D_METHOD("has_errors"), &LuaAST::has_errors);
+	ADD_PROPERTY(PropertyInfo(Variant::Type::OBJECT, "root", godot::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_READ_ONLY, LuaASTNode::get_class_static()), "", "get_root");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::STRING, "source_code", godot::PROPERTY_HINT_NONE, "", PROPERTY_USAGE_READ_ONLY), "", "get_source_code");
+}
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
-
-#endif

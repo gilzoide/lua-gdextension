@@ -29,7 +29,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
-#include "../utils/function_wrapper.hpp"
+#include "../utils/project_settings.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
@@ -41,19 +41,6 @@
 
 namespace luagdextension {
 
-constexpr char LUA_PATH_SETTING[] = "lua_gdextension/lua_script_language/package_path";
-constexpr char LUA_CPATH_SETTING[] = "lua_gdextension/lua_script_language/package_c_path";
-constexpr char LUA_CPATH_WINDOWS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.windows";
-constexpr char LUA_CPATH_MACOS_SETTING[] = "lua_gdextension/lua_script_language/package_c_path.macos";
-
-static void add_project_setting(ProjectSettings *project_settings, const String& setting_name, const Variant& initial_value, bool is_basic = false) {
-	if (!project_settings->has_setting(setting_name)) {
-		project_settings->set_setting(setting_name, initial_value);
-	}
-	project_settings->set_initial_value(setting_name, initial_value);
-	project_settings->set_as_basic(setting_name, is_basic);
-}
-
 String LuaScriptLanguage::_get_name() const {
 	return "Lua";
 }
@@ -62,6 +49,8 @@ void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
 
+	lua_parser.instantiate();
+
 	// Register scripting specific usertypes
 	sol::state_view state = lua_state->get_lua_state();
 	LuaScriptInstance::register_lua(state);
@@ -69,18 +58,8 @@ void LuaScriptLanguage::_init() {
 	LuaScriptProperty::register_lua(state);
 	LuaScriptSignal::register_lua(state);
 
-	// Register project settings
-	ProjectSettings *project_settings = ProjectSettings::get_singleton();
-#ifndef LUAJIT
-	add_project_setting(project_settings, LUA_PATH_SETTING, "res://?.lua;res://?/init.lua");
-#else
-	add_project_setting(project_settings, LUA_PATH_SETTING, "res://?.lua;res://?/init.lua;res://addons/lua-gdextension/build/?.lua");
-#endif
-	add_project_setting(project_settings, LUA_CPATH_SETTING, "!/?.so;!/loadall.so");
-	add_project_setting(project_settings, LUA_CPATH_WINDOWS_SETTING, "!/?.dll;!/loadall.dll");
-	add_project_setting(project_settings, LUA_CPATH_MACOS_SETTING, "!/?.dylib;!/loadall.dylib");
-
 	// Apply project settings (package.path, package.cpath)
+	ProjectSettings *project_settings = ProjectSettings::get_singleton();
 	lua_state->set_package_path(project_settings->get_setting_with_override(LUA_PATH_SETTING));
 	lua_state->set_package_cpath(project_settings->get_setting_with_override(LUA_CPATH_SETTING));
 }
@@ -157,7 +136,15 @@ _TS_extends = _BASE_,
 return _CLASS_
 )";
 
-	return Array::make(base_template);
+	Dictionary empty_template;
+	empty_template["inherit"] = "Object";
+	empty_template["id"] = 1;
+	empty_template["name"] = "empty";
+	empty_template["description"] = "Empty template";
+	empty_template["origin"] = 0;
+	empty_template["content"] = "";
+
+	return Array::make(base_template, empty_template);
 #else
 	return {};
 #endif
@@ -427,6 +414,10 @@ PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
 
 LuaState *LuaScriptLanguage::get_lua_state() {
 	return lua_state.ptr();
+}
+
+LuaParser *LuaScriptLanguage::get_lua_parser() const {
+	return lua_parser.ptr();
 }
 
 LuaScriptLanguage *LuaScriptLanguage::get_singleton() {

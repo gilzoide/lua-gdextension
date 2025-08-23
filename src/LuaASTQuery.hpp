@@ -19,57 +19,46 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_ERROR_HPP__
-#define __LUA_ERROR_HPP__
-
-#include "utils/custom_sol.hpp"
+#ifndef __LUA_AST_QUERY_HPP__
+#define __LUA_AST_QUERY_HPP__
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
+#include <tree_sitter/api.h>
 
 using namespace godot;
 
+
 namespace luagdextension {
 
-class LuaError : public RefCounted {
-	GDCLASS(LuaError, RefCounted);
+class LuaASTNode;
 
+class LuaASTQuery : public RefCounted {
+	GDCLASS(LuaASTQuery, RefCounted);
 public:
-	enum Status {
-		OK = LUA_OK,
-		YIELDED = LUA_YIELD,
-		RUNTIME = LUA_ERRRUN,
-		MEMORY = LUA_ERRMEM,
-		HANDLER = LUA_ERRERR,
-		GC = LUA_ERRGCMM,
-		SYNTAX = LUA_ERRSYNTAX,
-		FILE = LUA_ERRFILE,
-	};
+	LuaASTQuery();
+	virtual ~LuaASTQuery();
 
-	LuaError() = default;
-	LuaError(Status status, const String& message);
-	LuaError(const sol::load_result& load_result);
-	LuaError(const sol::protected_function_result& function_result);
+	bool is_valid() const;
+	void set_query(const String& query);
+	void set_node(Ref<LuaASTNode> node);
 
-	const String& get_message() const;
-	void set_message(const String& message);
+	Variant first_match();
+	TypedArray<Array> all_matches();
 
-	Status get_status() const;
-	void set_status(Status status);
-
-	static String extract_message(const sol::load_result& load_result);
-	static String extract_message(const sol::protected_function_result& function_result);
+	bool _iter_init(const Variant& iter) const;
+	bool _iter_next(const Variant& iter) const;
+	Variant _iter_get(const Variant& iter) const;
 
 protected:
 	static void _bind_methods();
-
 	String _to_string() const;
 
-private:
-	Status status;
-	String message;
+	TSQueryCursor *cursor;
+	TSQuery *query;
+	Ref<LuaASTNode> node;
 };
 
 }
-VARIANT_ENUM_CAST(luagdextension::LuaError::Status);
 
-#endif
+#endif  // __LUA_AST_QUERY_HPP__
