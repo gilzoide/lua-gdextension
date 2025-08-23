@@ -95,7 +95,7 @@ Ref<LuaAST> LuaParser::parse_code(const String& code) const {
 	};
 	
 	if (TSTree *tree = ts_parser_parse(parser, nullptr, input)) {
-		return memnew(LuaAST(tree));
+		return memnew(LuaAST(tree, code));
 	}
 	else {
 		return nullptr;

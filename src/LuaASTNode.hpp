@@ -30,13 +30,14 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaAST;
 class LuaASTQuery;
 
 class LuaASTNode : public RefCounted {
 	GDCLASS(LuaASTNode, RefCounted);
 public:
 	LuaASTNode();
-	LuaASTNode(TSNode node);
+	LuaASTNode(Ref<LuaAST> tree, TSNode node);
 
 	String get_type() const;
 	String get_grammar_type() const;
@@ -63,18 +64,20 @@ public:
 	Ref<LuaASTNode> get_next_named_sibling() const;
 	Ref<LuaASTNode> get_previous_named_sibling() const;
 
-	String get_original_content(const String& original_string) const;
+	String get_source_code() const;
 
 	Ref<LuaASTQuery> query(const String& query);
 
+	Ref<LuaAST> get_tree() const;
 	TSNode get_node() const;
 
-	static Ref<LuaASTNode> to_object(TSNode node);
+	static Ref<LuaASTNode> to_object(Ref<LuaAST> tree, TSNode node);
 
 protected:
 	static void _bind_methods();
 	String _to_string() const;
 
+	Ref<LuaAST> tree;
 	TSNode node;
 };
 

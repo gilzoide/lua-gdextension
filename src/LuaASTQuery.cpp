@@ -21,6 +21,7 @@
  */
 #include "LuaASTQuery.hpp"
 
+#include "LuaAST.hpp"
 #include "LuaASTNode.hpp"
 
 #include "tree_sitter/api.h"
@@ -30,7 +31,7 @@ namespace luagdextension {
 
 LuaASTQuery::LuaASTQuery()
 	: cursor(ts_query_cursor_new())
-	, node({0})
+	, node()
 {
 }
 LuaASTQuery::~LuaASTQuery() {
@@ -44,7 +45,7 @@ LuaASTQuery::~LuaASTQuery() {
 
 bool LuaASTQuery::is_valid() const {
 	return query != nullptr
-		&& !ts_node_is_null(node);
+		&& node.is_valid();
 }
 
 void LuaASTQuery::set_query(const String& query) {
@@ -58,13 +59,8 @@ void LuaASTQuery::set_query(const String& query) {
 	}
 }
 
-void LuaASTQuery::set_node(LuaASTNode *node) {
-	if (node) {
-		this->node = node->get_node();
-	}
-	else {
-		this->node = {0};
-	}
+void LuaASTQuery::set_node(Ref<LuaASTNode> node) {
+	this->node = node;
 }
 
 Variant LuaASTQuery::first_match() {
@@ -92,9 +88,9 @@ TypedArray<Array> LuaASTQuery::all_matches() {
 
 bool LuaASTQuery::_iter_init(const Variant& iter) const {
 	ERR_FAIL_COND_V_MSG(query == nullptr, false, "Cannot iterate without a query");
-	ERR_FAIL_COND_V_MSG(ts_node_is_null(node), false, "Cannot iterate without a target node");
+	ERR_FAIL_COND_V_MSG(node.is_null(), false, "Cannot iterate without a target node");
 
-	ts_query_cursor_exec(cursor, query, node);
+	ts_query_cursor_exec(cursor, query, node->get_node());
 	Array arr = iter;
 	arr[0] = TypedArray<LuaASTNode>();
 	return _iter_next(iter);
@@ -108,7 +104,7 @@ bool LuaASTQuery::_iter_next(const Variant& iter) const {
 	TSQueryMatch match;
 	if (ts_query_cursor_next_match(cursor, &match)) {
 		for (int i = 0; i < match.capture_count; i++) {
-			matches.append(memnew(LuaASTNode(match.captures[i].node)));
+			matches.append(memnew(LuaASTNode(node->get_tree(), match.captures[i].node)));
 		}
 		return true;
 	}

@@ -22,23 +22,33 @@
 #ifndef __LUA_AST_HPP__
 #define __LUA_AST_HPP__
 
-#include "LuaASTNode.hpp"
+#include <godot_cpp/classes/ref_counted.hpp>
 
 typedef struct TSTree TSTree;
 
+using namespace godot;
+
+
 namespace luagdextension {
 
-class LuaAST : public LuaASTNode {
-	GDCLASS(LuaAST, LuaASTNode);
+class LuaASTNode;
+
+class LuaAST : public RefCounted {
+	GDCLASS(LuaAST, RefCounted);
 public:
 	LuaAST();
-	LuaAST(TSTree *tree);
+	LuaAST(TSTree *tree, const String& source_code);
 	virtual ~LuaAST();
+
+	Ref<LuaASTNode> get_root() const;
+	String get_source_code() const;
+	bool has_errors() const;
 
 protected:
 	static void _bind_methods();
 
 	TSTree *tree;
+	String source_code;
 };
 
 }

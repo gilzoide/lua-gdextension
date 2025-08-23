@@ -27,6 +27,7 @@
 #include "LuaScriptMethod.hpp"
 #include "LuaScriptProperty.hpp"
 #include "../LuaAST.hpp"
+#include "../LuaASTNode.hpp"
 #include "../LuaASTQuery.hpp"
 #include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
@@ -329,7 +330,7 @@ bool LuaScript::get_looks_like_godot_script() const {
 	}
 	
 	// Look for a trailing return that returns either an identifier or a literal table
-	Ref<LuaASTQuery> query = ast->query("(chunk (return_statement (expression_list [(identifier) (table_constructor)])))");
+	Ref<LuaASTQuery> query = ast->get_root()->query("(chunk (return_statement (expression_list [(identifier) (table_constructor)])))");
 	return query->first_match() != Variant();
 }
 

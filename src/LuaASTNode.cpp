@@ -21,6 +21,7 @@
  */
 #include "LuaASTNode.hpp"
 
+#include "LuaAST.hpp"
 #include "LuaASTQuery.hpp"
 
 #include <tree_sitter/api.h>
@@ -32,8 +33,9 @@ namespace luagdextension {
 LuaASTNode::LuaASTNode() {
 	ERR_FAIL_MSG("FIXME: LuaASTNode should never be instanced with default constructor");
 }
-LuaASTNode::LuaASTNode(TSNode node)
-	: node(node)
+LuaASTNode::LuaASTNode(Ref<LuaAST> tree, TSNode node)
+	: tree(tree)
+	, node(node)
 {
 }
 
@@ -95,7 +97,7 @@ bool LuaASTNode::is_error() const {
 }
 
 Ref<LuaASTNode> LuaASTNode::get_child(uint32_t index) const {
-	return to_object(ts_node_child(node, index));
+	return to_object(tree, ts_node_child(node, index));
 }
 
 uint32_t LuaASTNode::get_child_count() const {
@@ -103,7 +105,7 @@ uint32_t LuaASTNode::get_child_count() const {
 }
 
 Ref<LuaASTNode> LuaASTNode::get_named_child(uint32_t index) const {
-	return to_object(ts_node_named_child(node, index));
+	return to_object(tree, ts_node_named_child(node, index));
 }
 
 uint32_t LuaASTNode::get_named_child_count() const {
@@ -112,31 +114,31 @@ uint32_t LuaASTNode::get_named_child_count() const {
 
 Ref<LuaASTNode> LuaASTNode::get_child_by_field_name(const String& field_name) const {
 	CharString field_name_chars = field_name.utf8();
-	return to_object(ts_node_child_by_field_name(node, field_name_chars.ptr(), field_name_chars.length()));
+	return to_object(tree, ts_node_child_by_field_name(node, field_name_chars.ptr(), field_name_chars.length()));
 }
 
 Ref<LuaASTNode> LuaASTNode::get_parent() const {
-	return to_object(ts_node_parent(node));
+	return to_object(tree, ts_node_parent(node));
 }
 
 Ref<LuaASTNode> LuaASTNode::get_next_sibling() const {
-	return to_object(ts_node_next_sibling(node));
+	return to_object(tree, ts_node_next_sibling(node));
 }
 
 Ref<LuaASTNode> LuaASTNode::get_previous_sibling() const {
-	return to_object(ts_node_prev_sibling(node));
+	return to_object(tree, ts_node_prev_sibling(node));
 }
 
 Ref<LuaASTNode> LuaASTNode::get_next_named_sibling() const {
-	return to_object(ts_node_next_named_sibling(node));
+	return to_object(tree, ts_node_next_named_sibling(node));
 }
 
 Ref<LuaASTNode> LuaASTNode::get_previous_named_sibling() const {
-	return to_object(ts_node_prev_named_sibling(node));
+	return to_object(tree, ts_node_prev_named_sibling(node));
 }
 
-String LuaASTNode::get_original_content(const String& original_string) const {
-	return original_string.substr(get_start_pos(), get_end_pos() - get_start_pos());
+String LuaASTNode::get_source_code() const {
+	return tree->get_source_code().substr(get_start_pos(), get_end_pos() - get_start_pos());
 }
 
 Ref<LuaASTQuery> LuaASTNode::query(const String& query) {
@@ -147,16 +149,20 @@ Ref<LuaASTQuery> LuaASTNode::query(const String& query) {
 	return astQuery;
 }
 
+Ref<LuaAST> LuaASTNode::get_tree() const {
+	return tree;
+}
+
 TSNode LuaASTNode::get_node() const {
 	return node;
 }
 
-Ref<LuaASTNode> LuaASTNode::to_object(TSNode node) {
+Ref<LuaASTNode> LuaASTNode::to_object(Ref<LuaAST> tree, TSNode node) {
 	if (ts_node_is_null(node)) {
 		return nullptr;
 	}
 	else {
-		return memnew(LuaASTNode(node));
+		return memnew(LuaASTNode(tree, node));
 	}
 }
 
@@ -183,7 +189,8 @@ void LuaASTNode::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_previous_sibling"), &LuaASTNode::get_previous_sibling);
 	ClassDB::bind_method(D_METHOD("get_next_named_sibling"), &LuaASTNode::get_next_named_sibling);
 	ClassDB::bind_method(D_METHOD("get_previous_named_sibling"), &LuaASTNode::get_previous_named_sibling);
-	ClassDB::bind_method(D_METHOD("get_original_content", "original_string"), &LuaASTNode::get_original_content);
+	ClassDB::bind_method(D_METHOD("get_source_code"), &LuaASTNode::get_source_code);
+	ClassDB::bind_method(D_METHOD("get_tree"), &LuaASTNode::get_tree);
 	ClassDB::bind_method(D_METHOD("query", "query"), &LuaASTNode::query);
 }
 

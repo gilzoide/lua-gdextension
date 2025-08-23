@@ -41,7 +41,7 @@ public:
 
 	bool is_valid() const;
 	void set_query(const String& query);
-	void set_node(LuaASTNode *node);
+	void set_node(Ref<LuaASTNode> node);
 
 	Variant first_match();
 	TypedArray<Array> all_matches();
@@ -56,7 +56,7 @@ protected:
 
 	TSQueryCursor *cursor;
 	TSQuery *query;
-	TSNode node;
+	Ref<LuaASTNode> node;
 };
 
 }
