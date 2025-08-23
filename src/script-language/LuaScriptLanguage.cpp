@@ -136,7 +136,15 @@ _TS_extends = _BASE_,
 return _CLASS_
 )";
 
-	return Array::make(base_template);
+	Dictionary empty_template;
+	empty_template["inherit"] = "Object";
+	empty_template["id"] = 1;
+	empty_template["name"] = "empty";
+	empty_template["description"] = "Empty template";
+	empty_template["origin"] = 0;
+	empty_template["content"] = "";
+
+	return Array::make(base_template, empty_template);
 #else
 	return {};
 #endif
