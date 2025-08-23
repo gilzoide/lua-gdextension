@@ -6,7 +6,9 @@ def generate(env):
     build_dir = env["build_dir"]
 
     env.Append(CPPPATH="lib/tree-sitter/lib/include")
-    tree_sitter = env.StaticLibrary(
+    tree_sitter_env = env.Clone()
+    tree_sitter_env.Append(CPPPATH="lib/tree-sitter/lib/src")
+    tree_sitter = tree_sitter_env.StaticLibrary(
         target=f"{build_dir}/tree_sitter",
         source=[
             "lib/tree-sitter/lib/src/lib.c",
