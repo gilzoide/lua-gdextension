@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaASTNode" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A node contained in a Lua Abstract Syntax Tree (LuaAST).
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="dump" qualifiers="const">
+			<return type="String" />
+			<description>
+				Get an S-expression representing the node as a string.
+			</description>
+		</method>
+		<method name="get_child" qualifiers="const">
+			<return type="LuaASTNode" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the node's child at the given index, where zero represents the first child.
+			</description>
+		</method>
+		<method name="get_child_by_field_name" qualifiers="const">
+			<return type="LuaASTNode" />
+			<param index="0" name="field_name" type="String" />
+			<description>
+				Get the node's child with the given field name.
+			</description>
+		</method>
+		<method name="get_child_count" qualifiers="const">
+			<return type="int" />
+			<description>
+				Get the node's number of children.
+			</description>
+		</method>
+		<method name="get_end_point" qualifiers="const">
+			<return type="Vector2i" />
+			<description>
+				Get the node's end position in terms of rows ([code]y[/code]) and columns ([code]x[/code]).
+			</description>
+		</method>
+		<method name="get_end_pos" qualifiers="const">
+			<return type="int" />
+			<description>
+				Get the node's end position in terms of character count.
+			</description>
+		</method>
+		<method name="get_grammar_type" qualifiers="const">
+			<return type="String" />
+			<description>
+				Get the node's type as it appears in the grammar ignoring aliases.
+			</description>
+		</method>
+		<method name="get_named_child" qualifiers="const">
+			<return type="LuaASTNode" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the node's [b]named[/b] child at the given index.
+				See [method is_named].
+			</description>
+		</method>
+		<method name="get_named_child_count" qualifiers="const">
+			<return type="int" />
+			<description>
+				Get the node's number of [b]named[/b] children.
+				See [method is_named].
+			</description>
+		</method>
+		<method name="get_next_named_sibling" qualifiers="const">
+			<return type="LuaASTNode" />
+			<description>
+				Get the node's next [b]named[/b] sibling.
+				See [method is_named].
+			</description>
+		</method>
+		<method name="get_next_sibling" qualifiers="const">
+			<return type="LuaASTNode" />
+			<description>
+				Get the node's next sibling.
+			</description>
+		</method>
+		<method name="get_parent" qualifiers="const">
+			<return type="LuaASTNode" />
+			<description>
+				Get the node's immediate parent if there is any.
+			</description>
+		</method>
+		<method name="get_previous_named_sibling" qualifiers="const">
+			<return type="LuaASTNode" />
+			<description>
+				Get the node's previous [b]named[/b] sibling.
+				See [method is_named].
+			</description>
+		</method>
+		<method name="get_previous_sibling" qualifiers="const">
+			<return type="LuaASTNode" />
+			<description>
+				Get the node's previous sibling.
+			</description>
+		</method>
+		<method name="get_source_code" qualifiers="const">
+			<return type="String" />
+			<description>
+				Get the source code that was parsed into this syntax tree node.
+			</description>
+		</method>
+		<method name="get_start_point" qualifiers="const">
+			<return type="Vector2i" />
+			<description>
+				Get the node's start position in terms of rows ([code]y[/code]) and columns ([code]x[/code]).
+			</description>
+		</method>
+		<method name="get_start_pos" qualifiers="const">
+			<return type="int" />
+			<description>
+				Get the node's end position in terms of character count.
+			</description>
+		</method>
+		<method name="get_tree" qualifiers="const">
+			<return type="LuaAST" />
+			<description>
+				Get the AST that owns this node.
+			</description>
+		</method>
+		<method name="get_type" qualifiers="const">
+			<return type="String" />
+			<description>
+				Get the node's type.
+			</description>
+		</method>
+		<method name="has_errors" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the node is a syntax error or contains any syntax errors.
+			</description>
+		</method>
+		<method name="is_error" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the node is a syntax error.
+			</description>
+		</method>
+		<method name="is_extra" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the node is [b]extra[/b].
+				Extra nodes represent things like comments, which are not required the grammar, but can appear anywhere.
+			</description>
+		</method>
+		<method name="is_missing" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the node is [b]missing[/b].
+				Missing nodes are inserted by the parser in order to recover from certain kinds of syntax errors.
+			</description>
+		</method>
+		<method name="is_named" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Check if the node is [b]named[/b].
+				Named nodes correspond to named rules in the grammar, whereas [b]anonymous[/b] nodes correspond to string literals in the grammar.
+			</description>
+		</method>
+		<method name="query">
+			<return type="LuaASTQuery" />
+			<param index="0" name="query" type="String" />
+			<description>
+				Create a syntax tree query preconfigured with the passed [param query] and this node as the target.
+			</description>
+		</method>
+	</methods>
+</class>

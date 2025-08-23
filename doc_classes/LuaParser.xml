@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaParser" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A parser for Lua code.
+	</brief_description>
+	<description>
+		Internally LuaParser uses [url=https://tree-sitter.github.io/tree-sitter/]Tree Sitter[/url] with the [url=https://github.com/tree-sitter-grammars/tree-sitter-lua]tree-sitter-lua[/url] grammar.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="parse_code" qualifiers="const">
+			<return type="LuaAST" />
+			<param index="0" name="code" type="String" />
+			<description>
+				Parse Lua code into an Abstract Syntax Tree (AST).
+				If [param code] has any errors, a valid AST containing the errors will be returned. Use [method LuaAST.has_errors] to check for errors.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="debug_log" type="bool" setter="set_debug_log" getter="get_debug_log" default="false">
+			Toggle whether Tree Sitter logs debugging messages while parsing.
+		</member>
+	</members>
+</class>

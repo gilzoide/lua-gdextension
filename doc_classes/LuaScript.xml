@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <class name="LuaScript" inherits="ScriptExtension" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
 	<brief_description>
+		A [Script] written in the Lua language.
 	</brief_description>
 	<description>
 	</description>
@@ -19,7 +20,7 @@
 				# obj.attack_point = 20
 				# obj.life_point = 100
 				# function obj:add_life(value)
-				# 	self.life_point = self.life_point + value
+				#     self.life_point = self.life_point + value
 				# end
 				# return obj
 				# ```
@@ -33,4 +34,26 @@
 			</description>
 		</method>
 	</methods>
+	<members>
+		<member name="import_behavior" type="int" setter="set_import_behavior" getter="get_import_behavior" enum="LuaScript.ImportBehavior">
+			See [enum ImportBehavior] for more information about each behavior.
+			Changes to this property in the Inspector changes an internal setting in the [code]project.godot[/code].
+		</member>
+		<member name="looks_like_godot_script" type="bool" setter="" getter="get_looks_like_godot_script">
+			Read-only property that marks whether this script's source code looks like a Godot script.
+			Lua code that looks like a Godot script are those that end by returning a variable ([code]return YourClassVariableHere[/code]) or a table constructed inline ([code]return {...}[/code]).
+		</member>
+	</members>
+	<constants>
+		<constant name="IMPORT_BEHAVIOR_AUTOMATIC" value="0" enum="ImportBehavior">
+			Lua script code will be evaluated if it looks like a Godot script, but otherwise not loaded at all.
+			See also [member looks_like_godot_script].
+		</constant>
+		<constant name="IMPORT_BEHAVIOR_ALWAYS_EVALUATE" value="1" enum="ImportBehavior">
+			Lua script code will always be evaluated regardless of whether it looks like a Godot script or not.
+		</constant>
+		<constant name="IMPORT_BEHAVIOR_DONT_LOAD" value="2" enum="ImportBehavior">
+			Lua script code will not be loaded nor evaluated regardless of whether it looks like a Godot script or not.
+		</constant>
+	</constants>
 </class>

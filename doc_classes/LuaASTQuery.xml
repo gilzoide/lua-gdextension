@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="LuaASTQuery" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Queries for matching code patterns in Lua AST nodes.
+	</brief_description>
+	<description>
+		Queries use [url=https://tree-sitter.github.io/tree-sitter/using-parsers/queries/1-syntax.html]Tree Sitter Query Syntax[/url].
+		Capturing nodes and all other [url=https://tree-sitter.github.io/tree-sitter/using-parsers/queries/2-operators.html]query operators[/url] are supported. [url=https://tree-sitter.github.io/tree-sitter/using-parsers/queries/3-predicates-and-directives.html]Predicates[/url] are not supported.
+		The simplest way to create a query is by calling [method LuaASTNode.query], which sets up the query and target node in a single call.
+		After setting up the query and the target node, you can either get the first match with [method first_match], get all matches with [method all_matches] or iterate over each match:
+		[codeblocks]
+		[gdscript]
+		# Example code
+		var lua_code = """
+		    local some_int = 42
+		    some_global = "hello world!"
+
+		    return ...
+		"""
+		# First we need to parse the code
+		var lua_ast = LuaParser.new().parse_code(lua_code)
+		assert(not lua_ast.has_errors())
+		# Example query: find all identifiers used by the Lua code
+		var query = lua_ast.root.query("(identifier) @capture")
+		for m in query:
+		    # A match is always an Array of captures
+		    # If the query has no captures, the Array will be empty
+		    assert(m is Array[LuaASTNode])
+		    for capture in m:
+		        # Captures are references for the captured LuaASTNode
+		        assert(capture is LuaASTNode)
+		        # Use LuaASTNode.get_source_code to get the content
+		        var identifier = capture.get_source_code()
+		        prints("Found identifier in Lua code:", identifier)
+		[/gdscript]
+		[/codeblocks]
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="all_matches">
+			<return type="Array[]" />
+			<description>
+				Returns all matches as an [Array].
+				If there are no matches, an empty array is returned.
+			</description>
+		</method>
+		<method name="first_match">
+			<return type="Variant" />
+			<description>
+				Returns the first match (an [Array] of [LuaASTNode] captures) if there is any. Otherwise returns [code]null[/code].
+			</description>
+		</method>
+		<method name="is_valid" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Whether or not this object has a query and target node configured.
+			</description>
+		</method>
+		<method name="set_node">
+			<return type="void" />
+			<param index="0" name="node" type="LuaASTNode" />
+			<description>
+				Setup the target AST node that will be queried.
+			</description>
+		</method>
+		<method name="set_query">
+			<return type="void" />
+			<param index="0" name="query" type="String" />
+			<description>
+				Setup the query using [url=https://tree-sitter.github.io/tree-sitter/using-parsers/queries/1-syntax.html]Tree Sitter Query Syntax[/url].
+			</description>
+		</method>
+	</methods>
+</class>

@@ -36,3 +36,29 @@ func test_parse_errors() -> bool:
 		# print(it.dump())
 
 	return true
+
+
+func test_LuaASTQuery_example() -> bool:
+	# Example code
+	var lua_code = """
+		local some_int = 42
+		some_global = "hello world!"
+
+		return ...
+	"""
+	# First we need to parse the code
+	var lua_ast = LuaParser.new().parse_code(lua_code)
+	assert(not lua_ast.has_errors())
+	# Example query: find all identifiers used by the Lua code
+	var query = lua_ast.root.query("(identifier) @capture")
+	for m in query:
+		# A match is always an Array of captures
+		# If the query has no captures, the Array will be empty
+		assert(m is Array[LuaASTNode])
+		for capture in m:
+			# Captures are references for the captured LuaASTNode
+			assert(capture is LuaASTNode)
+			# Use LuaASTNode.get_source_code to get the content
+			var identifier = capture.get_source_code()
+			prints("Found identifier in Lua code:", identifier)
+	return true
