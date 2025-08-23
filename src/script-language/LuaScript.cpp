@@ -118,14 +118,6 @@ Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
 	metadata.clear();
 
-	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(source_code, get_path());
-	if (LuaError *error = Object::cast_to<LuaError>(result)) {
-		if (!Engine::get_singleton()->is_editor_hint()) {
-			ERR_PRINT(error->get_message());
-		}
-		return ERR_PARSE_ERROR;
-	}
-
 	ImportBehavior import_behavior = get_import_behavior();
 	switch (import_behavior) {
 		case IMPORT_BEHAVIOR_AUTOMATIC:
@@ -136,11 +128,19 @@ Error LuaScript::_reload(bool keep_state) {
 				return OK;
 			}
 
-		case IMPORT_BEHAVIOR_PARSE_ONLY:
+		case IMPORT_BEHAVIOR_DONT_LOAD:
 			return OK;
 
 		default:
 			break;
+	}
+
+	Variant result = LuaScriptLanguage::get_singleton()->get_lua_state()->load_string(source_code, get_path());
+	if (LuaError *error = Object::cast_to<LuaError>(result)) {
+		if (!Engine::get_singleton()->is_editor_hint()) {
+			ERR_PRINT(error->get_message());
+		}
+		return ERR_PARSE_ERROR;
 	}
 
 	result = Object::cast_to<LuaFunction>(result)->invokev(Array());
@@ -336,13 +336,13 @@ bool LuaScript::get_looks_like_godot_script() const {
 void LuaScript::_bind_methods() {
 	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_AUTOMATIC);
 	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_ALWAYS_EVALUATE);
-	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_PARSE_ONLY);
+	BIND_ENUM_CONSTANT(IMPORT_BEHAVIOR_DONT_LOAD);
 
 	ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, string_names->_new, &LuaScript::_new);
 	ClassDB::bind_method(D_METHOD("set_import_behavior", "import_behavior"), &LuaScript::set_import_behavior);
 	ClassDB::bind_method(D_METHOD("get_import_behavior"), &LuaScript::get_import_behavior);
 	ClassDB::bind_method(D_METHOD("get_looks_like_godot_script"), &LuaScript::get_looks_like_godot_script);
-	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Evaluate,Parse Only", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Evaluate,Don't Load", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
 	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_godot_script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "", "get_looks_like_godot_script");
 }
 
