@@ -49,6 +49,8 @@ void LuaScriptLanguage::_init() {
 	lua_state.instantiate();
 	lua_state->open_libraries();
 
+	lua_parser.instantiate();
+
 	// Register scripting specific usertypes
 	sol::state_view state = lua_state->get_lua_state();
 	LuaScriptInstance::register_lua(state);
@@ -404,6 +406,10 @@ PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
 
 LuaState *LuaScriptLanguage::get_lua_state() {
 	return lua_state.ptr();
+}
+
+LuaParser *LuaScriptLanguage::get_lua_parser() const {
+	return lua_parser.ptr();
 }
 
 LuaScriptLanguage *LuaScriptLanguage::get_singleton() {

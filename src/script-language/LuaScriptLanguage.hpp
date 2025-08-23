@@ -25,6 +25,7 @@
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/classes/script_language_extension.hpp>
 
+#include "../LuaParser.hpp"
 #include "../LuaState.hpp"
 
 using namespace godot;
@@ -99,6 +100,7 @@ public:
 	PackedStringArray get_lua_member_keywords() const;
 
 	LuaState *get_lua_state();
+	LuaParser *get_lua_parser() const;
 
 	static LuaScriptLanguage *get_singleton();
 	static LuaScriptLanguage *get_or_create_singleton();
@@ -108,6 +110,7 @@ protected:
 	static void _bind_methods();
 
 	Ref<LuaState> lua_state;
+	Ref<LuaParser> lua_parser;
 
 private:
 	static LuaScriptLanguage *instance;

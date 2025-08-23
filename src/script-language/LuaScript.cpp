@@ -321,10 +321,7 @@ void LuaScript::set_import_behavior(ImportBehavior import_behavior) {
 }
 
 bool LuaScript::get_looks_like_godot_script() const {
-	Ref<LuaParser> parser;
-	parser.instantiate();
-
-	Ref<LuaAST> ast = parser->parse_code(source_code);
+	Ref<LuaAST> ast = LuaScriptLanguage::get_singleton()->get_lua_parser()->parse_code(source_code);
 	if (ast.is_null()) {
 		return false;
 	}
