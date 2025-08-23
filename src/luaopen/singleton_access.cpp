@@ -19,17 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include "../utils/convert_godot_lua.hpp"
 
-#include "../utils/module_names.hpp"
-
+#include <godot_cpp/classes/engine.hpp>
 #include <sol/sol.hpp>
 
+using namespace godot;
 using namespace luagdextension;
 
 extern "C" int luaopen_godot_singleton_access(lua_State *L) {
 	sol::state_view state = L;
 
-	state.registry()[module_names::singleton_access] = true;
+	Engine *engine = Engine::get_singleton();
+	for (auto&& singleton_name : engine->get_singleton_list()) {
+		lua_push(L, engine->get_singleton(singleton_name));
+		lua_setglobal(L, singleton_name.ascii().get_data());
+	}
 
 	return 0;
 }

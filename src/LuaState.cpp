@@ -25,7 +25,6 @@
 #include "LuaTable.hpp"
 #include "LuaThread.hpp"
 #include "luaopen/godot.hpp"
-#include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/module_names.hpp"
 
@@ -75,7 +74,6 @@ LuaState::LuaState()
 	: lua_state(lua_panic_handler, lua_alloc)
 #endif
 {
-	setup_G_metatable(lua_state);
 #ifdef HAVE_LUA_WARN
 	lua_setwarnf(lua_state, lua_warn_handler, this);
 #endif

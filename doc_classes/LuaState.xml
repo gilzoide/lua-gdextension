@@ -285,7 +285,7 @@
 			[b]Note: This may override some Lua functions like [code]print[/code].[/b]
 		</constant>
 		<constant name="GODOT_SINGLETONS" value="32768" enum="Library" is_bitfield="true">
-			Godot singletons library.
+			Godot singletons library. Adds global singletons like [Engine] and [ResourceLoader] to _G.
 		</constant>
 		<constant name="GODOT_CLASSES" value="65536" enum="Library" is_bitfield="true">
 			Godot classes library. Adds Godot classes like [Node] to _G.
@@ -293,7 +293,7 @@
 			[gdscript]
 			var lua_state = LuaState.new()
 			lua_state.open_libraries(LuaState.Library.LUA_BASE | LuaState.Library.GODOT_CLASSES)
-			var vec3 = lua_state.do_string("""
+			var node = lua_state.do_string("""
 			    -- Create a Node in Lua
 			    local node = Node:new()
 			    return node

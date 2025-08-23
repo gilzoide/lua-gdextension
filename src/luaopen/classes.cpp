@@ -19,10 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
 #include "../utils/Class.hpp"
-#include "../utils/module_names.hpp"
 
+#include <godot_cpp/classes/class_db_singleton.hpp>
 #include <sol/sol.hpp>
 
 using namespace luagdextension;
@@ -30,8 +29,11 @@ using namespace luagdextension;
 extern "C" int luaopen_godot_classes(lua_State *L) {
 	sol::state_view state = L;
 
-	state.registry()[module_names::classes] = true;
 	Class::register_usertype(state);
+	ClassDBSingleton *classdb = ClassDBSingleton::get_singleton();
+	for (auto&& class_name : classdb->get_class_list()) {
+		state.set(class_name.ascii().get_data(), Class(class_name));
+	}
 
 	return 0;
 }
