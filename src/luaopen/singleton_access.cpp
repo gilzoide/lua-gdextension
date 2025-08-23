@@ -28,8 +28,6 @@ using namespace godot;
 using namespace luagdextension;
 
 extern "C" int luaopen_godot_singleton_access(lua_State *L) {
-	sol::state_view state = L;
-
 	Engine *engine = Engine::get_singleton();
 	for (auto&& singleton_name : engine->get_singleton_list()) {
 		lua_push(L, engine->get_singleton(singleton_name));
