@@ -22,7 +22,6 @@
 #include "../utils/Class.hpp"
 
 #include <godot_cpp/classes/class_db_singleton.hpp>
-#include <sol/sol.hpp>
 
 using namespace luagdextension;
 
