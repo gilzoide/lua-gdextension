@@ -27,6 +27,8 @@
   + In "Always Evaluate" behavior, Lua code will always be evaluated
   + In "Don't Load" behavior, Lua code will not be loaded nor evaluated at all
   + Note that only evaluated scripts can be attached to Godot Objects.
+- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
+- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
