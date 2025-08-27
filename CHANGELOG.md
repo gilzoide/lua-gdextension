@@ -38,6 +38,7 @@
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
 - Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
 - Fixed `LuaJIT core/library version mismatch` errors in LuaJIT builds
+- `LuaScriptResourceFormatLoader::_load` now respects the cache mode, fixing "Another resource is loaded from path 'res://...' (possible cyclic resource inclusion)." errors
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
