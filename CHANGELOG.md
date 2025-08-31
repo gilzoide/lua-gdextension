@@ -27,6 +27,7 @@
   + In "Always Evaluate" behavior, Lua code will always be evaluated
   + In "Don't Load" behavior, Lua code will not be loaded nor evaluated at all
   + Note that only evaluated scripts can be attached to Godot Objects.
+- `Variant` methods like `Variant.is` and `Variant.get_type` now accept Lua primitives like numbers and strings without raising errors
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
