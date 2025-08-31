@@ -27,7 +27,6 @@
   + In "Always Evaluate" behavior, Lua code will always be evaluated
   + In "Don't Load" behavior, Lua code will not be loaded nor evaluated at all
   + Note that only evaluated scripts can be attached to Godot Objects.
-- `Variant` methods like `Variant.is` and `Variant.get_type` now accept Lua primitives like numbers and strings without raising errors
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
@@ -41,6 +40,7 @@
 - Fixed `LuaJIT core/library version mismatch` errors in LuaJIT builds
 - `LuaScriptResourceFormatLoader::_load` now respects the cache mode, fixing "Another resource is loaded from path 'res://...' (possible cyclic resource inclusion)." errors
 - Error messages from Lua code using the wrong stack index
+- Crashes when passing Lua primitives to `typeof`, `Variant.is`, `Variant.get_type`, `Variant.booleanize`, `Variant.duplicate`, `Variant.get_type_name`, `Variant.hash`, `Variant.recursive_hash` and `Variant.hash_compare`
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
