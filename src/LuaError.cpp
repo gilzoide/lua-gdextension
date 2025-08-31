@@ -75,7 +75,7 @@ String LuaError::extract_message(const sol::load_result& load_result) {
 }
 
 String LuaError::extract_message(const sol::protected_function_result& function_result) {
-	return luaL_tolstring(function_result.lua_state(), function_result.stack_index(), NULL);
+	return luaL_tolstring(function_result.lua_state(), function_result.stack_index() + function_result.return_count() - 1, NULL);
 }
 
 }
