@@ -34,6 +34,7 @@
 #include "../utils/MethodBindByName.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
+#include "../utils/function_wrapper.hpp"
 #include "../utils/string_names.hpp"
 
 using namespace godot;
@@ -132,11 +133,12 @@ std::tuple<sol::object, sol::object> variant__pairs(sol::this_state state, const
 	return ObjectIterator::object_pairs(state, variant);
 }
 
-VariantType variant_get_type(const Variant& variant) {
-	return VariantType(variant.get_type());
+VariantType variant_get_type(const sol::stack_object& self) {
+	return VariantType(to_variant(self).get_type());
 }
 
-bool variant_is(const Variant& variant, const sol::stack_object& type) {
+bool variant_is(const sol::stack_object& self, const sol::stack_object& type) {
+	Variant variant = to_variant(self);
 	if (type.get_type() == sol::type::nil) {
 		return variant.get_type() == Variant::NIL;
 	}
@@ -186,15 +188,15 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(double v),
 			Variant(const char *v)
 		>(),
-		"booleanize", &Variant::booleanize,
-		"duplicate", &Variant::duplicate,
+		"booleanize", wrap_function(L, +[](const Variant& v) { return v.booleanize(); }),
+		"duplicate", wrap_function(L, +[](const Variant& self) { return self.duplicate(); }),
 		"call", &variant_call,
 		"pcall", &variant_pcall,
 		"get_type", &variant_get_type,
-		"get_type_name", &get_type_name,
-		"hash", &Variant::hash,
-		"recursive_hash", &Variant::recursive_hash,
-		"hash_compare", &Variant::hash_compare,
+		"get_type_name", wrap_function(L, &get_type_name),
+		"hash", wrap_function(L, +[](const Variant& self) { return self.hash(); }),
+		"recursive_hash", wrap_function(L, +[](const Variant& self, int recursion_count) { return self.recursive_hash(recursion_count); }),
+		"hash_compare", wrap_function(L, +[](const Variant& self, const Variant& other) { return self.hash_compare(other); }),
 		"is", &variant_is,
 		// comparison
 		sol::meta_function::equal_to, &evaluate_binary_operator<Variant::OP_EQUAL>,
