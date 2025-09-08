@@ -122,3 +122,11 @@ func test_lua_error_doesnt_crash() -> bool:
 	var obj = test_class.new()
 	obj.raise_error()
 	return true
+
+
+func test_connect_signal_from_lua() -> bool:
+	var obj = test_class.new()
+	obj.connect_signal(some_signal)
+	some_signal.emit()
+	assert(obj.signal_handler_invoked)
+	return true

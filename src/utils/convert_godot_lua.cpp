@@ -34,6 +34,7 @@
 #include "convert_godot_std.hpp"
 #include "extra_utility_functions.hpp"
 #include "load_fileaccess.hpp"
+#include "method_bind_impl.hpp"
 #include "stack_top_checker.hpp"
 
 #include <godot_cpp/core/error_macros.hpp>
@@ -78,6 +79,14 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 			else if (object.template is<Class>()) {
 				Class& cls = object.template as<Class&>();
 				return cls.get_name();
+			}
+			else if (object.template is<VariantMethodBind>()) {
+				VariantMethodBind& method_bind = object.template as<VariantMethodBind&>();
+				return method_bind.to_callable();
+			}
+			else if (object.template is<LuaScriptInstanceMethodBind>()) {
+				LuaScriptInstanceMethodBind& method_bind = object.template as<LuaScriptInstanceMethodBind&>();
+				return method_bind.to_callable();
 			}
 			else {
 				return LuaObject::wrap_object<LuaUserdata>(object);
