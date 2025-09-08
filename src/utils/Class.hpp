@@ -30,8 +30,6 @@ using namespace godot;
 
 namespace luagdextension {
 
-class MethodBindByName;
-
 /**
  * Object that represents Godot classes in Lua
  */
@@ -44,7 +42,6 @@ public:
 
 	const StringName& get_name() const;
 	sol::optional<int64_t> get_constant(const StringName& name) const;
-	sol::optional<MethodBindByName> get_method(const StringName& name) const;
 
 	Variant construct(sol::this_state state, const sol::variadic_args& args) const;
 

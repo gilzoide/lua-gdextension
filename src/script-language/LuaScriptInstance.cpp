@@ -31,10 +31,10 @@
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
 #include "../LuaTable.hpp"
-#include "../utils/MethodBindByName.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/function_wrapper.hpp"
+#include "../utils/method_bind_impl.hpp"
 #include "../utils/string_names.hpp"
 
 namespace luagdextension {
@@ -328,7 +328,7 @@ static int lua_index(lua_State *L) {
 		if (LuaScriptInstance *instance = LuaScriptInstance::find_instance(self)) {
 			StringName key_name = key.as<StringName>();
 			if (instance->owner->has_method(key_name)) {
-				sol::stack::push(L, MethodBindByName(key_name));
+				sol::stack::push(L, LuaScriptInstanceMethodBind(instance, key_name));
 			}
 			else {
 				Variant value = instance->owner->get(key_name);
@@ -368,7 +368,8 @@ static int lua_to_string(lua_State *L) {
 }
 
 void LuaScriptInstance::register_lua(lua_State *L) {
-	metatable = sol::state_view(L).create_table_with(
+	sol::state_view state(L);
+	metatable = state.create_table_with(
 		"__index", lua_index,
 		"__newindex", lua_newindex,
 		"__tostring", lua_to_string,
@@ -376,6 +377,7 @@ void LuaScriptInstance::register_lua(lua_State *L) {
 	);
 	rawget = wrap_function(L, _rawget);
 	rawset = wrap_function(L, _rawset);
+	LuaScriptInstanceMethodBind::register_usertype(state);
 }
 
 void LuaScriptInstance::unregister_lua(lua_State *L) {
