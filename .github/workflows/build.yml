@@ -273,4 +273,5 @@ jobs:
           path: |
             LICENSE
             addons/lua-gdextension/**
+            addons/lua-gdextension/build/.gdignore
 
