@@ -27,6 +27,13 @@
   + In "Always Evaluate" behavior, Lua code will always be evaluated
   + In "Don't Load" behavior, Lua code will not be loaded nor evaluated at all
   + Note that only evaluated scripts can be attached to Godot Objects.
+- Variant and `LuaScriptInstance` methods are now converted to Callable, so they can be more easily passed to Godot APIs such as `Signal.connect`
+  ```lua
+  -- Before this change, we had to manually instantiate Callable
+  some_signal:connect(Callable(self, "method_name"))
+  -- Now we can pass the method directly
+  some_signal:connect(self.method_name)
+  ```
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s

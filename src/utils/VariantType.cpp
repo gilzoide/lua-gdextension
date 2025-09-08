@@ -22,9 +22,9 @@
 #include "VariantType.hpp"
 
 #include "Class.hpp"
-#include "MethodBindByName.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
+#include "method_bind_impl.hpp"
 
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -173,7 +173,7 @@ sol::object VariantType::__index(sol::this_state L, const VariantType& type, con
 		StringName method = key.as<StringName>();
 		Variant empty = type.construct_default();
 		if (empty.has_method(method)) {
-			return sol::make_object(L, MethodBindByName(method));
+			return sol::make_object(L, VariantTypeMethodBind(type, method));
 		}
 	}
 	else if (auto subtype = key.as<sol::optional<VariantType>>()) {
@@ -206,6 +206,7 @@ void VariantType::register_usertype(sol::state_view& state) {
 		sol::meta_function::call, &VariantType::construct,
 		sol::meta_function::to_string, &VariantType::to_string
 	);
+	VariantTypeMethodBind::register_usertype(state);
 }
 
 std::tuple<Variant::Type, StringName, Variant> VariantType::subtype_to_constructor_args(const Variant& subtype) {

@@ -6,6 +6,7 @@ TestClass.empty_array = property { type = Array }
 TestClass.preinitialized_array = Array { 1, 2, 3 }
 TestClass.signal_awaited = false
 TestClass.typed_array = property { type = Array[int] }
+TestClass.signal_handler_invoked = false
 
 -- Getter methods
 TestClass.getter_counter = property {
@@ -65,6 +66,14 @@ end
 
 function TestClass:raise_error()
 	error("here's an expected error that won't crash the process!")
+end
+
+function TestClass:connect_signal(sig)
+	sig:connect(self._signal_handler)
+end
+
+function TestClass:_signal_handler()
+	self.signal_handler_invoked = true
 end
 
 return TestClass

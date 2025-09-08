@@ -31,10 +31,10 @@
 #include "../utils/IndexedIterator.hpp"
 #include "../utils/ObjectIterator.hpp"
 #include "../utils/VariantType.hpp"
-#include "../utils/MethodBindByName.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
 #include "../utils/function_wrapper.hpp"
+#include "../utils/method_bind_impl.hpp"
 #include "../utils/string_names.hpp"
 
 using namespace godot;
@@ -88,7 +88,7 @@ sol::object variant__index(sol::this_state state, const Variant& variant, const 
 			return to_lua(state, variant.get_named(string_name, is_valid));
 		}
 		else if (variant.has_method(string_name)) {
-			return sol::make_object(state, MethodBindByName(string_name));
+			return sol::make_object(state, VariantMethodBind(variant, string_name));
 		}
 	}
 
@@ -226,7 +226,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::to_string, &Variant::stringify
 	);
 
-	MethodBindByName::register_usertype(state);
+	VariantMethodBind::register_usertype(state);
 	VariantType::register_usertype(state);
 
 	state.set("typeof", &variant_get_type);
