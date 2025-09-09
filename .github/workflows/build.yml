@@ -274,4 +274,5 @@ jobs:
             LICENSE
             addons/lua-gdextension/**
             addons/lua-gdextension/build/.gdignore
+          include-hidden-files: true
 
