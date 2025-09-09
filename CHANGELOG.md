@@ -48,6 +48,8 @@
 - `LuaScriptResourceFormatLoader::_load` now respects the cache mode, fixing "Another resource is loaded from path 'res://...' (possible cyclic resource inclusion)." errors
 - Error messages from Lua code using the wrong stack index
 - Crashes when passing Lua primitives to `typeof`, `Variant.is`, `Variant.get_type`, `Variant.booleanize`, `Variant.duplicate`, `Variant.get_type_name`, `Variant.hash`, `Variant.recursive_hash` and `Variant.hash_compare`
+- The `addons/lua-gdextension/build/.gdignore` file was added to the distributed build.
+  This fixes import errors when opening the Godot editor with the LuaJIT build.
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)
