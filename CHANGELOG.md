@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.5.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.0...HEAD)
+
+
+## [0.6.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.0)
 ### Added
 - Support for constructing typed arrays in Lua using the idiom `Array[some_type]()`
 - Support for constructing typed dictionaries in Lua using the idiom `Dictionary[key_type][value_type]()`
