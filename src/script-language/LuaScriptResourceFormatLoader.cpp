@@ -26,7 +26,6 @@
 #include "LuaScript.hpp"
 #include "LuaScriptLanguage.hpp"
 #include "LuaScriptResourceFormatLoader.hpp"
-#include "../LuaTable.hpp"
 
 namespace luagdextension {
 
@@ -54,8 +53,31 @@ bool LuaScriptResourceFormatLoader::_exists(const String &p_path) const {
 }
 
 Variant LuaScriptResourceFormatLoader::_load(const String &p_path, const String &p_original_path, bool p_use_sub_threads, int32_t p_cache_mode) const {
-	Ref<LuaScript> script(LuaScriptLanguage::get_singleton()->_create_script());
-	script->set_path(p_original_path);
+	Ref<LuaScript> script;
+	script.instantiate();
+
+	switch (p_cache_mode) {
+		case ResourceFormatLoader::CACHE_MODE_IGNORE:
+		case ResourceFormatLoader::CACHE_MODE_IGNORE_DEEP:
+			break;
+
+		case ResourceFormatLoader::CACHE_MODE_REUSE: {
+			Ref<LuaScript> existing_script = ResourceLoader::get_singleton()->get_cached_ref(p_path);
+			if (existing_script.is_null()) {
+				script->set_path(p_original_path);
+			}
+			else {
+				script = existing_script;
+			}
+			break;
+		}
+
+		case ResourceFormatLoader::CACHE_MODE_REPLACE:
+		case ResourceFormatLoader::CACHE_MODE_REPLACE_DEEP:
+			script->take_over_path(p_original_path);
+			break;
+	}
+
 	script->set_source_code(FileAccess::get_file_as_string(p_path));
 	Error status = script->reload();
 	if (status == OK) {

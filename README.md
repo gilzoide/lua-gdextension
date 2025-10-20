@@ -1,6 +1,6 @@
 # Lua GDExtension
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28Lua%205.4%29&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28LuaJIT%29&color=478CBF&message=0.5.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28Lua%205.4%29&color=478CBF&message=0.6.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28LuaJIT%29&color=478CBF&message=0.6.0)](https://godotengine.org/asset-library/asset/2330)
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
@@ -67,6 +67,9 @@ local LuaBouncingLogo = {
 function LuaBouncingLogo:_ready()
 	self.position = self:get_viewport():get_size() / 2
 	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
+
+	-- To connect a signal in Lua, you can use the method name just like in GDScript
+	self.bounced:connect(self._on_bounced)
 end
 
 -- Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -78,6 +81,10 @@ function LuaBouncingLogo:_process(delta)
 		self.bounced:emit()
 	end
 	self.position = self.position + self.movement * delta
+end
+
+function LuaBouncingLogo:_on_bounced()
+	print("Bounced =D")
 end
 
 -- Return the metadata table for the script to be usable by Godot objects

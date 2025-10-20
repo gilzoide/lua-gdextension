@@ -1,5 +1,12 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.5.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.0...HEAD)
+### Changed
+- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
+- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
+
+
+
+## [0.6.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.0)
 ### Added
 - Support for constructing typed arrays in Lua using the idiom `Array[some_type]()`
 - Support for constructing typed dictionaries in Lua using the idiom `Dictionary[key_type][value_type]()`
@@ -27,8 +34,13 @@
   + In "Always Evaluate" behavior, Lua code will always be evaluated
   + In "Don't Load" behavior, Lua code will not be loaded nor evaluated at all
   + Note that only evaluated scripts can be attached to Godot Objects.
-- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
-- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
+- Variant and `LuaScriptInstance` methods are now converted to Callable, so they can be more easily passed to Godot APIs such as `Signal.connect`
+  ```lua
+  -- Before this change, we had to manually instantiate Callable
+  some_signal:connect(Callable(self, "method_name"))
+  -- Now we can pass the method directly
+  some_signal:connect(self.method_name)
+  ```
 
 ### Fixed
 - Fixed cyclic references from `LuaScriptInstance` <-> `LuaState`, avoiding leaks of `LuaScript`s
@@ -40,6 +52,11 @@
 - Convert null Object Variants (`<Object#null>`) to `nil` when passing them to Lua
 - Convert freed Object Variants (`<Freed Object>`) to `nil` when passing them to Lua
 - Fixed `LuaJIT core/library version mismatch` errors in LuaJIT builds
+- `LuaScriptResourceFormatLoader::_load` now respects the cache mode, fixing "Another resource is loaded from path 'res://...' (possible cyclic resource inclusion)." errors
+- Error messages from Lua code using the wrong stack index
+- Crashes when passing Lua primitives to `typeof`, `Variant.is`, `Variant.get_type`, `Variant.booleanize`, `Variant.duplicate`, `Variant.get_type_name`, `Variant.hash`, `Variant.recursive_hash` and `Variant.hash_compare`
+- The `addons/lua-gdextension/build/.gdignore` file was added to the distributed build.
+  This fixes import errors when opening the Godot editor with the LuaJIT build.
 
 
 ## [0.5.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.5.0)

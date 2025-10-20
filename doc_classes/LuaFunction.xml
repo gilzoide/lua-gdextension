@@ -26,7 +26,7 @@
 				[codeblocks]
 				[gdscript]
 				var lua_state = LuaState.new()
-				var add_function = lua_state.load_string("return function(a, b) return a + b end")
+				var add_function = lua_state.do_string("return function(a, b) return a + b end")
 				# Call function using invoke
 				var result = add_function.invoke(1, 2)
 				print(result) # Prints 3
@@ -45,7 +45,7 @@
 				[codeblocks]
 				[gdscript]
 				var lua_state = LuaState.new()
-				var add_function = lua_state.load_string("return function(a, b) return a + b end")
+				var add_function = lua_state.do_string("return function(a, b) return a + b end")
 				# Call function using invokev
 				var result = add_function.invokev([1, 2])
 				print(result) # Prints 3
