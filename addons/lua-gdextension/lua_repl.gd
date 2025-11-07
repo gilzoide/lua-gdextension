@@ -39,7 +39,17 @@ func reset():
 	_lua = LuaState.new()
 	_lua.open_libraries()
 	_lua.registry.print = _printn
-	_lua.do_string(r"print = function(...) debug.getregistry().print(table.concat({...}, '\t')) end")
+	_lua.load_string(r"""
+		local tab_size = ...
+		local indent = string.rep(' ', tab_size)
+		print = function(...)
+			local args = {...}
+			for i = 1, #args do
+				args[i] = tostring(args[i])
+			end
+			debug.getregistry().print(table.concat(args, indent))
+		end
+	""").invoke(_output.tab_size)
 	
 	_history.clear()
 	_current_history = 0
