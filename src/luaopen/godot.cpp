@@ -33,8 +33,8 @@ extern "C" int luaopen_godot(lua_State *L) {
 
 	state.require(module_names::variant, &luaopen_godot_variant, false);
 	state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
-	state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 	state.require(module_names::classes, &luaopen_godot_classes, false);
+	state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 	state.require(module_names::enums, &luaopen_godot_enums, false);
 	state.require(module_names::local_paths, &luaopen_godot_local_paths, false);
 
