@@ -247,14 +247,17 @@ String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from
 }
 
 void LuaScriptLanguage::_add_global_constant(const StringName &p_name, const Variant &p_value) {
+	named_globals[p_name] = p_value;
 	lua_state->get_globals()->set(p_name, p_value);
 }
 
 void LuaScriptLanguage::_add_named_global_constant(const StringName &p_name, const Variant &p_value) {
+	named_globals[p_name] = p_value;
 	lua_state->get_globals()->set(p_name, p_value);
 }
 
 void LuaScriptLanguage::_remove_named_global_constant(const StringName &p_name) {
+	named_globals.erase(p_name);
 	lua_state->get_globals()->set(p_name, nullptr);
 }
 
@@ -410,6 +413,10 @@ PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
 #endif
 		"self", "_G", "_VERSION"
 	);
+}
+
+const Dictionary& LuaScriptLanguage::get_named_globals() const {
+	return named_globals;
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {
