@@ -288,7 +288,7 @@
 			Godot singletons library. Adds singletons such as [Engine] as well as enabled Autoloaded nodes.
 		</constant>
 		<constant name="GODOT_CLASSES" value="65536" enum="Library" is_bitfield="true">
-			Godot classes library. Adds Godot classes like [Node] to _G.
+			Godot classes library. Adds Godot classes like [Node] and named classes (scripts with [code]class_name[/code]) to _G.
 			[codeblocks]
 			[gdscript]
 			var lua_state = LuaState.new()
