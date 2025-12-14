@@ -285,7 +285,7 @@
 			[b]Note: This may override some Lua functions like [code]print[/code].[/b]
 		</constant>
 		<constant name="GODOT_SINGLETONS" value="32768" enum="Library" is_bitfield="true">
-			Godot singletons library.
+			Godot singletons library. Adds singletons such as [Engine] as well as enabled Autoloaded nodes.
 		</constant>
 		<constant name="GODOT_CLASSES" value="65536" enum="Library" is_bitfield="true">
 			Godot classes library. Adds Godot classes like [Node] to _G.
