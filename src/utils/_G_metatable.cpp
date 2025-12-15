@@ -59,7 +59,7 @@ sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_obje
 			Class cls(class_name);
 			return _G[key] = sol::make_object(state, cls);
 		}
-		else if (const char *global_class_path = registry.get<sol::table>("_GDEXTENSION_GLOBAL_CLASS_PATHS").get_or<const char *>(key, nullptr)) {
+		else if (const char *global_class_path = registry.get<sol::table>("_GDEXTENSION_GLOBAL_CLASS_PATHS").get_or(key, (const char *) nullptr)) {
 			Ref<Resource> res = resource_loader->load(global_class_path);
 			return _G[key] = to_lua(state, res);
 		}
