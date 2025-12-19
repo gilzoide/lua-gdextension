@@ -30,8 +30,8 @@ std::string to_std_string(const String& s) {
 		return "";
 	}
 
-	PackedByteArray bytes = s.to_utf8_buffer();
-	return std::string((const char *) bytes.ptr(), bytes.size());
+	CharString chars = s.utf8();
+	return std::string(chars.ptr(), chars.size());
 }
 
 std::string_view to_string_view(const PackedByteArray& bytes) {
