@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.1...HEAD)
+
+
+## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)
 ### Fixed
 - Access [autoloaded nodes](https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html) when `GODOT_SINGLETONS` library is open
 - Access [named classes](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html#registering-named-classes) when `GODOT_CLASSES` library is open
