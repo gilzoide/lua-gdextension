@@ -3,7 +3,7 @@ extends SceneTree
 const LUA_TEST_DIR = "res://lua_tests"
 const GDSCRIPT_TEST_DIR = "res://gdscript_tests"
 
-func _initialize():
+func _process(_delta):
 	var all_success = true
 
 	print("Starting Lua GDExtension tests (runtime: ", LuaState.get_lua_runtime(), ")")

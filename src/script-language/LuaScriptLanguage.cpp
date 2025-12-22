@@ -29,6 +29,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
+#include "../generated/lua_script_globals.h"
 #include "../utils/project_settings.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
@@ -62,6 +63,9 @@ void LuaScriptLanguage::_init() {
 	ProjectSettings *project_settings = ProjectSettings::get_singleton();
 	lua_state->set_package_path(project_settings->get_setting_with_override(LUA_PATH_SETTING));
 	lua_state->set_package_cpath(project_settings->get_setting_with_override(LUA_CPATH_SETTING));
+
+	// Additional globals defined in Lua code
+	lua_state->do_string(lua_script_globals);
 }
 
 String LuaScriptLanguage::_get_type() const {
