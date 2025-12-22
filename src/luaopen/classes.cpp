@@ -20,18 +20,28 @@
  * SOFTWARE.
  */
 #include "../utils/Class.hpp"
+#include "../utils/convert_godot_std.hpp"
 
 #include <godot_cpp/classes/class_db_singleton.hpp>
+#include <godot_cpp/classes/project_settings.hpp>
+#include <sol/sol.hpp>
 
 using namespace luagdextension;
 
 extern "C" int luaopen_godot_classes(lua_State *L) {
 	sol::state_view state = L;
 
+	sol::table global_class_paths = state.registry().create_named("_GDEXTENSION_GLOBAL_CLASS_PATHS");
 	Class::register_usertype(state);
 	ClassDBSingleton *classdb = ClassDBSingleton::get_singleton();
 	for (auto&& class_name : classdb->get_class_list()) {
 		state.set(class_name.ascii().get_data(), Class(class_name));
+	}
+
+	TypedArray<Dictionary> global_class_list = ProjectSettings::get_singleton()->get_global_class_list();
+	for (int64_t i = 0; i < global_class_list.size(); ++i) {
+		Dictionary type_info = global_class_list[i];
+		global_class_paths[to_std_string(type_info["class"])] = to_std_string(type_info["path"]);
 	}
 
 	return 0;

@@ -70,6 +70,14 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 		else if (name == "tool") {
 			is_tool = to_variant(value).booleanize();
 		}
+		else if (name == "rpc_config") {
+			if (value.get_type() == sol::type::table) {
+				rpc_config = to_dictionary(value.as<sol::stack_table>());
+			}
+			else {
+				rpc_config = to_variant(value);
+			}
+		}
 		else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
 			signal->name = name;
 			signals.insert(name, *signal);
@@ -96,6 +104,7 @@ void LuaScriptMetadata::clear() {
 	base_class = RefCounted::get_class_static();
 	class_name = StringName();
 	icon_path = String();
+	rpc_config = Variant();
 	properties.clear();
 	signals.clear();
 	methods.clear();

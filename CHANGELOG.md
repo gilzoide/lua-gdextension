@@ -1,9 +1,18 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.6.1...HEAD)
+### Added
+- Support for setting up RPC method configurations in `LuaScript`s via a table or Dictionary called `rpc_config`.
+  Use the new `rpc` global function that mimics GDScript's [@rpc annotation](https://docs.godotengine.org/en/stable/classes/class_%40gdscript.html#class-gdscript-annotation-rpc) for the values.
+
 ### Changed
 - Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
 - Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
 
+
+## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)
+### Fixed
+- Access [autoloaded nodes](https://docs.godotengine.org/en/stable/tutorials/scripting/singletons_autoload.html) when `GODOT_SINGLETONS` library is open
+- Access [named classes](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html#registering-named-classes) when `GODOT_CLASSES` library is open
 
 
 ## [0.6.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.0)
