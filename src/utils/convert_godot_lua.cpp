@@ -73,8 +73,7 @@ Variant to_variant(const sol::basic_object<ref_t>& object) {
 
 		case sol::type::userdata:
 			if (object.template is<Variant>()) {
-				GDExtensionVariantPtr variant_ptr = object.template as<Variant *>();
-				return Variant(variant_ptr);
+				return object.template as<Variant>();
 			}
 			else if (object.template is<Class>()) {
 				Class& cls = object.template as<Class&>();

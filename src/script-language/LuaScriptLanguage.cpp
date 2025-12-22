@@ -78,6 +78,7 @@ String LuaScriptLanguage::_get_extension() const {
 
 void LuaScriptLanguage::_finish() {
 	LuaScriptInstance::unregister_lua(lua_state->get_lua_state());
+	lua_parser.unref();
 	lua_state.unref();
 }
 

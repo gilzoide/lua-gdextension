@@ -229,6 +229,7 @@ lua.do_string("""
   + [X] Add support for property hints / usage flags (including export)
   + [X] Add support for property getter / setter
   + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
+  + [X] Add support for setting up method RPC configurations
 - [X] Support for building with LuaJIT
 - [X] Support WebAssembly platform
 - [X] Support Windows arm64 platform
