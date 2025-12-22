@@ -288,8 +288,7 @@ bool LuaScript::_is_placeholder_fallback_enabled() const {
 }
 
 Variant LuaScript::_get_rpc_config() const {
-	// TODO
-	return {};
+	return metadata.rpc_config;
 }
 
 Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtensionCallError &error) {

@@ -29,6 +29,7 @@
 #include "../LuaError.hpp"
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
+#include "../generated/lua_script_globals.h"
 #include "../utils/project_settings.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
@@ -62,6 +63,9 @@ void LuaScriptLanguage::_init() {
 	ProjectSettings *project_settings = ProjectSettings::get_singleton();
 	lua_state->set_package_path(project_settings->get_setting_with_override(LUA_PATH_SETTING));
 	lua_state->set_package_cpath(project_settings->get_setting_with_override(LUA_CPATH_SETTING));
+
+	// Additional globals defined in Lua code
+	lua_state->do_string(lua_script_globals);
 }
 
 String LuaScriptLanguage::_get_type() const {
@@ -74,6 +78,7 @@ String LuaScriptLanguage::_get_extension() const {
 
 void LuaScriptLanguage::_finish() {
 	LuaScriptInstance::unregister_lua(lua_state->get_lua_state());
+	lua_parser.unref();
 	lua_state.unref();
 }
 
@@ -247,14 +252,17 @@ String LuaScriptLanguage::_auto_indent_code(const String &p_code, int32_t p_from
 }
 
 void LuaScriptLanguage::_add_global_constant(const StringName &p_name, const Variant &p_value) {
+	named_globals[p_name] = p_value;
 	lua_state->get_globals()->set(p_name, p_value);
 }
 
 void LuaScriptLanguage::_add_named_global_constant(const StringName &p_name, const Variant &p_value) {
+	named_globals[p_name] = p_value;
 	lua_state->get_globals()->set(p_name, p_value);
 }
 
 void LuaScriptLanguage::_remove_named_global_constant(const StringName &p_name) {
+	named_globals.erase(p_name);
 	lua_state->get_globals()->set(p_name, nullptr);
 }
 
@@ -410,6 +418,10 @@ PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
 #endif
 		"self", "_G", "_VERSION"
 	);
+}
+
+const Dictionary& LuaScriptLanguage::get_named_globals() const {
+	return named_globals;
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {

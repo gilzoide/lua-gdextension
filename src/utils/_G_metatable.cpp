@@ -24,8 +24,10 @@
 #include "Class.hpp"
 #include "convert_godot_lua.hpp"
 #include "module_names.hpp"
+#include "../script-language/LuaScriptLanguage.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
 using namespace godot;
@@ -34,6 +36,7 @@ namespace luagdextension {
 
 sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_object key) {
 	static Engine *engine = Engine::get_singleton();
+	static ResourceLoader *resource_loader = ResourceLoader::get_singleton();
 
 	if (key.get_type() != sol::type::string) {
 		return sol::nil;
@@ -46,12 +49,19 @@ sol::object __index(sol::this_state state, sol::global_table _G, sol::stack_obje
 			Variant singleton = engine->get_singleton(class_name);
 			return _G[key] = to_lua(state, singleton);
 		}
+		else if (Variant named_global = LuaScriptLanguage::get_singleton()->get_named_globals().get(class_name, nullptr); named_global.get_type() != Variant::NIL) {
+			return _G[key] = to_lua(state, named_global);
+		}
 	}
 	if (registry.get_or(module_names::classes, false)) {
 		StringName class_name = key.as<StringName>();
 		if (ClassDB::class_exists(class_name)) {
 			Class cls(class_name);
 			return _G[key] = sol::make_object(state, cls);
+		}
+		else if (const char *global_class_path = registry.get<sol::table>("_GDEXTENSION_GLOBAL_CLASS_PATHS").get_or(key, (const char *) nullptr)) {
+			Ref<Resource> res = resource_loader->load(global_class_path);
+			return _G[key] = to_lua(state, res);
 		}
 	}
 	return sol::nil;

@@ -129,6 +129,23 @@ func test_setgetmetatable() -> bool:
 	return true
 
 
+func test_to_dictionary() -> bool:
+	var table = lua_state.do_string("""
+		local t = {
+			key1 = 1,
+			key2 = 2,
+		}
+		return t
+	""")
+
+	assert(table.to_dictionary() == {
+		key1 = 1,
+		key2 = 2,
+	})
+	
+	return true
+
+
 func test_to_dictionary_pairs() -> bool:
 	var table = lua_state.do_string("""
 		local function iterate_index_then_self(t)

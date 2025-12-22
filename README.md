@@ -1,6 +1,6 @@
 # Lua GDExtension
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28Lua%205.4%29&color=478CBF&message=0.6.0)](https://godotengine.org/asset-library/asset/2330)
-[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28LuaJIT%29&color=478CBF&message=0.6.0)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28Lua%205.4%29&color=478CBF&message=0.6.1)](https://godotengine.org/asset-library/asset/2330)
+[![Godot Asset Library page](https://img.shields.io/static/v1?logo=godotengine&label=asset%20library%20%28LuaJIT%29&color=478CBF&message=0.6.1)](https://godotengine.org/asset-library/asset/2330)
 [![Build and Test workflow](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml/badge.svg)](https://github.com/gilzoide/lua-gdextension/actions/workflows/build.yml)
 
 <img src="addons/lua-gdextension/icon.png" alt="Lua GDExtension icon" width="150" height="150"/>
@@ -86,6 +86,12 @@ end
 function LuaBouncingLogo:_on_bounced()
 	print("Bounced =D")
 end
+
+-- Setup method RPC configs by creating the `rpc_config` table
+-- Each key is a method name and the value is a `rpc` config like GDScript's `@rpc`
+LuaBouncingLogo.rpc_config = {
+	_on_bounced = rpc("authority", "unreliable_ordered", "call_local", 1),
+}
 
 -- Return the metadata table for the script to be usable by Godot objects
 return LuaBouncingLogo
@@ -223,6 +229,7 @@ lua.do_string("""
   + [X] Add support for property hints / usage flags (including export)
   + [X] Add support for property getter / setter
   + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
+  + [X] Add support for setting up method RPC configurations
 - [X] Support for building with LuaJIT
 - [X] Support WebAssembly platform
 - [X] Support Windows arm64 platform
