@@ -38,6 +38,7 @@ struct LuaScriptMetadata {
 	StringName base_class;
 	StringName class_name;
 	String icon_path;
+	Variant rpc_config;
 	HashMap<StringName, LuaScriptMethod> methods;
 	HashMap<StringName, LuaScriptProperty> properties;
 	HashMap<StringName, LuaScriptSignal> signals;
