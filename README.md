@@ -87,6 +87,12 @@ function LuaBouncingLogo:_on_bounced()
 	print("Bounced =D")
 end
 
+-- Setup method RPC configs by creating the `rpc_config` table
+-- Each key is a method name and the value is a `rpc` config like GDScript's `@rpc`
+LuaBouncingLogo.rpc_config = {
+	_on_bounced = rpc("authority", "unreliable_ordered", "call_local", 1),
+}
+
 -- Return the metadata table for the script to be usable by Godot objects
 return LuaBouncingLogo
 ```
