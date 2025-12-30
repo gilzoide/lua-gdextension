@@ -45,7 +45,7 @@ func test_array_properties() -> bool:
 
 func test_non_existent_property() -> bool:
 	var obj = test_class.new()
-	assert("some crazy non-existent property name" not in obj)
+	assert(obj.get("some crazy non-existent property name") == null)
 	return true;
 
 
@@ -81,7 +81,7 @@ func test_property_setter_function() -> bool:
 
 func test_property_setter_name() -> bool:
 	var obj = test_class.new()
-	assert("a" not in obj)
+	assert(obj.get("a") == null)
 	obj.setter_name = "value"
 	assert(obj.setter_name == null)
 	assert(obj.a == "value")
