@@ -40,6 +40,8 @@ build/update_readme_version.sed:
 
 
 test/.godot:
+# Run twice because the first time Godot might crash and not register global classes correctly
+	$(GODOT_BIN) --headless --quit --path test --editor || true
 	$(GODOT_BIN) --headless --quit --path test --editor || true
 
 .PHONY: zip test download-latest-build bump-version generate-docs

@@ -191,23 +191,23 @@ jobs:
         include:
           - name: Linux
             runner-os: ubuntu-latest
-            godot-release: 4.4-stable/Godot_v4.4-stable_linux.x86_64.zip
-            godot-bin: ./Godot_v4.4-stable_linux.x86_64
+            godot-release: 4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip
+            godot-bin: ./Godot_v4.5.1-stable_linux.x86_64
           - name: Linux (arm64)
             runner-os: ubuntu-24.04-arm
-            godot-release: 4.4-stable/Godot_v4.4-stable_linux.arm64.zip
-            godot-bin: ./Godot_v4.4-stable_linux.arm64
+            godot-release: 4.5.1-stable/Godot_v4.5.1-stable_linux.arm64.zip
+            godot-bin: ./Godot_v4.5.1-stable_linux.arm64
           - name: Windows
             runner-os: windows-latest
-            godot-release: 4.4-stable/Godot_v4.4-stable_win64.exe.zip
-            godot-bin: ./Godot_v4.4-stable_win64.exe
+            godot-release: 4.5.1-stable/Godot_v4.5.1-stable_win64.exe.zip
+            godot-bin: ./Godot_v4.5.1-stable_win64.exe
           - name: Windows (arm64)
             runner-os: windows-11-arm
-            godot-release: 4.4-stable/Godot_v4.4-stable_windows_arm64.exe.zip
-            godot-bin: ./Godot_v4.4-stable_windows_arm64.exe
+            godot-release: 4.5.1-stable/Godot_v4.5.1-stable_windows_arm64.exe.zip
+            godot-bin: ./Godot_v4.5.1-stable_windows_arm64.exe
           - name: macOS
             runner-os: macos-latest
-            godot-release: 4.4-stable/Godot_v4.4-stable_macos.universal.zip
+            godot-release: 4.5.1-stable/Godot_v4.5.1-stable_macos.universal.zip
             godot-bin: ./Godot.app/Contents/MacOS/Godot
     env:
       GODOT_BIN: ${{ matrix.godot-bin }}
