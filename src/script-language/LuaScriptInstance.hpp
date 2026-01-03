@@ -55,7 +55,7 @@ struct LuaScriptInstance {
 	Ref<LuaScript> script;
 	Ref<LuaTable> data;
 
-	LuaState *get_lua_state() const;
+	Ref<LuaState> get_lua_state() const;
 
 	static void register_lua(lua_State *L);
 	static void unregister_lua(lua_State *L);

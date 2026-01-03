@@ -301,7 +301,7 @@ LuaScriptInstance *LuaScriptInstance::attached_to_object(Object *owner) {
 	}
 }
 
-LuaState *LuaScriptInstance::get_lua_state() const {
+Ref<LuaState> LuaScriptInstance::get_lua_state() const {
 	return data->get_lua_state();
 }
 

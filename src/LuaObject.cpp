@@ -28,7 +28,7 @@ const sol::reference& LuaObject::get_lua_object() const {
 	abort();
 }
 
-LuaState *LuaObject::get_lua_state() const {
+Ref<LuaState> LuaObject::get_lua_state() const {
 	return LuaState::find_lua_state(get_lua_object().lua_state());
 }
 
