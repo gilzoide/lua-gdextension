@@ -189,3 +189,10 @@ func test_to_dictionary_pairs() -> bool:
 	})
 	
 	return true
+
+
+func test_get_lua_state() -> bool:
+	var table = lua_state.create_table()
+	var table_lua_state = table.get_lua_state()
+	assert(table_lua_state == lua_state)
+	return true
