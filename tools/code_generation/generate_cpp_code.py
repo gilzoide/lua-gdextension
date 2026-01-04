@@ -94,11 +94,12 @@ def generate_variant_type_constants(builtin_classes):
     ]
     for cls in builtin_classes:
         constants = cls.get("constants", [])
-        if constants:
+        enums = cls.get("enums", [])
+        if constants or enums:
             lines.append("\t\t{")
             lines.append(f"\t\t\tDictionary c;")
             for constant in constants:
-                value: str = constant['value'].replace("inf", "INFINITY")
+                value = constant['value'].replace("inf", "INFINITY")
                 # Projection in C++ cannot be initialized with all 16 numbers, we need 4 columns instead T_T
                 if cls["name"] == "Projection":
                     value_list = list(value)
@@ -112,6 +113,11 @@ def generate_variant_type_constants(builtin_classes):
                     value_list.insert(11, "{")
                     value = "".join(value_list)
                 lines.append(f"\t\t\tc[\"{constant['name']}\"] = {value};")
+            for enum in enums:
+                lines.append(f"\t\t\tDictionary {enum['name']};")
+                for value in enum["values"]:
+                    lines.append(f"\t\t\t{enum['name']}[\"{value['name']}\"] = {value['value']};")
+                lines.append(f"\t\t\tc[\"{enum['name']}\"] = {enum['name']};")
             lines.append(f"\t\t\tconstants[{_to_variant_type(cls['name'])}] = c;")
             lines.append("\t\t}")
     lines.append("\t}")
