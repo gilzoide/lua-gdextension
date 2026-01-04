@@ -151,10 +151,16 @@ def generate_builtin_classes(
             continue
         elif cls["name"] == "bool":
             lines.append("--- @alias bool boolean")
+            lines.append("--- @return bool")
+            lines.append("function bool() end")
         elif cls["name"] == "int":
             lines.append("--- @alias int integer")
+            lines.append("--- @return int")
+            lines.append("function int() end")
         elif cls["name"] == "float":
             lines.append("--- @alias float number")
+            lines.append("--- @return float")
+            lines.append("function float() end")
         else:
             can_construct_from_table = cls["name"] in ["Dictionary", "Array"]
 
