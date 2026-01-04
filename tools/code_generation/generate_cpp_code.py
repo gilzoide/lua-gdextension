@@ -152,7 +152,7 @@ def main():
         code = generate_lua_script_globals()
         f.write(code)
     
-    with open(os.path.join(DEST_DIR, "variant_type_constants.h"), "w") as f:
+    with open(os.path.join(DEST_DIR, "variant_type_constants.hpp"), "w") as f:
         code = generate_variant_type_constants(api["builtin_classes"])
         f.write(code)
 

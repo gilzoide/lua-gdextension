@@ -14,7 +14,7 @@ def generate(env):
             "src/generated/utility_functions.hpp",
             "src/generated/package_searcher.h",
             "src/generated/lua_script_globals.h",
-            "src/generated/variant_type_constants.h",
+            "src/generated/variant_type_constants.hpp",
         ],
         [
             "tools/code_generation/generate_cpp_code.py",

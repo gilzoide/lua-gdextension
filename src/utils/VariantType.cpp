@@ -25,7 +25,7 @@
 #include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
 #include "method_bind_impl.hpp"
-#include "../generated/variant_type_constants.h"
+#include "../generated/variant_type_constants.hpp"
 
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/resource.hpp>
