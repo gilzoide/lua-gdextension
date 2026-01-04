@@ -110,6 +110,8 @@ def generate_builtin_classes(
     # First, the definition of Variant
     lines.append(dedent("""
         --- @class Variant
+        --- @overload fun(): Variant
+        --- @overload fun(from: any): Variant
         --- @operator concat(any): String
         Variant = {}
 
