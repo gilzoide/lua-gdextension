@@ -75,10 +75,15 @@ def _arg_name(name: str) -> str:
     return KEYWORD_MAP.get(name, name)
 
 
-def _arg_type(name: str) -> str:
+def _arg_type(name: str, has_default: Any = False) -> str:
     if name.startswith("typedarray::"):
-        return f"Array[{name[len("typedarray::"):]}]"
-    return name.replace(",", " | ").replace("enum::", "").replace("bitfield::", "")
+        arg_type = f"Array[{name[len("typedarray::"):]}]"
+    else:
+        arg_type = name.replace(",", " | ").replace("enum::", "").replace("bitfield::", "")
+    
+    if has_default:
+        arg_type += '?'
+    return arg_type
 
 
 def generate_global_enums(
@@ -206,15 +211,16 @@ def generate_builtin_classes(
                 if method["name"] == "repeat":
                     continue
 
+                lines.append("")
+                if method["is_static"]:
+                    lines.append("--- static")
                 for arg in method.get('arguments', []):
-                    lines.append(f"--- @param {_arg_name(arg['name'])} {arg['type']}")
+                    lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'], arg.get('default_value'))}{' Default: ' + arg.get('default_value', '') if arg.get('default_value') else ''}")
                 if return_type := method.get("return_type"):
                     lines.append(f"--- @return {return_type}")
                 lines.append(f"""function {
                         cls['name']
-                    }{
-                        '.' if method['is_static'] else ':'
-                    }{
+                    }:{
                         method['name']
                     }({
                         ', '.join(
@@ -222,7 +228,6 @@ def generate_builtin_classes(
                             for arg in (method.get('arguments', []) + ([{'name': '...'}] if method['is_vararg'] else []))
                         )
                     }) end""")
-                lines.append("")
 
         lines.append("")
 
@@ -274,15 +279,15 @@ def generate_classes(
                 continue
 
             lines.append("")
+            if method["is_static"]:
+                lines.append("--- static")
             for arg in method.get('arguments', []):
-                lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'])}")
+                lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'], arg.get('default_value'))}{' Default: ' + arg.get('default_value', '') if arg.get('default_value') else ''}")
             if return_value := method.get("return_value"):
                 lines.append(f"--- @return {_arg_type(return_value['type'])}")
             lines.append(f"""function {
                     cls['name']
-                }{
-                    '.' if method['is_static'] else ':'
-                }{
+                }:{
                     method['name']
                 }({
                     ', '.join(
