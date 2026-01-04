@@ -55,7 +55,7 @@ def main():
         _write_to_file(f, generate_builtin_classes(extension_api["builtin_classes"]))
 
     with open(os.path.join(DEST_DIR, "classes.lua"), "w") as f:
-        _write_to_file(f, generate_classes(extension_api["classes"]))
+        _write_to_file(f, generate_classes(extension_api["classes"], extension_api["singletons"]))
 
 
 def _write_to_file(f, lines: list[str]):
@@ -226,6 +226,7 @@ def generate_builtin_classes(
 
 def generate_classes(
     classes: list[Class],
+    singletons: list[ArgumentOrSingletonOrMember],
 ) -> list[str]:
     lines = []
 
@@ -240,6 +241,12 @@ def generate_classes(
             lines.append(f"--- @field {property['name']} {_arg_type(property['type'])}")
         
         lines.append(f"{cls['name']} = {{}}")
+
+        # Constructor
+        if not get_class_singleton_name(cls, singletons) and cls["is_instantiable"]:
+            lines.append("")
+            lines.append(f"--- @return {cls['name']}")
+            lines.append(f"function {cls['name']}:new() end")
 
         # Constants
         if constants := cls.get("constants", []):
