@@ -1,0 +1,211 @@
+"""
+Generate a Lua file with Lua Language Server annotations based on extension_api.json
+"""
+
+import os
+import json
+from textwrap import dedent
+
+from json_types import *
+
+
+SRC_DIR = os.path.dirname(__file__)
+DEST_DIR = os.path.join(SRC_DIR, "..", "..", "addons", "lua-gdextension", "lua_api_definitions")
+API_JSON_PATH = os.path.join(SRC_DIR, "..", "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
+
+OPERATOR_MAP = {
+    ## LLS doesn't really support equality operators: https://github.com/LuaLS/lua-language-server/issues/1882
+    # "==": "eq",
+    # "<": "lt",
+    # "<=": "le",
+
+    "+": "add",
+    "-": "sub",
+    "*": "mul",
+    "/": "div",
+    "%": "mod",
+    "**": "pow",
+    "unary-": "unm",
+
+    "&": "band",
+    "|": "bor",
+    "^": "bxor",
+    "~": "bnot",
+    "<<": "shl",
+    ">>": "shr",
+}
+
+
+def main():
+    with open(API_JSON_PATH, encoding="utf-8") as f:
+        extension_api: ExtensionApi = json.load(f)
+
+    with open(os.path.join(DEST_DIR, "global_enums.lua"), "w") as f:
+        _write_to_file(f, generate_global_enums(extension_api["global_enums"]))
+
+    with open(os.path.join(DEST_DIR, "builtin_classes.lua"), "w") as f:
+        _write_to_file(f, generate_builtin_classes(extension_api["builtin_classes"]))
+
+
+
+def _write_to_file(f, lines: list[str]):
+    f.write("--- @meta\n")
+    f.writelines(f"{l}\n" for l in lines)
+
+
+def _generate_section(name: str) -> str:
+    return dedent(f"""
+        -----------------------------------------------------------
+        -- {name}
+        -----------------------------------------------------------
+    """)
+
+
+def _arg_name(name: str) -> str:
+    return '_end' if name == 'end' else name
+
+
+def generate_global_enums(
+    enums: list[GlobalEnumOrEnum],
+) -> list[str]:
+    lines = [_generate_section("Global Enums")]
+    for enum in enums:
+        lines.append(f"--- @alias {enum['name']} {' | '.join(f'`{value["name"]}`' for value in enum['values'])}")
+        for value in enum["values"]:
+            lines.append(f"{value['name']} = {value['value']}")
+    lines.append("")
+    return lines
+
+
+def generate_builtin_classes(
+    builtin_classes: list[BuiltinClass],
+) -> list[str]:
+    lines = [
+        "--- @diagnostic disable: param-type-mismatch",
+        "--- @diagnostic disable: redundant-parameter",
+        _generate_section("Builtin Classes (a.k.a. Variants)"),
+    ]
+
+    # First, the definition of Variant
+    lines.append(dedent("""
+        --- @class Variant
+        --- @operator concat(any): String
+        Variant = {}
+
+        --- @return bool
+        function Variant:booleanize() end
+
+        --- @return Variant
+        function Variant:duplicate() end
+
+        --- @param method string
+        --- @return Variant
+        function Variant:call(method, ...) end
+
+        --- @param method string
+        --- @return Variant
+        function Variant:pcall(method, ...) end
+
+        --- @return Variant.Type
+        function Variant:get_type() end
+
+        --- @return string
+        function Variant:get_type_name() end
+
+        --- @return integer
+        function Variant:hash() end
+
+        --- @param recursion_count integer
+        --- @return integer
+        function Variant:recursive_hash(recursion_count) end
+
+        --- @param other any
+        --- @return bool
+        function Variant:hash_compare(other) end
+        
+        --- @param value any
+        --- @param type any
+        --- @return bool
+        function Variant.is(value, type) end
+    """).lstrip())
+
+    # Now its specializations
+    for cls in builtin_classes:
+        if cls["name"] == "Nil":
+            continue
+        elif cls["name"] == "bool":
+            lines.append("--- @alias bool boolean")
+        elif cls["name"] == "int":
+            lines.append("--- @alias int integer")
+        elif cls["name"] == "float":
+            lines.append("--- @alias float number")
+        else:
+            can_construct_from_table = cls["name"] in ["Dictionary", "Array"]
+
+            # Header
+            lines.append(f"{_generate_section(cls['name'])}")
+            lines.append(f"--- @class {cls['name']}: Variant")
+
+            # Fields
+            for member in cls.get("members", []):
+                lines.append(f"--- @field {member['name']} {member['type']}")
+
+            # Constructors
+            if can_construct_from_table:
+                lines.append(f"--- @overload fun(from: table): {cls['name']}")
+            for ctor in cls["constructors"]:
+                lines.append(f"--- @overload fun({', '.join(f"{arg['name']}: {arg['type']}" for arg in ctor.get('arguments', []))}): {cls['name']}")
+            
+            # Other operators
+            for op in cls["operators"]:
+                if op["name"] in OPERATOR_MAP:
+                    lines.append(f"--- @operator {OPERATOR_MAP[op['name']]}({op.get('right_type', "")}): {op['return_type']}")
+
+            lines.append(f"{cls['name']} = {{}}")
+            lines.append("")
+
+            # Constants
+            for constant in cls.get("constants", []):
+                lines.append(f"{cls['name']}.{constant['name']} = {constant['value'].replace("inf", "math.huge")}")
+            # Enums
+            for enum in cls.get("enums", []):
+                lines.append(f"--- @enum {cls['name']}.{enum['name']}")
+                lines.append(f"{cls['name']}.{enum['name']} = {{")
+                for value in enum["values"]:
+                    lines.append(f"\t{value['name']} = {value['value']},")
+                lines.append("}")
+                lines.append("")
+            
+            # Methods
+            for method in cls.get("methods", []):
+                # Just skip "repeat" methods, which is a keyword in Lua
+                if method["name"] == "repeat":
+                    continue
+
+                for arg in method.get('arguments', []):
+                    lines.append(f"--- @param {_arg_name(arg['name'])} {arg['type']}")
+                if return_type := method.get("return_type"):
+                    lines.append(f"--- @return {return_type}")
+                lines.append(f"""function {
+                        cls['name']
+                    }{
+                        '.' if method['is_static'] else ':'
+                    }{
+                        method['name']
+                    }({
+                        ', '.join(
+                            _arg_name(arg['name'])
+                            for arg in (method.get('arguments', []) + ([{'name': '...'}] if method['is_vararg'] else []))
+                        )
+                    }) end""")
+                lines.append("")
+
+        lines.append("")
+
+    lines.append("")
+    return lines
+
+
+
+if __name__ == "__main__":
+    main()

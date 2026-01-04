@@ -25,3 +25,16 @@ def generate(env):
         ],
         action=python_bin + " $SOURCE",
     )
+    # Lua API metadata file to use in Lua Language Server
+    godot_lua_api = env.Command(
+        [
+            "addons/lua-gdextension/lua_api_definitions/global_enums.lua",
+            "addons/lua-gdextension/lua_api_definitions/builtin_classes.lua",
+        ],
+        [
+            "tools/code_generation/generate_lua_godot_api.py",
+            "lib/godot-cpp/gdextension/extension_api.json",
+        ],
+        action=python_bin + " $SOURCE",
+    )
+    env.Default(godot_lua_api)

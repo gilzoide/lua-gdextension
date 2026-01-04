@@ -1,0 +1,8 @@
+{
+    "workspace": {
+        "library": [
+            "addons/lua-gdextension/lua_api_definitions/global_enums.lua",
+            "addons/lua-gdextension/lua_api_definitions/builtin_classes.lua"
+        ]
+    }
+}

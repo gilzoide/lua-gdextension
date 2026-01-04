@@ -33,3 +33,4 @@ test/godot
 addons/lua-gdextension/CHANGELOG.md
 addons/lua-gdextension/README.md
 addons/lua-gdextension/LICENSE
+addons/lua-gdextension/lua_api_definitions/*.lua
