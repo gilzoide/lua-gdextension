@@ -82,7 +82,9 @@ def _arg_name(name: str) -> str:
 
 
 def _arg_type(name: str, has_default: Any = False) -> str:
-    if name.startswith("typedarray::"):
+    if name == "Variant":
+        arg_type = "any"
+    elif name.startswith("typedarray::"):
         arg_type = f"Array[{name[len("typedarray::"):]}]"
     else:
         arg_type = name.replace(",", " | ").replace("enum::", "").replace("bitfield::", "")
@@ -229,8 +231,8 @@ def generate_builtin_classes(
             # We don't repeat StringName methods because they are the same as String's, which are both aliases to `string`
             if cls["name"] != "StringName":
                 for method in cls.get("methods", []):
-                    # Just skip "repeat" methods, which is a keyword in Lua
-                    if method["name"] == "repeat":
+                    # Just skip methods that have names that are keywords in Lua
+                    if method["name"] in KEYWORD_MAP:
                         continue
 
                     lines.append("")
@@ -302,8 +304,8 @@ def generate_classes(
         
         # Methods
         for method in cls.get("methods", []):
-            # Just skip "repeat" methods, which is a keyword in Lua
-            if method["name"] == "repeat":
+            # Just skip methods that have names that are keywords in Lua
+            if method["name"] in KEYWORD_MAP:
                 continue
 
             lines.append("")
