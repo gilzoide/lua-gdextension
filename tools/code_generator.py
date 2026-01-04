@@ -7,12 +7,14 @@ def exists(env):
 
 def generate(env):
     python_bin = os.getenv("PYTHON_BIN", "python")
+    # C++ code generation
     env.Command(
         [
             "src/generated/global_enums.hpp",
             "src/generated/utility_functions.hpp",
             "src/generated/package_searcher.h",
             "src/generated/lua_script_globals.h",
+            "src/generated/variant_type_constants.h",
         ],
         [
             "tools/code_generation/generate_cpp_code.py",
