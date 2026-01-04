@@ -113,11 +113,13 @@ def generate_builtin_classes(
         --- @operator concat(any): String
         Variant = {}
 
+        --- @param self any
         --- @return bool
-        function Variant:booleanize() end
+        function Variant.booleanize(self) end
 
+        --- @param self any
         --- @return Variant
-        function Variant:duplicate() end
+        function Variant.duplicate(self) end
 
         --- @param method string
         --- @return Variant
@@ -127,27 +129,31 @@ def generate_builtin_classes(
         --- @return Variant
         function Variant:pcall(method, ...) end
 
+        --- @param self any
         --- @return Variant.Type
-        function Variant:get_type() end
+        function Variant.get_type(self) end
 
+        --- @param self any
         --- @return string
-        function Variant:get_type_name() end
+        function Variant.get_type_name(self) end
 
+        --- @param self any
         --- @return integer
-        function Variant:hash() end
+        function Variant.hash(self) end
 
+        --- @param self any
         --- @param recursion_count integer
         --- @return integer
-        function Variant:recursive_hash(recursion_count) end
+        function Variant.recursive_hash(self, recursion_count) end
 
         --- @param other any
         --- @return bool
-        function Variant:hash_compare(other) end
+        function Variant.hash_compare(self, other) end
         
-        --- @param value any
+        --- @param self any
         --- @param type any
         --- @return bool
-        function Variant.is(value, type) end
+        function Variant.is(self, type) end
     """).lstrip())
 
     # Now its specializations
