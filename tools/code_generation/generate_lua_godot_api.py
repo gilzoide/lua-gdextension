@@ -162,7 +162,9 @@ def generate_builtin_classes(
     for cls in builtin_classes:
         if cls["name"] == "Nil":
             continue
-        elif cls["name"] == "bool":
+
+        lines.append(f"{_generate_section(cls['name'])}")
+        if cls["name"] == "bool":
             lines.append("--- @alias bool boolean")
             lines.append("--- @return bool")
             lines.append("function bool() end")
@@ -176,27 +178,31 @@ def generate_builtin_classes(
             lines.append("function float() end")
         else:
             can_construct_from_table = cls["name"] in ["Dictionary", "Array"]
+            is_string = cls["name"] in ["String", "StringName"]
 
             # Header
-            lines.append(f"{_generate_section(cls['name'])}")
-            lines.append(f"--- @class {cls['name']}: Variant")
+            if is_string:
+                lines.append(f"--- @alias {cls['name']} string")
+                lines.append(f"{cls['name']} = string")
+            else:
+                lines.append(f"--- @class {cls['name']}: Variant")
 
-            # Fields
-            for member in cls.get("members", []):
-                lines.append(f"--- @field {member['name']} {member['type']}")
+                # Fields
+                for member in cls.get("members", []):
+                    lines.append(f"--- @field {member['name']} {member['type']}")
 
-            # Constructors
-            if can_construct_from_table:
-                lines.append(f"--- @overload fun(from: table): {cls['name']}")
-            for ctor in cls["constructors"]:
-                lines.append(f"--- @overload fun({', '.join(f"{arg['name']}: {arg['type']}" for arg in ctor.get('arguments', []))}): {cls['name']}")
-            
-            # Other operators
-            for op in cls["operators"]:
-                if op["name"] in OPERATOR_MAP:
-                    lines.append(f"--- @operator {OPERATOR_MAP[op['name']]}({op.get('right_type', "")}): {op['return_type']}")
+                # Constructors
+                if can_construct_from_table:
+                    lines.append(f"--- @overload fun(from: table): {cls['name']}")
+                for ctor in cls["constructors"]:
+                    lines.append(f"--- @overload fun({', '.join(f"{arg['name']}: {arg['type']}" for arg in ctor.get('arguments', []))}): {cls['name']}")
+                
+                # Other operators
+                for op in cls["operators"]:
+                    if op["name"] in OPERATOR_MAP:
+                        lines.append(f"--- @operator {OPERATOR_MAP[op['name']]}({op.get('right_type', "")}): {op['return_type']}")
 
-            lines.append(f"{cls['name']} = {{}}")
+                lines.append(f"{cls['name']} = {{}}")
 
             # Constants
             if constants := cls.get("constants", []):
@@ -214,28 +220,36 @@ def generate_builtin_classes(
                 lines.append("}")
             
             # Methods
-            for method in cls.get("methods", []):
-                # Just skip "repeat" methods, which is a keyword in Lua
-                if method["name"] == "repeat":
-                    continue
+            # We don't repeat StringName methods because they are the same as String's, which are both aliases to `string`
+            if cls["name"] != "StringName":
+                for method in cls.get("methods", []):
+                    # Just skip "repeat" methods, which is a keyword in Lua
+                    if method["name"] == "repeat":
+                        continue
 
-                lines.append("")
-                if method["is_static"]:
-                    lines.append("--- static")
-                for arg in method.get('arguments', []):
-                    lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'], arg.get('default_value'))}{' Default: ' + arg.get('default_value', '') if arg.get('default_value') else ''}")
-                if return_type := method.get("return_type"):
-                    lines.append(f"--- @return {return_type}")
-                lines.append(f"""function {
-                        cls['name']
-                    }:{
-                        method['name']
-                    }({
-                        ', '.join(
-                            _arg_name(arg['name'])
-                            for arg in (method.get('arguments', []) + ([{'name': '...'}] if method['is_vararg'] else []))
-                        )
-                    }) end""")
+                    lines.append("")
+                    if method["is_static"]:
+                        lines.append("--- static")
+                    if is_string:
+                        lines.append(f"--- @param self string")
+                    for arg in method.get('arguments', []):
+                        lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'], arg.get('default_value'))}{' Default: ' + arg.get('default_value', '') if arg.get('default_value') else ''}")
+                    if return_type := method.get("return_type"):
+                        lines.append(f"--- @return {_arg_type(return_type)}")
+                    args = [_arg_name(arg["name"]) for arg in method.get("arguments", [])]
+                    if is_string:
+                        args.insert(0, "self")
+                    if method["is_vararg"]:
+                        args.append("...")
+                    lines.append(f"""function {
+                            'string' if is_string else cls['name']
+                        }{
+                            '.' if is_string else ':'
+                        }{
+                            method['name']
+                        }({
+                            ', '.join(args)
+                        }) end""")
 
         lines.append("")
 
