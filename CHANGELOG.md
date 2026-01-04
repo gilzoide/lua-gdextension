@@ -4,6 +4,9 @@
 - Support for setting up RPC method configurations in `LuaScript`s via a table or Dictionary called `rpc_config`.
   Use the new `rpc` global function that mimics GDScript's [@rpc annotation](https://docs.godotengine.org/en/stable/classes/class_%40gdscript.html#class-gdscript-annotation-rpc) for the values.
 
+### Fixed
+- Increment reference count of returned `LuaState` from `LuaObject.get_lua_state`
+
 
 ## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)
 ### Fixed
