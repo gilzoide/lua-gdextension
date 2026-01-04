@@ -35,6 +35,14 @@ OPERATOR_MAP = {
     ">>": "shr",
 }
 
+KEYWORD_MAP = {
+    "end": "_end",
+    "function": "_function",
+    "in": "_in",
+    "local": "_local",
+    "repeat": "_repeat",
+}
+
 
 def main():
     with open(API_JSON_PATH, encoding="utf-8") as f:
@@ -46,6 +54,8 @@ def main():
     with open(os.path.join(DEST_DIR, "builtin_classes.lua"), "w") as f:
         _write_to_file(f, generate_builtin_classes(extension_api["builtin_classes"]))
 
+    with open(os.path.join(DEST_DIR, "classes.lua"), "w") as f:
+        _write_to_file(f, generate_classes(extension_api["classes"]))
 
 
 def _write_to_file(f, lines: list[str]):
@@ -62,7 +72,13 @@ def _generate_section(name: str) -> str:
 
 
 def _arg_name(name: str) -> str:
-    return '_end' if name == 'end' else name
+    return KEYWORD_MAP.get(name, name)
+
+
+def _arg_type(name: str) -> str:
+    if name.startswith("typedarray::"):
+        return f"Array[{name[len("typedarray::"):]}]"
+    return name.replace(",", " | ").replace("enum::", "").replace("bitfield::", "")
 
 
 def generate_global_enums(
@@ -162,19 +178,21 @@ def generate_builtin_classes(
                     lines.append(f"--- @operator {OPERATOR_MAP[op['name']]}({op.get('right_type', "")}): {op['return_type']}")
 
             lines.append(f"{cls['name']} = {{}}")
-            lines.append("")
 
             # Constants
-            for constant in cls.get("constants", []):
-                lines.append(f"{cls['name']}.{constant['name']} = {constant['value'].replace("inf", "math.huge")}")
+            if constants := cls.get("constants", []):
+                lines.append("")
+                for constant in constants:
+                    lines.append(f"{cls['name']}.{constant['name']} = {constant['value'].replace("inf", "math.huge")}")
+
             # Enums
             for enum in cls.get("enums", []):
+                lines.append("")
                 lines.append(f"--- @enum {cls['name']}.{enum['name']}")
                 lines.append(f"{cls['name']}.{enum['name']} = {{")
                 for value in enum["values"]:
                     lines.append(f"\t{value['name']} = {value['value']},")
                 lines.append("}")
-                lines.append("")
             
             # Methods
             for method in cls.get("methods", []):
@@ -199,6 +217,68 @@ def generate_builtin_classes(
                         )
                     }) end""")
                 lines.append("")
+
+        lines.append("")
+
+    lines.append("")
+    return lines
+
+
+def generate_classes(
+    classes: list[Class],
+) -> list[str]:
+    lines = []
+
+    # Now its specializations
+    for cls in classes:
+        # Header
+        lines.append(f"{_generate_section(cls['name'])}")
+        lines.append(f"--- @class {cls['name']}{': ' + cls.get('inherits', '') if cls.get('inherits') else ''}")
+
+        # Properties
+        for property in cls.get("properties", []):
+            lines.append(f"--- @field {property['name']} {_arg_type(property['type'])}")
+        
+        lines.append(f"{cls['name']} = {{}}")
+
+        # Constants
+        if constants := cls.get("constants", []):
+            lines.append("")
+            for constant in constants:
+                lines.append(f"{cls['name']}.{constant['name']} = {constant['value']}")
+
+        # Enums
+        for enum in cls.get("enums", []):
+            lines.append("")
+            lines.append(f"--- @enum {cls['name']}.{enum['name']}")
+            lines.append(f"{cls['name']}.{enum['name']} = {{")
+            for value in enum["values"]:
+                lines.append(f"\t{value['name']} = {value['value']},")
+            lines.append("}")
+        
+        # Methods
+        for method in cls.get("methods", []):
+            # Just skip "repeat" methods, which is a keyword in Lua
+            if method["name"] == "repeat":
+                continue
+
+            lines.append("")
+            for arg in method.get('arguments', []):
+                lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'])}")
+            if return_value := method.get("return_value"):
+                lines.append(f"--- @return {_arg_type(return_value['type'])}")
+            lines.append(f"""function {
+                    cls['name']
+                }{
+                    '.' if method['is_static'] else ':'
+                }{
+                    method['name']
+                }({
+                    ', '.join(
+                        _arg_name(arg['name'])
+                        for arg in (method.get('arguments', []) + ([{'name': '...'}] if method['is_vararg'] else []))
+                    )
+                }) end""")
 
         lines.append("")
 
