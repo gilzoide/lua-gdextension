@@ -4,6 +4,8 @@
 - Support for setting up RPC method configurations in `LuaScript`s via a table or Dictionary called `rpc_config`.
   Use the new `rpc` global function that mimics GDScript's [@rpc annotation](https://docs.godotengine.org/en/stable/classes/class_%40gdscript.html#class-gdscript-annotation-rpc) for the values.
 - Support for accessing constants and enums from `VariantType`s, such as `Vector2.ZERO` and `Vector2.Axis`.
+- Support for power operator between Variants.
+  Even if only `int` and `float` support them and most people won't ever use them as `Variant` values, add it for completion.
 
 ### Fixed
 - Increment reference count of returned `LuaState` from `LuaObject.get_lua_state`
