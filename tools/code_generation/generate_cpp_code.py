@@ -1,7 +1,7 @@
 import json
 import os
 
-SRC_DIR = os.path.dirname(__file__)
+SRC_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "src")
 DEST_DIR = os.path.join(SRC_DIR, "generated")
 API_JSON_PATH = os.path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
 PACKAGE_SEARCHER_SRC = os.path.join(SRC_DIR, "luaopen", "package_searcher.lua")
