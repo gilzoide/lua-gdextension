@@ -257,11 +257,9 @@ def generate_classes(
         # Enums
         for enum in cls.get("enums", []):
             lines.append("")
-            lines.append(f"--- @enum {cls['name']}.{enum['name']}")
-            lines.append(f"{cls['name']}.{enum['name']} = {{")
+            lines.append(f"--- @alias {cls['name']}.{enum['name']} {' | '.join(f"`{cls['name']}.{value['name']}`" for value in enum['values'])}")
             for value in enum["values"]:
-                lines.append(f"\t{value['name']} = {value['value']},")
-            lines.append("}")
+                lines.append(f"{cls['name']}.{value['name']} = {value['value']}")
         
         # Methods
         for method in cls.get("methods", []):
