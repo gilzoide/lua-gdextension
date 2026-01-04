@@ -264,7 +264,7 @@ jobs:
           scons-version: $SCONS_VERSION
       - name: Copy artifacts to build folder
         run: |
-          scons lua_runtime=${{ matrix.lua-runtime }} addons_files
+          scons lua_runtime=${{ matrix.lua-runtime }} addons_files lua_api
           cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
