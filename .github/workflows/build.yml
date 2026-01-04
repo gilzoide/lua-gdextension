@@ -272,6 +272,7 @@ jobs:
           name: ${{ matrix.lua-runtime == 'lua' && 'lua-gdextension' || format('lua-gdextension+{0}', matrix.lua-runtime) }}
           path: |
             LICENSE
+            .luarc.json
             addons/lua-gdextension/**
             addons/lua-gdextension/build/.gdignore
           include-hidden-files: true
