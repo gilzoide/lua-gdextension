@@ -280,7 +280,7 @@ def generate_classes(
     for cls in classes:
         # Header
         lines.append(f"{_generate_section(cls['name'])}")
-        lines.append(f"--- @class {cls['name']}: {cls.get('inherits', 'Variant')}, {{ [any]: any }}")
+        lines.append(f"--- @class {cls['name']}: {cls.get('inherits', 'Variant')}, {{ [string]: any }}")
 
         # Properties
         for property in cls.get("properties", []):
