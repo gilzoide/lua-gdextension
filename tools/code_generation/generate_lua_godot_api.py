@@ -350,6 +350,15 @@ def generate_utility_functions(
             }({
                 ', '.join(args)
             }) end""")
+    # Extra utility function defined by Lua GDExtension: await
+    lines.extend([
+        "",
+        "--- Yields the current coroutine until the passed signal is emitted.",
+        "--- If an Object is passed, awaits for its 'completed' signal.",
+        "--- @param awaitable Object | Signal",
+        "--- @return any",
+        "function await(awaitable) end",
+    ])
     return lines
 
 
