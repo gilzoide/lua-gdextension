@@ -35,7 +35,7 @@ OPERATOR_MAP = {
     ">>": "shr",
 }
 
-KEYWORD_MAP = {
+LUA_KEYWORD_MAP = {
     "end": "_end",
     "function": "_function",
     "in": "_in",
@@ -78,7 +78,7 @@ def _generate_section(name: str) -> str:
 
 
 def _arg_name(name: str) -> str:
-    return KEYWORD_MAP.get(name, name)
+    return LUA_KEYWORD_MAP.get(name, name)
 
 
 def _arg_type(name: str, has_default: Any = False) -> str:
@@ -193,7 +193,12 @@ def generate_builtin_classes(
                 lines.append(f"--- @alias {cls['name']} string")
                 lines.append(f"{cls['name']} = string")
             else:
-                lines.append(f"--- @class {cls['name']}: Variant")
+                inherits = ["Variant"]
+                if indexing_return_type := cls.get("indexing_return_type"):
+                    key_type = "any" if cls["is_keyed"] else "int"
+                    inherits.append(f"{{ [{key_type}]: {_arg_type(indexing_return_type, indexing_return_type != "Variant")} }}")
+
+                lines.append(f"--- @class {cls['name']}: {', '.join(inherits)}")
 
                 # Fields
                 for member in cls.get("members", []):
@@ -232,7 +237,7 @@ def generate_builtin_classes(
             if cls["name"] != "StringName":
                 for method in cls.get("methods", []):
                     # Just skip methods that have names that are keywords in Lua
-                    if method["name"] in KEYWORD_MAP:
+                    if method["name"] in LUA_KEYWORD_MAP:
                         continue
 
                     lines.append("")
@@ -275,7 +280,7 @@ def generate_classes(
     for cls in classes:
         # Header
         lines.append(f"{_generate_section(cls['name'])}")
-        lines.append(f"--- @class {cls['name']}: {cls.get('inherits', 'Variant')}")
+        lines.append(f"--- @class {cls['name']}: {cls.get('inherits', 'Variant')}, {{ [any]: any }}")
 
         # Properties
         for property in cls.get("properties", []):
@@ -311,7 +316,7 @@ def generate_classes(
         # Methods
         for method in cls.get("methods", []):
             # Just skip methods that have names that are keywords in Lua
-            if method["name"] in KEYWORD_MAP:
+            if method["name"] in LUA_KEYWORD_MAP:
                 continue
 
             lines.append("")
