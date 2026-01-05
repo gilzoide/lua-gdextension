@@ -301,7 +301,13 @@ def generate_classes(
             lines.append(f"--- @alias {cls['name']}.{enum['name']} {' | '.join(f"`{cls['name']}.{value['name']}`" for value in enum['values'])}")
             for value in enum["values"]:
                 lines.append(f"{cls['name']}.{value['name']} = {value['value']}")
-        
+
+        # Signals
+        if signals := cls.get("signals", []):
+            lines.append("")
+            for signal in signals:
+                lines.append(f"{cls['name']}.{signal['name']} = Signal()")
+
         # Methods
         for method in cls.get("methods", []):
             # Just skip methods that have names that are keywords in Lua
