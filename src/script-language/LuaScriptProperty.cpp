@@ -36,7 +36,6 @@ namespace luagdextension {
 
 static LuaScriptProperty lua_property(sol::this_state L, sol::stack_object value) {
 	LuaScriptProperty property;
-	property.usage = PROPERTY_USAGE_STORAGE;
 
 	sol::stack_table table;
 	if (value.get_type() == sol::type::table) {
@@ -131,7 +130,75 @@ static LuaScriptProperty lua_property(sol::this_state L, sol::stack_object value
 
 static LuaScriptProperty lua_export(sol::this_state L, sol::stack_object value) {
 	LuaScriptProperty property = lua_property(L, value);
-	property.usage |= PROPERTY_USAGE_EDITOR;
+	property.usage |= PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE;
+	return property;
+}
+
+static LuaScriptProperty lua_export_storage(sol::this_state L, sol::stack_object value) {
+	LuaScriptProperty property = lua_property(L, value);
+	property.usage |= PROPERTY_USAGE_STORAGE;
+	return property;
+}
+
+template<PropertyUsageFlags usage>
+static LuaScriptProperty lua_export_group(sol::this_state L, sol::optional<String> prefix) {
+	LuaScriptProperty property;
+	property.usage |= usage;
+	if (prefix) {
+		property.hint_string = *prefix;
+	}
+	return property;
+}
+
+template<PropertyHint hint>
+static LuaScriptProperty lua_export_hint(sol::this_state L, sol::stack_object value) {
+	LuaScriptProperty property = lua_export(L, value);
+	property.hint |= hint;
+	return property;
+}
+
+template<PropertyHint hint>
+static LuaScriptProperty lua_export_hint_strings(sol::this_state L, sol::variadic_args args) {
+	// Argument forwarded to `export`, nil by default
+	lua_pushnil(L);
+	sol::stack_object export_arg(L, -1);
+	// Accumulate hints and find first non-hint argument to forward to `export`
+	PackedStringArray hints;
+	for (auto&& it : args) {
+		if (it.get_type() == sol::type::string) {
+			hints.append(it.get<String>());
+		}
+		else {
+			export_arg = it;
+		}
+	}
+	LuaScriptProperty property = lua_export(L, export_arg);
+	property.hint |= hint;
+	property.hint_string = String(",").join(hints);
+	return property;
+}
+
+template<PropertyHint hint>
+static LuaScriptProperty lua_export_hint_numbers_strings(sol::this_state L, sol::variadic_args args) {
+	// Argument forwarded to `export`, nil by default
+	lua_pushnil(L);
+	sol::stack_object export_arg(L, -1);
+	// Accumulate hints and find first non-hint argument to forward to `export`
+	PackedStringArray hints;
+	for (auto&& it : args) {
+		if (it.get_type() == sol::type::number) {
+			hints.append(String::num(it.get<double>()));
+		}
+		else if (it.get_type() == sol::type::string) {
+			hints.append(it.get<String>());
+		}
+		else {
+			export_arg = it;
+		}
+	}
+	LuaScriptProperty property = lua_export(L, export_arg);
+	property.hint |= hint;
+	property.hint_string = String(",").join(hints);
 	return property;
 }
 
@@ -192,10 +259,39 @@ void LuaScriptProperty::register_lua(lua_State *L) {
 
 	state.new_usertype<LuaScriptProperty>(
 		"LuaScriptProperty",
-		sol::no_construction()
+		sol::no_construction(),
+		"class_name", &LuaScriptProperty::class_name,
+		"hint", &LuaScriptProperty::hint,
+		"hint_string", &LuaScriptProperty::hint_string,
+		"usage", &LuaScriptProperty::usage
 	);
 	state.set("property", &lua_property);
 	state.set("export", &lua_export);
+	state.set("export_category", &lua_export_group<PROPERTY_USAGE_CATEGORY>);
+	state.set("export_color_no_alpha", &lua_export_hint<PROPERTY_HINT_COLOR_NO_ALPHA>);
+	state.set("export_dir", &lua_export_hint<PROPERTY_HINT_DIR>);
+	state.set("export_enum", &lua_export_hint_strings<PROPERTY_HINT_ENUM>);
+	state.set("export_exp_easing", &lua_export_hint_strings<PROPERTY_HINT_EXP_EASING>);
+	state.set("export_file", &lua_export_hint_strings<PROPERTY_HINT_FILE>);
+	// state.set("export_file_path", &lua_export_hint_strings<PROPERTY_HINT_FILE_PATH>);  // Godot 4.5, needs updating extension_api.json
+	state.set("export_flags", &lua_export_hint_strings<PROPERTY_HINT_FLAGS>);
+	state.set("export_flags_2d_navigation", &lua_export_hint<PROPERTY_HINT_LAYERS_2D_NAVIGATION>);
+	state.set("export_flags_2d_physics", &lua_export_hint<PROPERTY_HINT_LAYERS_2D_PHYSICS>);
+	state.set("export_flags_2d_render", &lua_export_hint<PROPERTY_HINT_LAYERS_2D_RENDER>);
+	state.set("export_flags_3d_navigation", &lua_export_hint<PROPERTY_HINT_LAYERS_3D_NAVIGATION>);
+	state.set("export_flags_3d_physics", &lua_export_hint<PROPERTY_HINT_LAYERS_3D_PHYSICS>);
+	state.set("export_flags_3d_render", &lua_export_hint<PROPERTY_HINT_LAYERS_3D_RENDER>);
+	state.set("export_flags_avoidance", &lua_export_hint<PROPERTY_HINT_LAYERS_AVOIDANCE>);
+	state.set("export_global_dir", &lua_export_hint<PROPERTY_HINT_GLOBAL_DIR>);
+	state.set("export_global_file", &lua_export_hint_strings<PROPERTY_HINT_GLOBAL_FILE>);
+	state.set("export_group", &lua_export_group<PROPERTY_USAGE_GROUP>);
+	state.set("export_multiline", &lua_export_hint<PROPERTY_HINT_MULTILINE_TEXT>);
+	state.set("export_node_path", &lua_export_hint_strings<PROPERTY_HINT_NODE_PATH_VALID_TYPES>);
+	state.set("export_placeholder", &lua_export_hint_strings<PROPERTY_HINT_PLACEHOLDER_TEXT>);
+	state.set("export_range", &lua_export_hint_numbers_strings<PROPERTY_HINT_RANGE>);
+	state.set("export_storage", &lua_export_storage);
+	state.set("export_subgroup", &lua_export_group<PROPERTY_USAGE_SUBGROUP>);
+	state.set("export_tool_button", &lua_export_hint_strings<PROPERTY_HINT_TOOL_BUTTON>);
 }
 
 }

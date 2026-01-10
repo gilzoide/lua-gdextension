@@ -5,6 +5,10 @@
 -----------------------------------------------------------
 
 --- @class LuaScriptProperty
+--- @field class_name string
+--- @field hint integer
+--- @field hint_string string
+--- @field usage integer
 --- Property definition for Lua scripts.
 LuaScriptProperty = {}
 
@@ -26,13 +30,192 @@ LuaScriptProperty = {}
 --- @return LuaScriptProperty
 function property(t) end
 
---- Used to define exported properties in Lua scripts.
---- This is the same as `property`, but always adds `PROPERTY_USAGE_EDITOR` to the property's usage flags.
---- 
+--- Same as `property`, but always adds `PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_STORAGE` to the property's usage flags.
+--- Similar to GDScript's `@export` annotation.
 --- @see property
 --- @param t table | any
 --- @return LuaScriptProperty
 function export(t) end
+
+--- Creates a `PROPERTY_USAGE_CATEGORY` property.
+--- Note that the category name will be the key used in your class for this property.
+--- @return LuaScriptProperty
+function export_category() end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_COLOR_NO_ALPHA` to the property's usage flags.
+--- Similar to GDScript's `@export_color_no_alpha` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_color_no_alpha(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_DIR` to the property's usage flags.
+--- Similar to GDScript's `@export_dir` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_dir(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_ENUM` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_enum` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_enum(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_EXP_EASING` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_exp_easing` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_exp_easing(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_FILE` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_file` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_file(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_FLAGS` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_flags` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_flags(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_2D_NAVIGATION` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_2d_navigation` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_2d_navigation(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_2D_PHYSICS` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_2d_physics` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_2d_physics(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_2D_RENDER` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_2d_render` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_2d_render(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_3D_NAVIGATION` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_3d_navigation` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_3d_navigation(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_3D_PHYSICS` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_3d_physics` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_3d_physics(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_3D_RENDER` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_3d_render` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_3d_render(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_LAYERS_AVOIDANCE` to the property's usage flags.
+--- Similar to GDScript's `@export_flags_avoidance` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_flags_avoidance(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_GLOBAL_DIR` to the property's usage flags.
+--- Similar to GDScript's `@export_global_dir` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_global_dir(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_GLOBAL_FILE` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_global_file` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_global_file(...) end
+
+--- Creates a `PROPERTY_USAGE_GROUP` property.
+--- Note that the group name will be the key used in your class for this property.
+--- @param prefix string?
+--- @return LuaScriptProperty
+function export_group(prefix) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_MULTILINE_TEXT` to the property's usage flags.
+--- Similar to GDScript's `@export_multiline` annotation.
+--- @see export
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_multiline(t) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_NODE_PATH_VALID_TYPES` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_node_path` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_node_path(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_PLACEHOLDER_TEXT` to the property's hint flags.
+--- String arguments will be used as the property's `hint_string`.
+--- The first argument that is not a string is forwarded to `export`
+--- Similar to GDScript's `export_placeholder` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_placeholder(...) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_RANGE` to the property's hint flags.
+--- The first argument that is not a number or string is forwarded to `export`.
+--- Similar to GDScript's `export_node_path` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_range(...) end
+
+--- Used to define exported properties in Lua scripts.
+--- This is the same as `property`, but always adds `PROPERTY_USAGE_STORAGE` to the property's usage flags.
+--- @see property
+--- @param t table | any
+--- @return LuaScriptProperty
+function export_storage(t) end
+
+--- Creates a `PROPERTY_USAGE_SUBGROUP` property.
+--- Note that the subgroup name will be the key used in your class for this property.
+--- @param prefix string?
+--- @return LuaScriptProperty
+function export_subgroup(prefix) end
+
+--- Same as `export`, but always adds `PROPERTY_HINT_TOOL_BUTTON` to the property's hint flags.
+--- The first argument that is not a string is forwarded to `export`.
+--- Similar to GDScript's `export_node_path` annotation.
+--- @see export
+--- @param ... string | any
+--- @return LuaScriptProperty
+function export_tool_button(...) end
 
 
 -----------------------------------------------------------
