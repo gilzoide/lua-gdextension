@@ -43,6 +43,10 @@ LUA_KEYWORD_MAP = {
     "repeat": "_repeat",
 }
 
+MANUALLY_DEFINED_UTILITY_FUNCTIONS = {
+    "typeof",
+}
+
 
 def main():
     with open(API_JSON_PATH, encoding="utf-8") as f:
@@ -348,6 +352,9 @@ def generate_utility_functions(
 ) -> list[str]:
     lines = []
     for f in utility_functions:
+        if f["name"] in MANUALLY_DEFINED_UTILITY_FUNCTIONS:
+            continue
+
         lines.append("")
         for arg in f.get('arguments', []):
             lines.append(f"--- @param {_arg_name(arg['name'])} {_arg_type(arg['type'])}")
@@ -361,15 +368,6 @@ def generate_utility_functions(
             }({
                 ', '.join(args)
             }) end""")
-    # Extra utility function defined by Lua GDExtension: await
-    lines.extend([
-        "",
-        "--- Yields the current coroutine until the passed signal is emitted.",
-        "--- If an Object is passed, awaits for its 'completed' signal.",
-        "--- @param awaitable Object | Signal",
-        "--- @return any",
-        "function await(awaitable) end",
-    ])
     return lines
 
 
