@@ -26,7 +26,7 @@
 
 #include "LuaScriptInstance.hpp"
 #include "../utils/convert_godot_lua.hpp"
-#include "../utils/stack_top_checker.hpp"
+#include "../utils/stack_top_resetter.hpp"
 #include "../utils/string_names.hpp"
 
 namespace luagdextension {
@@ -35,21 +35,30 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 	is_valid = true;
 
 	sol::state_view L = t.lua_state();
-	StackTopChecker topcheck(L);
+	StackTopResetter topreset(L);
 
 	// Global methods
 	methods[string_names->rawget] = LuaScriptMethod(string_names->rawget, LuaScriptInstance::rawget);
 	methods[string_names->rawset] = LuaScriptMethod(string_names->rawset, LuaScriptInstance::rawset);
 
-	auto tablepop = sol::stack::push_pop(L, t);
-	lua_pushnil(L);
-	while (lua_next(L, -2) != 0) {
-		sol::stack_object key(L, -2);
-		sol::stack_object value(L, -1);
-		if (key.get_type() != sol::type::string) {
-			lua_pop(L, 1);
-			continue;
+	lua_getglobal(L, "pairs");
+	t.push();
+	if (lua_pcall(L, 1, 3, 0) != LUA_OK) {
+		ERR_FAIL_MSG(luaL_tolstring(L, -1, nullptr));
+	}
+
+	while (true) {
+ 		lua_pushvalue(L, -3);
+		lua_insert(L, -3);
+		if (lua_pcall(L, 2, 2, 0) != LUA_OK) {
+			ERR_FAIL_MSG(luaL_tolstring(L, -1, nullptr));
 		}
+
+		sol::stack_object key(L, -2);
+		if (key.get_type() == sol::type::nil) {
+			break;
+		}
+		sol::stack_object value(L, -1);
 
 		String name = key.as<String>();
 		if (name == "extends") {
@@ -94,7 +103,11 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			properties.insert(name, LuaScriptProperty(var, name));
 		}
 
+		// pop value
 		lua_pop(L, 1);
+		// insert table after between function and key
+		t.push(L);
+		lua_insert(L, -2);
 	}
 }
 
