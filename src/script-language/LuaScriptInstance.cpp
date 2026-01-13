@@ -39,6 +39,75 @@
 
 namespace luagdextension {
 
+// Helpers for working with GDExtensionMethodInfo and GDExtensionPropertyInfo
+
+static GDExtensionVariantPtr from_Variant(const Variant& variant) {
+	return new Variant(variant);
+}
+
+static void destroy_Variant(GDExtensionVariantPtr variant_ptr) {
+	delete (Variant *) variant_ptr;
+}
+
+static void destroy_Variants(const GDExtensionVariantPtr *variants, uint32_t count) {
+	std::for_each(variants, variants + count, destroy_Variant);
+	delete[] variants;
+}
+
+static GDExtensionPropertyInfo from_PropertyInfo(const PropertyInfo& pinfo) {
+	return {
+		(GDExtensionVariantType) pinfo.type,
+		new StringName(pinfo.name),
+		new StringName(pinfo.class_name),
+		pinfo.hint,
+		new StringName(pinfo.hint_string),
+		pinfo.usage,
+	};
+}
+
+static void destroy_PropertyInfo(const GDExtensionPropertyInfo pinfo) {
+	delete (StringName *) pinfo.name;
+	delete (StringName *) pinfo.class_name;
+	delete (StringName *) pinfo.hint_string;
+}
+
+static void destroy_PropertyInfos(const GDExtensionPropertyInfo *pinfos, uint32_t count) {
+	std::for_each(pinfos, pinfos + count, destroy_PropertyInfo);
+	delete[] pinfos;
+}
+
+static GDExtensionMethodInfo from_MethodInfo(const MethodInfo& minfo) {
+	GDExtensionPropertyInfo *arguments = new GDExtensionPropertyInfo[minfo.arguments.size()];
+	std::transform(minfo.arguments.begin(), minfo.arguments.end(), arguments, from_PropertyInfo);
+	
+	GDExtensionVariantPtr *default_arguments = new GDExtensionVariantPtr[minfo.default_arguments.size()];
+	std::transform(minfo.default_arguments.begin(), minfo.default_arguments.end(), default_arguments, from_Variant);
+	return {
+		new StringName(minfo.name),
+		from_PropertyInfo(minfo.return_val),
+		minfo.flags,
+		minfo.id,
+		(uint32_t) minfo.arguments.size(),
+		arguments,
+		(uint32_t) minfo.default_arguments.size(),
+		default_arguments,
+	};
+}
+
+static void destroy_MethodInfo(const GDExtensionMethodInfo minfo) {
+	delete (StringName *) minfo.name;
+	destroy_PropertyInfo(minfo.return_value);
+	destroy_PropertyInfos(minfo.arguments, minfo.argument_count);
+	destroy_Variants(minfo.default_arguments, minfo.default_argument_count);
+}
+
+static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t count) {
+	std::for_each(minfos, minfos + count, destroy_MethodInfo);
+	delete[] minfos;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	: owner(owner)
 	, script(script)
@@ -166,8 +235,21 @@ void get_property_state_func(LuaScriptInstance *p_instance, GDExtensionScriptIns
 	}
 }
 
-GDExtensionScriptInstanceGetMethodList get_method_list_func;
-GDExtensionScriptInstanceFreeMethodList2 free_method_list_func;
+const GDExtensionMethodInfo *get_method_list_func(LuaScriptInstance *p_instance, uint32_t *r_count) {
+	TypedArray<Dictionary> methods = p_instance->script->get_script_method_list();
+	*r_count = methods.size();
+
+	GDExtensionMethodInfo *gdmethods = new GDExtensionMethodInfo[methods.size()];
+	for (int64_t i = 0, count = methods.size(); i < count; i++) {
+		MethodInfo mi = MethodInfo::from_dict(methods[i]);
+		gdmethods[i] = from_MethodInfo(mi);
+	}
+	return gdmethods;
+}
+
+void free_method_list_func(LuaScriptInstance *p_instance, const GDExtensionMethodInfo *p_list, uint32_t p_count) {
+	destroy_MethodInfos(p_list, p_count);
+}
 
 GDExtensionVariantType get_property_type_func(LuaScriptInstance *p_instance, const StringName *p_name, GDExtensionBool *r_is_valid) {
 	if (const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name)) {
