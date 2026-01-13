@@ -1,3 +1,5 @@
+local rawset, select, setmetatable, type = rawset, select, setmetatable, type
+
 function rpc(...)
 	local config = Dictionary {
 		rpc_mode = MultiplayerAPI.RPC_MODE_AUTHORITY,
@@ -26,4 +28,29 @@ function rpc(...)
 		end
 	end
 	return config
+end
+
+
+local OrderedTable = setmetatable({}, {__mode = 'k'})
+
+function OrderedTable.__newindex(t, index, value)
+    local order = OrderedTable[t]
+    order[#order + 1] = index
+    rawset(t, index, value)
+end
+
+function OrderedTable.__pairs(t)
+    local i = 0
+	local keys = OrderedTable[t]
+    return function()
+        i = i + 1
+        local idx = keys[i]
+        return idx, t[idx]
+    end, t, nil
+end
+
+function GDCLASS()
+	local t = setmetatable({}, OrderedTable)
+	OrderedTable[t] = {}
+	return t
 end
