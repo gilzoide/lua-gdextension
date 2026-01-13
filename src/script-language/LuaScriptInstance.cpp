@@ -42,48 +42,52 @@ namespace luagdextension {
 // Helpers for working with GDExtensionMethodInfo and GDExtensionPropertyInfo
 
 static GDExtensionVariantPtr from_Variant(const Variant& variant) {
-	return new Variant(variant);
+	return memnew(Variant(variant));
 }
 
 static void destroy_Variant(GDExtensionVariantPtr variant_ptr) {
-	delete (Variant *) variant_ptr;
+	memdelete((Variant *) variant_ptr);
 }
 
 static void destroy_Variants(const GDExtensionVariantPtr *variants, uint32_t count) {
-	std::for_each(variants, variants + count, destroy_Variant);
-	delete[] variants;
+	if (variants) {
+		std::for_each(variants, variants + count, destroy_Variant);
+		memdelete_arr(variants);
+	}
 }
 
 static GDExtensionPropertyInfo from_PropertyInfo(const PropertyInfo& pinfo) {
 	return {
 		(GDExtensionVariantType) pinfo.type,
-		new StringName(pinfo.name),
-		new StringName(pinfo.class_name),
+		memnew(StringName(pinfo.name)),
+		memnew(StringName(pinfo.class_name)),
 		pinfo.hint,
-		new StringName(pinfo.hint_string),
+		memnew(StringName(pinfo.hint_string)),
 		pinfo.usage,
 	};
 }
 
 static void destroy_PropertyInfo(const GDExtensionPropertyInfo pinfo) {
-	delete (StringName *) pinfo.name;
-	delete (StringName *) pinfo.class_name;
-	delete (StringName *) pinfo.hint_string;
+	memdelete((StringName *) pinfo.name);
+	memdelete((StringName *) pinfo.class_name);
+	memdelete((StringName *) pinfo.hint_string);
 }
 
 static void destroy_PropertyInfos(const GDExtensionPropertyInfo *pinfos, uint32_t count) {
-	std::for_each(pinfos, pinfos + count, destroy_PropertyInfo);
-	delete[] pinfos;
+	if (pinfos) {
+		std::for_each(pinfos, pinfos + count, destroy_PropertyInfo);
+		memdelete_arr(pinfos);
+	}
 }
 
 static GDExtensionMethodInfo from_MethodInfo(const MethodInfo& minfo) {
-	GDExtensionPropertyInfo *arguments = new GDExtensionPropertyInfo[minfo.arguments.size()];
+	GDExtensionPropertyInfo *arguments = memnew_arr(GDExtensionPropertyInfo, minfo.arguments.size());
 	std::transform(minfo.arguments.begin(), minfo.arguments.end(), arguments, from_PropertyInfo);
 	
-	GDExtensionVariantPtr *default_arguments = new GDExtensionVariantPtr[minfo.default_arguments.size()];
+	GDExtensionVariantPtr *default_arguments = memnew_arr(GDExtensionVariantPtr, minfo.default_arguments.size());
 	std::transform(minfo.default_arguments.begin(), minfo.default_arguments.end(), default_arguments, from_Variant);
 	return {
-		new StringName(minfo.name),
+		memnew(StringName(minfo.name)),
 		from_PropertyInfo(minfo.return_val),
 		minfo.flags,
 		minfo.id,
@@ -95,15 +99,17 @@ static GDExtensionMethodInfo from_MethodInfo(const MethodInfo& minfo) {
 }
 
 static void destroy_MethodInfo(const GDExtensionMethodInfo minfo) {
-	delete (StringName *) minfo.name;
+	memdelete((StringName *) minfo.name);
 	destroy_PropertyInfo(minfo.return_value);
 	destroy_PropertyInfos(minfo.arguments, minfo.argument_count);
 	destroy_Variants(minfo.default_arguments, minfo.default_argument_count);
 }
 
 static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t count) {
-	std::for_each(minfos, minfos + count, destroy_MethodInfo);
-	delete[] minfos;
+	if (minfos) {
+		std::for_each(minfos, minfos + count, destroy_MethodInfo);
+		memdelete_arr(minfos);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -239,7 +245,7 @@ const GDExtensionMethodInfo *get_method_list_func(LuaScriptInstance *p_instance,
 	TypedArray<Dictionary> methods = p_instance->script->get_script_method_list();
 	*r_count = methods.size();
 
-	GDExtensionMethodInfo *gdmethods = new GDExtensionMethodInfo[methods.size()];
+	GDExtensionMethodInfo *gdmethods = memnew_arr(GDExtensionMethodInfo, methods.size());
 	for (int64_t i = 0, count = methods.size(); i < count; i++) {
 		MethodInfo mi = MethodInfo::from_dict(methods[i]);
 		gdmethods[i] = from_MethodInfo(mi);
