@@ -55,6 +55,7 @@ void LuaScriptLanguage::_init() {
 	// Register scripting specific usertypes
 	sol::state_view state = lua_state->get_lua_state();
 	LuaScriptInstance::register_lua(state);
+	LuaScriptMetadata::register_lua(state);
 	LuaScriptMethod::register_lua(state);
 	LuaScriptProperty::register_lua(state);
 	LuaScriptSignal::register_lua(state);

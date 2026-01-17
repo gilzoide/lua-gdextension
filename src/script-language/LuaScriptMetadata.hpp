@@ -45,6 +45,8 @@ struct LuaScriptMetadata {
 
 	void setup(const sol::table& t);
 	void clear();
+
+	static void register_lua(lua_State *L);
 };
 
 }

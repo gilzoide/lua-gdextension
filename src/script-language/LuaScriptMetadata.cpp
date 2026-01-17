@@ -31,6 +31,8 @@
 
 namespace luagdextension {
 
+static sol::stateless_reference _G_pairs;
+
 void LuaScriptMetadata::setup(const sol::table& t) {
 	is_valid = true;
 
@@ -41,7 +43,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 	methods[string_names->rawget] = LuaScriptMethod(string_names->rawget, LuaScriptInstance::rawget);
 	methods[string_names->rawset] = LuaScriptMethod(string_names->rawset, LuaScriptInstance::rawset);
 
-	lua_getglobal(L, "pairs");
+	_G_pairs.push(L);
 	t.push();
 	if (lua_pcall(L, 1, 3, 0) != LUA_OK) {
 		ERR_FAIL_MSG(luaL_tolstring(L, -1, nullptr));
@@ -123,6 +125,10 @@ void LuaScriptMetadata::clear() {
 	properties.clear();
 	signals.clear();
 	methods.clear();
+}
+
+void LuaScriptMetadata::register_lua(lua_State *L) {
+	_G_pairs = sol::state_view(L).globals()["pairs"];
 }
 
 }
