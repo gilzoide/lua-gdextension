@@ -58,54 +58,56 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 		if (key.get_type() == sol::type::nil) {
 			break;
 		}
-		sol::stack_object value(L, -1);
+		else if (key.get_type() == sol::type::string) {
+			sol::stack_object value(L, -1);
 
-		String name = key.as<String>();
-		if (name == "extends") {
-			StringName extends = to_variant(value);
-			if (!ClassDB::class_exists(extends)) {
-				WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
+			String name = key.as<String>();
+			if (name == "extends") {
+				StringName extends = to_variant(value);
+				if (!ClassDB::class_exists(extends)) {
+					WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
+				}
+				else {
+					base_class = extends;
+				}
+			}
+			else if (name == "class_name") {
+				class_name = to_variant(value);
+			}
+			else if (name == "icon") {
+				icon_path = to_variant(value);
+			}
+			else if (name == "tool") {
+				is_tool = to_variant(value).booleanize();
+			}
+			else if (name == "rpc_config") {
+				if (value.get_type() == sol::type::table) {
+					rpc_config = to_dictionary(value.as<sol::stack_table>());
+				}
+				else {
+					rpc_config = to_variant(value);
+				}
+			}
+			else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
+				signal->name = name;
+				signals.insert(name, *signal);
+			}
+			else if (auto property = value.as<sol::optional<LuaScriptProperty>>()) {
+				property->name = name;
+				properties.insert(name, *property);
+			}
+			else if (value.get_type() == sol::type::function) {
+				methods.insert(name, LuaScriptMethod(name, value));
 			}
 			else {
-				base_class = extends;
+				Variant var = to_variant(value);
+				properties.insert(name, LuaScriptProperty(var, name));
 			}
-		}
-		else if (name == "class_name") {
-			class_name = to_variant(value);
-		}
-		else if (name == "icon") {
-			icon_path = to_variant(value);
-		}
-		else if (name == "tool") {
-			is_tool = to_variant(value).booleanize();
-		}
-		else if (name == "rpc_config") {
-			if (value.get_type() == sol::type::table) {
-				rpc_config = to_dictionary(value.as<sol::stack_table>());
-			}
-			else {
-				rpc_config = to_variant(value);
-			}
-		}
-		else if (auto signal = value.as<sol::optional<LuaScriptSignal>>()) {
-			signal->name = name;
-			signals.insert(name, *signal);
-		}
-		else if (auto property = value.as<sol::optional<LuaScriptProperty>>()) {
-			property->name = name;
-			properties.insert(name, *property);
-		}
-		else if (value.get_type() == sol::type::function) {
-			methods.insert(name, LuaScriptMethod(name, value));
-		}
-		else {
-			Variant var = to_variant(value);
-			properties.insert(name, LuaScriptProperty(var, name));
 		}
 
 		// pop value
 		lua_pop(L, 1);
-		// insert table after between function and key
+		// insert table between function and key
 		t.push(L);
 		lua_insert(L, -2);
 	}
