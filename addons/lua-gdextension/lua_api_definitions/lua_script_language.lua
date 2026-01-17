@@ -242,7 +242,7 @@ function signal(...) end
 -- RPC configuration
 -----------------------------------------------------------
 
---- Similar to GDScript's `@rpc` annotation, should be used to initialize the special `rpc_config`.
+--- Similar to GDScript's `@rpc` annotation, should be used to initialize the special `rpc_config` table.
 --- Example:
 --- ```
 --- local MyClass = {}
