@@ -117,7 +117,6 @@ void LuaScript::_set_source_code(const String &code) {
 
 Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
-	metadata.clear();
 
 	ImportBehavior import_behavior = get_import_behavior();
 	switch (import_behavior) {
@@ -150,6 +149,7 @@ Error LuaScript::_reload(bool keep_state) {
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
 		placeholder_fallback_enabled = false;
+		metadata.clear();
 		metadata.setup(table->get_table());
 	}
 	return OK;
