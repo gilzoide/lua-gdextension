@@ -19,36 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __LUA_SCRIPT_METADATA_HPP__
-#define __LUA_SCRIPT_METADATA_HPP__
 
-#include <godot_cpp/templates/hash_map.hpp>
+#ifndef __UTILS_STACK_TOP_RESETTER_HPP__
+#define __UTILS_STACK_TOP_RESETTER_HPP__
 
-#include "LuaScriptMethod.hpp"
-#include "LuaScriptProperty.hpp"
-#include "LuaScriptSignal.hpp"
-
-using namespace godot;
+typedef struct lua_State lua_State;
 
 namespace luagdextension {
 
-struct LuaScriptMetadata {
-	bool is_valid;
-	bool is_tool;
-	StringName base_class;
-	StringName class_name;
-	String icon_path;
-	Variant rpc_config;
-	HashMap<StringName, LuaScriptMethod> methods;
-	HashMap<StringName, LuaScriptProperty> properties;
-	HashMap<StringName, LuaScriptSignal> signals;
+class StackTopResetter {
+public:
+	StackTopResetter(lua_State *L);
+	~StackTopResetter();
 
-	void setup(const sol::table& t);
-	void clear();
-
-	static void register_lua(lua_State *L);
+private:
+	lua_State *L;
+	int previous_top;
 };
 
 }
 
-#endif  // __LUA_SCRIPT_METADATA_HPP__
+#endif  // __UTILS_STACK_TOP_RESETTER_HPP__

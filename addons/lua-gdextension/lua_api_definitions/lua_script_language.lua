@@ -264,3 +264,14 @@ function signal(...) end
 --- @param transfer_mode "unreliable" | "unreliable_ordered" | "reliable" | nil
 --- @param transfer_channel integer?
 function rpc(mode, sync, transfer_mode, transfer_channel) end
+
+
+-----------------------------------------------------------
+-- Misc
+-----------------------------------------------------------
+
+--- Creates a table suitable for defining Godot Classes in Lua scripts.
+--- The only thing special about it is that `pairs` iterates over its keys in order of insertion,
+--- so that its properties and methods are shown in order of definition in the Godot Editor.
+--- @return table
+function GDCLASS() end

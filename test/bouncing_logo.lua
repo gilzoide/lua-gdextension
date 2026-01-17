@@ -2,20 +2,22 @@
 --
 -- It stores metadata such as its base class, global class_name, icon,
 -- as well as any declared properties, methods and signals
-local LuaBouncingLogo = {
-	-- base class (optional, defaults to RefCounted)
-	extends = Sprite2D,
-	-- if true, allow the script to be executed by the editor (optional)
-	tool = false,
-	-- global class name (optional)
-	class_name = "LuaBouncingLogo",
-	
-	-- Declare properties
-	linear_velocity = export(100),
-	initial_angle = export_range(-360, 360, "degrees", float),
-	-- Declare signals
-	bounced = signal(),
-}
+
+-- Using `GDCLASS` to create the table keeps properties and functions ordered
+local LuaBouncingLogo = GDCLASS()
+
+-- base class (optional, defaults to RefCounted)
+LuaBouncingLogo.extends = Sprite2D
+-- if true, allow the script to be executed by the editor (optional)
+LuaBouncingLogo.tool = false
+-- global class name (optional)
+LuaBouncingLogo.class_name = "LuaBouncingLogo"
+
+-- Declare properties
+LuaBouncingLogo.linear_velocity = export(100)
+LuaBouncingLogo.initial_angle = export_range(-360, 360, "degrees", float)
+-- Declare signals
+LuaBouncingLogo.bounced = signal()
 
 -- Called when the node enters the scene tree for the first time.
 function LuaBouncingLogo:_ready()
