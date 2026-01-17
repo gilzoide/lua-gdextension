@@ -98,7 +98,9 @@ public:
 
 	PackedStringArray get_lua_keywords() const;
 	PackedStringArray get_lua_member_keywords() const;
-	const Dictionary& get_named_globals() const;
+
+	void register_named_globals(lua_State *L) const;
+	void register_global_classes(lua_State *L) const;
 
 	LuaState *get_lua_state();
 	LuaParser *get_lua_parser() const;
@@ -113,6 +115,7 @@ protected:
 	Ref<LuaState> lua_state;
 	Ref<LuaParser> lua_parser;
 	Dictionary named_globals;
+	TypedArray<Dictionary> global_class_list;
 
 private:
 	static LuaScriptLanguage *instance;

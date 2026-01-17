@@ -30,7 +30,9 @@
 #include "../LuaTable.hpp"
 #include "../LuaState.hpp"
 #include "../generated/lua_script_globals.h"
+#include "../utils/convert_godot_lua.hpp"
 #include "../utils/project_settings.hpp"
+#include "../utils/stack_top_resetter.hpp"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
@@ -67,6 +69,10 @@ void LuaScriptLanguage::_init() {
 
 	// Additional globals defined in Lua code
 	lua_state->do_string(lua_script_globals);
+
+	// Now, after everything is setup, we can load global classes (which might be LuaScripts)
+	global_class_list = project_settings->get_global_class_list();
+	register_global_classes(lua_state->get_lua_state());
 }
 
 String LuaScriptLanguage::_get_type() const {
@@ -421,8 +427,29 @@ PackedStringArray LuaScriptLanguage::get_lua_member_keywords() const {
 	);
 }
 
-const Dictionary& LuaScriptLanguage::get_named_globals() const {
-	return named_globals;
+void LuaScriptLanguage::register_named_globals(lua_State *L) const {
+	StackTopResetter resettop(L);
+	lua_pushglobaltable(L);
+	Array keys = named_globals.keys();
+	for (int64_t i = 0, count = keys.size(); i < count; ++i) {
+		Variant key = keys[i];
+		lua_push(L, key);
+		lua_push(L, named_globals[key]);
+		lua_rawset(L, -3);
+	}
+}
+
+void LuaScriptLanguage::register_global_classes(lua_State *L) const {
+	StackTopResetter resettop(L);
+	ResourceLoader *resource_loader = ResourceLoader::get_singleton();
+	lua_pushglobaltable(L);
+	for (int64_t i = 0, count = global_class_list.size(); i < count; ++i) {
+		Dictionary type_info = global_class_list[i];
+		Ref<Resource> script = resource_loader->load(type_info["path"]);
+		lua_push(L, type_info["class"]);
+		lua_push(L, script);
+		lua_rawset(L, -3);
+	}
 }
 
 LuaState *LuaScriptLanguage::get_lua_state() {

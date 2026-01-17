@@ -22,6 +22,10 @@
 - Memory leak when indexing Variants with numbers
 - Avoid losing exported properties in scenes/resources when reloading a Lua script fails
 
+### Changed
+- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
+- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
+
 
 ## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)
 ### Fixed
