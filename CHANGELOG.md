@@ -13,6 +13,7 @@
 ### Fixed
 - Increment reference count of returned `LuaState` from `LuaObject.get_lua_state`
 - Memory leak when indexing Variants with numbers
+- Avoid losing exported properties in scenes/resources when reloading a Lua script fails
 
 
 ## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)
