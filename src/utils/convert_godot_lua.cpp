@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -198,13 +198,13 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 				break;
 			}
 			if (LuaObject *lua_obj = Object::cast_to<LuaObject>(value)) {
-				if (LuaState::find_lua_state(lua_state) == lua_obj->get_lua_state()) {
+				if (LuaState::find_lua_state(lua_state) == lua_obj->get_lua_state().ptr()) {
 					sol::stack::push(lua_state, lua_obj->get_lua_object());
 					break;
 				}
 			}
 			if (LuaScriptInstance *script_instance = LuaScriptInstance::attached_to_object(value)) {
-				if (LuaState::find_lua_state(lua_state) == script_instance->get_lua_state()) {
+				if (LuaState::find_lua_state(lua_state) == script_instance->get_lua_state().ptr()) {
 					sol::stack::push(lua_state, script_instance->data->get_table());
 					break;
 				}

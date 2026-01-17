@@ -264,7 +264,7 @@ jobs:
           scons-version: $SCONS_VERSION
       - name: Copy artifacts to build folder
         run: |
-          scons lua_runtime=${{ matrix.lua-runtime }} addons_files
+          scons lua_runtime=${{ matrix.lua-runtime }} addons_files lua_api
           cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -272,6 +272,7 @@ jobs:
           name: ${{ matrix.lua-runtime == 'lua' && 'lua-gdextension' || format('lua-gdextension+{0}', matrix.lua-runtime) }}
           path: |
             LICENSE
+            .luarc.json
             addons/lua-gdextension/**
             addons/lua-gdextension/build/.gdignore
           include-hidden-files: true

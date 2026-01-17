@@ -6,7 +6,7 @@
 	url = https://github.com/lua/lua.git
 [submodule "sol2"]
 	path = lib/sol2
-	url = https://github.com/ThePhD/sol2.git
+	url = https://github.com/Assumeru/sol2.git
 [submodule "lib/luajit"]
 	path = lib/luajit
 	url = https://github.com/LuaJIT/LuaJIT.git

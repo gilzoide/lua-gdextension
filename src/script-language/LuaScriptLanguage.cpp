@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -56,6 +56,7 @@ void LuaScriptLanguage::_init() {
 	// Register scripting specific usertypes
 	sol::state_view state = lua_state->get_lua_state();
 	LuaScriptInstance::register_lua(state);
+	LuaScriptMetadata::register_lua(state);
 	LuaScriptMethod::register_lua(state);
 	LuaScriptProperty::register_lua(state);
 	LuaScriptSignal::register_lua(state);

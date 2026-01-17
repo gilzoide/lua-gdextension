@@ -130,3 +130,11 @@ func test_connect_signal_from_lua() -> bool:
 	some_signal.emit()
 	assert(obj.signal_handler_invoked)
 	return true
+
+
+func test_get_method_list() -> bool:
+	var obj = test_class.new()
+	var methods = obj.get_method_list()
+	assert(methods.any(func(mi): return mi.name == "get_a"))
+	assert(methods.any(func(mi): return mi.name == "await_signal"))
+	return true

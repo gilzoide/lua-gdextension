@@ -53,12 +53,7 @@ local LuaBouncingLogo = {
 	
 	-- Declare properties
 	linear_velocity = export(100),
-	initial_angle = export({
-		type = float,
-		default = 0,
-		hint = PROPERTY_HINT_RANGE,
-		hint_string = "0,360,degrees"
-	}),
+	initial_angle = export_range(-360, 360, "degrees", float),
 	-- Declare signals
 	bounced = signal(),
 }
@@ -228,7 +223,7 @@ lua.do_string("""
 - [X] Lua ScriptLanguageExtension
   + [X] Add support for property hints / usage flags (including export)
   + [X] Add support for property getter / setter
-  + [ ] Add `export_*` functions mimicking GDScript annotations for better UX
+  + [X] Add `export_*` functions mimicking GDScript annotations for better UX
   + [X] Add support for setting up method RPC configurations
 - [X] Support for building with LuaJIT
 - [X] Support WebAssembly platform

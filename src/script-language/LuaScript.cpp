@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -117,7 +117,6 @@ void LuaScript::_set_source_code(const String &code) {
 
 Error LuaScript::_reload(bool keep_state) {
 	placeholder_fallback_enabled = true;
-	metadata.clear();
 
 	ImportBehavior import_behavior = get_import_behavior();
 	switch (import_behavior) {
@@ -150,6 +149,7 @@ Error LuaScript::_reload(bool keep_state) {
 	}
 	else if (LuaTable *table = Object::cast_to<LuaTable>(result)) {
 		placeholder_fallback_enabled = false;
+		metadata.clear();
 		metadata.setup(table->get_table());
 	}
 	return OK;

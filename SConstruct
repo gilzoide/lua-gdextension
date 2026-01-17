@@ -29,23 +29,7 @@ compiledb = env.CompilationDatabase("compile_commands.json")
 env.Alias("compiledb", compiledb)
 
 # Generate sources
-python_bin = os.getenv("PYTHON_BIN", "python")
-env.Command(
-    [
-        "src/generated/global_enums.hpp",
-        "src/generated/utility_functions.hpp",
-        "src/generated/package_searcher.h",
-        "src/generated/lua_script_globals.h",
-    ],
-    [
-        "src/generate_code.py",
-        "src/luaopen/package_searcher.lua",
-        "src/script-language/globals.lua",
-        "lib/godot-cpp/gdextension/extension_api.json",
-        "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
-    ],
-    action=python_bin + " $SOURCE",
-)
+env.Tool("code_generator", toolpath=["tools"])
 
 # Lua GDExtension uses C++20 instead of C++17 from godot-cpp
 if env.remove_options(env["CXXFLAGS"], "-std=c++17"):

@@ -2,29 +2,25 @@
 --
 -- It stores metadata such as its base class, global class_name, icon,
 -- as well as any declared properties, methods and signals
-local LuaBouncingLogo = {
-	-- base class (optional, defaults to RefCounted)
-	extends = Sprite2D,
-	-- if true, allow the script to be executed by the editor (optional)
-	tool = false,
-	-- global class name (optional)
-	class_name = "LuaBouncingLogo",
-	
-	-- Declare properties
-	linear_velocity = export(100),
-	initial_angle = export({
-		type = float,
-		default = 0,
-		hint = PROPERTY_HINT_RANGE,
-		hint_string = "0,360,degrees"
-	}),
-	-- Declare signals
-	bounced = signal(),
-}
+
+-- Using `GDCLASS` to create the table keeps properties and functions ordered
+local LuaBouncingLogo = GDCLASS()
+
+-- base class (optional, defaults to RefCounted)
+LuaBouncingLogo.extends = Sprite2D
+-- if true, allow the script to be executed by the editor (optional)
+LuaBouncingLogo.tool = false
+-- global class name (optional)
+LuaBouncingLogo.class_name = "LuaBouncingLogo"
+
+-- Declare properties
+LuaBouncingLogo.linear_velocity = export(100)
+LuaBouncingLogo.initial_angle = export_range(-360, 360, "degrees", float)
+-- Declare signals
+LuaBouncingLogo.bounced = signal()
 
 -- Called when the node enters the scene tree for the first time.
 function LuaBouncingLogo:_ready()
-	self.position = self:get_viewport():get_size() / 2
 	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
 
 	-- To connect a signal in Lua, you can use the method callable just like in GDScript

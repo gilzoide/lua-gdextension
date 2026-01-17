@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -25,6 +25,7 @@
 #include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
 #include "method_bind_impl.hpp"
+#include "../generated/variant_type_constants.hpp"
 
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -168,15 +169,25 @@ bool VariantType::operator==(const VariantType& other) const {
 }
 
 sol::object VariantType::__index(sol::this_state L, const VariantType& type, const sol::stack_object& key) {
-	Variant new_subtype;
 	if (key.get_type() == sol::type::string) {
-		StringName method = key.as<StringName>();
+		StringName key_str = key.as<StringName>();
+
+		Variant constant = variant_constant_named(type.get_type(), key_str);
+		if (constant.get_type() != Variant::NIL) {
+			return to_lua(L, constant);
+		}
+
 		Variant empty = type.construct_default();
-		if (empty.has_method(method)) {
-			return sol::make_object(L, VariantTypeMethodBind(type, method));
+		if (empty.has_method(key_str)) {
+			return sol::make_object(L, VariantTypeMethodBind(type, key_str));
+		}
+		else {
+			return sol::nil;
 		}
 	}
-	else if (auto subtype = key.as<sol::optional<VariantType>>()) {
+	
+	Variant new_subtype;
+	if (auto subtype = key.as<sol::optional<VariantType>>()) {
 		new_subtype = subtype->get_type();
 	}
 	else if (auto cls = key.as<sol::optional<Class>>()) {

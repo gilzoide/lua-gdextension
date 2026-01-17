@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -207,8 +207,9 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::subtraction, &evaluate_binary_operator<Variant::OP_SUBTRACT>,
 		sol::meta_function::multiplication, &evaluate_binary_operator<Variant::OP_MULTIPLY>,
 		sol::meta_function::division, &evaluate_binary_operator<Variant::OP_DIVIDE>,
-		sol::meta_function::unary_minus, &evaluate_unary_operator<Variant::OP_NEGATE>,
+		sol::meta_function::power_of, &evaluate_binary_operator<Variant::OP_POWER>,
 		sol::meta_function::modulus, &evaluate_binary_operator<Variant::OP_MODULE>,
+		sol::meta_function::unary_minus, &evaluate_unary_operator<Variant::OP_NEGATE>,
 		// bitwise
 		sol::meta_function::bitwise_left_shift, &evaluate_binary_operator<Variant::OP_SHIFT_LEFT>,
 		sol::meta_function::bitwise_right_shift, &evaluate_binary_operator<Variant::OP_SHIFT_RIGHT>,

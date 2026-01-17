@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2025 Gil Barbosa Reis.
+ * Copyright (C) 2026 Gil Barbosa Reis.
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the “Software”), to deal in
@@ -28,7 +28,7 @@ const sol::reference& LuaObject::get_lua_object() const {
 	abort();
 }
 
-LuaState *LuaObject::get_lua_state() const {
+Ref<LuaState> LuaObject::get_lua_state() const {
 	return LuaState::find_lua_state(get_lua_object().lua_state());
 }
 
