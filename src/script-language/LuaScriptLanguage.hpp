@@ -98,7 +98,6 @@ public:
 
 	PackedStringArray get_lua_keywords() const;
 	PackedStringArray get_lua_member_keywords() const;
-	const Dictionary& get_named_globals() const;
 
 	void register_named_globals(lua_State *L) const;
 	void register_global_classes(lua_State *L) const;
