@@ -12,19 +12,13 @@ local LuaBouncingLogo = {
 	
 	-- Declare properties
 	linear_velocity = export(100),
-	initial_angle = export({
-		type = float,
-		default = 0,
-		hint = PROPERTY_HINT_RANGE,
-		hint_string = "0,360,degrees"
-	}),
+	initial_angle = export_range(-360, 360, "degrees", float),
 	-- Declare signals
 	bounced = signal(),
 }
 
 -- Called when the node enters the scene tree for the first time.
 function LuaBouncingLogo:_ready()
-	self.position = self:get_viewport():get_size() / 2
 	self.movement = Vector2(self.linear_velocity, 0):rotated(deg_to_rad(self.initial_angle))
 
 	-- To connect a signal in Lua, you can use the method callable just like in GDScript
