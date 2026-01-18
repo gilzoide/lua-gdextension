@@ -259,11 +259,7 @@ void LuaScriptProperty::register_lua(lua_State *L) {
 
 	state.new_usertype<LuaScriptProperty>(
 		"LuaScriptProperty",
-		sol::no_construction(),
-		"class_name", &LuaScriptProperty::class_name,
-		"hint", &LuaScriptProperty::hint,
-		"hint_string", &LuaScriptProperty::hint_string,
-		"usage", &LuaScriptProperty::usage
+		sol::no_construction()
 	);
 	state.set("property", &lua_property);
 	state.set("export", &lua_export);

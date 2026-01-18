@@ -5,10 +5,6 @@
 -----------------------------------------------------------
 
 --- @class LuaScriptProperty
---- @field class_name string
---- @field hint integer
---- @field hint_string string
---- @field usage integer
 --- Property definition for Lua scripts.
 LuaScriptProperty = {}
 
