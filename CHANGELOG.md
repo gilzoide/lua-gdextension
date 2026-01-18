@@ -16,11 +16,15 @@
 - `GDCLASS` function that returns a table suitable for defining Godot Classes in LuaScripts.
   The only thing special about it is that `pairs` iterates over its keys in order of insertion, so that its properties and methods are shown in order of definition in the Godot Editor.
 - Calling `get_method_list` on objects with a `LuaScript` attached now returns methods defined in script
+- Support for Android devices with 16KB page sizes
 
 ### Fixed
 - Increment reference count of returned `LuaState` from `LuaObject.get_lua_state`
 - Memory leak when indexing Variants with numbers
 - Avoid losing exported properties in scenes/resources when reloading a Lua script fails
+
+### Changed
+- Updated godot-cpp to 4.5
 
 
 ## [0.6.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.6.1)

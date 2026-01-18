@@ -259,11 +259,7 @@ void LuaScriptProperty::register_lua(lua_State *L) {
 
 	state.new_usertype<LuaScriptProperty>(
 		"LuaScriptProperty",
-		sol::no_construction(),
-		"class_name", &LuaScriptProperty::class_name,
-		"hint", &LuaScriptProperty::hint,
-		"hint_string", &LuaScriptProperty::hint_string,
-		"usage", &LuaScriptProperty::usage
+		sol::no_construction()
 	);
 	state.set("property", &lua_property);
 	state.set("export", &lua_export);
@@ -273,7 +269,7 @@ void LuaScriptProperty::register_lua(lua_State *L) {
 	state.set("export_enum", &lua_export_hint_strings<PROPERTY_HINT_ENUM>);
 	state.set("export_exp_easing", &lua_export_hint_strings<PROPERTY_HINT_EXP_EASING>);
 	state.set("export_file", &lua_export_hint_strings<PROPERTY_HINT_FILE>);
-	// state.set("export_file_path", &lua_export_hint_strings<PROPERTY_HINT_FILE_PATH>);  // Godot 4.5, needs updating extension_api.json
+	state.set("export_file_path", &lua_export_hint_strings<PROPERTY_HINT_FILE_PATH>);
 	state.set("export_flags", &lua_export_hint_strings<PROPERTY_HINT_FLAGS>);
 	state.set("export_flags_2d_navigation", &lua_export_hint<PROPERTY_HINT_LAYERS_2D_NAVIGATION>);
 	state.set("export_flags_2d_physics", &lua_export_hint<PROPERTY_HINT_LAYERS_2D_PHYSICS>);
