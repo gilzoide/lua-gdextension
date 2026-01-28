@@ -16,6 +16,7 @@
 - Support for power operator between Variants.
   Even if only `int` and `float` support them and most people won't ever use them as `Variant` values, add it for completion.
 - [Lua Language Server (LLS)](https://luals.github.io/) definition files + `.luarc.json` configuration file that helps with code completion in IDEs that support it
+- `export_*` functions for Lua Scripts mimicking GDScript's annotations, such as `export_range` and `export_file`
 - `GDCLASS` function that returns a table suitable for defining Godot Classes in LuaScripts.
   The only thing special about it is that `pairs` iterates over its keys in order of insertion, so that its properties and methods are shown in order of definition in the Godot Editor.
 - Calling `get_method_list` on objects with a `LuaScript` attached now returns methods defined in script
