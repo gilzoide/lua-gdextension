@@ -93,7 +93,7 @@ PackedStringArray LuaScriptLanguage::_get_reserved_words() const {
 bool LuaScriptLanguage::_is_control_flow_keyword(const String &keyword) const {
 	return godot::helpers::append_all(PackedStringArray(),
 		"break", "do", "else", "elseif", "end",
-		"for", "goto", "if", "in",
+		"for", "function", "goto", "if", "in",
 		"repeat", "return",
 		"then", "until", "while"
 	).has(keyword);
