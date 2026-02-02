@@ -1,5 +1,8 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
+### Changed
+- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
+- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
 
 
 ## [0.7.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.7.0)

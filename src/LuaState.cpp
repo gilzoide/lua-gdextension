@@ -25,7 +25,6 @@
 #include "LuaTable.hpp"
 #include "LuaThread.hpp"
 #include "luaopen/godot.hpp"
-#include "utils/_G_metatable.hpp"
 #include "utils/convert_godot_lua.hpp"
 #include "utils/module_names.hpp"
 
@@ -75,7 +74,6 @@ LuaState::LuaState()
 	: lua_state(lua_panic_handler, lua_alloc)
 #endif
 {
-	setup_G_metatable(lua_state);
 #ifdef HAVE_LUA_WARN
 	lua_setwarnf(lua_state, lua_warn_handler, this);
 #endif
@@ -153,11 +151,11 @@ void LuaState::open_libraries(BitField<Library> libraries) {
 		if (libraries.has_flag(GODOT_UTILITY_FUNCTIONS)) {
 			lua_state.require(module_names::utility_functions, &luaopen_godot_utility_functions, false);
 		}
-		if (libraries.has_flag(GODOT_SINGLETONS)) {
-			lua_state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
-		}
 		if (libraries.has_flag(GODOT_CLASSES)) {
 			lua_state.require(module_names::classes, &luaopen_godot_classes, false);
+		}
+		if (libraries.has_flag(GODOT_SINGLETONS)) {
+			lua_state.require(module_names::singleton_access, &luaopen_godot_singleton_access, false);
 		}
 		if (libraries.has_flag(GODOT_ENUMS)) {
 			lua_state.require(module_names::enums, &luaopen_godot_enums, false);
