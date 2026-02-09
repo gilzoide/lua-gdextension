@@ -1,5 +1,7 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
+### Changed
+- Updated godot-cpp to 10.0.0-rc1 using api_version=4.6
 
 
 ## [0.7.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.7.0)

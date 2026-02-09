@@ -128,7 +128,7 @@ Variant VariantType::construct_default() const {
 	else {
 		Variant result;
 		GDExtensionCallError error;
-		internal::gdextension_interface_variant_construct((GDExtensionVariantType) type, result._native_ptr(), nullptr, 0, &error);
+		gdextension_interface::variant_construct((GDExtensionVariantType) type, result._native_ptr(), nullptr, 0, &error);
 		ERR_FAIL_COND_V_MSG(error.error != GDEXTENSION_CALL_OK, Variant(), "Error constructing " + to_string());
 		return result;
 	}
@@ -154,7 +154,7 @@ Variant VariantType::construct(const sol::variadic_args& args) const {
 	VariantArguments variant_args = args;
 	Variant result;
 	GDExtensionCallError error;
-	internal::gdextension_interface_variant_construct((GDExtensionVariantType) type, result._native_ptr(), (GDExtensionConstVariantPtr *) variant_args.argv(), variant_args.argc(), &error);
+	gdextension_interface::variant_construct((GDExtensionVariantType) type, result._native_ptr(), (GDExtensionConstVariantPtr *) variant_args.argv(), variant_args.argc(), &error);
 	if (error.error != GDEXTENSION_CALL_OK) {
 		String msg = "Error constructing " + to_string();
 		lua_error(args.lua_state(), error, msg);

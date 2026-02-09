@@ -44,7 +44,6 @@
 #include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/classes/engine.hpp"
 #include "godot_cpp/classes/global_constants.hpp"
-#include "godot_cpp/godot.hpp"
 
 namespace luagdextension {
 
@@ -88,11 +87,11 @@ StringName LuaScript::_get_instance_base_type() const {
 
 void *LuaScript::_instance_create(Object *for_object) const {
 	LuaScriptInstance *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
-	return godot::internal::gdextension_interface_script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
+	return gdextension_interface::script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
-	void *placeholder = godot::internal::gdextension_interface_placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
+	void *placeholder = gdextension_interface::placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
 	placeholders.get(this).insert(placeholder);
 	_update_placeholder_exports(placeholder);
 	return placeholder;
@@ -340,7 +339,7 @@ void LuaScript::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_import_behavior"), &LuaScript::get_import_behavior);
 	ClassDB::bind_method(D_METHOD("get_looks_like_godot_script"), &LuaScript::get_looks_like_godot_script);
 	ADD_PROPERTY(PropertyInfo(Variant::Type::INT, "import_behavior", PROPERTY_HINT_ENUM, "Automatic,Always Evaluate,Don't Load", PROPERTY_USAGE_EDITOR), "set_import_behavior", "get_import_behavior");
-	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_godot_script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "", "get_looks_like_godot_script");
+	ADD_PROPERTY(PropertyInfo(Variant::Type::BOOL, "looks_like_godot_script", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_READ_ONLY), "", "get_looks_like_godot_script");
 }
 
 String LuaScript::_to_string() const {
@@ -354,7 +353,7 @@ void LuaScript::_update_placeholder_exports(void *placeholder) const {
 		properties.append(property.to_dictionary());
 		default_values[name] = property.instantiate_default_value();
 	}
-	godot::internal::gdextension_interface_placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
+	gdextension_interface::placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
 }
 
 HashMap<const LuaScript *, HashSet<void *>> LuaScript::placeholders;

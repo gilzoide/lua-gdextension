@@ -82,10 +82,14 @@ static void destroy_PropertyInfos(const GDExtensionPropertyInfo *pinfos, uint32_
 
 static GDExtensionMethodInfo from_MethodInfo(const MethodInfo& minfo) {
 	GDExtensionPropertyInfo *arguments = memnew_arr(GDExtensionPropertyInfo, minfo.arguments.size());
-	std::transform(minfo.arguments.begin(), minfo.arguments.end(), arguments, from_PropertyInfo);
+	for (unsigned int i = 0, count = minfo.arguments.size(); i < count; i++) {
+		arguments[i] = from_PropertyInfo(minfo.arguments[i]);
+	}
 	
 	GDExtensionVariantPtr *default_arguments = memnew_arr(GDExtensionVariantPtr, minfo.default_arguments.size());
-	std::transform(minfo.default_arguments.begin(), minfo.default_arguments.end(), default_arguments, from_Variant);
+	for (unsigned int i = 0, count = minfo.default_arguments.size(); i < count; i++) {
+		default_arguments[i] = from_Variant(minfo.default_arguments[i]);
+	}
 	return {
 		memnew(StringName(minfo.name)),
 		from_PropertyInfo(minfo.return_val),
