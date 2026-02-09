@@ -3,6 +3,7 @@ extends RefCounted
 signal some_signal()
 
 var test_class = load("res://gdscript_tests/lua_files/test_class.lua")
+var test_class_scene: PackedScene = load("res://gdscript_tests/scene_files/test_class.tscn")
 var _signal_handled = false
 
 
@@ -19,6 +20,12 @@ func test_init() -> bool:
 	assert(obj is RefCounted, "Object is not RefCounted")
 	assert(obj.get_script() is LuaScript, "Object should have LuaScript attached")
 	assert(obj.init_values == [1, 2, 3])
+	return true
+
+
+func test_init_scene() -> bool:
+	var obj = test_class_scene.instantiate()
+	assert(obj.init_values == [])
 	return true
 
 
