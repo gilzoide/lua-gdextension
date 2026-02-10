@@ -25,7 +25,8 @@ func test_init() -> bool:
 
 func test_init_scene() -> bool:
 	var obj = test_class_scene.instantiate()
-	assert(obj.init_values == [])
+	assert(obj._init_called == true)
+	obj.queue_free()
 	return true
 
 
