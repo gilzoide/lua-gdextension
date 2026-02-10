@@ -2,6 +2,10 @@ local TestClassNode = {
 	extends = Node,
 }
 
+function TestClassNode:_init()
+	self._init_called = true
+end
+
 -- RPC config
 function TestClassNode:rpc_method()
 	self.rpc_called = true
