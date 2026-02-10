@@ -86,8 +86,7 @@ StringName LuaScript::_get_instance_base_type() const {
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
-	LuaScriptInstance *instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
-	return gdextension_interface::script_instance_create3(LuaScriptInstance::get_script_instance_info(), instance);
+	return _internal_instance_create(for_object, nullptr, 0);
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
@@ -298,10 +297,8 @@ Variant LuaScript::_new(const Variant **args, GDExtensionInt arg_count, GDExtens
 
 	Variant new_instance = ClassDB::instantiate(_get_instance_base_type());
 	if (Object *obj = new_instance) {
-		obj->set_script(this);
-	}
-	if (const LuaScriptMethod *_init = metadata.methods.getptr(string_names->_init)) {
-		LuaCoroutine::invoke_lua(_init->method, VariantArguments(new_instance, args, arg_count), false);
+		GDExtensionScriptInstancePtr script_instance = _internal_instance_create(obj, args, arg_count);
+		ERR_FAIL_COND_V(script_instance == nullptr, Variant());
 	}
 	return new_instance;
 }
@@ -354,6 +351,16 @@ void LuaScript::_update_placeholder_exports(void *placeholder) const {
 		default_values[name] = property.instantiate_default_value();
 	}
 	gdextension_interface::placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
+}
+
+GDExtensionScriptInstancePtr LuaScript::_internal_instance_create(Object *for_object, const Variant **args, GDExtensionInt arg_count) const {
+	LuaScriptInstance *lua_script_instance = memnew(LuaScriptInstance(for_object, Ref<LuaScript>(this)));
+	GDExtensionScriptInstancePtr gd_script_instance = gdextension_interface::script_instance_create3(LuaScriptInstance::get_script_instance_info(), lua_script_instance);
+	gdextension_interface::object_set_script_instance(for_object->_owner, gd_script_instance);
+	if (const LuaScriptMethod *_init = metadata.methods.getptr(string_names->_init)) {
+		LuaCoroutine::invoke_lua(_init->method, VariantArguments(for_object, args, arg_count), false);
+	}
+	return gd_script_instance;
 }
 
 HashMap<const LuaScript *, HashSet<void *>> LuaScript::placeholders;
