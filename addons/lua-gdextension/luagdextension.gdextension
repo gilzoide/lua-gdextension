@@ -1,6 +1,6 @@
 [configuration]
 entry_symbol = "luagdextension_entrypoint"
-compatibility_minimum = "4.4"
+compatibility_minimum = "4.5"
 reloadable = true
 
 [libraries]

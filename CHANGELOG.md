@@ -1,6 +1,10 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
+### Fixed
+- `LuaScript`s have their `_init` method called when instantiated from scene
+
 ### Changed
+- Godot 4.5 is now the minimum version necessary to use this addon
 - Updated godot-cpp to 10.0.0-rc1 using api_version=4.6
 
 
