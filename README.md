@@ -209,7 +209,28 @@ lua.do_string("""
   print(v:pcall('length'))  -- true    2.2360680103302
   print(v:pcall('invalid method'))  -- false   "Invalid method"
   ```
+## Signal
+- Use signals with `Callable`.
+  ```lua
+  function myClass:_on_timeout()
+  	print("timeout end")
+  end
+  
+  function myClass:_ready()
+  	local timer = self:get_tree():create_timer(2.0)
+  	--another way is : timer:connect("timeout", Callable(self, "_on_timeout"))
+  	timer.timeout:connect(Callable(self, "_on_timeout"))
+  end
 
+  ```
+---
+
+## 📘 User Guide
+- We also offer a user guide covering the use of Lua through many aspects of Godot:
+* 🇫🇷 [Guide d'utilisation (Français)](documentation/FR_GUIDE.md)
+* 🇬🇧 [User Guide (English)](documentation/EN_GUIDE.md)
+
+---
 
 ## TODO
 - [X] Bind Variant types to Lua
