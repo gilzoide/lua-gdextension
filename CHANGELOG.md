@@ -2,6 +2,7 @@
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
 ### Fixed
 - `LuaScript`s have their `_init` method called when instantiated from scene
+- Node metadata set in the inspector is now correctly set as metadata instead of regular raw data
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
