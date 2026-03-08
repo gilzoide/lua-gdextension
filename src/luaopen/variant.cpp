@@ -30,6 +30,7 @@
 #include "../utils/DictionaryIterator.hpp"
 #include "../utils/IndexedIterator.hpp"
 #include "../utils/ObjectIterator.hpp"
+#include "../utils/VariantArguments.hpp"
 #include "../utils/VariantType.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/convert_godot_std.hpp"
@@ -78,6 +79,19 @@ sol::object evaluate_unary_operator(sol::this_state state, const sol::stack_obje
 		);
 	}
 	return to_lua(state, result);
+}
+
+sol::object variant_duplicate(sol::stack_object self, sol::variadic_args args) {
+	Variant variant = to_variant(self);
+	Variant result;
+	if (Object *obj = variant; obj && obj->has_method(string_names->duplicate)) {
+		VariantArguments vargs(args);
+		result = obj->callv(string_names->duplicate, vargs.get_array());
+	}
+	else {
+		result = variant.duplicate();
+	}
+	return to_lua(self.lua_state(), result);
 }
 
 sol::object variant__index(sol::this_state state, const Variant& variant, const sol::stack_object& key) {
@@ -189,7 +203,7 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 			Variant(const char *v)
 		>(),
 		"booleanize", wrap_function(L, +[](const Variant& v) { return v.booleanize(); }),
-		"duplicate", wrap_function(L, +[](const Variant& self) { return self.duplicate(); }),
+		"duplicate", &variant_duplicate,
 		"call", &variant_call,
 		"pcall", &variant_pcall,
 		"get_type", &variant_get_type,
