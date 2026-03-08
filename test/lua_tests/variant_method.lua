@@ -11,3 +11,8 @@ node:call_deferred("queue_free")
 assert(Variant.is(node_duplicate, Node))
 assert(not is_same(node, node_duplicate))
 node_duplicate:call_deferred("queue_free")
+
+local arr = Array { 1, 2, 3 }
+local arr_duplicate = arr:duplicate()
+assert(Variant.is(arr_duplicate, Array))
+assert(not is_same(arr, arr_duplicate))
