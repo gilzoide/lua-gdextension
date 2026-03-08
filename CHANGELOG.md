@@ -2,6 +2,7 @@
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
 ### Fixed
 - `LuaScript`s have their `_init` method called when instantiated from scene
+- Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
