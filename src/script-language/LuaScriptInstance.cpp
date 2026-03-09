@@ -159,9 +159,13 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
-	// d) set raw data
-	p_instance->data->rawset(*p_name, *p_value);
-	return true;
+	// d) set raw data unless it's metadata
+	if (!p_name->begins_with("metadata/")) {
+		p_instance->data->rawset(*p_name, *p_value);
+		return true;
+	}
+	
+	return false;
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {

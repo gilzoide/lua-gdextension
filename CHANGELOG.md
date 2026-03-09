@@ -3,6 +3,7 @@
 ### Fixed
 - `LuaScript`s have their `_init` method called when instantiated from scene
 - Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
+- Node metadata set in the inspector is now correctly set as metadata instead of regular raw data
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
