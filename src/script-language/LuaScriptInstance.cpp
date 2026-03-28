@@ -121,22 +121,60 @@ static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t co
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	: owner(owner)
 	, script(script)
-	, data(LuaScriptLanguage::get_singleton()->get_lua_state()->create_table())
 {
-	owner_to_instance.insert(owner, this);
-	table_to_instance.insert(data->get_table().pointer(), this);
+	sol::table data = strong_refs.create((void*) this);
+	data[sol::metatable_key] = metatable;
+	data_ptr = data.pointer();
 
-	data->get_table()[sol::metatable_key] = metatable;
+	owner_to_instance.insert(owner, this);
+	table_to_instance.insert(data_ptr, this);
 
 	const LuaScriptMetadata& metadata = script->get_metadata();
 	for (auto [name, signal] : metadata.signals) {
-		data->rawset(name, Signal(owner, name));
+		LuaTable::try_set(data, name, Signal(owner, name), true);
+	}
+
+	// Maintain a reference in the Lua side.
+	// `lua_gc` is responsible for releasing this reference.
+	if (RefCounted *rc_owner = Object::cast_to<RefCounted>(owner)) {
+		rc_owner->init_ref();
 	}
 }
 
 LuaScriptInstance::~LuaScriptInstance() {
 	owner_to_instance.erase(owner);
-	table_to_instance.erase(data->get_table().pointer());
+	table_to_instance.erase(data_ptr);
+	strong_refs.raw_set((void*) this, sol::nil);
+	weak_refs.raw_set((void*) this, sol::nil);
+}
+
+sol::table LuaScriptInstance::get_data() const {
+	if (auto t = strong_refs.get<sol::optional<sol::table>>((void*) this)) {
+		return *t;
+	}
+	else if (auto t = weak_refs.get<sol::optional<sol::table>>((void*) this)) {
+		return *t;
+	}
+	else {
+#ifdef DEBUG_ENABLED
+		CRASH_NOW_MSG("FIXME: Couldn't find data table in neither strong_refs nor weak_refs");
+#endif
+		return {};
+	}
+}
+
+void LuaScriptInstance::ensure_strong_ref() {
+	if (auto data = weak_refs.get<sol::optional<sol::table>>((void*) this)) {
+		strong_refs.raw_set((void*) this, *data);
+		weak_refs.raw_set((void*) this, sol::nil);
+	}
+}
+
+void LuaScriptInstance::ensure_weak_ref() {
+	if (auto data = strong_refs.get<sol::optional<sol::table>>((void*) this)) {
+		weak_refs.raw_set((void*) this, *data);
+		strong_refs.raw_set((void*) this, sol::nil);
+	}
 }
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
@@ -161,7 +199,8 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 
 	// d) set raw data unless it's metadata
 	if (!p_name->begins_with("metadata/")) {
-		p_instance->data->rawset(*p_name, *p_value);
+		sol::table data = p_instance->get_data();
+		LuaTable::try_set(data, *p_name, *p_value, true);
 		return true;
 	}
 	
@@ -185,7 +224,7 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	}
 
 	// c) access raw data
-	if (auto data_value = p_instance->data->try_get(*p_name, true)) {
+	if (auto data_value = LuaTable::try_get(p_instance->get_data(), *p_name, true)) {
 		*p_value = *data_value;
 		return true;
 	}
@@ -193,7 +232,8 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	// d) fallback to default property value, if there is one
 	if (property) {
 		Variant value = property->instantiate_default_value();
-		p_instance->data->rawset(*p_name, value);
+		sol::table data = p_instance->get_data();
+		LuaTable::try_set(data, *p_name, value, true);
 		*p_value = value;
 		return true;
 	}
@@ -242,9 +282,10 @@ Object *get_owner_func(LuaScriptInstance *p_instance) {
 }
 
 void get_property_state_func(LuaScriptInstance *p_instance, GDExtensionScriptInstancePropertyStateAdd p_add_func, void *p_userdata) {
-	for (Variant key : *p_instance->data.ptr()) {
+	Ref<LuaTable> data = LuaObject::wrap_object<LuaTable>(p_instance->get_data());
+	for (Variant key : *data.ptr()) {
 		StringName name = key;
-		Variant value = p_instance->data->get(key);
+		Variant value = data->get(key);
 		p_add_func(&name, &value, p_userdata);
 	}
 }
@@ -331,9 +372,19 @@ void to_string_func(LuaScriptInstance *p_instance, GDExtensionBool *r_is_valid, 
 }
 
 void refcount_incremented_func(LuaScriptInstance *instance) {
+	RefCounted *rc_owner = Object::cast_to<RefCounted>(instance->owner);
+	// If Lua is not the only owner of this object, store a strong reference to data table to avoid it being GCed
+	if (rc_owner->get_reference_count() > 1) {
+		instance->ensure_strong_ref();
+	}
 }
 
 GDExtensionBool refcount_decremented_func(LuaScriptInstance *instance) {
+	RefCounted *rc_owner = Object::cast_to<RefCounted>(instance->owner);
+	// If Lua is the only owner of this object, store a weak reference to data table so it can be GCed
+	if (rc_owner->get_reference_count() == 1) {
+		instance->ensure_weak_ref();
+	}
 	return true;
 }
 
@@ -397,13 +448,9 @@ LuaScriptInstance *LuaScriptInstance::attached_to_object(Object *owner) {
 	}
 }
 
-Ref<LuaState> LuaScriptInstance::get_lua_state() const {
-	return data->get_lua_state();
-}
-
 static Variant _rawget(const Variant& self, const Variant& index) {
 	if (LuaScriptInstance *instance = LuaScriptInstance::attached_to_object(self)) {
-		return instance->data->rawget(index);
+		return LuaTable::try_get(instance->get_data(), index, true).value_or(Variant());
 	}
 	else {
 		return {};
@@ -412,7 +459,8 @@ static Variant _rawget(const Variant& self, const Variant& index) {
 
 static void _rawset(const Variant& self, const Variant& index, const Variant& value) {
 	if (LuaScriptInstance *instance = LuaScriptInstance::attached_to_object(self)) {
-		instance->data->rawset(index, value);
+		sol::table data = instance->get_data();
+		LuaTable::try_set(data, index, value, true);
 	}
 }
 
@@ -463,28 +511,55 @@ static int lua_to_string(lua_State *L) {
 	return 0;
 }
 
+static int lua_gc(lua_State *L) {
+	sol::stack_table self(L, 1);
+
+	if (LuaScriptInstance *instance = LuaScriptInstance::find_instance(self)) {
+		Object *owner = instance->owner;
+		// This effectively destroys the LuaScriptInstance
+		owner->set_script(Variant());
+		// Remove Lua's reference of a RefCounted
+		if (RefCounted *rc_owner = Object::cast_to<RefCounted>(owner)) {
+			if (rc_owner->unreference()) {
+				memdelete(rc_owner);
+			}
+		}
+	}
+	return 0;
+}
+
 void LuaScriptInstance::register_lua(lua_State *L) {
 	sol::state_view state(L);
 	metatable = state.create_table_with(
 		"__index", lua_index,
 		"__newindex", lua_newindex,
 		"__tostring", lua_to_string,
+		"__gc", lua_gc,
 		"__metatable", "LuaScriptInstance"
 	);
+
+	strong_refs = state.create_table();
+	weak_refs = state.create_table();
+	weak_refs[sol::metatable_key] = state.create_table_with("__mode", "kv");
+
 	rawget = wrap_function(L, _rawget);
 	rawset = wrap_function(L, _rawset);
 	LuaScriptInstanceMethodBind::register_usertype(state);
 }
 
 void LuaScriptInstance::unregister_lua(lua_State *L) {
-	metatable = {};
-	rawget = {};
-	rawset = {};
+	metatable.abandon();
+	strong_refs.abandon();
+	weak_refs.abandon();
+	rawget.abandon();
+	rawset.abandon();
 }
 
 HashMap<Object *, LuaScriptInstance *> LuaScriptInstance::owner_to_instance;
 HashMap<const void *, LuaScriptInstance *> LuaScriptInstance::table_to_instance;
 sol::table LuaScriptInstance::metatable;
+sol::table LuaScriptInstance::strong_refs;
+sol::table LuaScriptInstance::weak_refs;
 sol::protected_function LuaScriptInstance::rawget;
 sol::protected_function LuaScriptInstance::rawset;
 

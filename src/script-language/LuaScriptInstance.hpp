@@ -53,9 +53,12 @@ struct LuaScriptInstance {
 
 	Object *owner;
 	Ref<LuaScript> script;
-	Ref<LuaTable> data;
+	const void* data_ptr;
+	
+	sol::table get_data() const;
 
-	Ref<LuaState> get_lua_state() const;
+	void ensure_strong_ref();
+	void ensure_weak_ref();
 
 	static void register_lua(lua_State *L);
 	static void unregister_lua(lua_State *L);
@@ -66,7 +69,15 @@ struct LuaScriptInstance {
 private:
 	static HashMap<Object *, LuaScriptInstance *> owner_to_instance;
 	static HashMap<const void *, LuaScriptInstance *> table_to_instance;
+
+	// Data table's metatable
 	static sol::table metatable;
+
+	// These tables map LuaScriptInstance pointers to their data table
+	// strong_refs is used when there are unmanaged references to the owner, to avoid Lua GCing the object.
+	static sol::table strong_refs;
+	// weak_refs is used when there are no unmanaged references to the owner, so Lua can GC the object.
+	static sol::table weak_refs;
 };
 
 }

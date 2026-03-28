@@ -36,10 +36,10 @@ LuaTable::LuaTable() : LuaObjectSubclass() {}
 LuaTable::LuaTable(sol::table&& table) : LuaObjectSubclass(table) {}
 LuaTable::LuaTable(const sol::table& table) : LuaObjectSubclass(table) {}
 
-sol::optional<Variant> LuaTable::try_get(const Variant& key, bool raw) const {
-	StackTopChecker topcheck(lua_object.lua_state());
-	lua_State *L = lua_object.lua_state();
-	sol::stack::push(L, lua_object);
+sol::optional<Variant> LuaTable::try_get(const sol::table& t, const Variant& key, bool raw) {
+	StackTopChecker topcheck(t.lua_state());
+	lua_State *L = t.lua_state();
+	sol::stack::push(L, t);
 	lua_push(L, key);
 	if (raw) {
 		lua_rawget(L, -2);
@@ -56,12 +56,12 @@ sol::optional<Variant> LuaTable::try_get(const Variant& key, bool raw) const {
 	}
 }
 
-bool LuaTable::try_set(const Variant& key, const Variant& value, bool raw) {
+bool LuaTable::try_set(sol::table& t, const Variant& key, const Variant& value, bool raw) {
 	ERR_FAIL_COND_V_MSG(key == Variant(), false, "Table key cannot be null");
 	
-	StackTopChecker topcheck(lua_object.lua_state());
-	lua_State *L = lua_object.lua_state();
-	auto table_popper = sol::stack::push_pop(L, lua_object);
+	StackTopChecker topcheck(t.lua_state());
+	lua_State *L = t.lua_state();
+	auto table_popper = sol::stack::push_pop(L, t);
 	lua_push(L, key);
 	lua_push(L, value);
 	if (raw) {
@@ -74,19 +74,19 @@ bool LuaTable::try_set(const Variant& key, const Variant& value, bool raw) {
 }
 
 Variant LuaTable::get(const Variant& key, const Variant& default_value) const {
-	return try_get(key).value_or(default_value);
+	return try_get(lua_object, key).value_or(default_value);
 }
 
 Variant LuaTable::rawget(const Variant& key, const Variant& default_value) const {
-	return try_get(key, true).value_or(default_value);
+	return try_get(lua_object, key, true).value_or(default_value);
 }
 
 void LuaTable::set(const Variant& key, const Variant& value) {
-	try_set(key, value);
+	try_set(lua_object, key, value);
 }
 
 void LuaTable::rawset(const Variant& key, const Variant& value) {
-	try_set(key, value, true);
+	try_set(lua_object, key, value, true);
 }
 
 void LuaTable::clear() {

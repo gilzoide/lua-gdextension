@@ -78,6 +78,8 @@ String LuaScriptLanguage::_get_extension() const {
 }
 
 void LuaScriptLanguage::_finish() {
+	// Run a full GC to make sure we collect weak references to LuaScriptInstances
+	lua_state->get_lua_state().collect_gc();
 	LuaScriptInstance::unregister_lua(lua_state->get_lua_state());
 	lua_parser.unref();
 	lua_state.unref();

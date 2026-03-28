@@ -77,7 +77,7 @@ Callable LuaScriptInstanceMethodBind::to_callable() const {
 sol::object LuaScriptInstanceMethodBind::call(sol::this_state state, const sol::stack_object& self, const sol::variadic_args& args) const {
 	LuaScriptInstance *script_instance = LuaScriptInstance::attached_to_object(instance_owner);
 	ERR_FAIL_COND_V_MSG(script_instance == nullptr, sol::nil, "Lua script instance is no longer valid");
-	ERR_FAIL_COND_V_MSG(self.pointer() != script_instance->data->get_table().pointer(), sol::nil, String("To call methods in Lua, use ':' instead of '.': `self:%s(...)`") % method_name);
+	ERR_FAIL_COND_V_MSG(self.pointer() != script_instance->data_ptr, sol::nil, String("To call methods in Lua, use ':' instead of '.': `self:%s(...)`") % method_name);
 	Variant v = instance_owner;
 	return variant_call_string_name(state, v, method_name, args);
 }

@@ -40,9 +40,6 @@ public:
 	LuaTable(sol::table&& table);
 	LuaTable(const sol::table& table);
 
-	sol::optional<Variant> try_get(const Variant& key, bool raw = false) const;
-	bool try_set(const Variant& key, const Variant& value, bool raw = false);
-
 	Variant get(const Variant& key, const Variant& default_value = Variant()) const;
 	Variant rawget(const Variant& key, const Variant& default_value = Variant()) const;
 	void set(const Variant& key, const Variant& value);
@@ -80,6 +77,9 @@ public:
 
 	sol::table& get_table();
 	const sol::table& get_table() const;
+
+	static sol::optional<Variant> try_get(const sol::table& t, const Variant& key, bool raw = false);
+	static bool try_set(sol::table& t, const Variant& key, const Variant& value, bool raw = false);
 
 protected:
 	static void _bind_methods();

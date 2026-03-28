@@ -28,6 +28,7 @@
 #include "../LuaTable.hpp"
 #include "../LuaUserdata.hpp"
 #include "../script-language/LuaScriptInstance.hpp"
+#include "../script-language/LuaScriptLanguage.hpp"
 #include "Class.hpp"
 #include "DictionaryIterator.hpp"
 #include "VariantArguments.hpp"
@@ -204,8 +205,8 @@ sol::stack_object lua_push(lua_State *lua_state, const Variant& value) {
 				}
 			}
 			if (LuaScriptInstance *script_instance = LuaScriptInstance::attached_to_object(value)) {
-				if (LuaState::find_lua_state(lua_state) == script_instance->get_lua_state().ptr()) {
-					sol::stack::push(lua_state, script_instance->data->get_table());
+				if (LuaState::find_lua_state(lua_state) == LuaScriptLanguage::get_singleton()->get_lua_state()) {
+					sol::stack::push(lua_state, script_instance->get_data());
 					break;
 				}
 			}
