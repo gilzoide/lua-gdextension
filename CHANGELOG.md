@@ -4,6 +4,8 @@
 - `LuaScript`s have their `_init` method called when instantiated from scene
 - Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
 - Node metadata set in the inspector is now correctly set as metadata instead of regular raw data
+- Handling of reference counting on objects with `LuaScriptInstance` attached.
+  Now Lua keeps its own reference, while maintaining either a strong or weak reference to the data table to control whether Lua can GC the object or not.
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
