@@ -540,7 +540,7 @@ void LuaScriptInstance::register_lua(lua_State *L) {
 
 	strong_refs = state.create_table();
 	weak_refs = state.create_table();
-	weak_refs[sol::metatable_key] = state.create_table_with("__mode", "kv");
+	weak_refs[sol::metatable_key] = state.create_table_with("__mode", "v");
 
 	rawget = wrap_function(L, _rawget);
 	rawset = wrap_function(L, _rawset);
