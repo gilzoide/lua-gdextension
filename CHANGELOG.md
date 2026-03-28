@@ -8,6 +8,8 @@
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
 - Updated godot-cpp to 10.0.0-rc1 using api_version=4.6
+- `LuaScriptInstance`'s owner object is passed as `self` to methods instead of the data table.
+- `LuaScriptInstance` now uses a Dictionary for storing data instead of a Lua table.
 
 
 ## [0.7.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.7.0)
