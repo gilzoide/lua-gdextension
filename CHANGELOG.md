@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.0...HEAD)
+
+
+## [0.8.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.0)
 ### Added
 - `LuaState` GC-related methods: `collect_garbage`, `step_gc`, `stop_gc`, `restart_gc`, `is_gc_running`, `get_memory_used`, `change_gc_mode_incremental`, `change_gc_mode_generational`, `supports_gc_mode`
 - Support for to-be-closed `Variant` variables in Lua 5.4+ (not supported in LuaJIT).
