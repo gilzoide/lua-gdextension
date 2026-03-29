@@ -24,6 +24,7 @@
 #include "convert_godot_std.hpp"
 
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/classes/resource_uid.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
@@ -51,7 +52,15 @@ sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filen
 		return sol::load_result(lua_state, lua_absindex(lua_state, -1), 1, 1, (sol::load_status) lua_result); 
 	}
 
-	auto file = FileAccess::open(filename, godot::FileAccess::READ);
+	String normalized_filename = filename;
+	if (filename.begins_with("uid://")) {
+		int64_t uid = ResourceUID::get_singleton()->text_to_id(filename);
+		if (ResourceUID::get_singleton()->has_id(uid)) {
+			normalized_filename = ResourceUID::get_singleton()->get_id_path(uid);
+		}
+	}
+
+	auto file = FileAccess::open(normalized_filename, godot::FileAccess::READ);
 	if (file == nullptr) {
 		lua_push(lua_state, String("Cannot open file '%s': %s") % Array::make(filename, UtilityFunctions::error_string(FileAccess::get_open_error())));
 		return sol::load_result(lua_state, lua_absindex(lua_state, -1), 1, 1, sol::load_status::file);
@@ -60,7 +69,7 @@ sol::load_result load_fileaccess(sol::state_view& lua_state, const String& filen
 	FileReaderData reader_data;
 	reader_data.file = file.ptr();
 	reader_data.buffer_size = 1024;
-	sol::load_result result = lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(filename), mode);
+	sol::load_result result = lua_state.load((lua_Reader) file_reader, (void *) &reader_data, to_std_string(normalized_filename), mode);
 	if (result.valid() && env) {
 		lua_push(lua_state, (const Object *) env);
 #if LUA_VERSION_NUM >= 502
