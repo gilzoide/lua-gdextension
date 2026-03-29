@@ -183,6 +183,10 @@ sol::object variant__call(sol::this_state state, const Variant& variant, sol::va
 	return to_lua(state, result);
 }
 
+void variant__close(Variant& variant) {
+	variant.clear();
+}
+
 }
 
 using namespace luagdextension;
@@ -232,6 +236,9 @@ extern "C" int luaopen_godot_variant(lua_State *L) {
 		sol::meta_function::bitwise_xor, &evaluate_binary_operator<Variant::OP_BIT_XOR>,
 		sol::meta_function::bitwise_not, &evaluate_unary_operator<Variant::OP_BIT_NEGATE>,
 		// misc
+#if LUA_VERSION_NUM >= 504
+		"__close", &variant__close,
+#endif
 		sol::meta_function::call, &variant__call,
 		sol::meta_function::index, &variant__index,
 		sol::meta_function::new_index, &variant__newindex,
