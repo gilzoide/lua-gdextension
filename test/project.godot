@@ -18,6 +18,7 @@ config/icon="uid://cih6ia8rwpfa3"
 [autoload]
 
 GlobalNode="*res://global_node.gd"
+LuaAutoGc="*uid://dcdpfdaq63gc1"
 
 [editor_plugins]
 
