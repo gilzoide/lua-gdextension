@@ -17,6 +17,8 @@
 - Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
 - Node metadata set in the inspector is now correctly set as metadata instead of regular raw data
 - Force a full garbage collection on `LuaScriptLanguage`'s state to make sure all Variants are collected, releasing cyclic references from `LuaScriptInstance`/`LuaScript` to the `LuaState` itself.
+- Make sure owner Objects inherit from the class extended by Lua scripts.
+  E.g.: attaching a Lua script that extends `RefCounted` to `Node` objects now gives an error
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
