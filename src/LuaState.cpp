@@ -266,6 +266,68 @@ void LuaState::set_package_cpath(const String& cpath) {
 	}
 }
 
+void LuaState::collect_garbage() {
+	lua_state.collect_garbage();
+}
+
+void LuaState::step_gc(int step_size_kilobytes) {
+	lua_state.step_gc(step_size_kilobytes);
+}
+
+void LuaState::stop_gc() {
+	lua_state.stop_gc();
+}
+
+void LuaState::restart_gc() {
+	lua_state.restart_gc();
+}
+
+bool LuaState::is_gc_running() const {
+	return lua_gc(lua_state, LUA_GCISRUNNING, 0);
+}
+
+uint64_t LuaState::get_memory_used() const {
+	return lua_state.memory_used();
+}
+
+LuaState::GcMode LuaState::change_gc_mode_incremental(int pause, int step_multiplier, int step_byte_size) {
+#if LUA_VERSION_NUM >= 504
+	int previous_gc_mode = lua_gc(lua_state, LUA_GCINC, pause, step_multiplier, step_byte_size);
+	if (previous_gc_mode == LUA_GCGEN) {
+		return GC_MODE_GENERATIONAL;
+	}
+	else {
+		return GC_MODE_INCREMENTAL;
+	}
+#else
+	if (pause != 0) {
+		lua_gc(lua_state, LUA_GCSETPAUSE, pause);
+	}
+	if (step_multiplier != 0) {
+		lua_gc(lua_state, LUA_GCSETSTEPMUL, step_multiplier);
+	}
+	return GC_MODE_INCREMENTAL;
+#endif
+}
+
+LuaState::GcMode LuaState::change_gc_mode_generational(int minor_multiplier, int major_multiplier) {
+#if LUA_VERSION_NUM >= 504
+	int previous_gc_mode = lua_gc(lua_state, LUA_GCGEN, minor_multiplier, major_multiplier);
+	if (previous_gc_mode == LUA_GCGEN) {
+		return GC_MODE_GENERATIONAL;
+	}
+	else {
+		return GC_MODE_INCREMENTAL;
+	}
+#else
+	ERR_FAIL_V_MSG(GC_MODE_INCREMENTAL, "Generational garbage collection mode is not supported by " + get_lua_runtime() + " runtime");
+#endif
+}
+
+bool LuaState::supports_gc_mode(GcMode mode) const {
+	return lua_state.supports_gc_mode((sol::gc_mode) mode);
+}
+
 String LuaState::get_lua_runtime() {
 #ifdef LUAJIT
 	return "luajit";
@@ -348,9 +410,14 @@ void LuaState::_bind_methods() {
 	BIND_ENUM_CONSTANT(LOAD_MODE_TEXT);
 	BIND_ENUM_CONSTANT(LOAD_MODE_BINARY);
 
+	// GcMode enum
+	BIND_ENUM_CONSTANT(GC_MODE_INCREMENTAL);
+	BIND_ENUM_CONSTANT(GC_MODE_GENERATIONAL);
+
 	// Methods
 	ClassDB::bind_method(D_METHOD("open_libraries", "libraries"), &LuaState::open_libraries, DEFVAL(BitField<Library>(ALL_LIBS)));
 	ClassDB::bind_method(D_METHOD("are_libraries_opened", "libraries"), &LuaState::are_libraries_opened);
+	
 	ClassDB::bind_method(D_METHOD("create_table", "initial_values"), &LuaState::create_table, DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("create_function", "callable"), &LuaState::create_function);
 	ClassDB::bind_method(D_METHOD("load_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::load_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
@@ -359,13 +426,26 @@ void LuaState::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("do_buffer", "chunk", "chunkname", "mode", "env"), &LuaState::do_buffer, DEFVAL(""), DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("do_string", "chunk", "chunkname", "env"), &LuaState::do_string, DEFVAL(""), DEFVAL(nullptr));
 	ClassDB::bind_method(D_METHOD("do_file", "filename", "mode", "env"), &LuaState::do_file, DEFVAL(LOAD_MODE_ANY), DEFVAL(nullptr));
+	
 	ClassDB::bind_method(D_METHOD("get_globals"), &LuaState::get_globals);
 	ClassDB::bind_method(D_METHOD("get_registry"), &LuaState::get_registry);
 	ClassDB::bind_method(D_METHOD("get_main_thread"), &LuaState::get_main_thread);
+
 	ClassDB::bind_method(D_METHOD("get_package_path"), &LuaState::get_package_path);
 	ClassDB::bind_method(D_METHOD("get_package_cpath"), &LuaState::get_package_cpath);
 	ClassDB::bind_method(D_METHOD("set_package_path", "path"), &LuaState::set_package_path);
 	ClassDB::bind_method(D_METHOD("set_package_cpath", "cpath"), &LuaState::set_package_cpath);
+
+	ClassDB::bind_method(D_METHOD("collect_garbage"), &LuaState::collect_garbage);
+	ClassDB::bind_method(D_METHOD("step_gc", "step_size_kilobytes"), &LuaState::step_gc, DEFVAL(0));
+	ClassDB::bind_method(D_METHOD("stop_gc"), &LuaState::stop_gc);
+	ClassDB::bind_method(D_METHOD("restart_gc"), &LuaState::restart_gc);
+	ClassDB::bind_method(D_METHOD("is_gc_running"), &LuaState::is_gc_running);
+	ClassDB::bind_method(D_METHOD("get_memory_used"), &LuaState::get_memory_used);
+	ClassDB::bind_method(D_METHOD("change_gc_mode_incremental", "pause", "step_multiplier", "step_byte_size"), &LuaState::change_gc_mode_incremental);
+	ClassDB::bind_method(D_METHOD("change_gc_mode_generational", "minor_multiplier", "major_multiplier"), &LuaState::change_gc_mode_generational);
+	ClassDB::bind_method(D_METHOD("supports_gc_mode", "gc_mode"), &LuaState::supports_gc_mode);
+
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_runtime"), &LuaState::get_lua_runtime);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_num"), &LuaState::get_lua_version_num);
 	ClassDB::bind_static_method(LuaState::get_class_static(), D_METHOD("get_lua_version_string"), &LuaState::get_lua_version_string);
