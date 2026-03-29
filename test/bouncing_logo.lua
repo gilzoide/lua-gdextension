@@ -7,7 +7,7 @@
 local LuaBouncingLogo = GDCLASS()
 
 -- base class (optional, defaults to RefCounted)
-LuaBouncingLogo.extends = Sprite2D
+LuaBouncingLogo.extends = Node2D
 -- if true, allow the script to be executed by the editor (optional)
 LuaBouncingLogo.tool = false
 -- global class name (optional)

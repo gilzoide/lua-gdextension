@@ -86,14 +86,20 @@ StringName LuaScript::_get_instance_base_type() const {
 }
 
 void *LuaScript::_instance_create(Object *for_object) const {
+	String script_base_type = get_instance_base_type();
+	ERR_FAIL_COND_V_MSG(!for_object->is_class(script_base_type), nullptr, String("Script inherits from native type '%s', so it can't be assigned to an object of type '%s'.") % Array::make(script_base_type, for_object->get_class()));
 	return _internal_instance_create(for_object, nullptr, 0);
 }
 
 void *LuaScript::_placeholder_instance_create(Object *for_object) const {
+#ifdef DEBUG_ENABLED
 	void *placeholder = gdextension_interface::placeholder_script_instance_create(LuaScriptLanguage::get_singleton()->_owner, this->_owner, for_object->_owner);
 	placeholders.get(this).insert(placeholder);
 	_update_placeholder_exports(placeholder);
 	return placeholder;
+#else
+	return nullptr;
+#endif
 }
 
 bool LuaScript::_instance_has(Object *p_object) const {
