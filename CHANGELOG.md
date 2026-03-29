@@ -4,10 +4,13 @@
 - `LuaScript`s have their `_init` method called when instantiated from scene
 - Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
 - Node metadata set in the inspector is now correctly set as metadata instead of regular raw data
+- Force a full garbage collection on `LuaScriptLanguage`'s state to make sure all Variants are collected, releasing cyclic references from `LuaScriptInstance`/`LuaScript` to the `LuaState` itself.
 
 ### Changed
 - Godot 4.5 is now the minimum version necessary to use this addon
 - Updated godot-cpp to 10.0.0-rc1 using api_version=4.6
+- `LuaScriptInstance`'s owner object is passed as `self` to methods instead of the data table.
+- `LuaScriptInstance` now uses a Dictionary for storing data instead of a Lua table.
 
 
 ## [0.7.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.7.0)

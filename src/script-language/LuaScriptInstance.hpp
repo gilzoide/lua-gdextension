@@ -41,21 +41,9 @@ struct LuaScriptInstance {
 	static GDExtensionScriptInstanceInfo3 *get_script_instance_info();
 	static LuaScriptInstance *attached_to_object(Object *owner);
 
-	template<typename ref_t>
-	static LuaScriptInstance *find_instance(sol::basic_table<ref_t> t) {
-		if (LuaScriptInstance **instance_ptr = table_to_instance.getptr(t.pointer())) {
-			return *instance_ptr;
-		}
-		else {
-			return nullptr;
-		}
-	}
-
 	Object *owner;
 	Ref<LuaScript> script;
-	Ref<LuaTable> data;
-
-	Ref<LuaState> get_lua_state() const;
+	Dictionary data;
 
 	static void register_lua(lua_State *L);
 	static void unregister_lua(lua_State *L);
@@ -65,8 +53,6 @@ struct LuaScriptInstance {
 
 private:
 	static HashMap<Object *, LuaScriptInstance *> owner_to_instance;
-	static HashMap<const void *, LuaScriptInstance *> table_to_instance;
-	static sol::table metatable;
 };
 
 }
