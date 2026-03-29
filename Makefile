@@ -48,7 +48,10 @@ test/.godot:
 zip: build/lua-gdextension.zip
 
 test: test/.godot
-	$(GODOT_BIN) --headless --quit --path test --script test_entrypoint.gd
+	$(GODOT_BIN) --headless --quit --path test --script test_entrypoint.gd $(GODOT_ARGS)
+
+run-test: test/.godot
+	$(GODOT_BIN) --path test $(GODOT_ARGS)
 
 download-latest-build:
 	$(eval TMPDIR := $(shell mktemp -d))
