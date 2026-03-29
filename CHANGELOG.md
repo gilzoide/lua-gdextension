@@ -1,5 +1,8 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.7.0...HEAD)
+### Added
+- `LuaState` GC-related methods: `collect_garbage`, `step_gc`, `stop_gc`, `restart_gc`, `is_gc_running`, `get_memory_used`, `change_gc_mode_incremental`, `change_gc_mode_generational`, `supports_gc_mode`
+
 ### Fixed
 - `LuaScript`s have their `_init` method called when instantiated from scene
 - Calls to `Variant.duplicate` now correctly trigger methods in objects that support it, fixing calls to `Node.duplicate` and `Resource.duplicate` for example
