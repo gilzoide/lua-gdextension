@@ -30,9 +30,7 @@
 #include "../LuaCoroutine.hpp"
 #include "../LuaError.hpp"
 #include "../LuaFunction.hpp"
-#include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
-#include "../utils/convert_godot_lua.hpp"
 #include "../utils/function_wrapper.hpp"
 #include "../utils/method_bind_impl.hpp"
 #include "../utils/string_names.hpp"
@@ -82,10 +80,14 @@ static void destroy_PropertyInfos(const GDExtensionPropertyInfo *pinfos, uint32_
 
 static GDExtensionMethodInfo from_MethodInfo(const MethodInfo& minfo) {
 	GDExtensionPropertyInfo *arguments = memnew_arr(GDExtensionPropertyInfo, minfo.arguments.size());
-	std::transform(minfo.arguments.begin(), minfo.arguments.end(), arguments, from_PropertyInfo);
+	for (unsigned int i = 0, count = minfo.arguments.size(); i < count; i++) {
+		arguments[i] = from_PropertyInfo(minfo.arguments[i]);
+	}
 	
 	GDExtensionVariantPtr *default_arguments = memnew_arr(GDExtensionVariantPtr, minfo.default_arguments.size());
-	std::transform(minfo.default_arguments.begin(), minfo.default_arguments.end(), default_arguments, from_Variant);
+	for (unsigned int i = 0, count = minfo.default_arguments.size(); i < count; i++) {
+		default_arguments[i] = from_Variant(minfo.default_arguments[i]);
+	}
 	return {
 		memnew(StringName(minfo.name)),
 		from_PropertyInfo(minfo.return_val),
@@ -117,22 +119,17 @@ static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t co
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	: owner(owner)
 	, script(script)
-	, data(LuaScriptLanguage::get_singleton()->get_lua_state()->create_table())
 {
 	owner_to_instance.insert(owner, this);
-	table_to_instance.insert(data->get_table().pointer(), this);
-
-	data->get_table()[sol::metatable_key] = metatable;
 
 	const LuaScriptMetadata& metadata = script->get_metadata();
 	for (auto [name, signal] : metadata.signals) {
-		data->rawset(name, Signal(owner, name));
+		data[name] = Signal(owner, name);
 	}
 }
 
 LuaScriptInstance::~LuaScriptInstance() {
 	owner_to_instance.erase(owner);
-	table_to_instance.erase(data->get_table().pointer());
 }
 
 GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name, const Variant *p_value) {
@@ -155,9 +152,13 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
-	// d) set raw data
-	p_instance->data->rawset(*p_name, *p_value);
-	return true;
+	// d) set raw data unless it's metadata
+	if (!p_name->begins_with("metadata/")) {
+		p_instance->data[*p_name] = *p_value;
+		return true;
+	}
+	
+	return false;
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
@@ -177,15 +178,15 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	}
 
 	// c) access raw data
-	if (auto data_value = p_instance->data->try_get(*p_name, true)) {
-		*p_value = *data_value;
+	if (p_instance->data.has(*p_name)) {
+		*p_value = p_instance->data[*p_name];
 		return true;
 	}
 
 	// d) fallback to default property value, if there is one
 	if (property) {
 		Variant value = property->instantiate_default_value();
-		p_instance->data->rawset(*p_name, value);
+		p_instance->data[*p_name] = value;
 		*p_value = value;
 		return true;
 	}
@@ -234,9 +235,9 @@ Object *get_owner_func(LuaScriptInstance *p_instance) {
 }
 
 void get_property_state_func(LuaScriptInstance *p_instance, GDExtensionScriptInstancePropertyStateAdd p_add_func, void *p_userdata) {
-	for (Variant key : *p_instance->data.ptr()) {
+	for (Variant key : p_instance->data.keys()) {
 		StringName name = key;
-		Variant value = p_instance->data->get(key);
+		Variant value = p_instance->data[key];
 		p_add_func(&name, &value, p_userdata);
 	}
 }
@@ -389,13 +390,9 @@ LuaScriptInstance *LuaScriptInstance::attached_to_object(Object *owner) {
 	}
 }
 
-Ref<LuaState> LuaScriptInstance::get_lua_state() const {
-	return data->get_lua_state();
-}
-
 static Variant _rawget(const Variant& self, const Variant& index) {
 	if (LuaScriptInstance *instance = LuaScriptInstance::attached_to_object(self)) {
-		return instance->data->rawget(index);
+		return instance->data.get(index, Variant());
 	}
 	else {
 		return {};
@@ -404,79 +401,23 @@ static Variant _rawget(const Variant& self, const Variant& index) {
 
 static void _rawset(const Variant& self, const Variant& index, const Variant& value) {
 	if (LuaScriptInstance *instance = LuaScriptInstance::attached_to_object(self)) {
-		instance->data->rawset(index, value);
+		instance->data[index] = value;
 	}
-}
-
-static int lua_index(lua_State *L) {
-	sol::stack_table self(L, 1);
-	sol::stack_object key(L, 2);
-
-	if (key.get_type() == sol::type::string) {
-		if (LuaScriptInstance *instance = LuaScriptInstance::find_instance(self)) {
-			StringName key_name = key.as<StringName>();
-			if (instance->owner->has_method(key_name)) {
-				sol::stack::push(L, LuaScriptInstanceMethodBind(instance, key_name));
-			}
-			else {
-				Variant value = instance->owner->get(key_name);
-				lua_push(L, value);
-			}
-			return 1;
-		}
-	}
-	return 0;
-}
-
-static int lua_newindex(lua_State *L) {
-	sol::stack_table self(L, 1);
-	sol::stack_object key(L, 2);
-	sol::stack_object value(L, 3);
-
-	if (key.get_type() == sol::type::string) {
-		if (LuaScriptInstance *instance = LuaScriptInstance::find_instance(self)) {
-			StringName key_name = key.as<StringName>();
-			Variant value_var = to_variant(value);
-			set_func(instance, &key_name, &value_var);
-			return 0;
-		}
-	}
-	self.raw_set(key, value);
-	return 0;
-}
-
-static int lua_to_string(lua_State *L) {
-	sol::stack_table self(L, 1);
-
-	if (LuaScriptInstance *instance = LuaScriptInstance::find_instance(self)) {
-		sol::stack::push(L, instance->owner->to_string());
-		return 1;
-	}
-	return 0;
 }
 
 void LuaScriptInstance::register_lua(lua_State *L) {
 	sol::state_view state(L);
-	metatable = state.create_table_with(
-		"__index", lua_index,
-		"__newindex", lua_newindex,
-		"__tostring", lua_to_string,
-		"__metatable", "LuaScriptInstance"
-	);
 	rawget = wrap_function(L, _rawget);
 	rawset = wrap_function(L, _rawset);
 	LuaScriptInstanceMethodBind::register_usertype(state);
 }
 
 void LuaScriptInstance::unregister_lua(lua_State *L) {
-	metatable = {};
 	rawget = {};
 	rawset = {};
 }
 
 HashMap<Object *, LuaScriptInstance *> LuaScriptInstance::owner_to_instance;
-HashMap<const void *, LuaScriptInstance *> LuaScriptInstance::table_to_instance;
-sol::table LuaScriptInstance::metatable;
 sol::protected_function LuaScriptInstance::rawget;
 sol::protected_function LuaScriptInstance::rawset;
 

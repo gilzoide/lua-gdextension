@@ -22,14 +22,6 @@
 #ifndef __UTILS_PROJECT_SETTINGS_HPP__
 #define __UTILS_PROJECT_SETTINGS_HPP__
 
-namespace godot {
-	class ProjectSettings;
-	class String;
-	class Variant;
-}
-using namespace godot;
-
-
 namespace luagdextension {
 
 constexpr char LUA_PATH_SETTING[] = "lua_gdextension/lua_script_language/package_path";

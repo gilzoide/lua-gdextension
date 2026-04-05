@@ -23,6 +23,9 @@
 
 #include <godot_cpp/classes/project_settings.hpp>
 
+using namespace godot;
+
+
 namespace luagdextension {
 
 static void add_project_setting(ProjectSettings *project_settings, const String& setting_name, const Variant& initial_value, bool is_basic = false, bool is_internal = false) {

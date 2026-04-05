@@ -36,7 +36,7 @@ using namespace godot;
 using namespace luagdextension;
 
 template<typename RetType, StringLiteral func_name, size_t func_hash> sol::object _call_variadic_utility_function(sol::variadic_args lua_args) {
-	static GDExtensionPtrUtilityFunction _gde_function = internal::gdextension_interface_variant_get_ptr_utility_function(StringName(func_name)._native_ptr(), func_hash);
+	static GDExtensionPtrUtilityFunction _gde_function = gdextension_interface::variant_get_ptr_utility_function(StringName(func_name)._native_ptr(), func_hash);
 	CHECK_METHOD_BIND_RET(_gde_function, sol::nil);
 	VariantArguments args(lua_args);
 	if constexpr (std::is_void_v<RetType>) {

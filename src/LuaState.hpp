@@ -97,6 +97,11 @@ public:
 		LOAD_MODE_BINARY = (int) sol::load_mode::binary,
 	};
 
+	enum GcMode {
+		GC_MODE_INCREMENTAL = (int) sol::gc_mode::incremental,
+		GC_MODE_GENERATIONAL = (int) sol::gc_mode::generational,
+	};
+
 	LuaState();
 	virtual ~LuaState();
 
@@ -122,6 +127,16 @@ public:
 	String get_package_cpath() const;
 	void set_package_path(const String& path);
 	void set_package_cpath(const String& cpath);
+
+	void collect_garbage();
+	void step_gc(int step_size_kilobytes = 0);
+	void stop_gc();
+	void restart_gc();
+	bool is_gc_running() const;
+	uint64_t get_memory_used() const;
+	GcMode change_gc_mode_incremental(int pause, int step_multiplier, int step_byte_size);
+	GcMode change_gc_mode_generational(int minor_multiplier, int major_multiplier);
+	bool supports_gc_mode(GcMode mode) const;
 
 #ifdef HAVE_LUA_WARN
 	void warn(const char *msg, int tocont);
@@ -154,5 +169,6 @@ private:
 }
 VARIANT_BITFIELD_CAST(luagdextension::LuaState::Library);
 VARIANT_ENUM_CAST(luagdextension::LuaState::LoadMode);
+VARIANT_ENUM_CAST(luagdextension::LuaState::GcMode);
 
 #endif

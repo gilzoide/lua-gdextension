@@ -32,6 +32,7 @@ struct string_names {
 	// object creation / initialization
 	StringName _init = "_init";
 	StringName _new = "new";
+	StringName duplicate = "duplicate";
 	// script instance methods
 	StringName _get = "_get";
 	StringName _set = "_set";

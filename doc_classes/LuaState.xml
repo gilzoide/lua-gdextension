@@ -16,6 +16,12 @@
 				Checks if the specified [param libraries] are opened.
 			</description>
 		</method>
+		<method name="collect_garbage">
+			<return type="void" />
+			<description>
+				Performs a full garbage collection cycle.
+			</description>
+		</method>
 		<method name="create_function">
 			<return type="LuaFunction" />
 			<param index="0" name="callable" type="Callable" />
@@ -134,6 +140,19 @@
 				When using the LuaJIT runtime, returns [code]"Lua 5.1"[/code].
 			</description>
 		</method>
+		<method name="get_memory_used" qualifiers="const">
+			<return type="int" />
+			<description>
+				Returns the current amount of memory (in bytes) in use by Lua.
+			</description>
+		</method>
+		<method name="is_gc_running" qualifiers="const">
+			<return type="bool" />
+			<description>
+				Returns whether the garbage collector is running (i.e., not stopped).
+				See also [method stop_gc] and [method restart_gc].
+			</description>
+		</method>
 		<method name="load_buffer">
 			<return type="Variant" />
 			<param index="0" name="chunk" type="PackedByteArray" />
@@ -197,6 +216,68 @@
 				print(state.globals.to_dictionary()) # Prints "{}"
 				[/gdscript]
 				[/codeblocks]
+			</description>
+		</method>
+		<method name="restart_gc">
+			<return type="void" />
+			<description>
+				Restarts the garbage collector.
+				See also [method stop_gc] and [method is_gc_running].
+			</description>
+		</method>
+		<method name="change_gc_mode_generational">
+			<return type="int" enum="LuaState.GcMode" />
+			<param index="0" name="minor_multiplier" type="int" />
+			<param index="1" name="major_multiplier" type="int" />
+			<description>
+				Change the garbage collector mode to generational.
+				In generational mode, the collector does frequent minor collections, which traverses only objects recently created. If after a minor collection the use of memory is still above a limit, the collector does a stop-the-world major collection, which traverses all objects.
+				[param minor_multiplier] controls the frequency of minor collections. For a minor multiplier x, a new minor collection will be done when memory grows x% larger than the memory in use after the previous major collection. For instance, for a multiplier of 20, the collector will do a minor collection when the use of memory gets 20% larger than the use after the previous major collection. The default value is 20; the maximum value is 200.
+				[param major_multiplier] controls the frequency of major collections. For a major multiplier x, a new major collection will be done when memory grows x% larger than the memory in use after the previous major collection. For instance, for a multiplier of 100, the collector will do a major collection when the use of memory gets larger than twice the use after the previous collection. The default value is 100; the maximum value is 1000.
+				Passing zero to any argument means to not change that value.
+				Returns the previous garbage collection mode.
+				[b]Note:[/b] generational mode is only supported in Lua 5.4 and is not supported by LuaJIT.
+				See also [method change_gc_mode_incremental] and [method supports_gc_mode].
+			</description>
+		</method>
+		<method name="change_gc_mode_incremental">
+			<return type="int" enum="LuaState.GcMode" />
+			<param index="0" name="pause" type="int" />
+			<param index="1" name="step_multiplier" type="int" />
+			<param index="2" name="step_byte_size" type="int" />
+			<description>
+				Change the garbage collector mode to incremental.
+				In incremental mode, each GC cycle performs a mark-and-sweep collection in small steps interleaved with the program's execution.
+				[param pause] controls how long the collector waits before starting a new cycle. The collector starts a new cycle when the use of memory hits n% of the use after the previous collection. Larger values make the collector less aggressive. Values equal to or less than 100 mean the collector will not wait to start a new cycle. A value of 200 means that the collector waits for the total memory in use to double before starting a new cycle. The default value is 200; the maximum value is 1000.
+				[param step_multiplier] controls the speed of the collector relative to memory allocation, that is, how many elements it marks or sweeps for each kilobyte of memory allocated. Larger values make the collector more aggressive but also increase the size of each incremental step. You should not use values less than 100, because they make the collector too slow and can result in the collector never finishing a cycle. The default value is 100; the maximum value is 1000.
+				[param step_byte_size] controls the size of each incremental step, specifically how many bytes the interpreter allocates before performing a step. This parameter is logarithmic: A value of n means the interpreter will allocate 2n bytes between steps and perform equivalent work during the step. A large value (e.g., 60) makes the collector a stop-the-world (non-incremental) collector. The default value is 13, which means steps of approximately 8 Kbytes.
+				Passing zero to any argument means to not change that value.
+				Returns the previous garbage collection mode.
+				See also [method change_gc_mode_generational] and [method supports_gc_mode].
+			</description>
+		</method>
+		<method name="step_gc">
+			<return type="void" />
+			<param index="0" name="step_size_kilobytes" type="int" default="0" />
+			<description>
+				Performs a garbage-collection step.
+				With a zero [param step_size_kilobytes], the collector will perform one basic (indivisible) step.
+				For non-zero [param step_size_kilobytes], the collector will perform as if that amount of memory (in Kbytes) had been allocated by Lua.
+			</description>
+		</method>
+		<method name="stop_gc">
+			<return type="void" />
+			<description>
+				Stops the garbage collector.
+				See also [method restart_gc] and [method is_gc_running].
+			</description>
+		</method>
+		<method name="supports_gc_mode" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="gc_mode" type="int" enum="LuaState.GcMode" />
+			<description>
+				Returns whether the given garbage collection mode is supported by the runtime.
+				[enum GC_MODE_GENERATIONAL] is only supported by Lua 5.4+, while [enum GC_MODE_INCREMENTAL] is supported by all runtimes.
 			</description>
 		</method>
 	</methods>
@@ -338,6 +419,14 @@
 			This mode is used to load compiled Lua bytecode.
 			.luac files are typically generated from .lua files using: [code]luac -o target_file.luac source_file.lua[/code] .luac files contain the instruction set that the Lua virtual machine can execute directly, making them faster to load than source code files.
 			[b]Note: .luac files are typically generated for a specific Lua version and may require the same version to run.[/b]
+		</constant>
+		<constant name="GC_MODE_INCREMENTAL" value="0" enum="GcMode">
+			In incremental mode, each GC cycle performs a mark-and-sweep collection in small steps interleaved with the program's execution.
+			See [method change_gc_mode_incremental].
+		</constant>
+		<constant name="GC_MODE_GENERATIONAL" value="1" enum="GcMode">
+			In generational mode, the garbage collector does frequent minor collections, which traverses only objects recently created. If after a minor collection the use of memory is still above a limit, the collector does a stop-the-world major collection, which traverses all objects.
+			See [method change_gc_mode_generational].
 		</constant>
 	</constants>
 </class>

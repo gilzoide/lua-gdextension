@@ -8,6 +8,9 @@ if lua_runtime.lower() not in ["lua", "luajit"]:
     raise ValueError(f"Invalid lua_runtime: expected either 'lua' or 'luajit', got {lua_runtime}")
 vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
 
+# We really don't need deprecated stuff
+ARGUMENTS["deprecated"] = False
+
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env["lua_runtime"] = lua_runtime
 env["vcvarsall_path"] = vcvarsall_path

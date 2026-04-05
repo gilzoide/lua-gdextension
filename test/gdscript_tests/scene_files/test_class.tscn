@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://tdax22khhtvb"]
+
+[ext_resource type="Script" uid="uid://bcub1urdvqhet" path="res://gdscript_tests/lua_files/test_class_node.lua" id="1_xyxhr"]
+
+[node name="TestClass" type="Node" unique_id=1847968562]
+script = ExtResource("1_xyxhr")

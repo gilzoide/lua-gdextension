@@ -107,6 +107,9 @@ protected:
 
 	// TODO: use instance member instead of static map if "_placeholder_instance_create" is changed to be non-const
 	static HashMap<const LuaScript *, HashSet<void *>> placeholders;
+
+private:
+	GDExtensionScriptInstancePtr _internal_instance_create(Object *for_object, const Variant **args, GDExtensionInt arg_count) const;
 };
 
 }
