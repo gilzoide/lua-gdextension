@@ -1,5 +1,7 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.0...HEAD)
+### Change
+- Updated Lua to 5.4.8
 
 
 ## [0.8.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.0)
