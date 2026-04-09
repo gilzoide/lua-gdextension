@@ -24,6 +24,7 @@
 #include "Class.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
+#include "godot_cpp/variant/callable.hpp"
 #include "method_bind_impl.hpp"
 #include "../generated/variant_type_constants.hpp"
 
@@ -31,6 +32,9 @@
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include "LuaCallable.hpp"
+#include "sol/forward.hpp"
+#include "sol/types.hpp"
 
 namespace luagdextension {
 
@@ -138,16 +142,21 @@ Variant VariantType::construct(const sol::variadic_args& args) const {
 	if (args.size() == 0) {
 		return construct_default();
 	}
-	else if (args.size() == 1 && args.get_type(0) == sol::type::table) {
-		if (type == Variant::ARRAY) {
-			Array array = construct_default();
-			fill_array(array, args.get<sol::stack_table>());
-			return array;
-		}
-		else if (type == Variant::DICTIONARY) {
-			Dictionary dictionary = construct_default();
-			fill_dictionary(dictionary, args.get<sol::stack_table>());
-			return dictionary;
+	else if (args.size() == 1) {
+		sol::type first_arg_type = args.get_type(0);
+		if (first_arg_type == sol::type::table) {
+			if (type == Variant::ARRAY) {
+				Array array = construct_default();
+				fill_array(array, args.get<sol::stack_table>());
+				return array;
+			}
+			else if (type == Variant::DICTIONARY) {
+				Dictionary dictionary = construct_default();
+				fill_dictionary(dictionary, args.get<sol::stack_table>());
+				return dictionary;
+			}
+		} else if (first_arg_type == sol::type::function) {
+			return LuaCallable::construct(args.get<sol::function>());
 		}
 	}
 
