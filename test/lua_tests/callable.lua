@@ -5,3 +5,4 @@ local custom_callable = Callable(function(val)
 	a = a + val
 	print(a == 6 and "Passed" or "Failed")
 end)
+custom_callable:call_deferred(5)
