@@ -9,7 +9,7 @@ using namespace godot;
 class LuaCallable : public CallableCustom {
 	Ref<LuaFunction> _lua_func;
 public:
-	explicit LuaCallable(sol::function func) : _lua_func{memnew(LuaFunction{func})} {};
+	explicit LuaCallable(sol::function func) : _lua_func{memnew(LuaFunction(func))} {};
 	virtual ~LuaCallable();
 
 	bool is_valid() const override;
