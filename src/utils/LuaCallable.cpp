@@ -17,7 +17,7 @@ bool LuaCallable::is_valid() const {
 }
 
 ObjectID LuaCallable::get_object() const {
-	return ObjectID{};
+	return {};
 }
 
 String LuaCallable::get_as_text() const {
