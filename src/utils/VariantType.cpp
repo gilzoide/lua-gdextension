@@ -22,9 +22,9 @@
 #include "VariantType.hpp"
 
 #include "Class.hpp"
+#include "LuaCallable.hpp"
 #include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
-#include "godot_cpp/variant/callable.hpp"
 #include "method_bind_impl.hpp"
 #include "../generated/variant_type_constants.hpp"
 
@@ -32,9 +32,9 @@
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/classes/script.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#include "LuaCallable.hpp"
-#include "sol/forward.hpp"
-#include "sol/types.hpp"
+#include <godot_cpp/variant/callable.hpp>
+#include <sol/forward.hpp>
+#include <sol/types.hpp>
 
 namespace luagdextension {
 
@@ -156,7 +156,7 @@ Variant VariantType::construct(const sol::variadic_args& args) const {
 				return dictionary;
 			}
 		} else if (first_arg_type == sol::type::function) {
-			return LuaCallable::construct(args.get<sol::function>());
+			return LuaCallable::construct(args.get<sol::protected_function>());
 		}
 	}
 

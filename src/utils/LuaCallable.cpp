@@ -4,10 +4,6 @@
 
 namespace luagdextension {
 
-LuaCallable::~LuaCallable() {
-	_lua_func.unref();
-}
-
 LuaCallable::CompareEqualFunc LuaCallable::get_compare_equal_func() const {
 	return nullptr;
 }
@@ -30,11 +26,6 @@ String LuaCallable::get_as_text() const {
 
 uint32_t LuaCallable::hash() const {
 	return get_as_text().hash();
-}
-
-int LuaCallable::get_argument_count(bool &r_is_valid) const {
-	r_is_valid = true;
-	return 0;
 }
 
 void LuaCallable::call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const {

@@ -9,8 +9,8 @@ using namespace godot;
 class LuaCallable : public CallableCustom {
 	Ref<LuaFunction> _lua_func;
 public:
-	explicit LuaCallable(sol::function func) : _lua_func{memnew(LuaFunction(func))} {};
-	virtual ~LuaCallable();
+	explicit LuaCallable(sol::protected_function func) : _lua_func{LuaObject::wrap_object<LuaFunction>(func)} {};
+	virtual ~LuaCallable() = default;
 
 	bool is_valid() const override;
 	String get_as_text() const override;
@@ -19,8 +19,6 @@ public:
 	virtual CompareLessFunc get_compare_less_func() const override;
 	uint32_t hash() const override;
 	void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const override;
-	static void register_lua(lua_State *L);
-	int get_argument_count(bool &r_is_valid) const override;
 	static Variant construct(sol::function func);
 };
 
