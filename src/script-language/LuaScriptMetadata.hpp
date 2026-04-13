@@ -37,8 +37,6 @@ struct LuaScriptMetadata {
 	bool is_valid;
 	bool is_tool;
 	bool is_abstract;
-	bool is_extending_script;
-	StringName base_class;
 	Ref<Script> base_script;
 	StringName class_name;
 	String icon_path;
