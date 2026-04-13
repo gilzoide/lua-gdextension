@@ -23,6 +23,7 @@
 
 #include "LuaScriptInstance.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "../utils/extra_utility_functions.hpp"
 #include "../utils/stack_top_resetter.hpp"
 #include "../utils/string_names.hpp"
 
@@ -67,12 +68,16 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			if (name == "extends") {
 				StringName extends = to_variant(value);
 				if (!ClassDB::class_exists(extends)) {
-					WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
-					base_class = "Control";
-					base_lua_class = extends;
+					Ref<Script> extends_script = get_class_script(extends);
+					if (extends_script == nullptr) {
+						WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
+					} else {
+						base_class = extends;
+						base_script = extends_script;
+					}
 				} else {
 					base_class = extends;
-					base_lua_class = "";
+					base_script = Ref<Script>{nullptr};
 				}
 			} else if (name == "class_name") {
 				class_name = to_variant(value);
@@ -115,7 +120,8 @@ void LuaScriptMetadata::clear() {
 	is_tool = false;
 	is_abstract = false;
 	base_class = RefCounted::get_class_static();
-	base_lua_class = "";
+	base_script.unref();
+	base_script = Ref<Script>{nullptr};
 	class_name = StringName();
 	icon_path = String();
 	rpc_config = Variant();

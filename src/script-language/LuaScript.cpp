@@ -37,6 +37,7 @@
 #include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
+#include "../utils/extra_utility_functions.hpp"
 #include "../utils/string_names.hpp"
 
 #include <gdextension_interface.h>
@@ -73,34 +74,27 @@ bool LuaScript::_can_instantiate() const {
 }
 
 Ref<Script> LuaScript::_get_base_script() const {
-	godot::UtilityFunctions::print("CHECKING BASE SCRIPT ", String(metadata.class_name));
-	String base_class_type = metadata.base_lua_class;
-	if (not base_class_type.is_empty()) {
-		Array global_classes = ProjectSettings::get_singleton()->get_global_class_list();
-		for (int i = 0; i < global_classes.size(); i++) {
-			Dictionary cls = global_classes[i];
-			if (String(cls["class"]) == base_class_type) {
-				godot::UtilityFunctions::print("BASE FOUND SUCCESFULLY ", ResourceLoader::get_singleton()->load(cls["path"], "Script"));
-				return ResourceLoader::get_singleton()->load(cls["path"], "Script");
-			}
-		}
-	}
-
-	return {};
+	return metadata.base_script;
 }
 
 StringName LuaScript::_get_global_name() const {
-	godot::UtilityFunctions::print("CHECKING GLOBAL NAME ", String(metadata.class_name));
 	return metadata.class_name;
 }
 
 bool LuaScript::_inherits_script(const Ref<Script>& script) const {
-	godot::UtilityFunctions::print("CHECKING IF INHERITS SCRIPT ", String(metadata.class_name));
-	return script->get_global_name() == metadata.base_lua_class;
+	return script->get_global_name() == _get_instance_base_script_type();
+}
+
+StringName LuaScript::_get_instance_base_script_type() const {
+	return _get_base_script() != nullptr ? metadata.base_class : "";
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	godot::UtilityFunctions::print("CHECKING BASE TYPE ", String(metadata.class_name));
+	Ref<LuaScript> base = _get_base_script();
+	if (base != nullptr) {
+		return base->_get_instance_base_type();
+	}
+
 	return metadata.base_class;
 }
 
@@ -187,7 +181,14 @@ String LuaScript::_get_class_icon_path() const {
 }
 
 bool LuaScript::_has_method(const StringName& p_method) const {
-	return metadata.methods.has(p_method);
+	if (bool result = metadata.methods.has(p_method))
+		return result;
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		return base->_has_method(p_method);
+
+	return false;
 }
 
 bool LuaScript::_has_static_method(const StringName& p_method) const {
@@ -229,7 +230,14 @@ ScriptLanguage* LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName& p_signal) const {
-	return metadata.signals.has(p_signal);
+	if (bool result = metadata.signals.has(p_signal))
+		return result;
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		return base->_has_script_signal(p_signal);
+
+	return false;
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -237,17 +245,34 @@ TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
 	for (auto [name, signal] : metadata.signals) {
 		signals.append(signal.to_dictionary());
 	}
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		signals.append_array(base->_get_script_signal_list());
+
 	return signals;
 }
 
 bool LuaScript::_has_property_default_value(const StringName& p_property) const {
-	return metadata.properties.has(p_property);
+	if (bool result = metadata.properties.has(p_property))
+		return result;
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		return base->_has_property_default_value(p_property);
+
+	return false;
 }
 
 Variant LuaScript::_get_property_default_value(const StringName& p_property) const {
 	if (const LuaScriptProperty* property = metadata.properties.getptr(p_property)) {
 		return property->default_value;
 	} else {
+		Ref<LuaScript> base = get_base_script();
+		if (base != nullptr)
+			if (const Variant property = base->_get_property_default_value(p_property))
+				return property;
+
 		return {};
 	}
 }
@@ -263,6 +288,11 @@ TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
 	for (auto [name, method] : metadata.methods) {
 		methods.append(method.to_dictionary());
 	}
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		methods.append_array(base->_get_script_method_list());
+
 	return methods;
 }
 
@@ -271,6 +301,11 @@ TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
 	for (auto [name, prop] : metadata.properties) {
 		list.append(prop.to_dictionary());
 	}
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		list.append_array(base->_get_script_property_list());
+
 	return list;
 }
 
@@ -299,6 +334,11 @@ TypedArray<StringName> LuaScript::_get_members() const {
 	for (auto [name, _] : metadata.signals) {
 		members.append(name);
 	}
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		members.append_array(base->_get_members());
+
 	return members;
 }
 
@@ -372,6 +412,11 @@ void LuaScript::_update_placeholder_exports(void* placeholder) const {
 		properties.append(property.to_dictionary());
 		default_values[name] = property.instantiate_default_value();
 	}
+
+	Ref<LuaScript> base = get_base_script();
+	if (base != nullptr)
+		properties.append_array(base->_get_script_property_list());
+
 	gdextension_interface::placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
 }
 
@@ -387,4 +432,4 @@ GDExtensionScriptInstancePtr LuaScript::_internal_instance_create(Object* for_ob
 
 HashMap<const LuaScript*, HashSet<void*>> LuaScript::placeholders;
 
-} // namespace luagdextension
+}

@@ -26,6 +26,7 @@
 #include "LuaScriptProperty.hpp"
 #include "LuaScriptSignal.hpp"
 
+#include "godot_cpp/classes/script.hpp"
 #include <godot_cpp/templates/hash_map.hpp>
 
 using namespace godot;
@@ -36,8 +37,9 @@ struct LuaScriptMetadata {
 	bool is_valid;
 	bool is_tool;
 	bool is_abstract;
+	bool is_extending_script;
 	StringName base_class;
-	StringName base_lua_class;
+	Ref<Script> base_script;
 	StringName class_name;
 	String icon_path;
 	Variant rpc_config;
