@@ -90,8 +90,7 @@ StringName LuaScript::_get_instance_base_script_type() const {
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	Ref<LuaScript> base = _get_base_script();
-	if (base != nullptr) {
+	if (Ref<LuaScript> base = _get_base_script(); base != nullptr) {
 		return base->_get_instance_base_type();
 	}
 
@@ -184,8 +183,7 @@ bool LuaScript::_has_method(const StringName& p_method) const {
 	if (bool result = metadata.methods.has(p_method))
 		return result;
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_method(p_method);
 
 	return false;
@@ -233,8 +231,7 @@ bool LuaScript::_has_script_signal(const StringName& p_signal) const {
 	if (bool result = metadata.signals.has(p_signal))
 		return result;
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_script_signal(p_signal);
 
 	return false;
@@ -246,8 +243,7 @@ TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
 		signals.append(signal.to_dictionary());
 	}
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		signals.append_array(base->_get_script_signal_list());
 
 	return signals;
@@ -257,8 +253,7 @@ bool LuaScript::_has_property_default_value(const StringName& p_property) const 
 	if (bool result = metadata.properties.has(p_property))
 		return result;
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_property_default_value(p_property);
 
 	return false;
@@ -268,8 +263,7 @@ Variant LuaScript::_get_property_default_value(const StringName& p_property) con
 	if (const LuaScriptProperty* property = metadata.properties.getptr(p_property)) {
 		return property->default_value;
 	} else {
-		Ref<LuaScript> base = get_base_script();
-		if (base != nullptr)
+		if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 			if (const Variant property = base->_get_property_default_value(p_property))
 				return property;
 
@@ -289,8 +283,7 @@ TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
 		methods.append(method.to_dictionary());
 	}
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		methods.append_array(base->_get_script_method_list());
 
 	return methods;
@@ -302,8 +295,7 @@ TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
 		list.append(prop.to_dictionary());
 	}
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		list.append_array(base->_get_script_property_list());
 
 	return list;
@@ -335,8 +327,7 @@ TypedArray<StringName> LuaScript::_get_members() const {
 		members.append(name);
 	}
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		members.append_array(base->_get_members());
 
 	return members;
@@ -413,8 +404,7 @@ void LuaScript::_update_placeholder_exports(void* placeholder) const {
 		default_values[name] = property.instantiate_default_value();
 	}
 
-	Ref<LuaScript> base = get_base_script();
-	if (base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		properties.append_array(base->_get_script_property_list());
 
 	gdextension_interface::placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
