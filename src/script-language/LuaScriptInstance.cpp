@@ -121,6 +121,7 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	, script(script)
 {
 	owner_to_instance.insert(owner, this);
+	script->instance = this;
 
 	const LuaScriptMetadata& metadata = script->get_metadata();
 	for (auto [name, signal] : metadata.signals) {
@@ -183,7 +184,13 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
-	// d) fallback to default property value, if there is one
+	// d) try getting from inherited script
+	if (Ref<LuaScript> base_script = p_instance->script->get_metadata().base_script; base_script != nullptr) {
+		if (get_func(base_script->get_script_instance(), p_name, p_value))
+			return true;
+	}
+
+	// e) fallback to default property value, if there is one
 	if (property) {
 		Variant value = property->instantiate_default_value();
 		p_instance->data[*p_name] = value;
@@ -191,7 +198,7 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 		return true;
 	}
 
-	// e) for methods, return a bound Callable
+	// f) for methods, return a bound Callable
 	if (p_instance->script->get_metadata().methods.has(*p_name)) {
 		*p_value = Callable(p_instance->owner, *p_name);
 		return true;

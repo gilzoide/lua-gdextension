@@ -420,6 +420,13 @@ GDExtensionScriptInstancePtr LuaScript::_internal_instance_create(Object* for_ob
 	return gd_script_instance;
 }
 
+LuaScriptInstance* LuaScript::get_script_instance() const {
+	if (instance)
+		return instance;
+	else 
+		return nullptr;
+}
+
 HashMap<const LuaScript*, HashSet<void*>> LuaScript::placeholders;
 
 }

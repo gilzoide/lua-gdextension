@@ -95,6 +95,9 @@ public:
 	void set_import_behavior(ImportBehavior import_behavior);
 	bool get_looks_like_godot_script() const;
 	StringName _get_instance_base_script_type() const;
+	LuaScriptInstance* get_script_instance() const;
+
+	LuaScriptInstance *instance;
 
 protected:
 	static void _bind_methods();
