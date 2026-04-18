@@ -34,6 +34,8 @@
 #include "../utils/function_wrapper.hpp"
 #include "../utils/method_bind_impl.hpp"
 #include "../utils/string_names.hpp"
+#include "godot_cpp/core/error_macros.hpp"
+#include "godot_cpp/variant/utility_functions.hpp"
 
 namespace luagdextension {
 
@@ -162,48 +164,60 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 	return false;
 }
 
-GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
+bool LuaScriptInstance::get_property(const StringName *property_name, Variant *result) {
 	// a) try calling `_get`
-	if (const LuaScriptMethod *_get = p_instance->script->get_metadata().methods.getptr(string_names->_get)) {
-		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(p_instance->owner, *p_name), false);
+	if (const LuaScriptMethod *_get = script->get_metadata().methods.getptr(string_names->_get)) {
+		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(owner, *property_name), false);
 		if (value != Variant()) {
-			*p_value = value;
+			*result = value;
 			return true;
 		}
 	}
 
 	// b) try getter function from script property
-	const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name);
-	if (property && property->get_value(p_instance, *p_value)) {
-		return true;
+	const LuaScriptProperty *property = script->get_metadata().properties.getptr(*property_name);
+	if (property) {
+		if (Variant value; property->get_value(this, value)) {
+			*result = value;
+			return true;
+		}
 	}
 
 	// c) access raw data
-	if (p_instance->data.has(*p_name)) {
-		*p_value = p_instance->data[*p_name];
+	if (data.has(*property_name)) {
+		*result = data[*property_name];
 		return true;
 	}
 
-	// d) try getting from inherited script
-	if (Ref<LuaScript> base_script = p_instance->script->get_metadata().base_script; base_script != nullptr) {
-		if (get_func(base_script->get_script_instance(), p_name, p_value))
-			return true;
-	}
-
-	// e) fallback to default property value, if there is one
+	// d) fallback to default property value, if there is one
 	if (property) {
 		Variant value = property->instantiate_default_value();
-		p_instance->data[*p_name] = value;
-		*p_value = value;
+		data[*property_name] = value;
+		*result = value;
 		return true;
 	}
 
-	// f) for methods, return a bound Callable
-	if (p_instance->script->get_metadata().methods.has(*p_name)) {
-		*p_value = Callable(p_instance->owner, *p_name);
+	if (script->get_metadata().methods.has(*property_name)) {
+		*result = Callable(owner, *property_name);
 		return true;
 	}
 
+	// f) try getting from inherited script
+	if (Ref<LuaScript> base_script = script->get_metadata().base_script; base_script != nullptr) {
+		if (Variant value = base_script->get_script_instance()->get_property(property_name, result)) {
+			*result = value;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
+	Variant value;
+	if (p_instance->get_property(p_name, &value)) {
+		return true;
+	}
 	return false;
 }
 
@@ -299,11 +313,16 @@ GDExtensionInt get_method_argument_count_func(LuaScriptInstance *p_instance, con
 }
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
+	const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method);
+	if (not method) {
+		if (Ref<LuaScript> base_script = p_instance->script->get_metadata().base_script; base_script != nullptr)
+			method = base_script->get_metadata().methods.getptr(*p_method);
+	}
+
+	if (method) {
 		r_error->error = GDEXTENSION_CALL_OK;
 		*r_return = LuaCoroutine::invoke_lua(method->method, VariantArguments(p_instance->owner, p_args, p_argument_count), false);
-	}
-	else {
+	} else {
 		r_error->error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
 	}
 }
