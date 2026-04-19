@@ -51,8 +51,6 @@ struct LuaScriptInstance {
 	
 	static sol::protected_function rawget;
 	static sol::protected_function rawset;
-
-	bool get_property(const StringName *property_name, Variant *result);
 private:
 	static HashMap<Object *, LuaScriptInstance *> owner_to_instance;
 };

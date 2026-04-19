@@ -116,6 +116,16 @@ static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t co
 	}
 }
 
+static void populate_signals(LuaScriptInstance *instance, Ref<LuaScript> script) {
+	const LuaScriptMetadata& metadata = script->get_metadata();
+	for (auto [name, signal] : metadata.signals) {
+		instance->data[name] = Signal(instance->owner, name);
+	}
+
+	if (Ref<LuaScript> base = script->_get_base_script(); base != nullptr)
+		populate_signals(instance, base);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
@@ -123,12 +133,7 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	, script(script)
 {
 	owner_to_instance.insert(owner, this);
-	script->instance = this;
-
-	const LuaScriptMetadata& metadata = script->get_metadata();
-	for (auto [name, signal] : metadata.signals) {
-		data[name] = Signal(owner, name);
-	}
+	populate_signals(this, script);
 }
 
 LuaScriptInstance::~LuaScriptInstance() {
@@ -164,61 +169,8 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 	return false;
 }
 
-bool LuaScriptInstance::get_property(const StringName *property_name, Variant *result) {
-	// a) try calling `_get`
-	if (const LuaScriptMethod *_get = script->get_metadata().methods.getptr(string_names->_get)) {
-		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(owner, *property_name), false);
-		if (value != Variant()) {
-			*result = value;
-			return true;
-		}
-	}
-
-	// b) try getter function from script property
-	const LuaScriptProperty *property = script->get_metadata().properties.getptr(*property_name);
-	if (property) {
-		if (Variant value; property->get_value(this, value)) {
-			*result = value;
-			return true;
-		}
-	}
-
-	// c) access raw data
-	if (data.has(*property_name)) {
-		*result = data[*property_name];
-		return true;
-	}
-
-	// d) fallback to default property value, if there is one
-	if (property) {
-		Variant value = property->instantiate_default_value();
-		data[*property_name] = value;
-		*result = value;
-		return true;
-	}
-
-	if (script->get_metadata().methods.has(*property_name)) {
-		*result = Callable(owner, *property_name);
-		return true;
-	}
-
-	// f) try getting from inherited script
-	if (Ref<LuaScript> base_script = script->get_metadata().base_script; base_script != nullptr) {
-		if (Variant value = base_script->get_script_instance()->get_property(property_name, result)) {
-			*result = value;
-			return true;
-		}
-	}
-
-	return false;
-}
-
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
-	Variant value;
-	if (p_instance->get_property(p_name, &value)) {
-		return true;
-	}
-	return false;
+	return p_instance->script->get_property(p_instance, p_name, p_value);
 }
 
 GDExtensionScriptInstanceGetPropertyList get_property_list_func;

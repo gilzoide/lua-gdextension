@@ -1,3 +1,1 @@
-print(Derived)
-print(Derived.test)
-assert(Derived:test())
+assert(Derived:new():test())

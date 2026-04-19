@@ -96,8 +96,7 @@ public:
 	bool get_looks_like_godot_script() const;
 	StringName _get_instance_base_script_type() const;
 	LuaScriptInstance* get_script_instance() const;
-
-	LuaScriptInstance *instance;
+	bool get_property(LuaScriptInstance *instance, const StringName *property_name, Variant *result) const;
 
 protected:
 	static void _bind_methods();

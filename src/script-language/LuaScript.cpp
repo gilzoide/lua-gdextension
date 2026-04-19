@@ -90,9 +90,8 @@ StringName LuaScript::_get_instance_base_script_type() const {
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	if (Ref<LuaScript> base = _get_base_script(); base != nullptr) {
+	if (Ref<LuaScript> base = _get_base_script(); base != nullptr)
 		return base->_get_instance_base_type();
-	}
 
 	return metadata.base_class;
 }
@@ -420,11 +419,52 @@ GDExtensionScriptInstancePtr LuaScript::_internal_instance_create(Object* for_ob
 	return gd_script_instance;
 }
 
-LuaScriptInstance* LuaScript::get_script_instance() const {
-	if (instance)
-		return instance;
-	else 
-		return nullptr;
+bool LuaScript::get_property(LuaScriptInstance *instance, const StringName *property_name, Variant *result) const {
+	// a) try calling `_get`
+	if (const LuaScriptMethod *_get = get_metadata().methods.getptr(string_names->_get)) {
+		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(instance->owner, *property_name), false);
+		if (value != Variant()) {
+			*result = value;
+			return true;
+		}
+	}
+
+	// b) try getter function from script property
+	const LuaScriptProperty *property = get_metadata().properties.getptr(*property_name);
+	if (property) {
+		if (Variant value; property->get_value(instance, value)) {
+			*result = value;
+			return true;
+		}
+	}
+
+	// c) access raw data
+	if (instance->data.has(*property_name)) {
+		*result = instance->data[*property_name];
+		return true;
+	}
+
+	// d) fallback to default property value, if there is one
+	if (property) {
+		Variant value = property->instantiate_default_value();
+		instance->data[*property_name] = value;
+		*result = value;
+		return true;
+	}
+
+	// e) for methods, return a bound Callable
+	if (get_metadata().methods.has(*property_name)) {
+		*result = Callable(instance->owner, *property_name);
+		return true; }
+
+	// f) try getting from inherited script
+	if (Ref<LuaScript> base_script = get_metadata().base_script; base_script != nullptr) {
+		if (base_script->get_property(instance, property_name, result)) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 HashMap<const LuaScript*, HashSet<void*>> LuaScript::placeholders;
