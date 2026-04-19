@@ -265,11 +265,7 @@ GDExtensionInt get_method_argument_count_func(LuaScriptInstance *p_instance, con
 }
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method);
-	if (not method) {
-		if (Ref<LuaScript> base_script = p_instance->script->get_metadata().base_script; base_script != nullptr)
-			method = base_script->get_metadata().methods.getptr(*p_method);
-	}
+	const LuaScriptMethod *method = p_instance->script->get_method(p_method);
 
 	if (method) {
 		r_error->error = GDEXTENSION_CALL_OK;

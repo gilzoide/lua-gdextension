@@ -97,6 +97,7 @@ public:
 	StringName _get_instance_base_script_type() const;
 	LuaScriptInstance* get_script_instance() const;
 	bool get_property(LuaScriptInstance *instance, const StringName *property_name, Variant *result) const;
+	const LuaScriptMethod* get_method(const StringName *method_name) const;
 
 protected:
 	static void _bind_methods();

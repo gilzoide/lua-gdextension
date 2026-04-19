@@ -467,6 +467,19 @@ bool LuaScript::get_property(LuaScriptInstance *instance, const StringName *prop
 	return false;
 }
 
+
+const LuaScriptMethod* LuaScript::get_method(const StringName *method_name) const {
+	const LuaScriptMethod *result = get_metadata().methods.getptr(*method_name);
+	if (result) {
+		return result;
+	} else {
+		if (Ref<LuaScript> base_script = get_metadata().base_script; base_script != nullptr)
+			return base_script->get_method(method_name);
+	}
+
+	return nullptr;
+};
+
 HashMap<const LuaScript*, HashSet<void*>> LuaScript::placeholders;
 
 }
