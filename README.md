@@ -65,6 +65,10 @@ function LuaBouncingLogo:_ready()
 
 	-- To connect a signal in Lua, you can use the method name just like in GDScript
 	self.bounced:connect(self._on_bounced)
+	-- Or you can use a Callable constructed from a lua function
+	self.ready:connect(Callable(function()
+		print("This works!")
+	end))
 end
 
 -- Called every frame. 'delta' is the elapsed time since the previous frame.

@@ -1,0 +1,28 @@
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+ColumnLimit: 200
+AccessModifierOffset: -4
+PointerAlignment: Left
+FixNamespaceComments: false
+
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
+IncludeCategories:
+  - Regex:           '^"[A-Za-z]'
+    Priority:        1
+    SortPriority:    1
+  - Regex:           '^"\.\.'
+    Priority:        1
+    SortPriority:    2
+  - Regex:           '^<'
+    Priority:        3
+    SortPriority:    3
+
+BreakBeforeBraces: Attach
+AllowShortBlocksOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+
+BreakConstructorInitializers: BeforeColon
+PackConstructorInitializers: Never
