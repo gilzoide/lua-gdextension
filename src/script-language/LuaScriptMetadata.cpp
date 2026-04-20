@@ -21,6 +21,7 @@
  */
 #include "LuaScriptMetadata.hpp"
 
+#include "LuaScript.hpp"
 #include "LuaScriptInstance.hpp"
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/extra_utility_functions.hpp"
@@ -28,6 +29,7 @@
 #include "../utils/string_names.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
+#include <godot_cpp/classes/script_language.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/string_name.hpp>
 
@@ -72,7 +74,7 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 					if (extends_script == nullptr) {
 						WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
 					} else {
-						base_class = extends;
+						base_class = static_cast<Ref<LuaScript>>(extends_script)->get_metadata().base_class;
 						base_script = extends_script;
 					}
 				} else {
@@ -120,7 +122,6 @@ void LuaScriptMetadata::clear() {
 	is_tool = false;
 	is_abstract = false;
 	base_class = RefCounted::get_class_static();
-	base_script.unref();
 	base_script = Ref<Script>{nullptr};
 	class_name = StringName();
 	icon_path = String();

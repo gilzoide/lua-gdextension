@@ -89,7 +89,7 @@ bool LuaScript::_inherits_script(const Ref<Script>& script) const {
 }
 
 StringName LuaScript::_get_instance_base_script_type() const {
-	return _get_base_script() != nullptr ? metadata.base_class : "";
+	return _get_base_script() != nullptr ? metadata.base_class : _get_instance_base_type();
 }
 
 StringName LuaScript::_get_instance_base_type() const {

@@ -378,7 +378,7 @@ Dictionary LuaScriptLanguage::_get_global_class_name(const String& path) const {
 	Dictionary result;
 	if (script.is_valid() && script->_is_valid()) {
 		result["name"] = script->_get_global_name();
-		result["base_type"] = script->_get_instance_base_script_type().is_empty() ? script->get_instance_base_type() : script->_get_instance_base_script_type();
+		result["base_type"] = script->_get_instance_base_script_type();
 		result["icon_path"] = script->_get_class_icon_path();
 		result["is_abstract"] = script->_is_abstract();
 		result["is_tool"] = script->_is_tool();
