@@ -274,8 +274,7 @@ Variant LuaScript::_get_property_default_value(const StringName& p_property) con
 		return property->default_value;
 	} else {
 		if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-			if (const Variant property = base->_get_property_default_value(p_property))
-				return property;
+			return property;
 
 		return {};
 	}
@@ -343,6 +342,10 @@ Dictionary LuaScript::_get_constants() const {
 
 TypedArray<StringName> LuaScript::_get_members() const {
 	TypedArray<StringName> members;
+
+	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+		members.append_array(base->_get_members());
+
 	for (auto [name, _] : metadata.methods) {
 		members.append(name);
 	}
@@ -352,9 +355,6 @@ TypedArray<StringName> LuaScript::_get_members() const {
 	for (auto [name, _] : metadata.signals) {
 		members.append(name);
 	}
-
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-		members.append_array(base->_get_members());
 
 	return members;
 }
