@@ -39,6 +39,8 @@
 #include "../utils/convert_godot_lua.hpp"
 #include "../utils/extra_utility_functions.hpp"
 #include "../utils/string_names.hpp"
+#include "godot_cpp/templates/hash_map.hpp"
+#include "godot_cpp/templates/hash_set.hpp"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/classes/engine.hpp>
@@ -49,6 +51,7 @@
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+#include <unordered_set>
 
 namespace luagdextension {
 
@@ -236,14 +239,22 @@ bool LuaScript::_has_script_signal(const StringName& p_signal) const {
 	return false;
 }
 
-TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
-	TypedArray<Dictionary> signals;
-	for (auto [name, signal] : metadata.signals) {
-		signals.append(signal.to_dictionary());
+static void populate_signal_list(const LuaScript *script, TypedArray<Dictionary> &list, HashSet<StringName> &seen) {
+	for (auto [name, signal] : script->get_metadata().signals) {
+		if (not seen.has(name)) {
+			list.append(signal.to_dictionary());
+			seen.insert(name);
+		}
 	}
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-		signals.append_array(base->_get_script_signal_list());
+	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+		populate_signal_list(script, list, seen);
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
+	TypedArray<Dictionary> signals{};
+	HashSet<StringName> seen{};
+	populate_signal_list(this, signals, seen);
 
 	return signals;
 }
@@ -276,26 +287,42 @@ void LuaScript::_update_exports() {
 	}
 }
 
-TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
-	TypedArray<Dictionary> methods;
-	for (auto [name, method] : metadata.methods) {
-		methods.append(method.to_dictionary());
+static void populate_method_list(const LuaScript *script, TypedArray<Dictionary> &list, HashSet<StringName> &seen) {
+	for (auto [name, method] : script->get_metadata().methods) {
+		if (not seen.has(name)) {
+			list.append(method.to_dictionary());
+			seen.insert(name);
+		}
 	}
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-		methods.append_array(base->_get_script_method_list());
+	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+		populate_signal_list(script, list, seen);
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
+	TypedArray<Dictionary> methods{};
+	HashSet<StringName> seen{};
+	populate_method_list(this, methods, seen);
 
 	return methods;
 }
 
-TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
-	TypedArray<Dictionary> list;
-	for (auto [name, prop] : metadata.properties) {
-		list.append(prop.to_dictionary());
+static void populate_property_list(const LuaScript *script, TypedArray<Dictionary> &list, HashSet<StringName> &seen) {
+	for (auto [name, property] : script->get_metadata().properties) {
+		if (not seen.has(name)) {
+			list.append(property.to_dictionary());
+			seen.insert(name);
+		}
 	}
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-		list.append_array(base->_get_script_property_list());
+	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+		populate_signal_list(script, list, seen);
+}
+
+TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
+	TypedArray<Dictionary> list;
+	HashSet<StringName> seen{};
+	populate_property_list(this, list, seen);
 
 	return list;
 }
