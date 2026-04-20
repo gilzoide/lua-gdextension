@@ -260,8 +260,8 @@ TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
 }
 
 bool LuaScript::_has_property_default_value(const StringName& p_property) const {
-	if (bool result = metadata.properties.has(p_property))
-		return result;
+	if (metadata.properties.has(p_property))
+		return true;
 
 	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_property_default_value(p_property);
