@@ -230,8 +230,8 @@ ScriptLanguage* LuaScript::_get_language() const {
 }
 
 bool LuaScript::_has_script_signal(const StringName& p_signal) const {
-	if (bool result = metadata.signals.has(p_signal))
-		return result;
+	if (metadata.signals.has(p_signal))
+		return true;
 
 	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_script_signal(p_signal);
