@@ -182,8 +182,8 @@ String LuaScript::_get_class_icon_path() const {
 }
 
 bool LuaScript::_has_method(const StringName& p_method) const {
-	if (bool result = metadata.methods.has(p_method))
-		return result;
+	if (metadata.methods.has(p_method))
+		return true;
 
 	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
 		return base->_has_method(p_method);
