@@ -85,11 +85,11 @@ StringName LuaScript::_get_global_name() const {
 }
 
 bool LuaScript::_inherits_script(const Ref<Script>& script) const {
-	return script == get_base_script();
+	return script->get_global_name() == _get_instance_base_script_type();
 }
 
 StringName LuaScript::_get_instance_base_script_type() const {
-	return _get_base_script() != nullptr ? metadata.base_class : _get_instance_base_type();
+	return _get_base_script() != nullptr ? (StringName)metadata.base_script->get_global_name() : _get_instance_base_type();
 }
 
 StringName LuaScript::_get_instance_base_type() const {

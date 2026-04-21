@@ -27,6 +27,7 @@
 #include "../utils/extra_utility_functions.hpp"
 #include "../utils/stack_top_resetter.hpp"
 #include "../utils/string_names.hpp"
+#include "godot_cpp/classes/resource_loader.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/classes/script_language.hpp>
@@ -71,6 +72,9 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 				StringName extends = to_variant(value);
 				if (!ClassDB::class_exists(extends)) {
 					Ref<Script> extends_script = get_class_script(extends);
+					if (extends_script == nullptr and ResourceLoader::get_singleton()->exists(extends))
+						extends_script = ResourceLoader::get_singleton()->load(extends, "Script");
+
 					if (extends_script == nullptr) {
 						WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
 					} else {
