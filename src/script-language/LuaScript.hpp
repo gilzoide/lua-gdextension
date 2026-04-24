@@ -94,6 +94,9 @@ public:
 	ImportBehavior get_import_behavior() const;
 	void set_import_behavior(ImportBehavior import_behavior);
 	bool get_looks_like_godot_script() const;
+	StringName _get_instance_base_script_type() const;
+	bool get_property(LuaScriptInstance *instance, const StringName *property_name, Variant *result) const;
+	const LuaScriptMethod* get_method(const StringName *method_name) const;
 
 protected:
 	static void _bind_methods();

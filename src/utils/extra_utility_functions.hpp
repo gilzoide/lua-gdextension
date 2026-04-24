@@ -22,6 +22,8 @@
 #ifndef __UTILS_EXTRA_UTILITY_FUNCTIONS_HPP__
 #define __UTILS_EXTRA_UTILITY_FUNCTIONS_HPP__
 
+#include "godot_cpp/classes/ref.hpp"
+#include "godot_cpp/classes/script.hpp"
 #include <godot_cpp/variant/variant.hpp>
 
 using namespace godot;
@@ -29,6 +31,8 @@ using namespace godot;
 namespace luagdextension {
 
 bool is_instance_valid(const Variant& v);
+
+Ref<Script> get_class_script(const String& class_name);
 
 }
 
