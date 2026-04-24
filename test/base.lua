@@ -6,6 +6,10 @@ local Base = {
 	base_property = 123
 }
 
+function Base:shadow()
+	return false
+end
+
 function Base:base_func()
 	return 456
 end
