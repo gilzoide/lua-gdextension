@@ -28,6 +28,7 @@
 #include "../utils/stack_top_resetter.hpp"
 #include "../utils/string_names.hpp"
 #include "godot_cpp/classes/resource_loader.hpp"
+#include "godot_cpp/variant/utility_functions.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/classes/script_language.hpp>
@@ -38,7 +39,7 @@ namespace luagdextension {
 
 static sol::stateless_reference _G_pairs;
 
-void LuaScriptMetadata::setup(const sol::table& t) {
+void LuaScriptMetadata::setup(const sol::table& t, const LuaScript* script) {
 	is_valid = true;
 
 	sol::state_view L = t.lua_state();
@@ -71,9 +72,16 @@ void LuaScriptMetadata::setup(const sol::table& t) {
 			if (name == "extends") {
 				StringName extends = to_variant(value);
 				if (!ClassDB::class_exists(extends)) {
+					// Try find in global class list
 					Ref<Script> extends_script = get_class_script(extends);
+					// Try find by abosolute path
 					if (extends_script == nullptr and ResourceLoader::get_singleton()->exists(extends))
 						extends_script = ResourceLoader::get_singleton()->load(extends, "Script");
+					// Try find by relative path
+					if (extends_script == nullptr) {
+						if (String full_path = script->get_path().get_base_dir().path_join(extends); ResourceLoader::get_singleton()->exists(full_path))
+							extends_script = ResourceLoader::get_singleton()->load(full_path, "Script");
+					}
 
 					if (extends_script == nullptr) {
 						WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));

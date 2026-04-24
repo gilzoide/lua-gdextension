@@ -165,7 +165,7 @@ Error LuaScript::_reload(bool keep_state) {
 	} else if (LuaTable* table = Object::cast_to<LuaTable>(result)) {
 		placeholder_fallback_enabled = false;
 		metadata.clear();
-		metadata.setup(table->get_table());
+		metadata.setup(table->get_table(), this);
 	}
 	return OK;
 }
@@ -293,7 +293,7 @@ static void populate_method_list(const LuaScript *script, TypedArray<Dictionary>
 	}
 
 	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
-		populate_signal_list(base.ptr(), list, seen);
+		populate_method_list(base.ptr(), list, seen);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
@@ -313,7 +313,7 @@ static void populate_property_list(const LuaScript *script, TypedArray<Dictionar
 	}
 
 	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
-		populate_signal_list(base.ptr(), list, seen);
+		populate_property_list(base.ptr(), list, seen);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_property_list() const {

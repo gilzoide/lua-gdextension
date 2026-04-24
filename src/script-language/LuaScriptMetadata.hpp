@@ -33,6 +33,8 @@ using namespace godot;
 
 namespace luagdextension {
 
+class LuaScript;
+
 struct LuaScriptMetadata {
 	bool is_valid;
 	bool is_tool;
@@ -46,7 +48,7 @@ struct LuaScriptMetadata {
 	HashMap<StringName, LuaScriptProperty> properties;
 	HashMap<StringName, LuaScriptSignal> signals;
 
-	void setup(const sol::table& t);
+	void setup(const sol::table& t, const LuaScript* script);
 	void clear();
 
 	static void register_lua(lua_State* L);

@@ -3,7 +3,8 @@ local Base = {
 	class_name = "Base",
 	extends = Node,
 	abstract = true,
-	base_property = 123
+	base_property = 123,
+	signal_test = signal()
 }
 
 function Base:shadow()
