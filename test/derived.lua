@@ -1,6 +1,7 @@
 local Derived = {
 	class_name = "Derived",
 	extends = "Base",
+	derived_only = true
 }
 
 function Derived:shadow()

@@ -1,9 +1,13 @@
----@type Node
+---@type Base
+local base = Base:new()
+---@type Base
 local derived = Derived:new()
+---@type Base
 local derived_abs = DerivedAbs:new()
+---@type Base
 local derived_rel = DerivedRel:new()
 
-local function test(derived)
+local function derived_test(derived)
 	assert(derived:test())
 	assert(derived:shadow())
 	assert(derived:get_script():get_base_script():get_global_name() == "Base")
@@ -45,6 +49,31 @@ local function test(derived)
 	end
 end
 
-test(derived)
-test(derived_abs)
-test(derived_rel)
+derived_test(derived)
+derived_test(derived_abs)
+derived_test(derived_rel)
+
+local function base_test(base)
+	assert(not base.test)
+	assert(not base:shadow())
+	assert(base:get_script():get_base_script() == nil)
+	local check = false
+	local properties = base:get_script():get_script_property_list()
+	for i = 0, #properties - 1 do
+		local v = properties[i]
+		if v.name == "base_property" then
+			check = true
+			break
+		end
+	end
+	for i = 0, #properties - 1 do
+		local v = properties[i]
+		if v.name == "derived_only" then
+			check = false
+			break
+		end
+	end
+	assert(check)
+end
+
+base_test(base)
