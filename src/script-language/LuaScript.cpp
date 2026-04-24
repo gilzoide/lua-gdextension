@@ -37,7 +37,6 @@
 #include "../LuaTable.hpp"
 #include "../utils/VariantArguments.hpp"
 #include "../utils/convert_godot_lua.hpp"
-#include "../utils/extra_utility_functions.hpp"
 #include "../utils/string_names.hpp"
 #include "godot_cpp/templates/hash_map.hpp"
 #include "godot_cpp/templates/hash_set.hpp"
@@ -51,7 +50,6 @@
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
-#include <unordered_set>
 
 namespace luagdextension {
 
@@ -248,7 +246,7 @@ static void populate_signal_list(const LuaScript *script, TypedArray<Dictionary>
 	}
 
 	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
-		populate_signal_list(script, list, seen);
+		populate_signal_list(base.ptr(), list, seen);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_signal_list() const {
@@ -295,7 +293,7 @@ static void populate_method_list(const LuaScript *script, TypedArray<Dictionary>
 	}
 
 	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
-		populate_signal_list(script, list, seen);
+		populate_signal_list(base.ptr(), list, seen);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_method_list() const {
@@ -315,7 +313,7 @@ static void populate_property_list(const LuaScript *script, TypedArray<Dictionar
 	}
 
 	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
-		populate_signal_list(script, list, seen);
+		populate_signal_list(base.ptr(), list, seen);
 }
 
 TypedArray<Dictionary> LuaScript::_get_script_property_list() const {
