@@ -56,7 +56,7 @@ derived_test(derived_rel)
 local function base_test(base)
 	assert(not base.test)
 	assert(not base:shadow())
-	assert(base:get_script():get_base_script() == nil)
+	assert(not base:get_script():get_base_script())
 	local check = false
 	local properties = base:get_script():get_script_property_list()
 	for i = 0, #properties - 1 do
