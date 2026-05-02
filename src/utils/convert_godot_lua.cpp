@@ -286,11 +286,11 @@ sol::protected_function to_lua_function(lua_State *L, const Callable& callable) 
 	return to_lua_closure(L, callable_closure, (Variant) callable);
 }
 
-Variant callable_call(const Callable& callable, const sol::variadic_args& args) {
-	return callable.callv(VariantArguments(args).get_array());
+Variant callable_call(const Callable& callable, const VariantArguments& args) {
+	return callable.callv(args.get_array());
 }
 
-sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args) {
+sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const VariantArguments& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -302,7 +302,7 @@ sol::object variant_static_call_string_name(sol::this_state state, Variant::Type
 	}
 	return to_lua(state, result);
 }
-sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
+sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const VariantArguments& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -314,11 +314,11 @@ sol::object variant_call_string_name(sol::this_state state, Variant& variant, co
 	}
 	return to_lua(state, result);
 }
-sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const VariantArguments& args) {
 	return variant_call_string_name(state, variant, method, args);
 }
 
-std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args) {
+std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const VariantArguments& args) {
 	VariantArguments variant_args = args;
 
 	Variant result;
@@ -331,7 +331,7 @@ std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, V
 		return std::make_tuple(false, to_lua(state, to_string(error)));
 	}
 }
-std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args) {
+std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const VariantArguments& args) {
 	return variant_pcall_string_name(state, variant, method, args);
 }
 
