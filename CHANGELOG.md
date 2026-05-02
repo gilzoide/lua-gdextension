@@ -6,6 +6,9 @@
   local c = Callable(function() end)
   ```
 
+### Fixed
+- `Variant.__len` metamethod
+
 ### Change
 - Updated Lua to 5.4.8
 - Updated LuaJIT to commit 18b087cd2cd4ddc4a79782bf155383a689d5093d
