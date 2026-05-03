@@ -1,5 +1,14 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.0...HEAD)
+### Added
+- Construct `Callable` from function in Lua code:
+  ```lua
+  local c = Callable(function() end)
+  ```
+
+### Fixed
+- `Variant.__len` metamethod
+
 ### Change
 - Updated Lua to 5.4.8
 - Updated LuaJIT to commit 18b087cd2cd4ddc4a79782bf155383a689d5093d
