@@ -451,54 +451,17 @@ GDExtensionScriptInstancePtr LuaScript::_internal_instance_create(Object* for_ob
 	return gd_script_instance;
 }
 
-bool LuaScript::get_property(LuaScriptInstance *instance, const StringName *property_name, Variant *result) const {
-	// a) try calling `_get`
-	if (const LuaScriptMethod *_get = get_metadata().methods.getptr(string_names->_get)) {
-		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(instance->owner, *property_name), false);
-		if (value != Variant()) {
-			*result = value;
-			return true;
-		}
+const LuaScriptProperty* LuaScript::get_property(const StringName *property_name) const {
+	const LuaScriptProperty *result = get_metadata().properties.getptr(*property_name);
+	if (result) {
+		return result;
+	} else {
+		if (Ref<LuaScript> base_script = get_metadata().base_script; base_script.is_valid())
+			return base_script->get_property(property_name);
 	}
 
-	// b) try getter function from script property
-	const LuaScriptProperty *property = get_metadata().properties.getptr(*property_name);
-	if (property) {
-		if (Variant value; property->get_value(instance, value)) {
-			*result = value;
-			return true;
-		}
-	}
-
-	// c) access raw data
-	if (instance->data.has(*property_name)) {
-		*result = instance->data[*property_name];
-		return true;
-	}
-
-	// d) fallback to default property value, if there is one
-	if (property) {
-		Variant value = property->instantiate_default_value();
-		instance->data[*property_name] = value;
-		*result = value;
-		return true;
-	}
-
-	// e) for methods, return a bound Callable
-	if (get_metadata().methods.has(*property_name)) {
-		*result = Callable(instance->owner, *property_name);
-		return true; }
-
-	// f) try getting from inherited script
-	if (Ref<LuaScript> base_script = get_metadata().base_script; base_script.is_valid()) {
-		if (base_script->get_property(instance, property_name, result)) {
-			return true;
-		}
-	}
-
-	return false;
+	return nullptr;
 }
-
 
 const LuaScriptMethod* LuaScript::get_method(const StringName *method_name) const {
 	const LuaScriptMethod *result = get_metadata().methods.getptr(*method_name);

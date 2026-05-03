@@ -170,7 +170,46 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
-	return p_instance->script->get_property(p_instance, p_name, p_value);
+	const LuaScriptMetadata metadata = p_instance->script->get_metadata();
+
+	// a) try calling `_get`
+	if (const LuaScriptMethod *_get = metadata.methods.getptr(string_names->_get)) {
+		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(p_instance->owner, *p_name), false);
+		if (value != Variant()) {
+			*p_value = value;
+			return true;
+		}
+	}
+
+	// b) try getter function from script property
+	const LuaScriptProperty *property = p_instance->script->get_property(p_name);
+	if (property) {
+		if (Variant value; property->get_value(p_instance, value)) {
+			*p_value = value;
+			return true;
+		}
+	}
+
+	// c) access raw data
+	if (p_instance->data.has(*p_name)) {
+		*p_value = p_instance->data[*p_name];
+		return true;
+	}
+
+	// d) fallback to default property value, if there is one
+	if (property) {
+		Variant value = property->instantiate_default_value();
+		p_instance->data[*p_name] = value;
+		*p_value = value;
+		return true;
+	}
+
+	// e) for methods, return a bound Callable
+	if (p_instance->script->get_method(p_name)) {
+		*p_value = Callable(p_instance->owner, *p_name);
+		return true; }
+
+	return false;
 }
 
 GDExtensionScriptInstanceGetPropertyList get_property_list_func;
