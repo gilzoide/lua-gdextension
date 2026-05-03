@@ -34,6 +34,8 @@
 #include "../utils/function_wrapper.hpp"
 #include "../utils/method_bind_impl.hpp"
 #include "../utils/string_names.hpp"
+#include "godot_cpp/core/error_macros.hpp"
+#include "godot_cpp/variant/utility_functions.hpp"
 
 namespace luagdextension {
 
@@ -114,6 +116,16 @@ static void destroy_MethodInfos(const GDExtensionMethodInfo *minfos, uint32_t co
 	}
 }
 
+static void populate_signals(LuaScriptInstance *instance, Ref<LuaScript> script) {
+	const LuaScriptMetadata& metadata = script->get_metadata();
+	for (auto [name, signal] : metadata.signals) {
+		instance->data[name] = Signal(instance->owner, name);
+	}
+
+	if (Ref<LuaScript> base = script->_get_base_script(); base != nullptr)
+		populate_signals(instance, base);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
@@ -121,11 +133,7 @@ LuaScriptInstance::LuaScriptInstance(Object *owner, Ref<LuaScript> script)
 	, script(script)
 {
 	owner_to_instance.insert(owner, this);
-
-	const LuaScriptMetadata& metadata = script->get_metadata();
-	for (auto [name, signal] : metadata.signals) {
-		data[name] = Signal(owner, name);
-	}
+	populate_signals(this, script);
 }
 
 LuaScriptInstance::~LuaScriptInstance() {
@@ -162,8 +170,10 @@ GDExtensionBool set_func(LuaScriptInstance *p_instance, const StringName *p_name
 }
 
 GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name, Variant *p_value) {
+	const LuaScriptMetadata metadata = p_instance->script->get_metadata();
+
 	// a) try calling `_get`
-	if (const LuaScriptMethod *_get = p_instance->script->get_metadata().methods.getptr(string_names->_get)) {
+	if (const LuaScriptMethod *_get = metadata.methods.getptr(string_names->_get)) {
 		Variant value = LuaFunction::invoke_lua(_get->method, Array::make(p_instance->owner, *p_name), false);
 		if (value != Variant()) {
 			*p_value = value;
@@ -172,9 +182,12 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	}
 
 	// b) try getter function from script property
-	const LuaScriptProperty *property = p_instance->script->get_metadata().properties.getptr(*p_name);
-	if (property && property->get_value(p_instance, *p_value)) {
-		return true;
+	const LuaScriptProperty *property = p_instance->script->get_property(p_name);
+	if (property) {
+		if (Variant value; property->get_value(p_instance, value)) {
+			*p_value = value;
+			return true;
+		}
 	}
 
 	// c) access raw data
@@ -192,10 +205,9 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	}
 
 	// e) for methods, return a bound Callable
-	if (p_instance->script->get_metadata().methods.has(*p_name)) {
+	if (p_instance->script->get_method(p_name)) {
 		*p_value = Callable(p_instance->owner, *p_name);
-		return true;
-	}
+		return true; }
 
 	return false;
 }
@@ -292,11 +304,12 @@ GDExtensionInt get_method_argument_count_func(LuaScriptInstance *p_instance, con
 }
 
 void call_func(LuaScriptInstance *p_instance, const StringName *p_method, const Variant **p_args, GDExtensionInt p_argument_count, Variant *r_return, GDExtensionCallError *r_error) {
-	if (const LuaScriptMethod *method = p_instance->script->get_metadata().methods.getptr(*p_method)) {
+	const LuaScriptMethod *method = p_instance->script->get_method(p_method);
+
+	if (method) {
 		r_error->error = GDEXTENSION_CALL_OK;
 		*r_return = LuaCoroutine::invoke_lua(method->method, VariantArguments(p_instance->owner, p_args, p_argument_count), false);
-	}
-	else {
+	} else {
 		r_error->error = GDEXTENSION_CALL_ERROR_INVALID_METHOD;
 	}
 }

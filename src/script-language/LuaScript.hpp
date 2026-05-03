@@ -27,6 +27,7 @@
 #include <godot_cpp/templates/hash_set.hpp>
 
 #include "LuaScriptMetadata.hpp"
+#include "LuaScriptProperty.hpp"
 
 using namespace godot;
 
@@ -94,6 +95,9 @@ public:
 	ImportBehavior get_import_behavior() const;
 	void set_import_behavior(ImportBehavior import_behavior);
 	bool get_looks_like_godot_script() const;
+	StringName _get_instance_base_script_type() const;
+	const LuaScriptProperty* get_property(const StringName *property_name) const;
+	const LuaScriptMethod* get_method(const StringName *method_name) const;
 
 protected:
 	static void _bind_methods();
