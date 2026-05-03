@@ -28,6 +28,7 @@
 #include "../utils/stack_top_resetter.hpp"
 #include "../utils/string_names.hpp"
 #include "godot_cpp/classes/resource_loader.hpp"
+#include "godot_cpp/core/error_macros.hpp"
 #include "godot_cpp/variant/utility_functions.hpp"
 
 #include <godot_cpp/classes/ref_counted.hpp>
@@ -75,18 +76,18 @@ void LuaScriptMetadata::setup(const sol::table& t, const LuaScript* script) {
 					// Try find in global class list
 					Ref<Script> extends_script = get_class_script(extends);
 					// Try find by abosolute path
-					if (extends_script == nullptr and ResourceLoader::get_singleton()->exists(extends))
+					if (extends_script.is_null() and ResourceLoader::get_singleton()->exists(extends))
 						extends_script = ResourceLoader::get_singleton()->load(extends, "Script");
 					// Try find by relative path
-					if (extends_script == nullptr) {
+					if (extends_script.is_null()) {
 						if (String full_path = script->get_path().get_base_dir().path_join(extends); ResourceLoader::get_singleton()->exists(full_path))
 							extends_script = ResourceLoader::get_singleton()->load(full_path, "Script");
 					}
 
-					if (extends_script == nullptr) {
+					if (extends_script.is_null()) {
 						WARN_PRINT(String("Specified base class '%s' does not exist, using RefCounted") % Array::make(extends));
 					} else {
-						base_class = static_cast<Ref<LuaScript>>(extends_script)->get_metadata().base_class;
+						base_class = static_cast<Ref<Script>>(extends_script)->get_instance_base_type();
 						base_script = extends_script;
 					}
 				} else {

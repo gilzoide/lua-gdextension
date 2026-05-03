@@ -83,15 +83,22 @@ StringName LuaScript::_get_global_name() const {
 }
 
 bool LuaScript::_inherits_script(const Ref<Script>& script) const {
-	return script->get_global_name() == _get_instance_base_script_type();
+	Ref<Script> current = script;
+	while (current.is_valid()) {
+		if (current == metadata.base_script)
+			return true;
+		current = current->get_base_script();
+	}
+
+	return false;
 }
 
 StringName LuaScript::_get_instance_base_script_type() const {
-	return _get_base_script() != nullptr ? (StringName)metadata.base_script->get_global_name() : _get_instance_base_type();
+	return _get_base_script().is_valid() ? metadata.base_script->get_global_name() : _get_instance_base_type();
 }
 
 StringName LuaScript::_get_instance_base_type() const {
-	if (Ref<LuaScript> base = _get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = _get_base_script(); base.is_valid())
 		return base->_get_instance_base_type();
 
 	return metadata.base_class;
@@ -183,7 +190,7 @@ bool LuaScript::_has_method(const StringName& p_method) const {
 	if (metadata.methods.has(p_method))
 		return true;
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base.is_valid())
 		return base->_has_method(p_method);
 
 	return false;
@@ -231,7 +238,7 @@ bool LuaScript::_has_script_signal(const StringName& p_signal) const {
 	if (metadata.signals.has(p_signal))
 		return true;
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base.is_valid())
 		return base->_has_script_signal(p_signal);
 
 	return false;
@@ -245,7 +252,7 @@ static void populate_signal_list(const LuaScript *script, TypedArray<Dictionary>
 		}
 	}
 
-	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = script->get_base_script(); base.is_valid())
 		populate_signal_list(base.ptr(), list, seen);
 }
 
@@ -261,7 +268,7 @@ bool LuaScript::_has_property_default_value(const StringName& p_property) const 
 	if (metadata.properties.has(p_property))
 		return true;
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base.is_valid())
 		return base->_has_property_default_value(p_property);
 
 	return false;
@@ -271,8 +278,8 @@ Variant LuaScript::_get_property_default_value(const StringName& p_property) con
 	if (const LuaScriptProperty* property = metadata.properties.getptr(p_property)) {
 		return property->default_value;
 	} else {
-		if (Ref<LuaScript> base = get_base_script(); base != nullptr)
-			return property;
+		if (Ref<LuaScript> base = get_base_script(); base.is_valid())
+			return base->_get_property_default_value(p_property);
 
 		return {};
 	}
@@ -292,7 +299,7 @@ static void populate_method_list(const LuaScript *script, TypedArray<Dictionary>
 		}
 	}
 
-	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = script->get_base_script(); base.is_valid())
 		populate_method_list(base.ptr(), list, seen);
 }
 
@@ -312,7 +319,7 @@ static void populate_property_list(const LuaScript *script, TypedArray<Dictionar
 		}
 	}
 
-	if (Ref<LuaScript> base = script->get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = script->get_base_script(); base.is_valid())
 		populate_property_list(base.ptr(), list, seen);
 }
 
@@ -341,7 +348,7 @@ Dictionary LuaScript::_get_constants() const {
 TypedArray<StringName> LuaScript::_get_members() const {
 	TypedArray<StringName> members;
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base.is_valid())
 		members.append_array(base->_get_members());
 
 	for (auto [name, _] : metadata.methods) {
@@ -428,7 +435,7 @@ void LuaScript::_update_placeholder_exports(void* placeholder) const {
 		default_values[name] = property.instantiate_default_value();
 	}
 
-	if (Ref<LuaScript> base = get_base_script(); base != nullptr)
+	if (Ref<LuaScript> base = get_base_script(); base.is_valid())
 		properties.append_array(base->_get_script_property_list());
 
 	gdextension_interface::placeholder_script_instance_update(placeholder, properties._native_ptr(), default_values._native_ptr());
@@ -483,7 +490,7 @@ bool LuaScript::get_property(LuaScriptInstance *instance, const StringName *prop
 		return true; }
 
 	// f) try getting from inherited script
-	if (Ref<LuaScript> base_script = get_metadata().base_script; base_script != nullptr) {
+	if (Ref<LuaScript> base_script = get_metadata().base_script; base_script.is_valid()) {
 		if (base_script->get_property(instance, property_name, result)) {
 			return true;
 		}
@@ -498,7 +505,7 @@ const LuaScriptMethod* LuaScript::get_method(const StringName *method_name) cons
 	if (result) {
 		return result;
 	} else {
-		if (Ref<LuaScript> base_script = get_metadata().base_script; base_script != nullptr)
+		if (Ref<LuaScript> base_script = get_metadata().base_script; base_script.is_valid())
 			return base_script->get_method(method_name);
 	}
 
