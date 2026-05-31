@@ -22,16 +22,20 @@
 extends EditorPlugin
 
 
-var _lua_repl: Control
-
-
 func _enter_tree():
-	_lua_repl = preload("lua_repl.tscn").instantiate()
-	add_control_to_bottom_panel(_lua_repl, "Lua REPL")
-
+	_set_repl(true)
 
 func _exit_tree():
-	if _lua_repl:
+	_set_repl(false)
+
+
+var _lua_repl: Control
+
+func _set_repl(state: bool):
+	if state:
+		_lua_repl = preload("lua_repl.tscn").instantiate()
+		add_control_to_bottom_panel(_lua_repl, "Lua REPL")
+	elif _lua_repl:
 		remove_control_from_bottom_panel(_lua_repl)
 		_lua_repl.queue_free()
 		_lua_repl = null
