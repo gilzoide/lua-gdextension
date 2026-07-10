@@ -6,7 +6,7 @@ defaults:
 
 env:
   SCONS_CACHE: ${{ github.workspace }}/.scons-cache
-  SCONS_VERSION: 4.9.1
+  SCONS_VERSION: 4.10.1
 
 jobs:
   build_linux:
