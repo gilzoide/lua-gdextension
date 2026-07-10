@@ -54,7 +54,7 @@ def generate(env):
     env.Execute("make -C lib/luajit/src luajit.h jit/vmdef.lua MACOSX_DEPLOYMENT_TARGET=11.0")
 
     # Windows + MSVC special case: build using luajit/src/msvcbuild.bat
-    if env["platform"] == "windows" and env.get("is_msvc"):
+    if env["platform"] == "windows" and (env.get("is_msvc") or env.get("vcvarsall_path")):
         CopyLuaJIT(env, f"{build_dir}/luajit", "lib/luajit")
         
         # Use `/MT` matching godot-cpp flags and add `/DLUAJIT_ENABLE_LUA52COMPAT`
