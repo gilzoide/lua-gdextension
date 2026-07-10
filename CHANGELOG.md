@@ -5,6 +5,9 @@
 
 ### Fixed
 - Exported properties of tool scripts now appear in the inspector
+- Yielding from coroutines now work in Web builds.
+  ⚠️ Warning: we're using `longjmp` because Web export templates do not ship with C++ exception support.
+  This works but **memory will leak**, since objects in the stack are not cleaned by the `longjmp` as they are when handling exceptions.
 
 
 ## [0.8.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.1)
