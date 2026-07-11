@@ -1,5 +1,8 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.1...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.2...HEAD)
+
+
+## [0.8.2](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.2)
 ### Added
 - Implemented `get_property_list` for LuaScriptInstance
 
