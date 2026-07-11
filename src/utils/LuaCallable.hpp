@@ -9,7 +9,7 @@ using namespace godot;
 class LuaCallable : public CallableCustom {
 	Ref<LuaFunction> _lua_func;
 public:
-	explicit LuaCallable(sol::protected_function func) : _lua_func{LuaObject::wrap_object<LuaFunction>(func)} {};
+	explicit LuaCallable(sol::protected_function func);
 	~LuaCallable() = default;
 
 	bool is_valid() const override;
@@ -20,6 +20,10 @@ public:
 	uint32_t hash() const override;
 	void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const override;
 	static Variant construct(sol::function func);
+
+private:
+	static bool compare_equal_func(const CallableCustom* p_a, const CallableCustom* p_b);
+	static bool compare_less_func(const CallableCustom* p_a, const CallableCustom* p_b);
 };
 
 }
