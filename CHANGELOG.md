@@ -8,6 +8,11 @@
 - Yielding from coroutines now work in Web builds.
   ⚠️ Warning: we're using `longjmp` because Web export templates do not ship with C++ exception support.
   This works but **memory will leak**, since objects in the stack are not cleaned by the `longjmp` as they are when handling exceptions.
+- Fixed a crash when comparing Callables created from Lua functions.
+  This happened for example when connecting 2 Lua Callables to the same Signal.
+
+### Changed
+- Printing Callables created from Lua functions now contain which LuaFunction the Callable refers to
 
 
 ## [0.8.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.1)
@@ -20,7 +25,7 @@
 ### Fixed
 - `Variant.__len` metamethod crashes
 
-### Change
+### Changed
 - Updated Lua to 5.4.8
 - Updated LuaJIT to commit 18b087cd2cd4ddc4a79782bf155383a689d5093d
 
