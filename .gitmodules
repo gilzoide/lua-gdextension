@@ -1,18 +1,28 @@
+# Godot Engine / GDExtension
+[submodule "godot"]
+	path = lib/godot
+	url = https://github.com/godotengine/godot
 [submodule "godot-cpp"]
 	path = lib/godot-cpp
 	url = https://github.com/godotengine/godot-cpp.git
+
+# Lua runtime
 [submodule "lua"]
 	path = lib/lua
 	url = https://github.com/lua/lua.git
+[submodule "luajit"]
+	path = lib/luajit
+	url = https://github.com/LuaJIT/LuaJIT.git
+
+# Lua binding layer
 [submodule "sol2"]
 	path = lib/sol2
 	url = https://github.com/Assumeru/sol2.git
-[submodule "lib/luajit"]
-	path = lib/luajit
-	url = https://github.com/LuaJIT/LuaJIT.git
-[submodule "lib/tree-sitter"]
+
+# Parsing / tooling
+[submodule "tree-sitter"]
 	path = lib/tree-sitter
 	url = https://github.com/tree-sitter/tree-sitter.git
-[submodule "lib/tree-sitter-lua"]
+[submodule "tree-sitter-lua"]
 	path = lib/tree-sitter-lua
 	url = https://github.com/tree-sitter-grammars/tree-sitter-lua.git

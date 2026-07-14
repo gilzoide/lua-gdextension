@@ -36,6 +36,7 @@ local function c_root_searcher(name)
 	return c_searcher(root_name, name)
 end
 
+---@diagnostic disable-next-line: deprecated
 local searchers = package.searchers or package.loaders
 searchers[2] = lua_searcher
 searchers[3] = c_searcher

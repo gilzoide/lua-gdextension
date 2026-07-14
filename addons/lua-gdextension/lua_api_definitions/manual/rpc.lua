@@ -1,0 +1,25 @@
+--- @meta
+--- @diagnostic disable: undefined-doc-name, duplicate-doc-field, duplicate-doc-alias
+
+--- @param mode "any_peer" | "authority" | nil
+--- @param sync "call_remote" | "call_local" | nil
+--- @param transfer_mode "unreliable" | "unreliable_ordered" | "reliable" | nil
+--- @param transfer_channel integer?
+-- Similar to GDScript's `@rpc` annotation, should be used to initialize the special `rpc_config` table.
+--
+-- Example:
+-- ```lua
+-- local MyClass = {}
+-- 
+-- function MyClass:some_method() end
+-- function MyClass:some_other_method() end
+-- 
+-- MyClass.rpc_config = {
+--   "some_method" = rpc("any_peer", "call_local", "reliable", 0),
+--   "some_other_method" = rpc("reliable", 1),
+-- }
+-- 
+-- return MyClass
+-- ```
+-- See [@rpc](https://docs.godotengine.org/en/stable/classes/class_@gdscript.html#class-gdscript-annotation-rpc) for more information.
+function rpc(mode, sync, transfer_mode, transfer_channel) end

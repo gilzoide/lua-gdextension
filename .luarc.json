@@ -1,7 +1,9 @@
 {
-    "workspace": {
-        "library": [
-            "addons/lua-gdextension/lua_api_definitions"
-        ]
-    }
+  "workspace": {
+      "ignoreDir": ["addons/lua-gdextension/build"],
+      "library": ["addons/lua-gdextension/lua_api_definitions"],
+      "maxPreload": 7500,
+      "preloadFileSize": 500 // biggest should be ~450KiB being classes/RenderingServer.lua
+  }
+  // ,"runtime.version": "LuaJIT"
 }

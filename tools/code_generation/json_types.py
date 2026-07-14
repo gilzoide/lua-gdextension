@@ -184,13 +184,3 @@ class Signal(TypedDict):
 class NativeStructure(TypedDict):
     name: str
     format: str
-
-
-def get_class_singleton_name(
-    cls: Class,
-    singletons: list[ArgumentOrSingletonOrMember],
-) -> ArgumentOrSingletonOrMember | None:
-    for singleton in singletons:
-        if singleton["type"] == cls["name"]:
-            return singleton
-    return None

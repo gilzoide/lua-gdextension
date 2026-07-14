@@ -1,4 +1,7 @@
-local rawset, select, setmetatable, type = rawset, select, setmetatable, type
+---@diagnostic disable: undefined-global
+
+-- [[ rpc ]]
+local select, type = select, type
 
 function rpc(...)
 	local config = Dictionary {
@@ -30,7 +33,8 @@ function rpc(...)
 	return config
 end
 
-
+-- [[ OrderedTable ]]
+local rawset, setmetatable = rawset, setmetatable
 local OrderedTable = setmetatable({}, {__mode = 'k'})
 
 function OrderedTable.__newindex(t, index, value)

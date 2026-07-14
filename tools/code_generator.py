@@ -7,6 +7,7 @@ def exists(env):
 
 def generate(env):
     python_bin = os.getenv("PYTHON_BIN", "python")
+    action = f"{python_bin} $SOURCE"
     # C++ code generation
     env.Command(
         [
@@ -23,21 +24,21 @@ def generate(env):
             "lib/godot-cpp/gdextension/extension_api.json",
             "lib/godot-cpp/gen/include/godot_cpp/variant/utility_functions.hpp",
         ],
-        action=python_bin + " $SOURCE",
+        action=action,
     )
-    # Lua API metadata file to use in Lua Language Server
-    godot_lua_api = env.Command(
+    # Lua API metadata files to use in Lua Language Server
+    lua_api = env.Command(
         [
-            "addons/lua-gdextension/lua_api_definitions/builtin_classes.lua",
-            "addons/lua-gdextension/lua_api_definitions/classes.lua",
-            "addons/lua-gdextension/lua_api_definitions/global_enums.lua",
-            "addons/lua-gdextension/lua_api_definitions/utility_functions.lua",
+            "addons/lua-gdextension/lua_api_definitions/variants",
+            "addons/lua-gdextension/lua_api_definitions/enums",
+            "addons/lua-gdextension/lua_api_definitions/functions",
+            "addons/lua-gdextension/lua_api_definitions/classes"
         ],
         [
             "tools/code_generation/generate_lua_godot_api.py",
             "lib/godot-cpp/gdextension/extension_api.json",
         ],
-        action=python_bin + " $SOURCE",
+        action=action,
     )
-    env.Default(godot_lua_api)
-    env.Alias("lua_api", godot_lua_api)
+    env.Default(lua_api)
+    env.Alias("lua_api", lua_api)
