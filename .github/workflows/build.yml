@@ -58,7 +58,7 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -98,7 +98,7 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }} vcvarsall_path="C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }} vcvarsall_path="C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -133,7 +133,7 @@ jobs:
             web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
         run: |
-          scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }} lua_runtime=${{ matrix.lua-runtime }}
+          scons platform=web arch=wasm32 target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} threads=${{ matrix.threads }} lua_runtime=${{ matrix.lua-runtime }}
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -169,7 +169,7 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }}
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }}
         env:
           PYTHON_BIN: python3
       - name: Upload artifact
@@ -276,4 +276,3 @@ jobs:
             addons/lua-gdextension/**
             addons/lua-gdextension/build/.gdignore
           include-hidden-files: true
-
