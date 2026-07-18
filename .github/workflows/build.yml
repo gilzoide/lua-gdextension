@@ -53,9 +53,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }}
@@ -93,9 +93,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }} vcvarsall_path="C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
@@ -128,9 +128,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
+          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-
+            web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-
       - name: Build artifact
         run: |
           scons platform=web arch=wasm32 target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} threads=${{ matrix.threads }} lua_runtime=${{ matrix.lua-runtime }}
@@ -164,9 +164,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-${{ hashfiles('.gitmodules', 'src/**') }}
           restore-keys: |
-            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
+            ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml') }}-
       - name: Build artifact
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} ${{ matrix.target == 'template_debug' && 'debug_symbols=true' || '' }} lua_runtime=${{ matrix.lua-runtime }}
