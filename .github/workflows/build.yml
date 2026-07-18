@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
           restore-keys: |
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
@@ -93,7 +93,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
           restore-keys: |
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
@@ -128,7 +128,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
           restore-keys: |
             web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
@@ -164,7 +164,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .scons-cache/
-          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.github/workflows/build.yml', '.gitmodules', 'src/**') }}
           restore-keys: |
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
