@@ -104,7 +104,8 @@ jobs:
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}
           path: |
-            addons/lua-gdextension/build/libluagdextension.*
+            addons/lua-gdextension/build/libluagdextension.*.dll
+            addons/lua-gdextension/build/libluagdextension.*.pdb
           
   build_web:
     name: web (wasm32, ${{ matrix.target }}, ${{ matrix.threads && 'threads' || 'nothreads' }}, ${{ matrix.lua-runtime }})
