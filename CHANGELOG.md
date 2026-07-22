@@ -1,5 +1,9 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.2...HEAD)
+### Changed
+- Update LuaJIT to commit 2460b3ff93a1c955de3d62cfc825de7d68dc272e.
+  + This commit contains some backported [syntax extensions](https://luajit.org/extensions.html#lj30_bp_syntax) from LuaJIT 3.0, such as C-like logic operators like `&&`, compount assignment operators like `+=`, nil-coalescing operator `??` and more!
+  + ⚠️ Note that these syntax extensions work only in LuaJIT builds, so they won't work in Web platform nor Lua 5.4 builds.
 
 
 ## [0.8.2](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.2)
