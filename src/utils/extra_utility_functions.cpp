@@ -21,6 +21,8 @@
  */
 #include "extra_utility_functions.hpp"
 
+#include "godot_cpp/classes/project_settings.hpp"
+#include "godot_cpp/classes/resource_loader.hpp"
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {
@@ -28,6 +30,18 @@ namespace luagdextension {
 bool is_instance_valid(const Variant& v) {
 	return v.get_type() == Variant::Type::OBJECT
 		&& UtilityFunctions::is_instance_id_valid(v.operator ObjectID());
+}
+
+Ref<Script> get_class_script(const String& class_name) {
+	Array global_classes = ProjectSettings::get_singleton()->get_global_class_list();
+	for (int i = 0; i < global_classes.size(); i++) {
+		Dictionary cls = global_classes[i];
+		if (String(cls["class"]) == class_name) {
+			return ResourceLoader::get_singleton()->load(cls["path"], "Script");
+		}
+	}
+
+	return nullptr;
 }
 
 }
