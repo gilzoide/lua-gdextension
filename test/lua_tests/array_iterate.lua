@@ -1,8 +1,9 @@
-function test_iteration(n)
+local function test_iteration(n)
 	local arr = Array()
 	for i = 1, n do
 		arr:append(i)
 	end
+	assert(#arr == n)
 
 	local iteration_count = 0
 	for i, v in pairs(arr) do

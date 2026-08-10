@@ -128,7 +128,7 @@ void variant__newindex(sol::this_state state, Variant& variant, const sol::stack
 }
 
 sol::object variant__length(sol::this_state state, Variant& variant) {
-	return variant_call_string_name(state, variant, string_names->size, sol::variadic_args(state, 0));
+	return variant_call_string_name(state, variant, string_names->size, {});
 }
 
 String variant__concat(const sol::stack_object& a, const sol::stack_object& b) {

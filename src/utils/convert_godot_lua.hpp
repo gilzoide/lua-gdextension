@@ -31,6 +31,7 @@ using namespace godot;
 namespace luagdextension {
 
 class LuaTable;
+class VariantArguments;
 
 Variant to_variant(const sol::object& object);
 Variant to_variant(const sol::stack_object& object);
@@ -51,13 +52,13 @@ sol::table to_table(sol::state_view& state, const Dictionary& dictionary);
 
 void lua_push_function(lua_State *L, const Callable& callable);
 sol::protected_function to_lua_function(lua_State *L, const Callable& callable);
-Variant callable_call(const Callable& callable, const sol::variadic_args& args);
+Variant callable_call(const Callable& callable, const VariantArguments& args);
 
-sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const sol::variadic_args& args);
-sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
-sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
-std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const sol::variadic_args& args);
-std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const sol::variadic_args& args);
+sol::object variant_static_call_string_name(sol::this_state state, Variant::Type type, const StringName& method, const VariantArguments& args);
+sol::object variant_call_string_name(sol::this_state state, Variant& variant, const StringName& method, const VariantArguments& args);
+sol::object variant_call(sol::this_state state, Variant& variant, const char *method, const VariantArguments& args);
+std::tuple<bool, sol::object> variant_pcall_string_name(sol::this_state state, Variant& variant, const StringName& method, const VariantArguments& args);
+std::tuple<bool, sol::object> variant_pcall(sol::this_state state, Variant& variant, const char *method, const VariantArguments& args);
 
 Variant do_buffer(sol::state_view& lua_state, const PackedByteArray& chunk, const String& chunkname = "", sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);
 Variant do_file(sol::state_view& lua_state, const String& filename, sol::load_mode mode = sol::load_mode::any, LuaTable *env = nullptr);

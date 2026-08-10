@@ -159,6 +159,10 @@ Error LuaScript::_reload(bool keep_state) {
 	return OK;
 }
 
+StringName LuaScript::_get_doc_class_name() const {
+	return metadata.class_name;
+}
+
 TypedArray<Dictionary> LuaScript::_get_documentation() const {
 	// TODO
 	return {};

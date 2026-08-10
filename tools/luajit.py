@@ -75,13 +75,13 @@ def generate(env):
                 if env["vcvarsall_path"] and env["arch"] == "arm64" and platform.machine().lower() == "amd64"
                 else ""
             ),
-            f"cd {build_dir}/luajit/src",
             f"msvcbuild.bat {"debug" if env.get("debug_crt") else ""} amalg mixed",
         ]
         libluajit = env.Command(
             f"{build_dir}/luajit/src/lua51.lib",
             "lib",
             action=" && ".join(cmd for cmd in cmds if cmd),
+            chdir=f"{build_dir}/luajit/src",
         )
     # macOS universal special case: build x86_64 and arm64 separately, then `lipo` them together
     elif env["platform"] == "macos" and env["arch"] == "universal":

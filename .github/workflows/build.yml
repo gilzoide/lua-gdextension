@@ -6,7 +6,7 @@ defaults:
 
 env:
   SCONS_CACHE: ${{ github.workspace }}/.scons-cache
-  SCONS_VERSION: 4.9.1
+  SCONS_VERSION: 4.10.1
 
 jobs:
   build_linux:
@@ -36,7 +36,7 @@ jobs:
           - platform: linux
             arch: arm32
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Setup godot-cpp
@@ -50,7 +50,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install ${{ join(matrix.packages, ' ') }}
       - name: Cache SCons files
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -60,7 +60,7 @@ jobs:
         run: |
           scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }}
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}
           path: |
@@ -80,7 +80,7 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Setup godot-cpp
@@ -90,7 +90,7 @@ jobs:
           scons-version: $SCONS_VERSION
           windows-compiler: msvc
       - name: Cache SCons files
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -98,9 +98,9 @@ jobs:
             ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-
       - name: Build artifact
         run: |
-          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }} vcvarsall_path="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
+          scons platform=${{ matrix.platform }} arch=${{ matrix.arch }} target=${{ matrix.target }} lua_runtime=${{ matrix.lua-runtime }} vcvarsall_path="C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat"
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}
           path: |
@@ -116,7 +116,7 @@ jobs:
         threads: [true, false]
         lua-runtime: [lua, luajit]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Setup godot-cpp
@@ -125,7 +125,7 @@ jobs:
           platform: web
           scons-version: $SCONS_VERSION
       - name: Cache SCons files
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .scons-cache/
           key: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -135,7 +135,7 @@ jobs:
         run: |
           scons platform=web arch=wasm32 target=${{ matrix.target }} threads=${{ matrix.threads }} lua_runtime=${{ matrix.lua-runtime }}
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: web-wasm32-${{ matrix.target }}-${{ matrix.threads && 'threads' || 'nothreads' }}-${{ matrix.lua-runtime }}
           path: |
@@ -152,7 +152,7 @@ jobs:
         platform: [macos, ios]
         lua-runtime: [lua, luajit]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Setup godot-cpp
@@ -161,7 +161,7 @@ jobs:
           platform: ${{ matrix.platform }}
           scons-version: $SCONS_VERSION
       - name: Cache SCons files
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .scons-cache/
           key: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}-${{ hashfiles('.gitmodules', 'src/**') }}
@@ -173,7 +173,7 @@ jobs:
         env:
           PYTHON_BIN: python3
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}-${{ matrix.target }}-${{ matrix.lua-runtime }}
           path: |
@@ -213,12 +213,12 @@ jobs:
       GODOT_BIN: ${{ matrix.godot-bin }}
       MSYS_NO_PATHCONV: 1
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Download artifacts
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: "*-${{ matrix.lua-runtime }}"
@@ -248,12 +248,12 @@ jobs:
       matrix:
         lua-runtime: [lua, luajit]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: true
       - name: Download artifacts
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
           pattern: "*-${{ matrix.lua-runtime }}"
@@ -267,11 +267,10 @@ jobs:
           scons lua_runtime=${{ matrix.lua-runtime }} addons_files lua_api
           cp -r ${{ steps.download.outputs.download-path }}/**/lib* addons/lua-gdextension/build
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.lua-runtime == 'lua' && 'lua-gdextension' || format('lua-gdextension+{0}', matrix.lua-runtime) }}
           path: |
-            LICENSE
             .luarc.json
             addons/lua-gdextension/**
             addons/lua-gdextension/build/.gdignore

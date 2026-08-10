@@ -21,6 +21,7 @@
  */
 #include "Class.hpp"
 
+#include "VariantArguments.hpp"
 #include "convert_godot_lua.hpp"
 #include "method_bind_impl.hpp"
 #include "string_names.hpp"

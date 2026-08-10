@@ -200,8 +200,22 @@ GDExtensionBool get_func(LuaScriptInstance *p_instance, const StringName *p_name
 	return false;
 }
 
-GDExtensionScriptInstanceGetPropertyList get_property_list_func;
-GDExtensionScriptInstanceFreePropertyList2 free_property_list_func;
+const GDExtensionPropertyInfo *get_property_list_func(LuaScriptInstance *p_instance, uint32_t *r_count) {
+	TypedArray<Dictionary> properties = p_instance->script->get_script_property_list();
+	*r_count = properties.size();
+
+	GDExtensionPropertyInfo *gdmethods = memnew_arr(GDExtensionPropertyInfo, properties.size());
+	for (int64_t i = 0, count = properties.size(); i < count; i++) {
+		PropertyInfo pi = PropertyInfo::from_dict(properties[i]);
+		gdmethods[i] = from_PropertyInfo(pi);
+	}
+	return gdmethods;
+}
+
+void free_property_list_func(LuaScriptInstance *p_instance, const GDExtensionPropertyInfo *p_list, uint32_t p_count) {
+	destroy_PropertyInfos(p_list, p_count);
+}
+
 GDExtensionScriptInstanceGetClassCategory get_class_category_func;
 
 GDExtensionBool property_can_revert_func(LuaScriptInstance *p_instance, const StringName *p_name) {

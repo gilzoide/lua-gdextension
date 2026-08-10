@@ -1,8 +1,42 @@
 # Changelog
-## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.0...HEAD)
+## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.2...HEAD)
 ### Changed
+- Update LuaJIT to commit 2460b3ff93a1c955de3d62cfc825de7d68dc272e.
+  + This commit contains some backported [syntax extensions](https://luajit.org/extensions.html#lj30_bp_syntax) from LuaJIT 3.0, such as C-like logic operators like `&&`, compount assignment operators like `+=`, nil-coalescing operator `??` and more!
+  + ⚠️ Note that these syntax extensions work only in LuaJIT builds, so they won't work in Web platform nor Lua 5.4 builds.
 - Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
 - Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
+
+
+## [0.8.2](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.2)
+### Added
+- Implemented `get_property_list` for LuaScriptInstance
+
+### Fixed
+- Exported properties of tool scripts now appear in the inspector
+- Yielding from coroutines now work in Web builds.
+  ⚠️ Warning: we're using `longjmp` because Web export templates do not ship with C++ exception support.
+  This works but **memory will leak**, since objects in the stack are not cleaned by the `longjmp` as they are when handling exceptions.
+- Fixed a crash when comparing Callables created from Lua functions.
+  This happened for example when connecting 2 Lua Callables to the same Signal.
+
+### Changed
+- Printing Callables created from Lua functions now contain which LuaFunction the Callable refers to
+
+
+## [0.8.1](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.1)
+### Added
+- Construct `Callable` from function in Lua code:
+  ```lua
+  local c = Callable(function() end)
+  ```
+
+### Fixed
+- `Variant.__len` metamethod crashes
+
+### Changed
+- Updated Lua to 5.4.8
+- Updated LuaJIT to commit 18b087cd2cd4ddc4a79782bf155383a689d5093d
 
 
 ## [0.8.0](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.0)

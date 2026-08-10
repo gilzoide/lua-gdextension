@@ -61,15 +61,15 @@ struct ResumeLuaCoroutineCallable : public CallableCustom {
 	}
 
 	String get_as_text() const override {
-		return "<ResumeLuaCoroutineCallable>";
+		return String("<ResumeLuaCoroutineCallable %s>") % coroutine->to_string();
 	}
 
 	CompareEqualFunc get_compare_equal_func() const override {
-		return nullptr;
+		return &compare_equal_func;
 	}
 
 	CompareLessFunc get_compare_less_func() const override {
-		return nullptr;
+		return &compare_less_func;
 	}
 
 	bool is_valid() const override {
@@ -78,11 +78,28 @@ struct ResumeLuaCoroutineCallable : public CallableCustom {
 	}
 	
 	ObjectID get_object() const override {
-		return {};
+		if (coroutine.is_valid()) {
+			return ObjectID(coroutine->get_instance_id());
+		}
+		else {
+			return {};
+		}
 	}
 
 	void call(const Variant **p_arguments, int p_argcount, Variant &r_return_value, GDExtensionCallError &r_call_error) const override {
 		r_return_value = coroutine->resume(p_arguments, p_argcount, r_call_error);
+	}
+
+	static bool compare_equal_func(const CallableCustom* p_a, const CallableCustom* p_b) {
+		const ResumeLuaCoroutineCallable* a = static_cast<const ResumeLuaCoroutineCallable*>(p_a);
+		const ResumeLuaCoroutineCallable* b = static_cast<const ResumeLuaCoroutineCallable*>(p_b);
+		return a->coroutine == b->coroutine;
+	}
+
+	static bool compare_less_func(const CallableCustom* p_a, const CallableCustom* p_b) {
+		const ResumeLuaCoroutineCallable* a = static_cast<const ResumeLuaCoroutineCallable*>(p_a);
+		const ResumeLuaCoroutineCallable* b = static_cast<const ResumeLuaCoroutineCallable*>(p_b);
+		return a->coroutine < b->coroutine;
 	}
 
 	Ref<LuaCoroutine> coroutine;

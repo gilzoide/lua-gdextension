@@ -213,6 +213,9 @@ def generate_builtin_classes(
                     lines.append(f"--- @overload fun(from: table): {cls['name']}")
                 for ctor in cls["constructors"]:
                     lines.append(f"--- @overload fun({', '.join(f"{arg['name']}: {arg['type']}" for arg in ctor.get('arguments', []))}): {cls['name']}")
+                if cls['name'] == 'Callable':
+                    lines.append("--- @overload fun(from_lua: function): Callable")
+
                 
                 # Other operators
                 for op in cls["operators"]:
