@@ -1,7 +1,6 @@
 {
-    "workspace": {
-        "library": [
-            "addons/lua-gdextension/lua_api_definitions"
-        ]
-    }
+    "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
+    "workspace.library": [
+        "addons/lua-gdextension/lua_api_definitions"
+    ]
 }
