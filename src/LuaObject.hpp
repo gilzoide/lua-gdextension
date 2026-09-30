@@ -69,19 +69,21 @@ public:
 		if (!lua_object.valid()) {
 			ERR_FAIL_MSG("FIXME: invalid reference to Lua object");
 		}
-		known_objects.insert(lua_object.pointer(), this);
+		known_objects_pointer = lua_object.pointer();
+		known_objects.insert(known_objects_pointer, this);
 		lua_state = get_lua_state();
 	}
 	LuaObjectSubclass(const TReference& lua_object) : lua_object(lua_object) {
 		if (!lua_object.valid()) {
 			ERR_FAIL_MSG("FIXME: invalid reference to Lua object");
 		}
-		known_objects.insert(lua_object.pointer(), this);
+		known_objects_pointer = lua_object.pointer();
+		known_objects.insert(known_objects_pointer, this);
 		lua_state = get_lua_state();
 	}
 
 	virtual ~LuaObjectSubclass() {
-		known_objects.erase(lua_object.pointer());
+		known_objects.erase(known_objects_pointer);
 	}
 
 	const sol::reference& get_lua_object() const override {
@@ -95,6 +97,9 @@ private:
 
 protected:
 	TReference lua_object;
+
+private:
+	const void *known_objects_pointer;
 };
 
 }
