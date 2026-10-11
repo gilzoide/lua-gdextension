@@ -4,6 +4,8 @@
 - Update LuaJIT to commit 2460b3ff93a1c955de3d62cfc825de7d68dc272e.
   + This commit contains some backported [syntax extensions](https://luajit.org/extensions.html#lj30_bp_syntax) from LuaJIT 3.0, such as C-like logic operators like `&&`, compount assignment operators like `+=`, nil-coalescing operator `??` and more!
   + ⚠️ Note that these syntax extensions work only in LuaJIT builds, so they won't work in Web platform nor Lua 5.4 builds.
+- Opening `GODOT_CLASSES` now registers all classes at once instead of setting up a lazy getter in `_G`'s metatable
+- Opening `GODOT_SINGLETONS` now registers all singletons at once instead of setting up a lazy getter in `_G`'s metatable
 
 
 ## [0.8.2](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.2)
