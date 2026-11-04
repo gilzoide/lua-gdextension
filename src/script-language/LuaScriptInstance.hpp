@@ -25,6 +25,7 @@
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
 #include "../utils/custom_sol.hpp"
+#include "godot_cpp/variant/string_name.hpp"
 
 using namespace godot;
 
@@ -50,7 +51,6 @@ struct LuaScriptInstance {
 	
 	static sol::protected_function rawget;
 	static sol::protected_function rawset;
-
 private:
 	static HashMap<Object *, LuaScriptInstance *> owner_to_instance;
 };
