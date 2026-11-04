@@ -43,9 +43,9 @@ public:
 	sol::optional<Variant> try_get(const Variant& key, bool raw = false) const;
 	bool try_set(const Variant& key, const Variant& value, bool raw = false);
 
-	Variant get(const Variant& key, const Variant& default_value = Variant()) const;
+	Variant get_value(const Variant& key, const Variant& default_value = Variant()) const;
 	Variant rawget(const Variant& key, const Variant& default_value = Variant()) const;
-	void set(const Variant& key, const Variant& value);
+	void set_value(const Variant& key, const Variant& value);
 	void rawset(const Variant& key, const Variant& value);
 	void clear();
 	int64_t length() const;

@@ -73,7 +73,7 @@ bool LuaTable::try_set(const Variant& key, const Variant& value, bool raw) {
 	return true;
 }
 
-Variant LuaTable::get(const Variant& key, const Variant& default_value) const {
+Variant LuaTable::get_value(const Variant& key, const Variant& default_value) const {
 	return try_get(key).value_or(default_value);
 }
 
@@ -81,7 +81,7 @@ Variant LuaTable::rawget(const Variant& key, const Variant& default_value) const
 	return try_get(key, true).value_or(default_value);
 }
 
-void LuaTable::set(const Variant& key, const Variant& value) {
+void LuaTable::set_value(const Variant& key, const Variant& value) {
 	try_set(key, value);
 }
 
@@ -175,8 +175,8 @@ const sol::table& LuaTable::get_table() const {
 }
 
 void LuaTable::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("get", "key", "default"), &LuaTable::get, DEFVAL(Variant()));
-	ClassDB::bind_method(D_METHOD("set", "key", "value"), &LuaTable::set);
+	ClassDB::bind_method(D_METHOD("get_value", "key", "default"), &LuaTable::get_value, DEFVAL(Variant()));
+	ClassDB::bind_method(D_METHOD("set_value", "key", "value"), &LuaTable::set_value);
 	ClassDB::bind_method(D_METHOD("rawget", "key", "default"), &LuaTable::rawget, DEFVAL(Variant()));
 	ClassDB::bind_method(D_METHOD("rawset", "key", "value"), &LuaTable::rawset);
 	ClassDB::bind_method(D_METHOD("clear"), &LuaTable::clear);
@@ -194,12 +194,12 @@ void LuaTable::_bind_methods() {
 }
 
 bool LuaTable::_get(const StringName& property_name, Variant& r_value) const {
-	r_value = get(property_name);
+	r_value = get_value(property_name);
 	return true;
 }
 
 bool LuaTable::_set(const StringName& property_name, const Variant& value) {
-	set(property_name, value);
+	set_value(property_name, value);
 	return true;
 }
 

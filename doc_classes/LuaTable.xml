@@ -15,34 +15,33 @@
 				Removes all elements from the table.
 			</description>
 		</method>
-		<method name="get" qualifiers="const">
+		<method name="get_metatable" qualifiers="const">
+			<return type="LuaTable" />
+			<description>
+				Returns this table's metatable.
+				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
+			</description>
+		</method>
+		<method name="get_value" qualifiers="const">
 			<return type="Variant" />
 			<param index="0" name="key" type="Variant" />
 			<param index="1" name="default" type="Variant" default="null" />
 			<description>
-				Returns the value associated with the given key. If the key doesn't exist, returns the default value.
+				Returns the value associated with the given key. May invoke metatable's [code]__index[/code] method if key is not present in the table. If no value is associated with key, returns the specified default value.
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
 				    "foo": "bar",
 				    "baz": 42
 				})
-				# Using get method
-				var value = table.get("foo")
+				var value = table.get_value("foo")
 				print(value) # Prints "bar"
 
-				# Using [] operator
-				var value = table["foo"]
+				# String keys also support `get` method, [] operator or `.` notation
+				value = table.get("foo") or table["foo"] or table.foo
 				print(value) # Prints "bar"
 				[/gdscript]
 				[/codeblocks]
-			</description>
-		</method>
-		<method name="get_metatable" qualifiers="const">
-			<return type="LuaTable" />
-			<description>
-				Returns this table's metatable.
-				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
 			</description>
 		</method>
 		<method name="length" qualifiers="const">
@@ -85,12 +84,20 @@
 				Sets the value for the given key without invoking metatable's [code]__newindex[/code] method.
 			</description>
 		</method>
-		<method name="set">
+		<method name="set_metatable">
+			<return type="void" />
+			<param index="0" name="metatable" type="LuaTable" />
+			<description>
+				Set a new metatable for this table.
+				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
+			</description>
+		</method>
+		<method name="set_value">
 			<return type="void" />
 			<param index="0" name="key" type="Variant" />
 			<param index="1" name="value" type="Variant" />
 			<description>
-				Sets the value for the given key.
+				Sets the value for the given key. May invoke metatable's [code]__newindex[/code] method if key is not present in the table.
 				[codeblocks]
 				[gdscript]
 				var table = lua_state.create_table({
@@ -98,22 +105,16 @@
 				    "baz": 42
 				})
 				# Using set method
-				table.set("foo", "baz")
-				print(table.get("foo")) # Prints "baz"
+				table.set_value("foo", "baz")
+				print(table.get_value("foo")) # Prints "baz"
 
-				# Using [] operator
-				table["foo"] = "new_value"
-				print(table.get("foo")) # Prints "new_value"
+				# String keys also support `set` method, [] operator or `.` notation
+				table.set("foo", "baz")
+				table["foo"] = "baz"
+				table.foo = baz
+				print(table.get_value("foo")) # Prints "baz"
 				[/gdscript]
 				[/codeblocks]
-			</description>
-		</method>
-		<method name="set_metatable">
-			<return type="void" />
-			<param index="0" name="metatable" type="LuaTable" />
-			<description>
-				Set a new metatable for this table.
-				See [url]https://www.lua.org/manual/5.4/manual.html#2.4[/url]
 			</description>
 		</method>
 		<method name="to_array" qualifiers="const">
