@@ -24,6 +24,7 @@
 
 #include "LuaState.hpp"
 
+#include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <sol/sol.hpp>
 

@@ -22,6 +22,7 @@
 #ifndef __LUA_AST_NODE_HPP__
 #define __LUA_AST_NODE_HPP__
 
+#include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <tree_sitter/api.h>
 
