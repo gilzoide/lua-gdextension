@@ -24,6 +24,7 @@
 #include "LuaAST.hpp"
 #include "utils/tree_sitter_lua.hpp"
 
+#include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
 namespace luagdextension {

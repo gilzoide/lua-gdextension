@@ -2,6 +2,7 @@
 Generate a Lua file with Lua Language Server annotations based on extension_api.json
 """
 
+import argparse
 import os
 import json
 from textwrap import dedent
@@ -11,7 +12,7 @@ from json_types import *
 
 SRC_DIR = os.path.dirname(__file__)
 DEST_DIR = os.path.join(SRC_DIR, "..", "..", "addons", "lua-gdextension", "lua_api_definitions")
-API_JSON_PATH = os.path.join(SRC_DIR, "..", "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
+API_JSON_PATH_FMT = os.path.join(SRC_DIR, "..", "..", "lib", "godot-cpp", "gdextension", "extension_api-{api_version}.json")
 
 OPERATOR_MAP = {
     ## LLS doesn't really support equality operators: https://github.com/LuaLS/lua-language-server/issues/1882
@@ -48,8 +49,8 @@ MANUALLY_DEFINED_UTILITY_FUNCTIONS = {
 }
 
 
-def main():
-    with open(API_JSON_PATH, encoding="utf-8") as f:
+def main(api_version: str):
+    with open(API_JSON_PATH_FMT.format(api_version=api_version), encoding="utf-8") as f:
         extension_api: ExtensionApi = json.load(f)
 
     with open(os.path.join(DEST_DIR, "global_enums.lua"), "w") as f:
@@ -375,4 +376,7 @@ def generate_utility_functions(
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("api_version", help="Godot API version to generate the Lua API for (e.g. 4.7)")
+    args = parser.parse_args()
+    main(args.api_version)

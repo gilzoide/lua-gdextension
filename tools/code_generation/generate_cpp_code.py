@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import re
@@ -5,7 +6,7 @@ import re
 
 SRC_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "src")
 DEST_DIR = os.path.join(SRC_DIR, "generated")
-API_JSON_PATH = os.path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api.json")
+API_JSON_PATH_FMT = os.path.join(SRC_DIR, "..", "lib", "godot-cpp", "gdextension", "extension_api-{api_version}.json")
 PACKAGE_SEARCHER_SRC = os.path.join(SRC_DIR, "luaopen", "package_searcher.lua")
 LUA_SCRIPT_GLOBALS_SRC = os.path.join(SRC_DIR, "script-language", "globals.lua")
 PRIMITIVE_VARIANTS = [
@@ -131,8 +132,8 @@ def generate_variant_type_constants(builtin_classes):
 
 
 
-def main():
-    with open(API_JSON_PATH, encoding="utf-8") as f:
+def main(api_version: str):
+    with open(API_JSON_PATH_FMT.format(api_version=api_version), encoding="utf-8") as f:
         api = json.load(f)
     
     os.makedirs(DEST_DIR, exist_ok=True)
@@ -158,4 +159,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("api_version", help="Godot API version to generate the Lua API for (e.g. 4.7)")
+    args = parser.parse_args()
+    main(args.api_version)

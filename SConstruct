@@ -31,6 +31,7 @@ compiledb = env.CompilationDatabase("compile_commands.json")
 env.Alias("compiledb", compiledb)
 
 # Generate sources
+env["max_api_version"] = "4.7"
 env.Tool("code_generator", toolpath=["tools"])
 
 # Lua GDExtension uses C++20 instead of C++17 from godot-cpp

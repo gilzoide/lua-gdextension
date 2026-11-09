@@ -9,6 +9,7 @@
   + ⚠️ Note that these syntax extensions work only in LuaJIT builds, so they won't work in Web platform nor Lua 5.4 builds.
 - `LuaTable` methods `get` and `set` were renamed to `get_value` and `set_value`.
   This fixes Godot 4.8 warning about rebinding methods with the same name.
+- Updated godot-cpp to 10.0.0-stable using api_version=4.5
 
 
 ## [0.8.2](https://github.com/gilzoide/lua-gdextension/releases/tag/0.8.2)
