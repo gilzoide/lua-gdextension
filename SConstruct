@@ -1,6 +1,3 @@
-import os
-
-
 # Lua GDExtension specific command line options
 # These should be dealt with before initializing godot-cpp, to avoid unknown options warnings
 lua_runtime = ARGUMENTS.pop("lua_runtime", "lua")
@@ -10,6 +7,8 @@ vcvarsall_path = ARGUMENTS.pop("vcvarsall_path", "")
 
 # We really don't need deprecated stuff
 ARGUMENTS["deprecated"] = False
+# We only use up to Godot 4.5 APIs
+ARGUMENTS["api_version"] = "4.5"
 
 env = SConscript("lib/godot-cpp/SConstruct").Clone()
 env["lua_runtime"] = lua_runtime

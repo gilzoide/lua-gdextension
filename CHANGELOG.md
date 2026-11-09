@@ -1,5 +1,8 @@
 # Changelog
 ## [Unreleased](https://github.com/gilzoide/lua-gdextension/compare/0.8.2...HEAD)
+### Fixed
+- Support for Godot 4.5
+
 ### Changed
 - Update LuaJIT to commit 2460b3ff93a1c955de3d62cfc825de7d68dc272e.
   + This commit contains some backported [syntax extensions](https://luajit.org/extensions.html#lj30_bp_syntax) from LuaJIT 3.0, such as C-like logic operators like `&&`, compount assignment operators like `+=`, nil-coalescing operator `??` and more!
